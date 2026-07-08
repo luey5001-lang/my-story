@@ -1,3 +1,89 @@
-안녕하세요, 도형의 첫 웹페이지입니다
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>도형의 3일 프로젝트: 동적 웹 앱</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            transition: background-color 0.3s;
+        }
+        .counter-container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #number {
+            font-size: 80px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #333;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            transition: transform 0.1s;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        #decrease { background-color: #dc3545; }
+        #random-bg { background-color: #28a745; }
+    </style>
+</head>
+<body>
 
-2026년 7월, 나도 웹에 사이트를 띄웠다!
+    <div class="counter-container">
+        <h2>실시간 인터랙티브 카운터</h2>
+        <div id="number">0</div>
+        
+        <button id="decrease">감소 (-)</button>
+        <button id="increase">증가 (+)</button>
+        <button id="random-bg">배경색 변경</button>
+    </div>
+
+    <script>
+        // 1. 화면의 요소(버튼, 숫자)들을 컴퓨터 메모리로 가져옵니다.
+        const numberDisplay = document.getElementById('number');
+        const btnIncrease = document.getElementById('increase');
+        const btnDecrease = document.getElementById('decrease');
+        const btnRandomBg = document.getElementById('random-bg');
+
+        let count = 0; // 숫자를 저장할 변수 (BASIC의 LET A = 0 과 같음)
+
+        // 2. 증가 버튼을 클릭했을 때의 동작을 정의합니다.
+        btnIncrease.addEventListener('click', () => {
+            count = count + 1;
+            numberDisplay.innerText = count; // 화면의 숫자를 갱신
+        });
+
+        // 3. 감소 버튼을 클릭했을 때의 동작을 정의합니다.
+        btnDecrease.addEventListener('click', () => {
+            count = count - 1;
+            numberDisplay.innerText = count;
+        });
+
+        // 4. 배경색 변경 버튼을 클릭하면 무작위 색상으로 바꿉니다.
+        btnRandomBg.addEventListener('click', () => {
+            const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+            document.body.style.backgroundColor = randomColor;
+        });
+    </script>
+
+</body>
+</html>
