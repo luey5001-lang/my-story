@@ -2,88 +2,125 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>도형의 3일 프로젝트: 동적 웹 앱</title>
+    <title>도형의 3일 프로젝트: 고전 MUD 게임</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            background-color: #000; /* DOS창 느낌의 검은 배경 */
+            color: #00ff00; /* 고전 컴퓨터의 초록색 글씨 */
+            font-family: 'Courier New', Courier, monospace;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f2f5;
-            transition: background-color 0.3s;
         }
-        .counter-container {
-            text-align: center;
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        .game-container {
+            width: 500px;
+            background-color: #111;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
         }
-        #number {
-            font-size: 80px;
+        .log-window {
+            height: 300px;
+            border: 1px solid #00ff00;
+            padding: 10px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background-color: #050505;
+            white-space: pre-line; /* 줄바꿈 유지 */
+        }
+        .status-bar {
+            margin-bottom: 15px;
             font-weight: bold;
-            margin: 20px 0;
-            color: #333;
         }
-        button {
-            font-size: 18px;
+        .controls button {
+            background-color: #000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
             padding: 10px 20px;
-            margin: 0 10px;
+            font-family: inherit;
             cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            transition: transform 0.1s;
+            margin-right: 10px;
         }
-        button:active {
-            transform: scale(0.95);
+        .controls button:hover {
+            background-color: #00ff00;
+            color: #000;
         }
-        #decrease { background-color: #dc3545; }
-        #random-bg { background-color: #28a745; }
     </style>
 </head>
 <body>
 
-    <div class="counter-container">
-        <h2>실시간 인터랙티브 카운터</h2>
-        <div id="number">0</div>
-        
-        <button id="decrease">감소 (-)</button>
-        <button id="increase">증가 (+)</button>
-        <button id="random-bg">배경색 변경</button>
+<div class="game-container">
+    <h2>[ TEXT DUNGEON v1.0 ]</h2>
+    
+    <div class="status-bar" id="status">
+        용사 Dohyong | HP: 100/100 | 무기: 녹슨 칼
     </div>
 
-    <script>
-        // 1. 화면의 요소(버튼, 숫자)들을 컴퓨터 메모리로 가져옵니다.
-        const numberDisplay = document.getElementById('number');
-        const btnIncrease = document.getElementById('increase');
-        const btnDecrease = document.getElementById('decrease');
-        const btnRandomBg = document.getElementById('random-bg');
+    <div class="log-window" id="log-screen">
+        어두운 동굴 입구에 도착했습니다...
+        앞에 무시무시한 슬라임이 나타났습니다!
+    </div>
 
-        let count = 0; // 숫자를 저장할 변수 (BASIC의 LET A = 0 과 같음)
+    <div class="controls">
+        <button id="btn-attack">⚔️ 공격하기</button>
+        <button id="btn-heal">🧪 물약먹기</button>
+    </div>
+</div>
 
-        // 2. 증가 버튼을 클릭했을 때의 동작을 정의합니다.
-        btnIncrease.addEventListener('click', () => {
-            count = count + 1;
-            numberDisplay.innerText = count; // 화면의 숫자를 갱신
-        });
+<script>
+    const logScreen = document.getElementById('log-screen');
+    const statusBar = document.getElementById('status');
+    
+    // 게임 상태 변수 (BASIC의 LET 데이터 저장과 같음)
+    let playerHp = 100;
+    let monsterHp = 40;
 
-        // 3. 감소 버튼을 클릭했을 때의 동작을 정의합니다.
-        btnDecrease.addEventListener('click', () => {
-            count = count - 1;
-            numberDisplay.innerText = count;
-        });
+    // 대화창에 글자를 누적해서 찍어주는 함수
+    function printLog(text) {
+        logScreen.innerText += "\n" + text;
+        logScreen.scrollTop = logScreen.scrollHeight; // 스크롤을 항상 아래로
+    }
 
-        // 4. 배경색 변경 버튼을 클릭하면 무작위 색상으로 바꿉니다.
-        btnRandomBg.addEventListener('click', () => {
-            const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
-            document.body.style.backgroundColor = randomColor;
-        });
-    </script>
+    // 공격 버튼을 눌렀을 때의 논리 처리
+    document.getElementById('btn-attack').addEventListener('click', () => {
+        if (monsterHp <= 0) {
+            printLog("이미 몬스터가 쓰러졌습니다. 더 깊은 동굴로 이동하세요.");
+            return;
+        }
+
+        // 1. 플레이어의 공격 (랜덤 데미지 5~15 계산)
+        const damage = Math.floor(Math.random() * 11) + 5;
+        monsterHp -= damage;
+        printLog(`당신이 슬라임을 공격하여 ${damage}의 피해를 입혔습니다! (슬라임 HP: ${Math.max(0, monsterHp)})`);
+
+        // 몬스터 처치 여부 확인
+        if (monsterHp <= 0) {
+            printLog("🎉 승리했습니다! 슬라임을 처치하고 10 골드를 획득했습니다.");
+            return;
+        }
+
+        // 2. 몬스터의 반격 (랜덤 데미지 3~8 계산)
+        const monsterDamage = Math.floor(Math.random() * 6) + 3;
+        playerHp -= monsterDamage;
+        statusBar.innerText = `용사 Dohyong | HP: ${Math.max(0, playerHp)}/100 | 무기: 녹슨 칼`;
+        printLog(`슬라임이 반격하여 당신에게 ${monsterDamage}의 피해를 입혔습니다.`);
+
+        if (playerHp <= 0) {
+            printLog("💀 당신은 사망했습니다... GAME OVER");
+        }
+    });
+
+    // 물약 먹기 버튼 논리 처리
+    document.getElementById('btn-heal').addEventListener('click', () => {
+        if (playerHp <= 0) return;
+        
+        playerHp = Math.min(100, playerHp + 25);
+        statusBar.innerText = `용사 Dohyong | HP: ${playerHp}/100 | 무기: 녹슨 칼`;
+        printLog("🧪 체력 물약을 마셨습니다. HP가 25 회복됩니다.");
+    });
+</script>
 
 </body>
 </html>
