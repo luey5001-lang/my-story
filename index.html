@@ -2,11 +2,11 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>도형의 3일 프로젝트: 고전 MUD 게임</title>
+    <title>도형의 3일 프로젝트: MUD 게임 v2.0</title>
     <style>
         body {
-            background-color: #000; /* DOS창 느낌의 검은 배경 */
-            color: #00ff00; /* 고전 컴퓨터의 초록색 글씨 */
+            background-color: #000;
+            color: #00ff00;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
             justify-content: center;
@@ -15,111 +15,241 @@
             margin: 0;
         }
         .game-container {
-            width: 500px;
+            width: 550px;
             background-color: #111;
             border: 2px solid #00ff00;
             padding: 20px;
             box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
         }
         .log-window {
-            height: 300px;
+            height: 280px;
             border: 1px solid #00ff00;
             padding: 10px;
             overflow-y: auto;
             margin-bottom: 20px;
             background-color: #050505;
-            white-space: pre-line; /* 줄바꿈 유지 */
+            white-space: pre-line;
         }
         .status-bar {
             margin-bottom: 15px;
             font-weight: bold;
+            border-bottom: 1px dashed #00ff00;
+            padding-bottom: 10px;
         }
-        .controls button {
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .btn-group-title {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+        button {
             background-color: #000;
             color: #00ff00;
             border: 1px solid #00ff00;
-            padding: 10px 20px;
+            padding: 8px;
             font-family: inherit;
             cursor: pointer;
-            margin-right: 10px;
+            text-align: center;
         }
-        .controls button:hover {
+        button:hover {
             background-color: #00ff00;
             color: #000;
+        }
+        button:disabled {
+            border-color: #444;
+            color: #444;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
 
 <div class="game-container">
-    <h2>[ TEXT DUNGEON v1.0 ]</h2>
+    <h2>[ TEXT DUNGEON v2.0 - 이동과 탐험 ]</h2>
     
     <div class="status-bar" id="status">
-        용사 Dohyong | HP: 100/100 | 무기: 녹슨 칼
+        용사 Dohyong | HP: 100/100 | 현재 위치: 동굴 입구
     </div>
 
     <div class="log-window" id="log-screen">
-        어두운 동굴 입구에 도착했습니다...
-        앞에 무시무시한 슬라임이 나타났습니다!
+        어두운 동굴 입구에 도착했습니다. 사방이 고요합니다.
+        [이동 명령]을 이용해 더 깊은 곳으로 이동할 수 있습니다.
     </div>
 
     <div class="controls">
-        <button id="btn-attack">⚔️ 공격하기</button>
-        <button id="btn-heal">🧪 물약먹기</button>
+        <div class="btn-group">
+            <div class="btn-group-title">[행동/전투]</div>
+            <button id="btn-attack">⚔️ 공격하기</button>
+            <button id="btn-heal">🧪 물약먹기 (남은 개수: 3)</button>
+        </div>
+        <div class="btn-group">
+            <div class="btn-group-title">[이동 방향]</div>
+            <button id="id-move-north">⬆️ 북쪽으로 이동 (깊은 동굴)</button>
+            <button id="id-move-south" disabled>⬇️ 남쪽으로 이동 (막힘)</button>
+        </div>
     </div>
 </div>
 
 <script>
     const logScreen = document.getElementById('log-screen');
     const statusBar = document.getElementById('status');
-    
-    // 게임 상태 변수 (BASIC의 LET 데이터 저장과 같음)
-    let playerHp = 100;
-    let monsterHp = 40;
+    const btnAttack = document.getElementById('btn-attack');
+    const btnHeal = document.getElementById('btn-heal');
+    const btnNorth = document.getElementById('id-move-north');
+    const btnSouth = document.getElementById('id-move-south');
 
-    // 대화창에 글자를 누적해서 찍어주는 함수
+    // 1. 데이터 정의 (지도 데이터 장부)
+    const mapData = {
+        "entrance": {
+            name: "동굴 입구",
+            description: "희미한 바깥 빛이 들어오는 동굴 입구입니다. 북쪽에 차가운 바람이 불어오는 통로가 있습니다.",
+            monster: { name: "박쥐", hp: 30, maxHp: 30, exp: 20 },
+            north: "deep_cave",
+            south: null
+        },
+        "deep_cave": {
+            name: "깊은 동굴",
+            description: "빛이 전혀 들지 않는 어두운 공간입니다. 바닥에 이끼가 가득합니다. 불길한 기운이 북쪽에서 느껴집니다.",
+            monster: { name: "고블린", hp: 60, maxHp: 60, exp: 50 },
+            north: "boss_room",
+            south: "entrance"
+        },
+        "boss_room": {
+            name: "보스의 방",
+            description: "거대한 공동입니다. 동굴의 지배자 '드래곤'이 둥지를 틀고 있습니다!",
+            monster: { name: "미니 드래곤", hp: 120, maxHp: 120, exp: 200 },
+            north: null,
+            south: "deep_cave"
+        }
+    };
+
+    // 2. 플레이어 상태 상태 변수
+    let player = {
+        name: "Dohyong",
+        hp: 100,
+        maxHp: 100,
+        currentLocation: "entrance", // 현재 위치 키값
+        potions: 3
+    };
+
+    // 현재 구역의 몬스터 복사본 저장 변수
+    let currentMonster = null;
+
     function printLog(text) {
         logScreen.innerText += "\n" + text;
-        logScreen.scrollTop = logScreen.scrollHeight; // 스크롤을 항상 아래로
+        logScreen.scrollTop = logScreen.scrollHeight;
     }
 
-    // 공격 버튼을 눌렀을 때의 논리 처리
-    document.getElementById('btn-attack').addEventListener('click', () => {
-        if (monsterHp <= 0) {
-            printLog("이미 몬스터가 쓰러졌습니다. 더 깊은 동굴로 이동하세요.");
-            return;
-        }
+    function updateStatus() {
+        const locName = mapData[player.currentLocation].name;
+        statusBar.innerText = `용사 ${player.name} | HP: ${player.hp}/${player.maxHp} | 현재 위치: ${locName}`;
+        btnHeal.innerText = `🧪 물약먹기 (남은 개수: ${player.potions})`;
+    }
 
-        // 1. 플레이어의 공격 (랜덤 데미지 5~15 계산)
-        const damage = Math.floor(Math.random() * 11) + 5;
-        monsterHp -= damage;
-        printLog(`당신이 슬라임을 공격하여 ${damage}의 피해를 입혔습니다! (슬라임 HP: ${Math.max(0, monsterHp)})`);
-
-        // 몬스터 처치 여부 확인
-        if (monsterHp <= 0) {
-            printLog("🎉 승리했습니다! 슬라임을 처치하고 10 골드를 획득했습니다.");
-            return;
-        }
-
-        // 2. 몬스터의 반격 (랜덤 데미지 3~8 계산)
-        const monsterDamage = Math.floor(Math.random() * 6) + 3;
-        playerHp -= monsterDamage;
-        statusBar.innerText = `용사 Dohyong | HP: ${Math.max(0, playerHp)}/100 | 무기: 녹슨 칼`;
-        printLog(`슬라임이 반격하여 당신에게 ${monsterDamage}의 피해를 입혔습니다.`);
-
-        if (playerHp <= 0) {
-            printLog("💀 당신은 사망했습니다... GAME OVER");
-        }
-    });
-
-    // 물약 먹기 버튼 논리 처리
-    document.getElementById('btn-heal').addEventListener('click', () => {
-        if (playerHp <= 0) return;
+    // 3. 핵심: 방 이동 처리 함수
+    function enterLocation(locKey) {
+        player.currentLocation = locKey;
+        const room = mapData[locKey];
         
-        playerHp = Math.min(100, playerHp + 25);
-        statusBar.innerText = `용사 Dohyong | HP: ${playerHp}/100 | 무기: 녹슨 칼`;
-        printLog("🧪 체력 물약을 마셨습니다. HP가 25 회복됩니다.");
+        printLog(`\n-----------------------------------------`);
+        printLog(`▶ [${room.name}]에 진입했습니다.`);
+        printLog(room.description);
+
+        // 몬스터 배치 처리
+        if (room.monster && room.monster.hp > 0) {
+            // 해당 방의 몬스터 정보를 새로 불러옴
+            currentMonster = { ...room.monster };
+            printLog(`⚠️ 앞길을 ⚡[${currentMonster.name}](HP: ${currentMonster.hp})⚡ 가 가로막았습니다!`);
+        } else {
+            currentMonster = null;
+            printLog(`이 구역은 안전합니다.`);
+        }
+
+        // 이동 버튼 인터페이스 제어 (길이 있으면 활성화, 없으면 비활성화)
+        btnNorth.disabled = !room.north;
+        btnSouth.disabled = !room.south;
+
+        // 버튼 텍스트 변경으로 목적지 미리 표기
+        btnNorth.innerText = room.north ? `⬆️ 북쪽으로 이동 (${mapData[room.north].name})` : "⬆️ 북쪽 방향 (막힘)";
+        btnSouth.innerText = room.south ? `⬇️ 남쪽으로 이동 (${mapData[room.south].name})` : "⬇️ 남쪽 방향 (막힘)";
+
+        updateStatus();
+    }
+
+    // 4. 전투 이벤트 처리
+    btnAttack.addEventListener('click', () => {
+        if (player.hp <= 0) return;
+        if (!currentMonster || currentMonster.hp <= 0) {
+            printLog("싸울 상대가 없습니다. 앞으로 나아가세요.");
+            return;
+        }
+
+        // 플레이어 턴
+        const pDamage = Math.floor(Math.random() * 11) + 10; // 10~20 데미지
+        currentMonster.hp -= pDamage;
+        printLog(`당신이 ${currentMonster.name}에게 ${pDamage}의 피해를 입혔습니다. (남은 HP: ${Math.max(0, currentMonster.hp)})`);
+
+        if (currentMonster.hp <= 0) {
+            printLog(`🎉 승리! [${currentMonster.name}]를 처치했습니다. 경험치 ${currentMonster.exp}를 얻었습니다.`);
+            // 장부에 해당 방의 몬스터가 죽었음을 기록
+            mapData[player.currentLocation].monster.hp = 0;
+            return;
+        }
+
+        // 몬스터 턴
+        const mDamage = Math.floor(Math.random() * 8) + 5; // 5~12 데미지
+        player.hp -= mDamage;
+        updateStatus();
+        printLog(`[${currentMonster.name}]가 반격하여 당신에게 ${mDamage}의 피해를 입혔습니다.`);
+
+        if (player.hp <= 0) {
+            printLog("💀 체력이 다했습니다. 게임 오버.");
+        }
     });
+
+    // 회복 처리
+    btnHeal.addEventListener('click', () => {
+        if (player.hp <= 0) return;
+        if (player.potions <= 0) {
+            printLog("남은 물약이 없습니다!");
+            return;
+        }
+        player.potions--;
+        player.hp = Math.min(player.maxHp, player.hp + 40);
+        printLog(`🧪 물약을 마셔 HP가 40 회복되었습니다.`);
+        updateStatus();
+    });
+
+    // 5. 이동 버튼 클릭 이벤트 연결
+    btnNorth.addEventListener('click', () => {
+        if (currentMonster && currentMonster.hp > 0) {
+            printLog("❌ 적을 앞에 두고 도망칠 수 없습니다! 먼저 처치하세요.");
+            return;
+        }
+        const nextRoom = mapData[player.currentLocation].north;
+        if (nextRoom) enterLocation(nextRoom);
+    });
+
+    btnSouth.addEventListener('click', () => {
+        if (currentMonster && currentMonster.hp > 0) {
+            printLog("❌ 적을 앞에 두고 도망칠 수 없습니다! 먼저 처치하세요.");
+            return;
+        }
+        const nextRoom = mapData[player.currentLocation].south;
+        if (nextRoom) enterLocation(nextRoom);
+    });
+
+    // 게임 시작 시 첫 구역 강제 진입
+    enterLocation("entrance");
 </script>
 
 </body>
