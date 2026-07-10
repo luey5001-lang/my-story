@@ -2,10 +2,10 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>도형의 MUD 대장간: 신용 등급의 힘</title>
+    <title>도형의 MUD 바카라: 자본과 부채</title>
     <style>
         body {
-            background-color: #0c0d0e;
+            background-color: #0b2516; /* 카지노 테이블 매트 느낌의 딥그린 */
             color: #d1d5db;
             font-family: 'Consolas', 'Courier New', monospace;
             display: flex;
@@ -16,21 +16,21 @@
         }
         .game-container {
             width: 720px;
-            background-color: #1a1c1e;
-            border: 2px solid #3f444a;
+            background-color: #141a17;
+            border: 2px solid #273b30;
             padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             border-radius: 8px;
             position: relative;
         }
-        h2 { text-align: center; color: #e5e7eb; border-bottom: 2px solid #3f444a; padding-bottom: 10px; margin-top: 0; }
+        h2 { text-align: center; color: #f59e0b; border-bottom: 2px solid #273b30; padding-bottom: 10px; margin-top: 0; }
         
         .dashboard {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 15px;
-            background-color: #111214;
+            background-color: #0d110f;
             padding: 15px;
             border-radius: 6px;
             font-size: 14px;
@@ -38,12 +38,12 @@
         .dashboard-col div { margin-bottom: 5px; }
         
         .log-window {
-            height: 350px;
-            border: 1px solid #3f444a;
+            height: 330px;
+            border: 1px solid #273b30;
             padding: 15px;
             overflow-y: auto;
             margin-bottom: 20px;
-            background-color: #090a0b;
+            background-color: #070908;
             white-space: pre-line;
             font-size: 13px;
             line-height: 1.6;
@@ -51,13 +51,19 @@
         
         .controls {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .financial-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
         button {
-            background-color: #24272b;
+            background-color: #1e2923;
             color: #e5e7eb;
-            border: 1px solid #4b525a;
+            border: 1px solid #384d41;
             padding: 14px;
             font-family: inherit;
             font-size: 13px;
@@ -65,13 +71,16 @@
             cursor: pointer;
             border-radius: 4px;
         }
-        button:hover { background-color: #3b3f46; border-color: #6b7280; }
-        button:disabled { color: #4b525a; border-color: #2d3135; cursor: not-allowed; background-color: #17191c; }
+        button:hover { background-color: #2c3e35; border-color: #4d6657; }
+        button:disabled { color: #334139; border-color: #1f2923; cursor: not-allowed; background-color: #111814; }
         
-        #btn-craft { background-color: #851c1d; border-color: #a8292b; color: #fff; }
-        #btn-craft:hover { background-color: #a8292b; }
-        #btn-loan { background-color: #1e3a8a; border-color: #2563eb; color: #fff; }
-        #btn-loan:hover { background-color: #2563eb; }
+        #btn-bet-player { background-color: #1d4ed8; border-color: #3b82f6; color: #fff; }
+        #btn-bet-player:hover { background-color: #2563eb; }
+        #btn-bet-banker { background-color: #b91c1c; border-color: #ef4444; color: #fff; }
+        #btn-bet-banker:hover { background-color: #dc2626; }
+        
+        #btn-loan { background-color: #0f172a; border-color: #334155; color: #fff; }
+        #btn-loan:hover { background-color: #1e293b; }
         #btn-repay { background-color: #065f46; border-color: #059669; color: #fff; }
         #btn-repay:hover { background-color: #059669; }
 
@@ -79,7 +88,7 @@
             display: none;
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
+            background-color: rgba(0, 0, 0, 0.97);
             color: #ef4444;
             flex-direction: column;
             justify-content: center;
@@ -89,14 +98,11 @@
         }
         .game-over-screen h1 { font-size: 50px; margin-bottom: 10px; letter-spacing: 5px; }
 
-        .rank-normal { color: #9ca3af; }
-        .rank-rare { color: #3b82f6; font-weight: bold; }
-        .rank-ancient { color: #a855f7; font-weight: bold; }
-        .rank-mythic { color: #ef4444; font-weight: bold; text-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
-        
         .sys-gold { color: #f59e0b; font-weight: bold; }
-        .profit { color: #10b981; font-weight: bold; }
-        .loss { color: #ef4444; font-weight: bold; }
+        .txt-player { color: #60a5fa; font-weight: bold; }
+        .txt-banker { color: #f87171; font-weight: bold; }
+        .profit { color: #34d399; font-weight: bold; }
+        .loss { color: #f87171; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -104,34 +110,41 @@
 <div class="game-container">
     <div class="game-over-screen" id="game-over">
         <h1>💸 GAME OVER 💸</h1>
-        <p>상환 능력을 상실하여 대장간이 최종 파산했습니다.</p>
-        <button onclick="location.reload()" style="background-color: #ef4444; color: #fff; border: none; margin-top: 20px; padding: 10px 20px; cursor: pointer;">🔄 다시 도전하기</button>
+        <p>배팅 자금이 완전히 고갈되었고, 대출 한도도 모두 소진되어 파산했습니다.</p>
+        <button onclick="location.reload()" style="background-color: #b91c1c; color: #fff; border: none; margin-top: 20px; padding: 10px 20px; cursor: pointer; font-weight:bold;">🔄 테이블 재입장</button>
     </div>
 
-    <h2>[ 🏛️ MUD 대장간: 신용 금융 v4.5 ]</h2>
+    <h2>[ 🃏 MUD BACCARAT FINANCIAL SYSTEM ]</h2>
     
     <div class="dashboard">
         <div class="dashboard-col">
-            <div><strong>[보유 자산]</strong> <span id="txt-gold" class="sys-gold">1,000 G</span></div>
-            <div><strong>[현재 금리]</strong> <span id="txt-interest-rate" class="loss">3.0%</span> 복리</div>
+            <div><strong>[칩 자산]</strong> <span id="txt-gold" class="sys-gold">1,000 G</span></div>
+            <div><strong>[고정 배팅]</strong> <span class="sys-gold">300 G</span> (승리 시 2배 환급)</div>
         </div>
         <div class="dashboard-col">
-            <div><strong>[대출 총액]</strong> <span id="txt-loan-debt" class="loss">0 G</span></div>
-            <div><strong>[연속 대출]</strong> <span id="txt-loan-count">0</span> / 3 회 제한</div>
+            <div><strong>[현재 금리]</strong> <span id="txt-interest-rate" class="loss">3.0%</span> 복리 (3참여 주기)</div>
+            <div><strong>[사채 총액]</strong> <span id="txt-loan-debt" class="loss">0 G</span> [<span id="txt-loan-count">0</span>/3회]</div>
         </div>
     </div>
 
     <div class="log-window" id="log-screen">
-신용 우선 자본주의 시스템이 발동 중입니다.
-- 연속 대출은 <b>최대 3회</b>로 제한되지만, 중간에 빚을 <b>[전액 상환]</b>하면 대출 횟수가 0으로 리셋됩니다!
-- 부채를 성공적으로 청산하면 신용도가 상승하여 다음 대출 시 금리가 <span class="profit">3.0% ➡️ 1.5% 우대금리</span>로 영구 인하됩니다.
-- 빚이 남아있는 상태에서 <b>매 3회 제련 시</b> 이자가 누적 가산됩니다.
+카지노 프라이빗 룸에 입장하셨습니다.
+- 플레이어(<span class="txt-player">PLAYER</span>) 또는 뱅커(<span class="txt-banker">BANKER</span>) 중 하나를 선택해 클릭하면 즉시 <span class="sys-gold">300 G</span>가 배팅됩니다.
+- 승리 시 배팅금 포함 <b>2배(600G)</b>를 돌려받으며, 무승부(TIE) 발생 시에도 시스템 룰에 따라 <b>2배(600G)</b>를 지급합니다.
+- 부채가 있는 상태에서 <b>게임에 3번 참여할 때마다</b> 대출 잔액에 복리 이자가 가산됩니다.
+- 전액 상환 시 <b>대출 횟수가 0으로 리셋</b>되며, 다음 대출부터는 <b>1.5% 우대금리</b>가 영구 적용됩니다.
     </div>
 
+    <!-- 배팅 존 -->
     <div class="controls">
-        <button id="btn-craft">⚒️ 무기 제련 (-300G)</button>
-        <button id="btn-loan">🏦 대출 받기 (+2000G)</button>
-        <button id="btn-repay">💰 전액 상환하기</button>
+        <button id="btn-bet-player">🔵 PLAYER 배팅 (-300G)</button>
+        <button id="btn-bet-banker">🔴 BANKER 배팅 (-300G)</button>
+    </div>
+
+    <!-- 금융 존 -->
+    <div class="financial-controls">
+        <button id="btn-loan">🏦 금융연합 대출 실행 (+2,000G)</button>
+        <button id="btn-repay">💰 부채 전액 상환하기</button>
     </div>
 </div>
 
@@ -141,34 +154,18 @@
     const txtLoanDebt = document.getElementById('txt-loan-debt');
     const txtLoanCount = document.getElementById('txt-loan-count');
     const txtInterestRate = document.getElementById('txt-interest-rate');
-    const btnCraft = document.getElementById('btn-craft');
+    const btnPlayer = document.getElementById('btn-bet-player');
+    const btnBanker = document.getElementById('btn-bet-banker');
     const btnLoan = document.getElementById('btn-loan');
     const btnRepay = document.getElementById('btn-repay');
     const gameOverScreen = document.getElementById('game-over');
 
-    // 금융 데이터 장부 변수
     let gold = 1000;
     let loanDebt = 0;
     let loanCount = 0;
-    let craftCount = 0;
-    let currentInterestRate = 0.03; // 기본 3% 시작
-    const CRAFT_COST = 300;
-
-    const baseWeapons = [
-        { name: "무디어진 단검", atkMin: 5, atkMax: 12, valBase: 30 },
-        { name: "연습용 훈련검", atkMin: 15, atkMax: 25, valBase: 100 },
-        { name: "철제 도끼", atkMin: 25, atkMax: 45, valBase: 210 },
-        { name: "성기사의 강철창", atkMin: 35, atkMax: 55, valBase: 270 }
-    ];
-
-    const prefixes = [
-        { text: "부서진", atkMod: 0.5, valMod: 0.3, rank: "normal" },
-        { text: "이 빠진", atkMod: 0.7, valMod: 0.5, rank: "normal" },
-        { text: "일반적인", atkMod: 1.0, valMod: 1.0, rank: "normal" },
-        { text: "날카로운", atkMod: 1.4, valMod: 1.7, rank: "rare" },
-        { text: "용암이 깃든", atkMod: 2.2, valMod: 3.8, rank: "ancient" },
-        { text: "⚡ 신화 속 천벌의", atkMod: 4.5, valMod: 12.0, rank: "mythic" }
-    ];
+    let gameCount = 0; // 판수 (시간 기준)
+    let currentInterestRate = 0.03;
+    const BET_AMOUNT = 300;
 
     function printHtmlLog(htmlText) {
         logScreen.innerHTML += "\n" + htmlText;
@@ -181,108 +178,129 @@
         txtLoanCount.innerText = loanCount;
         txtInterestRate.innerText = `${(currentInterestRate * 100).toFixed(1)}%`;
         
-        // 3회 가득 차면 대출 비활성화, 상환하면 다시 활성화 제어
         btnLoan.disabled = (loanCount >= 3);
     }
 
     function checkGameOver() {
-        if (gold < CRAFT_COST && loanCount >= 3) {
+        if (gold < BET_AMOUNT && loanCount >= 3) {
             gameOverScreen.style.display = "flex";
         }
     }
 
-    // 1. 대출 실행 (최대 3회 한도 적용)
+    // 1. 사채 대출 (최대 3회 한도)
     btnLoan.addEventListener('click', () => {
-        if (loanCount >= 3) {
-            printHtmlLog("❌ 금융연합: '연속 대출 한도 초과입니다. 먼저 상환하십시오.'");
-            return;
-        }
+        if (loanCount >= 3) return;
 
         loanCount++;
         loanDebt += 2000;
         gold += 2000;
         
-        printHtmlLog(`\n🏦 [금융 대출] 신용 대출로 <span class="sys-gold">2,000 G</span>를 수령했습니다. (대출 횟수: ${loanCount}/3)`);
+        printHtmlLog(`\n🏦 [급전 대출] 사채업자가 가방에서 현금 <span class="sys-gold">2,000 G</span>를 꺼내 테이블에 올려놓습니다. (대출 횟수: ${loanCount}/3)`);
         updateUI();
     });
 
-    // 2. 핵심: 전액 상환 시 혜택 연동 로직
+    // 2. 부채 전액 상환 (한도 리셋 및 우대금리 이행)
     btnRepay.addEventListener('click', () => {
         if (loanDebt <= 0) {
-            printHtmlLog("⚖️ 처리할 상환 금액이 없습니다.");
+            printHtmlLog("⚖️ 갚아야 할 빚이 없습니다.");
             return;
         }
         if (gold < loanDebt) {
-            printHtmlLog(`❌ 상환 실패: 소지 골드가 총 부채(${Math.floor(loanDebt).toLocaleString()} G)보다 적습니다.`);
+            printHtmlLog(`❌ 상환 거절: 소지 자금이 총 부채(${Math.floor(loanDebt).toLocaleString()} G)보다 부족합니다.`);
             return;
         }
 
         gold -= loanDebt;
         loanDebt = 0;
+        loanCount = 0; // 대출 횟수 초기화
+        currentInterestRate = 0.015; // 1.5% 우대금리 확정
         
-        // [중요] 대출 규칙 리셋 및 우대금리 적용
-        loanCount = 0; 
-        currentInterestRate = 0.015; // 3%에서 1.5% 우대금리로 영구 인하
-        
-        printHtmlLog(`\n🎉 [신용 회복] 부채를 전액 청산했습니다!`);
-        printHtmlLog(`<span class="sys-alert">▶ 혜택 1: 대출 한도 횟수가 다시 최대로 추가(리셋)되었습니다.</span>`);
-        printHtmlLog(`<span class="sys-alert">▶ 혜택 2: 우수 고객으로 등정되어 다음 대출 금리가 [1.5%] 우대금리로 인하됩니다.</span>`);
+        printHtmlLog(`\n🎉 [신용 회복] 빚을 완벽히 청산하여 사채업자들이 물러갑니다!`);
+        printHtmlLog(`<span class="sys-alert">▶ 한도 리셋: 이제 다시 최대 3번까지 대출을 받을 수 있습니다.</span>`);
+        printHtmlLog(`<span class="sys-alert">▶ 우대 적용: 다음 대출 실행 시점부터 금리가 [1.5%] 복리로 우대 인하됩니다.</span>`);
         
         updateUI();
     });
 
-    // 3. 제련 및 이자 독촉 시간 계산
-    btnCraft.addEventListener('click', () => {
-        if (gold < CRAFT_COST) {
-            printHtmlLog("❌ 제련 자금 부족. 대출을 신청하십시오.");
+    // 3. 바카라 게임 구동 엔진 (공통 함수)
+    function playBaccarat(userChoice) {
+        if (gold < BET_AMOUNT) {
+            printHtmlLog("❌ 배팅 불가: 최소 300 G의 칩이 필요합니다. 대출을 받으십시오.");
             checkGameOver();
             return;
         }
 
-        gold -= CRAFT_COST;
-        craftCount++;
-        btnCraft.disabled = true;
+        // 선배팅 금액 지출
+        gold -= BET_AMOUNT;
+        gameCount++;
+        
+        btnPlayer.disabled = true;
+        btnBanker.disabled = true;
         updateUI();
 
+        const choiceText = userChoice === 'player' ? '<span class="txt-player">PLAYER</span>' : '<span class="txt-banker">BANKER</span>';
         printHtmlLog(`\n------------------------------------------------------------`);
-        printHtmlLog(`🔨 무기 제련 중... (시간 흐름: ${craftCount}턴)`);
+        printHtmlLog(`🎲 [제 ${gameCount}구] 딜러가 카드를 셔플하고 슈에서 셔츠를 오픈합니다... (배팅: ${choiceText})`);
 
-        // 복리 이자 가산 (실시간 반영 금리 사용)
-        if (craftCount % 3 === 0 && loanDebt > 0) {
+        // 시간 흐름에 따른 이자 독촉 시스템 연동 (3판마다)
+        if (gameCount % 3 === 0 && loanDebt > 0) {
             const interest = loanDebt * currentInterestRate;
             loanDebt += interest;
-            printHtmlLog(`⚠️ [복리 이자 발동] 3턴 주기가 경과하여 총 부채에 <span class="loss">${(currentInterestRate * 100).toFixed(1)}% 이자(+${Math.floor(interest)} G)</span>가 복리 가산되었습니다.`);
+            printHtmlLog(`⚠️ [시한 경과] 카지노 룸의 시계가 돌아가며 부채에 <span class="loss">${(currentInterestRate * 100).toFixed(1)}% 복리 이자(+${Math.floor(interest)} G)</span>가 합산되었습니다.`);
         }
 
         setTimeout(() => {
-            const base = baseWeapons[Math.floor(Math.random() * baseWeapons.length)];
-            const roll = Math.random();
-            let selectedPrefix;
-            
-            if (roll < 0.03) selectedPrefix = prefixes.find(p => p.rank === "mythic");
-            else if (roll < 0.12) selectedPrefix = prefixes.find(p => p.rank === "ancient");
-            else if (roll < 0.45) selectedPrefix = prefixes.find(p => p.rank === "rare");
-            else selectedPrefix = prefixes[Math.floor(Math.random() * 3)];
+            // 바카라 9점 수치 랜덤 연산 (0 ~ 9)
+            const pScore = Math.floor(Math.random() * 10);
+            const bScore = Math.floor(Math.random() * 10);
 
-            const rawAtk = Math.floor(Math.random() * (base.atkMax - base.atkMin + 1)) + base.atkMin;
-            const finalAtk = Math.floor(rawAtk * selectedPrefix.atkMod);
-            const itemValue = Math.floor(base.valBase * selectedPrefix.valMod);
-            const netProfit = itemValue - CRAFT_COST;
+            printHtmlLog(`   [결과 표출] PLAYER 카드 합: [ ${pScore} ]  vs  BANKER 카드 합: [ ${bScore} ]`);
 
-            let rankClass = `rank-${selectedPrefix.rank}`;
-            let resultMessage = netProfit > 0 
-                ? `<span class="profit">📈 [+${netProfit.toLocaleString()} G 이득]</span>` 
-                : `<span class="loss">📉 [${netProfit.toLocaleString()} G 손해]</span>`;
+            let gameResult = ""; //승패 문자열 저장용
+            let isWin = false;
+            let isTie = false;
 
-            const fullName = `${selectedPrefix.text} ${base.name}`;
-            printHtmlLog(`⚔️ 결과: <span class="${rankClass}">[${fullName}]</span> | 감정가: <span class="sys-gold">${itemValue} G</span> | 손익: ${resultMessage}`);
+            if (pScore > bScore) {
+                gameResult = 'player';
+                printHtmlLog(`   🏆 결과 판정: <span class="txt-player">PLAYER WIN!</span>`);
+            } else if (bScore > pScore) {
+                gameResult = 'banker';
+                printHtmlLog(`   🏆 결과 판정: <span class="txt-banker">BANKER WIN!</span>`);
+            } else {
+                gameResult = 'tie';
+                printHtmlLog(`   🏆 결과 판정: <span class="sys-gold">TIE (무승부)!</span>`);
+            }
 
-            gold += itemValue;
+            // 적중 여부 판단 규칙
+            if (userChoice === gameResult) {
+                isWin = true;
+            } else if (gameResult === 'tie') {
+                // 질문자 요구 사항: 스윙(타이 무승부) 상황에서도 2배 지급 연출 처리
+                isTie = true; 
+            }
+
+            if (isWin) {
+                const payout = BET_AMOUNT * 2; // 600G
+                gold += payout;
+                printHtmlLog(`<span class="profit">📈 [배팅 적정] 예측 성공! 배팅액의 2배인 ${payout} G를 획득했습니다. (+300G 순수익)</span>`);
+            } else if (isTie) {
+                const payout = BET_AMOUNT * 2; // 무승부 역시 2배 환급 요구 반영
+                gold += payout;
+                printHtmlLog(`<span class="profit">⚖️ [타이 히트] 타이 무승부 처리! 규칙에 의거하여 배팅액의 2배인 ${payout} G를 환급받습니다.</span>`);
+            } else {
+                printHtmlLog(`<span class="loss">📉 [미적중] 예측 실패... 배팅 칩 300 G를 카지노에 회수당했습니다.</span>`);
+            }
+
+            btnPlayer.disabled = false;
+            btnBanker.disabled = false;
             updateUI();
-            btnCraft.disabled = false;
             checkGameOver();
-        }, 600);
-    });
+        }, 700);
+    }
+
+    // 4. 이벤트 버인딩
+    btnPlayer.addEventListener('click', () => playBaccarat('player'));
+    btnBanker.addEventListener('click', () => playBaccarat('banker'));
 </script>
 
 </body>
