@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>도형의 3일 프로젝트: MUD 게임 v2.0</title>
+    <title>도형의 3일 프로젝트: MUD 장비 제작소</title>
     <style>
         body {
             background-color: #000;
@@ -22,7 +22,7 @@
             box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
         }
         .log-window {
-            height: 280px;
+            height: 300px;
             border: 1px solid #00ff00;
             padding: 10px;
             overflow-y: auto;
@@ -35,221 +35,159 @@
             font-weight: bold;
             border-bottom: 1px dashed #00ff00;
             padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
         }
         .controls {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .btn-group-title {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 2px;
-        }
         button {
             background-color: #000;
             color: #00ff00;
             border: 1px solid #00ff00;
-            padding: 8px;
+            padding: 12px;
             font-family: inherit;
+            font-size: 15px;
+            font-weight: bold;
             cursor: pointer;
-            text-align: center;
         }
         button:hover {
             background-color: #00ff00;
             color: #000;
         }
-        button:disabled {
-            border-color: #444;
-            color: #444;
-            cursor: not-allowed;
+        /* 특수 이펙트용 스타일 설정 */
+        .special-alert {
+            color: #ff00ff !important; /* 보라색/핑크색 강조 */
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
 <div class="game-container">
-    <h2>[ TEXT DUNGEON v2.0 - 이동과 탐험 ]</h2>
+    <h2>[ ⚒️ MUD LEGENDARY FORGE v3.0 ]</h2>
     
-    <div class="status-bar" id="status">
-        용사 Dohyong | HP: 100/100 | 현재 위치: 동굴 입구
+    <div class="status-bar">
+        <span>대장장이: Dohyong</span>
+        <span id="gold-display">소지 골드: 1,000 G</span>
     </div>
 
     <div class="log-window" id="log-screen">
-        어두운 동굴 입구에 도착했습니다. 사방이 고요합니다.
-        [이동 명령]을 이용해 더 깊은 곳으로 이동할 수 있습니다.
+        모험에서 모은 재료로 무기를 제작할 수 있는 용광로 앞에 섰습니다.
+        무기를 하나 제작하는 데 [100 골드]가 소모됩니다.
+        아주 희박한 확률로 고대의 특수 옵션이 부여됩니다!
     </div>
 
     <div class="controls">
-        <div class="btn-group">
-            <div class="btn-group-title">[행동/전투]</div>
-            <button id="btn-attack">⚔️ 공격하기</button>
-            <button id="btn-heal">🧪 물약먹기 (남은 개수: 3)</button>
-        </div>
-        <div class="btn-group">
-            <div class="btn-group-title">[이동 방향]</div>
-            <button id="id-move-north">⬆️ 북쪽으로 이동 (깊은 동굴)</button>
-            <button id="id-move-south" disabled>⬇️ 남쪽으로 이동 (막힘)</button>
-        </div>
+        <button id="btn-craft">🔨 무기 제작하기 (-100G)</button>
+        <button id="btn-clear">🧹 로그 지우기</button>
     </div>
 </div>
 
 <script>
     const logScreen = document.getElementById('log-screen');
-    const statusBar = document.getElementById('status');
-    const btnAttack = document.getElementById('btn-attack');
-    const btnHeal = document.getElementById('btn-heal');
-    const btnNorth = document.getElementById('id-move-north');
-    const btnSouth = document.getElementById('id-move-south');
+    const goldDisplay = document.getElementById('gold-display');
 
-    // 1. 데이터 정의 (지도 데이터 장부)
-    const mapData = {
-        "entrance": {
-            name: "동굴 입구",
-            description: "희미한 바깥 빛이 들어오는 동굴 입구입니다. 북쪽에 차가운 바람이 불어오는 통로가 있습니다.",
-            monster: { name: "박쥐", hp: 30, maxHp: 30, exp: 20 },
-            north: "deep_cave",
-            south: null
-        },
-        "deep_cave": {
-            name: "깊은 동굴",
-            description: "빛이 전혀 들지 않는 어두운 공간입니다. 바닥에 이끼가 가득합니다. 불길한 기운이 북쪽에서 느껴집니다.",
-            monster: { name: "고블린", hp: 60, maxHp: 60, exp: 50 },
-            north: "boss_room",
-            south: "entrance"
-        },
-        "boss_room": {
-            name: "보스의 방",
-            description: "거대한 공동입니다. 동굴의 지배자 '드래곤'이 둥지를 틀고 있습니다!",
-            monster: { name: "미니 드래곤", hp: 120, maxHp: 120, exp: 200 },
-            north: null,
-            south: "deep_cave"
+    let myGold = 1000;
+
+    // 1. 기초 데이터 풀 정의
+    const weaponTypes = ["도끼", "검", "망치", "창"];
+    
+    // 특수 옵션 장부 (확률 5% 미만 적용 타겟)
+    const specialOptions = [
+        { name: "흡혈의", effect: "공격 시 피해량의 10%만큼 체력 회복", priceMultiplier: 2.5 },
+        { name: "용암의", effect: "적에게 지속 화염 피해 부가", priceMultiplier: 3.0 },
+        { name: "서리한의", effect: "적의 이동 속도 50% 저하", priceMultiplier: 2.8 },
+        { name: "신이 내린", effect: "모든 능력치 극대화 및 치명타율 +50%", priceMultiplier: 5.0 } // 초희귀
+    ];
+
+    function printLog(text, isSpecial = false) {
+        if (isSpecial) {
+            logScreen.innerHTML += `\n<span class="special-alert">${text}</span>`;
+        } else {
+            logScreen.innerText += "\n" + text;
         }
-    };
-
-    // 2. 플레이어 상태 상태 변수
-    let player = {
-        name: "Dohyong",
-        hp: 100,
-        maxHp: 100,
-        currentLocation: "entrance", // 현재 위치 키값
-        potions: 3
-    };
-
-    // 현재 구역의 몬스터 복사본 저장 변수
-    let currentMonster = null;
-
-    function printLog(text) {
-        logScreen.innerText += "\n" + text;
         logScreen.scrollTop = logScreen.scrollHeight;
     }
 
-    function updateStatus() {
-        const locName = mapData[player.currentLocation].name;
-        statusBar.innerText = `용사 ${player.name} | HP: ${player.hp}/${player.maxHp} | 현재 위치: ${locName}`;
-        btnHeal.innerText = `🧪 물약먹기 (남은 개수: ${player.potions})`;
+    function updateGold() {
+        goldDisplay.innerText = `소지 골드: ${myGold.toLocaleString()} G`;
     }
 
-    // 3. 핵심: 방 이동 처리 함수
-    function enterLocation(locKey) {
-        player.currentLocation = locKey;
-        const room = mapData[locKey];
+    // 2. 핵심 무기 제작 시스템 논리
+    document.getElementById('btn-craft').addEventListener('click', () => {
+        if (myGold < 100) {
+            printLog("❌ 골드가 부족하여 무기를 제작할 수 없습니다! (제작비: 100G)");
+            return;
+        }
+
+        // 제작비 차감
+        myGold -= 100;
+        updateGold();
+
+        printLog(`\n--------------------------------------------------`);
+        printLog("🔨 모루 위에 달궈진 철을 올리고 망치질을 시작합니다... 탁! 탁! 콰아아-");
+
+        // [랜덤 1] 무기 종류 선택
+        const randomType = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
+
+        // [랜덤 2] 공격력 설정 (기본 10 ~ 50)
+        let attack = Math.floor(Math.random() * 41) + 10;
         
-        printLog(`\n-----------------------------------------`);
-        printLog(`▶ [${room.name}]에 진입했습니다.`);
-        printLog(room.description);
+        // [랜덤 3] 내구성 설정 (기본 50 ~ 100)
+        let durability = Math.floor(Math.random() * 51) + 50;
 
-        // 몬스터 배치 처리
-        if (room.monster && room.monster.hp > 0) {
-            // 해당 방의 몬스터 정보를 새로 불러옴
-            currentMonster = { ...room.monster };
-            printLog(`⚠️ 앞길을 ⚡[${currentMonster.name}](HP: ${currentMonster.hp})⚡ 가 가로막았습니다!`);
-        } else {
-            currentMonster = null;
-            printLog(`이 구역은 안전합니다.`);
+        // [기본 가치 계산] (공격력 * 5) + (내구성 * 2)
+        let finalPrice = (attack * 5) + (durability * 2);
+
+        // [핵심: 특수 옵션 확률 연산]
+        let hasSpecial = false;
+        let selectedOption = null;
+        
+        const roll = Math.random(); // 0.0이상 ~ 1.0미만의 소수점 무작위 수 생성
+
+        if (roll < 0.05) { // 5% 확률 당첨
+            hasSpecial = true;
+            // 특수 옵션 중 하나를 무작위로 선택
+            selectedOption = specialOptions[Math.floor(Math.random() * specialOptions.length)];
+            
+            // 특수 옵션 적용에 따른 능력치 버프 및 가격 뻥튀기
+            attack = Math.floor(attack * 1.5);
+            finalPrice = Math.floor(finalPrice * selectedOption.priceMultiplier);
         }
 
-        // 이동 버튼 인터페이스 제어 (길이 있으면 활성화, 없으면 비활성화)
-        btnNorth.disabled = !room.north;
-        btnSouth.disabled = !room.south;
-
-        // 버튼 텍스트 변경으로 목적지 미리 표기
-        btnNorth.innerText = room.north ? `⬆️ 북쪽으로 이동 (${mapData[room.north].name})` : "⬆️ 북쪽 방향 (막힘)";
-        btnSouth.innerText = room.south ? `⬇️ 남쪽으로 이동 (${mapData[room.south].name})` : "⬇️ 남쪽 방향 (막힘)";
-
-        updateStatus();
-    }
-
-    // 4. 전투 이벤트 처리
-    btnAttack.addEventListener('click', () => {
-        if (player.hp <= 0) return;
-        if (!currentMonster || currentMonster.hp <= 0) {
-            printLog("싸울 상대가 없습니다. 앞으로 나아가세요.");
-            return;
-        }
-
-        // 플레이어 턴
-        const pDamage = Math.floor(Math.random() * 11) + 10; // 10~20 데미지
-        currentMonster.hp -= pDamage;
-        printLog(`당신이 ${currentMonster.name}에게 ${pDamage}의 피해를 입혔습니다. (남은 HP: ${Math.max(0, currentMonster.hp)})`);
-
-        if (currentMonster.hp <= 0) {
-            printLog(`🎉 승리! [${currentMonster.name}]를 처치했습니다. 경험치 ${currentMonster.exp}를 얻었습니다.`);
-            // 장부에 해당 방의 몬스터가 죽었음을 기록
-            mapData[player.currentLocation].monster.hp = 0;
-            return;
-        }
-
-        // 몬스터 턴
-        const mDamage = Math.floor(Math.random() * 8) + 5; // 5~12 데미지
-        player.hp -= mDamage;
-        updateStatus();
-        printLog(`[${currentMonster.name}]가 반격하여 당신에게 ${mDamage}의 피해를 입혔습니다.`);
-
-        if (player.hp <= 0) {
-            printLog("💀 체력이 다했습니다. 게임 오버.");
-        }
+        // 3. 연출 및 결과 출력
+        setTimeout(() => {
+            if (hasSpecial) {
+                // 연출용 문구 출력
+                printLog("✨!!! 콰르릉! 뇌전이 대장간을 강타하며 기이한 기운이 깃듭니다 !!!✨", true);
+                printLog(`🔮 [${selectedOption.name} ${randomType}] 이(가) 완성되었습니다!`, true);
+                printLog(`▶ 특수 능력: [${selectedOption.effect}]`, true);
+                printLog(`⚔️ 공격력: ${attack} (증폭됨) | 🛡️ 내구성: ${durability} | 💰 감정가: ${finalPrice.toLocaleString()} G`, true);
+                
+                // 대박 옵션이 뜨면 제작비를 회수하고도 남는 골드 보너스 부여 (판매 처리 가정)
+                myGold += finalPrice;
+                printLog(`💰 특수 장비를 상점에 즉시 처분하여 ${finalPrice} G를 획득했습니다!`);
+                updateGold();
+            } else {
+                // 일반 제작 결과 출력
+                printLog(`평범한 [${randomType}] 이(가) 완성되었습니다.`);
+                printLog(`⚔️ 공격력: ${attack} | 🛡️ 내구성: ${durability} | 💰 감정가: ${finalPrice.toLocaleString()} G`);
+                
+                // 일반 템도 판매하여 골드 환산
+                myGold += finalPrice;
+                printLog(`💰 장비를 상점에 처분하여 ${finalPrice} G를 획득했습니다.`);
+                updateGold();
+            }
+        }, 600); // 0.6초간의 망치질 딜레이 연출
     });
 
-    // 회복 처리
-    btnHeal.addEventListener('click', () => {
-        if (player.hp <= 0) return;
-        if (player.potions <= 0) {
-            printLog("남은 물약이 없습니다!");
-            return;
-        }
-        player.potions--;
-        player.hp = Math.min(player.maxHp, player.hp + 40);
-        printLog(`🧪 물약을 마셔 HP가 40 회복되었습니다.`);
-        updateStatus();
+    // 로그 클리어 버튼
+    document.getElementById('btn-clear').addEventListener('click', () => {
+        logScreen.innerText = "용광로가 다시 조용해졌습니다.";
     });
-
-    // 5. 이동 버튼 클릭 이벤트 연결
-    btnNorth.addEventListener('click', () => {
-        if (currentMonster && currentMonster.hp > 0) {
-            printLog("❌ 적을 앞에 두고 도망칠 수 없습니다! 먼저 처치하세요.");
-            return;
-        }
-        const nextRoom = mapData[player.currentLocation].north;
-        if (nextRoom) enterLocation(nextRoom);
-    });
-
-    btnSouth.addEventListener('click', () => {
-        if (currentMonster && currentMonster.hp > 0) {
-            printLog("❌ 적을 앞에 두고 도망칠 수 없습니다! 먼저 처치하세요.");
-            return;
-        }
-        const nextRoom = mapData[player.currentLocation].south;
-        if (nextRoom) enterLocation(nextRoom);
-    });
-
-    // 게임 시작 시 첫 구역 강제 진입
-    enterLocation("entrance");
 </script>
 
 </body>
