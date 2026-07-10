@@ -2,341 +2,250 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>도형의 MUD 바카라: 가변 배팅 시스템</title>
+    <title>도형의 원버튼 너구리 게임</title>
     <style>
         body {
-            background-color: #0b2516;
-            color: #d1d5db;
-            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: #111;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
-        .game-container {
-            width: 720px;
-            background-color: #141a17;
-            border: 2px solid #273b30;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            border-radius: 8px;
-            position: relative;
+        .game-wrapper {
+            text-align: center;
         }
-        h2 { text-align: center; color: #f59e0b; border-bottom: 2px solid #273b30; padding-bottom: 10px; margin-top: 0; }
-        
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        /* 게임 화면 캔버스 */
+        canvas {
+            background-color: #000;
+            border: 4px solid #333;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            display: block;
             margin-bottom: 15px;
-            background-color: #0d110f;
-            padding: 15px;
-            border-radius: 6px;
-            font-size: 14px;
         }
-        .dashboard-col div { margin-bottom: 5px; }
-        
-        /* 배팅 조절 패널 스타일 */
-        .bet-setup-panel {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            background-color: #0d110f;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            border: 1px dashed #384d41;
-        }
-        .bet-setup-panel span { font-weight: bold; font-size: 16px; }
-        .btn-adjust { padding: 5px 15px; background-color: #273b30; border-color: #384d41; font-size: 14px; }
-        .btn-adjust:hover { background-color: #384d41; }
-
-        .log-window {
-            height: 300px;
-            border: 1px solid #273b30;
-            padding: 15px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            background-color: #070908;
-            white-space: pre-line;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-        
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+        .score-board {
+            font-size: 18px;
             margin-bottom: 10px;
+            font-weight: bold;
+            color: #f59e0b;
         }
-        .financial-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        button {
-            background-color: #1e2923;
-            color: #e5e7eb;
-            border: 1px solid #384d41;
-            padding: 14px;
-            font-family: inherit;
-            font-size: 13px;
+        /* 압도적인 크기의 원버튼 점프 컨트롤러 */
+        #btn-jump {
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            background-color: #ef4444;
+            color: #fff;
+            border: 3px solid #b91c1c;
+            border-radius: 12px;
+            font-size: 24px;
             font-weight: bold;
             cursor: pointer;
-            border-radius: 4px;
+            box-shadow: 0 6px #991b1b;
+            font-family: inherit;
         }
-        button:hover { background-color: #2c3e35; border-color: #4d6657; }
-        button:disabled { color: #334139; border-color: #1f2923; cursor: not-allowed; background-color: #111814; }
-        
-        #btn-bet-player { background-color: #1d4ed8; border-color: #3b82f6; color: #fff; }
-        #btn-bet-player:hover { background-color: #2563eb; }
-        #btn-bet-banker { background-color: #b91c1c; border-color: #ef4444; color: #fff; }
-        #btn-bet-banker:hover { background-color: #dc2626; }
-        
-        #btn-loan { background-color: #0f172a; border-color: #334155; color: #fff; }
-        #btn-loan:hover { background-color: #1e293b; }
-        #btn-repay { background-color: #065f46; border-color: #059669; color: #fff; }
-        #btn-repay:hover { background-color: #059669; }
-
-        .game-over-screen {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.97);
-            color: #ef4444;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-radius: 8px;
-            z-index: 10;
+        #btn-jump:active {
+            box-shadow: 0 2px #991b1b;
+            transform: translateY(4px);
         }
-        .game-over-screen h1 { font-size: 50px; margin-bottom: 10px; letter-spacing: 5px; }
-
-        .sys-gold { color: #f59e0b; font-weight: bold; }
-        .txt-player { color: #60a5fa; font-weight: bold; }
-        .txt-banker { color: #f87171; font-weight: bold; }
-        .profit { color: #34d399; font-weight: bold; }
-        .loss { color: #f87171; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="game-container">
-    <div class="game-over-screen" id="game-over">
-        <h1>💸 GAME OVER 💸</h1>
-        <p>최소 배팅 자금이 부족하고 대출 한도가 모두 소진되어 파산했습니다.</p>
-        <button onclick="location.reload()" style="background-color: #b91c1c; color: #fff; border: none; margin-top: 20px; padding: 10px 20px; cursor: pointer; font-weight:bold;">🔄 테이블 재입장</button>
-    </div>
-
-    <h2>[ 🃏 MUD BACCARAT: VARIABLE BETTING ]</h2>
+<div class="game-wrapper">
+    <h2>[ 🦝 ONE-BUTTON NEOGURI ]</h2>
+    <div class="score-board">SCORE: <span id="txt-score">0</span> | LIVES: <span id="txt-lives">3</span></div>
     
-    <div class="dashboard">
-        <div class="dashboard-col">
-            <div><strong>[칩 자산]</strong> <span id="txt-gold" class="sys-gold">1,000 G</span></div>
-            <div><strong>[설정 배팅]</strong> <span id="txt-current-bet" class="sys-gold">300 G</span></div>
-        </div>
-        <div class="dashboard-col">
-            <div><strong>[현재 금리]</strong> <span id="txt-interest-rate" class="loss">3.0%</span> 복리 (3턴 주기)</div>
-            <div><strong>[사채 총액]</strong> <span id="txt-loan-debt" class="loss">0 G</span> [<span id="txt-loan-count">0</span>/3회]</div>
-        </div>
-    </div>
-
-    <!-- 배팅 액수 조절 인터페이스 조각 신설 -->
-    <div class="bet-setup-panel">
-        <button class="btn-adjust" id="btn-bet-minus">➖ 100G 감소</button>
-        <span>현재 배팅 조절: <span id="txt-panel-bet" class="sys-gold">300G</span></span>
-        <button class="btn-adjust" id="btn-bet-plus">➕ 100G 증가</button>
-    </div>
-
-    <div class="log-window" id="log-screen">
-배팅 조절 시스템이 추가되었습니다.
-- <b>[100G 감소/증가]</b> 버튼을 사용하여 한 판당 배팅할 액수를 자유롭게 조절하십시오.
-- 최소 배팅액은 <b>100G</b>이며, 소지 자금을 초과하여 배팅할 수 없습니다.
-- 승리 혹은 무승부(TIE) 시 내가 설정한 <b>배팅액의 2배</b>를 환급받습니다.
-    </div>
-
-    <!-- 배팅 존 -->
-    <div class="controls">
-        <button id="btn-bet-player">🔵 PLAYER 배팅 (-300G)</button>
-        <button id="btn-bet-banker">🔴 BANKER 배팅 (-300G)</button>
-    </div>
-
-    <!-- 금융 존 -->
-    <div class="financial-controls">
-        <button id="btn-loan">🏦 금융연합 대출 실행 (+2,000G)</button>
-        <button id="btn-repay">💰 부채 전액 상환하기</button>
-    </div>
+    <canvas id="gameCanvas" width="480" height="320"></canvas>
+    
+    <button id="btn-jump">🚀 JUMP / DROP (1-CLICK)</button>
 </div>
 
 <script>
-    const logScreen = document.getElementById('log-screen');
-    const txtGold = document.getElementById('txt-gold');
-    const txtLoanDebt = document.getElementById('txt-loan-debt');
-    const txtLoanCount = document.getElementById('txt-loan-count');
-    const txtInterestRate = document.getElementById('txt-interest-rate');
-    const txtCurrentBet = document.getElementById('txt-current-bet');
-    const txtPanelBet = document.getElementById('txt-panel-bet');
-    
-    const btnPlayer = document.getElementById('btn-bet-player');
-    const btnBanker = document.getElementById('btn-bet-banker');
-    const btnLoan = document.getElementById('btn-loan');
-    const btnRepay = document.getElementById('btn-repay');
-    const btnBetMinus = document.getElementById('btn-bet-minus');
-    const btnBetPlus = document.getElementById('btn-bet-plus');
-    const gameOverScreen = document.getElementById('game-over');
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const txtScore = document.getElementById('score');
+    const btnJump = document.getElementById('btn-jump');
 
-    // 금융 데이터 변수
-    let gold = 1000;
-    let loanDebt = 0;
-    let loanCount = 0;
-    let gameCount = 0; 
-    let currentInterestRate = 0.03;
-    let currentBet = 300; // 이제 상수가 아닌 '변수'입니다.
+    // 1. 게임 환경 데이터 장부
+    let score = 0;
+    let lives = 3;
+    let gameOver = false;
 
-    function printHtmlLog(htmlText) {
-        logScreen.innerHTML += "\n" + htmlText;
-        logScreen.scrollTop = logScreen.scrollHeight;
-    }
+    // 2. 너구리 캐릭터 객체
+    let raccoon = {
+        x: 20,
+        y: 60,
+        width: 20,
+        height: 20,
+        speedX: 2,       // 자동으로 전진하는 가로 속도
+        velocityY: 0,    // 세로 중력 속도
+        gravity: 0.6,    // 중력 가속도
+        jumpPower: -8.5, // 점프 세기
+        isGrounded: false
+    };
 
-    function updateUI() {
-        txtGold.innerText = `${Math.floor(gold).toLocaleString()} G`;
-        txtLoanDebt.innerText = `${Math.floor(loanDebt).toLocaleString()} G`;
-        txtLoanCount.innerText = loanCount;
-        txtInterestRate.innerText = `${(currentInterestRate * 100).toFixed(1)}%`;
-        
-        // 배팅액 관련 텍스트 실시간 동기화
-        txtCurrentBet.innerText = `${currentBet.toLocaleString()} G`;
-        txtPanelBet.innerText = `${currentBet.toLocaleString()} G`;
-        btnPlayer.innerText = `🔵 PLAYER 배팅 (-${currentBet}G)`;
-        btnBanker.innerText = `🔴 BANKER 배팅 (-${currentBet}G)`;
-        
-        btnLoan.disabled = (loanCount >= 3);
-    }
+    // 3. 고정된 발판(루트) 데이터 세트
+    // 층별로 너구리가 타고 이동할 레일 발판
+    const platforms = [
+        { x: 0, y: 90, width: 420, height: 10, floor: 1 },    // 1층 발판 (오른쪽 끝이 뚫림)
+        { x: 60, y: 180, width: 420, height: 10, floor: 2 },   // 2층 발판 (왼쪽 끝이 뚫림)
+        { x: 0, y: 270, width: 420, height: 10, floor: 3 }     // 3층 발판 (오른쪽 끝이 뚫림)
+    ];
 
-    function checkGameOver() {
-        // 내 돈이 100G(최소배팅)도 없고 대출도 안 될 때 최종 파산
-        if (gold < 100 && loanCount >= 3) {
-            gameOverScreen.style.display = "flex";
-        }
-    }
+    // 4. 피해야 할 장애물(가시) 배열
+    const obstacles = [
+        { x: 180, y: 75, width: 15, height: 15 },  // 1층 중간 가시
+        { x: 300, y: 165, width: 15, height: 15 }, // 2층 중간 가시
+        { x: 200, y: 255, width: 15, height: 15 }  // 3층 중간 가시
+    ];
 
-    // 배팅액 감소 (-) 연산
-    btnBetMinus.addEventListener('click', () => {
-        if (currentBet <= 100) {
-            printHtmlLog("⚠️ 카지노 규정: 최소 배팅 금액은 100 G 입니다.");
+    // 점프 버튼 1클릭 이벤트 액션
+    btnJump.addEventListener('mousedown', executeAction);
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') { e.preventDefault(); executeAction(); }
+    });
+
+    function executeAction() {
+        if (gameOver) {
+            location.reload(); // 게임오버 시 아무데나 누르면 재시작
             return;
         }
-        currentBet -= 100;
-        updateUI();
-    });
-
-    // 배팅액 증가 (+) 연산
-    btnBetPlus.addEventListener('click', () => {
-        currentBet += 100;
-        updateUI();
-    });
-
-    // 대출 실행
-    btnLoan.addEventListener('click', () => {
-        if (loanCount >= 3) return;
-        loanCount++;
-        loanDebt += 2000;
-        gold += 2000;
-        printHtmlLog(`\n🏦 [급전 대출] 자금 수령 완료. <span class="sys-gold">2,000 G</span> 가 추가되었습니다.`);
-        updateUI();
-    });
-
-    // 부채 전액 상환
-    btnRepay.addEventListener('click', () => {
-        if (loanDebt <= 0) return;
-        if (gold < loanDebt) {
-            printHtmlLog(`❌ 상환 거절: 총 부채(${Math.floor(loanDebt).toLocaleString()} G)보다 자산이 부족합니다.`);
-            return;
+        // 발판 위에 서 있을 때만 위로 점프 허용
+        if (raccoon.isGrounded) {
+            raccoon.velocityY = raccoon.jumpPower;
+            raccoon.isGrounded = false;
+            score += 10; // 점프할 때마다 보너스 점수
         }
-        gold -= loanDebt;
-        loanDebt = 0;
-        loanCount = 0; 
-        currentInterestRate = 0.015; // 1.5% 우대금리 영구 적용
-        
-        printHtmlLog(`\n🎉 [신용 회복] 부채 청산 완료. 한도 리셋 및 우대금리(1.5%) 프로모션이 적용됩니다.`);
-        updateUI();
-    });
-
-    // 바카라 구동 시스템
-    function playBaccarat(userChoice) {
-        if (gold < currentBet) {
-            printHtmlLog(`❌ 배팅 실패: 소지 칩이 설정된 배팅액(${currentBet} G)보다 부족합니다. 배팅액을 낮추거나 대출을 받으십시오.`);
-            checkGameOver();
-            return;
-        }
-
-        gold -= currentBet;
-        gameCount++;
-        
-        btnPlayer.disabled = true;
-        btnBanker.disabled = true;
-        btnBetMinus.disabled = true;
-        btnBetPlus.disabled = true;
-        updateUI();
-
-        const choiceText = userChoice === 'player' ? '<span class="txt-player">PLAYER</span>' : '<span class="txt-banker">BANKER</span>';
-        printHtmlLog(`\n------------------------------------------------------------`);
-        printHtmlLog(`🎲 [제 ${gameCount}구] 게임 개시 (설정 배팅: ${currentBet} G ➡️ ${choiceText})`);
-
-        if (gameCount % 3 === 0 && loanDebt > 0) {
-            const interest = loanDebt * currentInterestRate;
-            loanDebt += interest;
-            printHtmlLog(`⚠️ [복리 이자 발동] 3턴 경과로 부채에 <span class="loss">${(currentInterestRate * 100).toFixed(1)}% 이자(+${Math.floor(interest)} G)</span>가 합산되었습니다.`);
-        }
-
-        setTimeout(() => {
-            const pScore = Math.floor(Math.random() * 10);
-            const bScore = Math.floor(Math.random() * 10);
-
-            printHtmlLog(`   [카드 오픈] PLAYER: [ ${pScore} ]  vs  BANKER: [ ${bScore} ]`);
-
-            let gameResult = "";
-            if (pScore > bScore) {
-                gameResult = 'player';
-                printHtmlLog(`   🏆 판정: <span class="txt-player">PLAYER WIN!</span>`);
-            } else if (bScore > pScore) {
-                gameResult = 'banker';
-                printHtmlLog(`   🏆 판정: <span class="txt-banker">BANKER WIN!</span>`);
-            } else {
-                gameResult = 'tie';
-                printHtmlLog(`   🏆 판정: <span class="sys-gold">TIE (무승부)!</span>`);
-            }
-
-            let isWin = (userChoice === gameResult);
-            let isTie = (gameResult === 'tie');
-
-            if (isWin || isTie) {
-                const payout = currentBet * 2; // 가변 배팅 기준 2배 정산
-                gold += payout;
-                printHtmlLog(`<span class="profit">📈 [배팅 성공] 예측 적중! 배팅액의 2배인 ${payout} G를 획득했습니다.</span>`);
-            } else {
-                printHtmlLog(`<span class="loss">📉 [배팅 실패] 예측 실패... 배팅 칩 ${currentBet} G가 카지노에 귀속되었습니다.</span>`);
-            }
-
-            btnPlayer.disabled = false;
-            btnBanker.disabled = false;
-            btnBetMinus.disabled = false;
-            btnBetPlus.disabled = false;
-            
-            // 배팅액이 갑자기 내 잔액보다 커진 경우 안전을 위해 배팅액을 내 잔액으로 강제 조정
-            if (gold < currentBet && gold >= 100) {
-                currentBet = Math.floor(gold / 100) * 100;
-            }
-
-            updateUI();
-            checkGameOver();
-        }, 700);
     }
 
-    btnPlayer.addEventListener('click', () => playBaccarat('player'));
-    btnBanker.addEventListener('click', () => playBaccarat('banker'));
+    // 5. 실시간 물리 연산 및 엔진 루프
+    function update() {
+        if (gameOver) return;
+
+        // 중력 작용 (공중에 떠 있으면 밑으로 가속)
+        raccoon.velocityY += raccoon.gravity;
+        raccoon.y += raccoon.velocityY;
+        
+        // 자동 가로 전진
+        raccoon.x += raccoon.speedX;
+
+        // 화면 양쪽 벽 충돌 처리 및 자동 반전 (ㄹ자 맵 이동 메커니즘)
+        if (raccoon.x + raccoon.width > canvas.width) {
+            raccoon.x = canvas.width - raccoon.width;
+            raccoon.speedX = -Math.abs(raccoon.speedX); // 왼쪽으로 반전
+        } else if (raccoon.x < 0) {
+            raccoon.x = 0;
+            raccoon.speedX = Math.abs(raccoon.speedX);  // 오른쪽으로 반전
+        }
+
+        // 발판 착지 판단 계산 (물리 충돌 체크 장부)
+        raccoon.isGrounded = false;
+        for (let plat of platforms) {
+            if (raccoon.x + raccoon.width > plat.x && 
+                raccoon.x < plat.x + plat.width && 
+                raccoon.y + raccoon.height >= plat.y && 
+                raccoon.y + raccoon.height <= plat.y + 10 && 
+                raccoon.velocityY >= 0) {
+                
+                raccoon.y = plat.y - raccoon.height;
+                raccoon.velocityY = 0;
+                raccoon.isGrounded = true;
+            }
+        }
+
+        // 아래로 떨어졌는데 다음 발판을 못 잡고 낙사했을 때의 안전장치
+        if (raccoon.y > canvas.height) {
+            resetRaccoon();
+        }
+
+        // 장애물 충돌 검사 (가시에 닿으면 라이프 차감)
+        for (let obs of obstacles) {
+            if (raccoon.x < obs.x + obs.width &&
+                raccoon.x + raccoon.width > obs.x &&
+                raccoon.y < obs.y + obs.height &&
+                raccoon.y + raccoon.height > obs.y) {
+                
+                lives--;
+                if (lives <= 0) {
+                    gameOver = true;
+                } else {
+                    resetRaccoon();
+                }
+            }
+        }
+
+        // 스코어 실시간 업데이트
+        document.getElementById('txt-score').innerText = score;
+        document.getElementById('txt-lives').innerText = lives;
+    }
+
+    function resetRaccoon() {
+        raccoon.x = 20;
+        raccoon.y = 60;
+        raccoon.velocityY = 0;
+        raccoon.speedX = Math.abs(raccoon.speedX); // 처음 방향인 오른쪽으로 리셋
+    }
+
+    // 6. 도화지 화면 그리기 (렌더링 연산)
+    function draw() {
+        // 화면 초기화
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // A. 발판 그리기 (갈색 발판 구조)
+        ctx.fillStyle = "#854d0e";
+        for (let plat of platforms) {
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+        }
+
+        // B. 장애물 그리기 (위험한 빨간 가시 삼각뿔)
+        ctx.fillStyle = "#ef4444";
+        for (let obs of obstacles) {
+            ctx.beginPath();
+            ctx.moveTo(obs.x + obs.width/2, obs.y);
+            ctx.lineTo(obs.x, obs.y + obs.height);
+            ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
+            ctx.fill();
+        }
+
+        // C. 주인공 너구리 캐릭터 그리기 (귀여운 노란색 사각형 주체)
+        ctx.fillStyle = "#fbbf24";
+        ctx.fillRect(raccoon.x, raccoon.y, raccoon.width, raccoon.height);
+        
+        // 눈 그리기 (전진 방향 식별용)
+        ctx.fillStyle = "#000";
+        if (raccoon.speedX > 0) {
+            ctx.fillRect(raccoon.x + 12, raccoon.y + 4, 4, 4); // 오른쪽 눈
+        } else {
+            ctx.fillRect(raccoon.x + 4, raccoon.y + 4, 4, 4);  // 왼쪽 눈
+        }
+
+        // D. 게임오버 문구 스크린 인쇄
+        if (gameOver) {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ef4444";
+            ctx.font = "bold 30px Courier New";
+            ctx.fillText("GAME OVER", 160, 140);
+            ctx.fillStyle = "#fff";
+            ctx.font = "16px Courier New";
+            ctx.fillText("Click JUMP Button to Restart", 110, 180);
+        }
+    }
+
+    // 7. 실시간 무한 반복 시계 구동 (FPS)
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    // 실행 선언
+    gameLoop();
 </script>
 
 </body>
