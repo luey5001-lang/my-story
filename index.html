@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>도형의 MUD 대장간: 리스크 앤 리턴</title>
+    <title>도형의 MUD 대장간: 자본주의의 노예</title>
     <style>
         body {
             background-color: #0c0d0e;
@@ -15,12 +15,13 @@
             margin: 0;
         }
         .game-container {
-            width: 700px;
+            width: 720px;
             background-color: #1a1c1e;
             border: 2px solid #3f444a;
             padding: 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.7);
             border-radius: 8px;
+            position: relative;
         }
         h2 { text-align: center; color: #e5e7eb; border-bottom: 2px solid #3f444a; padding-bottom: 10px; margin-top: 0; }
         
@@ -37,7 +38,7 @@
         .dashboard-col div { margin-bottom: 5px; }
         
         .log-window {
-            height: 380px;
+            height: 350px;
             border: 1px solid #3f444a;
             padding: 15px;
             overflow-y: auto;
@@ -50,8 +51,8 @@
         
         .controls {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 15px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
         }
         button {
             background-color: #24272b;
@@ -59,81 +60,114 @@
             border: 1px solid #4b525a;
             padding: 14px;
             font-family: inherit;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
             border-radius: 4px;
         }
         button:hover { background-color: #3b3f46; border-color: #6b7280; }
         button:disabled { color: #4b525a; border-color: #2d3135; cursor: not-allowed; background-color: #17191c; }
+        
         #btn-craft { background-color: #851c1d; border-color: #a8292b; color: #fff; }
         #btn-craft:hover { background-color: #a8292b; }
+        #btn-loan { background-color: #1e3a8a; border-color: #2563eb; color: #fff; }
+        #btn-loan:hover { background-color: #2563eb; }
+        #btn-repay { background-color: #065f46; border-color: #059669; color: #fff; }
+        #btn-repay:hover { background-color: #059669; }
 
-        /* 상태별 텍스트 색상 스키마 */
+        /* 게임오버 스크린 */
+        .game-over-screen {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            color: #ef4444;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        .game-over-screen h1 { font-size: 50px; margin-bottom: 10px; letter-spacing: 5px; }
+
         .rank-normal { color: #9ca3af; }
         .rank-rare { color: #3b82f6; font-weight: bold; }
         .rank-ancient { color: #a855f7; font-weight: bold; }
         .rank-mythic { color: #ef4444; font-weight: bold; text-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
         
         .sys-gold { color: #f59e0b; font-weight: bold; }
-        .profit { color: #10b981; font-weight: bold; } /* 이득: 초록 */
-        .loss { color: #ef4444; font-weight: bold; }   /* 손해: 빨강 */
+        .profit { color: #10b981; font-weight: bold; }
+        .loss { color: #ef4444; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="game-container">
-    <h2>[ ⚒️ MUD 대장간: 하이 리스크 하이 리턴 ]</h2>
+    <!-- 암전 게임오버 레이어 -->
+    <div class="game-over-screen" id="game-over">
+        <h1>💸 GAME OVER 💸</h1>
+        <p>사채업자들에게 대장간을 차압당했습니다. 원금 상환 실패로 파산했습니다.</p>
+        <button onclick="location.reload()" style="background-color: #ef4444; color: #fff; border: none; margin-top: 20px;">🔄 다시 도전하기</button>
+    </div>
+
+    <h2>[ 🏛️ MUD 대장간: 자본과 부채 v4.0 ]</h2>
     
     <div class="dashboard">
         <div class="dashboard-col">
-            <div><strong>[장인 정보]</strong> 명장 Dohyong</div>
-            <div><strong>[보유 자산]</strong> <span id="txt-gold" class="sys-gold">2,000 G</span></div>
+            <div><strong>[보유 자산]</strong> <span id="txt-gold" class="sys-gold">1,000 G</span></div>
+            <div><strong>[제련 단가]</strong> <span class="sys-gold">300 G</span> 소모</div>
         </div>
         <div class="dashboard-col">
-            <div><strong>[확정 제작 비용]</strong></div>
-            <div>💰 무기 제련 단가: <span class="sys-gold">300 G</span> 고정 소모</div>
+            <div><strong>[대출 현황]</strong> <span id="txt-loan-debt" class="loss">0 G</span> (이자 3% 복리)</div>
+            <div><strong>[대출 횟수]</strong> <span id="txt-loan-count">0</span> / 3 회 제한</div>
         </div>
     </div>
 
     <div class="log-window" id="log-screen">
-대장간의 불길이 거세게 타오릅니다.
-[제련 개시] 버튼을 누르면 조건 없이 즉시 <span class="sys-gold">300 골드</span>가 차감됩니다.
-
-제작 완료된 장비의 가치가 <span class="sys-gold">300 G</span>보다 낮으면 <b>적자(손해)</b>를 보며,
-옵션이 잘 붙어 <span class="sys-gold">300 G</span>를 초과하면 <b>흑자(이득)</b>를 봅니다.
-당신의 행운을 테스트해 보세요.
+대장간 사채 금융 시스템이 도입되었습니다.
+- 무기를 <b>3번 제련(시간 경과)</b>할 때마다 대출 총액에 <span class="loss">3%의 복리 이자</span>가 가산됩니다.
+- 자금이 부족할 때 <span class="sys-gold">[대출 받기]</span>를 누르면 즉시 2,000G가 수령되지만, 최대 3번까지만 허용됩니다.
+- 원금과 이자를 갚지 못하고 자산이 바닥나면 <b>대장간은 파산(GAME OVER)</b> 처리됩니다.
     </div>
 
     <div class="controls">
-        <button id="btn-craft">⚒️ 무기 제련하기 (-300G)</button>
-        <button id="btn-clear">🧹 로그 청소</button>
+        <button id="btn-craft">⚒️ 무기 제련 (-300G)</button>
+        <button id="btn-loan">🏦 대출 받기 (+2000G)</button>
+        <button id="btn-repay">💰 전액 상환하기</button>
     </div>
 </div>
 
 <script>
     const logScreen = document.getElementById('log-screen');
     const txtGold = document.getElementById('txt-gold');
+    const txtLoanDebt = document.getElementById('txt-loan-debt');
+    const txtLoanCount = document.getElementById('txt-loan-count');
     const btnCraft = document.getElementById('btn-craft');
+    const btnLoan = document.getElementById('btn-loan');
+    const btnRepay = document.getElementById('btn-repay');
+    const gameOverScreen = document.getElementById('game-over');
 
-    let gold = 2000;
-    const CRAFT_COST = 300; // 고정 제작 비용 명시
+    // 시스템 변수 장부
+    let gold = 1000;
+    let loanDebt = 0;       // 갚아야 할 총 대출액 (원금+이자)
+    let loanCount = 0;      // 대출 실행 횟수
+    let craftCount = 0;     // 제련 횟수 (시간 흐름 기준)
+    const CRAFT_COST = 300;
 
     const baseWeapons = [
-        { name: "녹슨 단검", atkMin: 5, atkMax: 12, valBase: 30 },
-        { name: "수련용 장검", atkMin: 15, atkMax: 25, valBase: 100 },
-        { name: "철제 배틀액스", atkMin: 25, atkMax: 45, valBase: 180 },
-        { name: "기사의 강철창", atkMin: 35, atkMax: 55, valBase: 250 }
+        { name: "무디어진 단검", atkMin: 5, atkMax: 12, valBase: 30 },
+        { name: "연습용 훈련검", atkMin: 15, atkMax: 25, valBase: 100 },
+        { name: "철제 도끼", atkMin: 25, atkMax: 45, valBase: 210 },
+        { name: "성기사의 강철창", atkMin: 35, atkMax: 55, valBase: 270 }
     ];
 
     const prefixes = [
-        { text: "부서진", atkMod: 0.5, valMod: 0.3, rank: "normal" },      // 제작비 미달 유도용
-        { text: "이 빠진", atkMod: 0.7, valMod: 0.5, rank: "normal" },      // 제작비 미달 유도용
-        { text: "일반적인", atkMod: 1.0, valMod: 1.0, rank: "normal" },    // 본전 내외
-        { text: "균형 잡힌", atkMod: 1.2, valMod: 1.4, rank: "rare" },      // 약간의 이득
-        { text: "날카로운", atkMod: 1.4, valMod: 1.8, rank: "rare" },       // 이득
-        { text: "불타는 고대의", atkMod: 2.0, valMod: 3.5, rank: "ancient" }, // 대박 (1000G 이상)
-        { text: "⚡ 신화 속 천벌의", atkMod: 4.0, valMod: 10.0, rank: "mythic" } // 초대박 (2500G 이상)
+        { text: "부서진", atkMod: 0.5, valMod: 0.3, rank: "normal" },
+        { text: "이 빠진", atkMod: 0.7, valMod: 0.5, rank: "normal" },
+        { text: "일반적인", atkMod: 1.0, valMod: 1.0, rank: "normal" },
+        { text: "날카로운", atkMod: 1.4, valMod: 1.7, rank: "rare" },
+        { text: "용암이 깃든", atkMod: 2.2, valMod: 3.8, rank: "ancient" },
+        { text: "⚡ 신화 속 천벌의", atkMod: 4.5, valMod: 12.0, rank: "mythic" }
     ];
 
     function printHtmlLog(htmlText) {
@@ -141,74 +175,112 @@
         logScreen.scrollTop = logScreen.scrollHeight;
     }
 
-    // 4. 고정밀 손익 계산 및 제련 시스템
-    btnCraft.addEventListener('click', () => {
-        if (gold < CRAFT_COST) {
-            printHtmlLog("❌ 제련 실패: 자금이 부족합니다. (최소 300G 필요)");
+    function updateUI() {
+        txtGold.innerText = `${Math.floor(gold).toLocaleString()} G`;
+        txtLoanDebt.innerText = `${Math.floor(loanDebt).toLocaleString()} G`;
+        txtLoanCount.innerText = loanCount;
+        
+        // 대출 버튼 제어 (3번 넘으면 차단)
+        if (loanCount >= 3) {
+            btnLoan.disabled = true;
+        }
+    }
+
+    function checkGameOver() {
+        // 제련 비용도 없고, 대출 기회도 없고, 빚을 전액 상환할 돈도 부족할 때 파산
+        if (gold < CRAFT_COST && loanCount >= 3) {
+            gameOverScreen.style.display = "flex";
+        }
+    }
+
+    // 1. 대출 실행 기능 (최대 3회, 회당 2000G)
+    btnLoan.addEventListener('click', () => {
+        if (loanCount >= 3) {
+            printHtmlLog("❌ 사채업자: '더 이상의 대출은 불가하오. 신용 등급이 바닥이오.'");
             return;
         }
 
-        // 1. 선 차감: 제련 시작 시 비용 즉시 지출
+        loanCount++;
+        loanDebt += 2000;
+        gold += 2000;
+        
+        printHtmlLog(`\n🏦 [금융 대출] 지하 사채 연합으로부터 <span class="sys-gold">2,000 G</span>를 빌렸습니다. (현재 총 부채: ${Math.floor(loanDebt)} G)`);
+        updateUI();
+    });
+
+    // 2. 이자 전액 상환 기능
+    btnRepay.addEventListener('click', () => {
+        if (loanDebt <= 0) {
+            printHtmlLog("⚖️ 상환할 부채가 존재하지 않습니다.");
+            return;
+        }
+        if (gold < loanDebt) {
+            printHtmlLog(`❌ 상환 실패: 소지 금액이 총 부채(${Math.floor(loanDebt)} G)보다 부족합니다.`);
+            return;
+        }
+
+        gold -= loanDebt;
+        printHtmlLog(`\n💰 [부채 상환] 이자를 포함한 총 부채 <span class="sys-gold">${Math.floor(loanDebt).toLocaleString()} G</span>를 전액 청산했습니다!`);
+        loanDebt = 0;
+        updateUI();
+    });
+
+    // 3. 무기 제련 및 시간 경과(이자 가산) 처리
+    btnCraft.addEventListener('click', () => {
+        if (gold < CRAFT_COST) {
+            printHtmlLog("❌ 제련 불가: 자금이 부족합니다. 대출을 받거나 상환하십시오.");
+            checkGameOver();
+            return;
+        }
+
+        // 제련 비용 선지출
         gold -= CRAFT_COST;
-        txtGold.innerText = `${gold.toLocaleString()} G`;
+        craftCount++; // 제작 횟수(시간) 증가
+        
         btnCraft.disabled = true;
+        updateUI();
 
         printHtmlLog(`\n------------------------------------------------------------`);
-        printHtmlLog(`🔨 모루 위에 300G 상당의 원자재를 붓고 제련을 시작합니다... (망치질 중)`);
-        
+        printHtmlLog(`🔨 [제련 진행] 무기를 제련합니다. (누적 제련 시간: ${craftCount}턴)`);
+
+        // 이자 정산 타이밍 제어 (매 3회 제련 시 3% 복리 적용)
+        if (craftCount % 3 === 0 && loanDebt > 0) {
+            const interest = loanDebt * 0.03;
+            loanDebt += interest;
+            printHtmlLog(`⚠️ [시간 경과] 3턴이 지나 대출 잔액에 <span class="loss">3% 복리 이자(+${Math.floor(interest)} G)</span>가 부과되었습니다!`);
+        }
+
         setTimeout(() => {
-            // A. 베이스 무기 무작위 선정
             const base = baseWeapons[Math.floor(Math.random() * baseWeapons.length)];
-            
-            // B. 등급 확률 계산 (접두사 매칭)
             const roll = Math.random();
             let selectedPrefix;
             
-            if (roll < 0.03) selectedPrefix = prefixes.find(p => p.rank === "mythic");       // 3% 확률 신화
-            else if (roll < 0.12) selectedPrefix = prefixes.find(p => p.rank === "ancient");  // 9% 확률 고대
-            else if (roll < 0.45) selectedPrefix = prefixes[Math.floor(Math.random() * 2) + 3]; // 33% 확률 희귀계열 2개 중 하나
-            else selectedPrefix = prefixes[Math.floor(Math.random() * 3)]; // 55% 확률 꽝/일반 계열 3개 중 하나
+            if (roll < 0.03) selectedPrefix = prefixes.find(p => p.rank === "mythic");
+            else if (roll < 0.12) selectedPrefix = prefixes.find(p => p.rank === "ancient");
+            else if (roll < 0.45) selectedPrefix = prefixes.find(p => p.rank === "rare");
+            else selectedPrefix = prefixes[Math.floor(Math.random() * 3)];
 
-            // C. 스펙 연산
             const rawAtk = Math.floor(Math.random() * (base.atkMax - base.atkMin + 1)) + base.atkMin;
             const finalAtk = Math.floor(rawAtk * selectedPrefix.atkMod);
-
-            // D. 최종 감정가 정밀 수식
             const itemValue = Math.floor(base.valBase * selectedPrefix.valMod);
+            const netProfit = itemValue - CRAFT_COST;
 
-            // E. 손익(수익률) 정밀 계산 규칙
-            const netProfit = itemValue - CRAFT_COST; // 최종가 - 제작비(300G)
-            
             let rankClass = `rank-${selectedPrefix.rank}`;
-            let resultMessage = "";
+            let resultMessage = netProfit > 0 
+                ? `<span class="profit">📈 [+${netProfit.toLocaleString()} G 이득]</span>` 
+                : `<span class="loss">📉 [${netProfit.toLocaleString()} G 손해]</span>`;
 
-            if (netProfit > 0) {
-                // 흑자 발생 시 연출
-                resultMessage = `<span class="profit">📈 [흑자 발생] 제작비 대비 +${netProfit.toLocaleString()} G 이득!</span>`;
-            } else if (netProfit < 0) {
-                // 적자 발생 시 연출
-                resultMessage = `<span class="loss">📉 [적자 발생] 제작비 대비 ${netProfit.toLocaleString()} G 손해...</span>`;
-            } else {
-                resultMessage = `<span>⚖️ [본전 판정] 본전을 건졌습니다.</span>`;
-            }
-
-            // F. 출력 화면 구성
             const fullName = `${selectedPrefix.text} ${base.name}`;
-            printHtmlLog(`⚔️ 제련 완료: <span class="${rankClass}">[${fullName}]</span>`);
-            printHtmlLog(`   · 최종 공격력: ${finalAtk} P (기본 무기 공격력: ${rawAtk})`);
-            printHtmlLog(`   · 아이템 감정가: <span class="sys-gold">${itemValue.toLocaleString()} G</span>`);
-            printHtmlLog(`   · 투자 손익 결과: ${resultMessage}`);
+            printHtmlLog(`⚔️ 결과: <span class="${rankClass}">[${fullName}]</span> | 감정가: <span class="sys-gold">${itemValue} G</span> | 손익: ${resultMessage}`);
 
-            // 장비를 즉시 판매 처리하여 소지 골드 회수 업데이트
+            // 자동 즉시 판매
             gold += itemValue;
-            txtGold.innerText = `${gold.toLocaleString()} G`;
-            
+            updateUI();
             btnCraft.disabled = false;
-        }, 800);
-    });
-
-    document.getElementById('btn-clear').addEventListener('click', () => {
-        logScreen.innerText = "대장간 바닥의 잿더미를 치웠습니다.";
+            
+            // 제작 종료 후 파산 상태 검사
+            checkGameOver();
+        }, 600);
     });
 </script>
 
