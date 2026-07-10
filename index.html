@@ -2,191 +2,263 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>도형의 3일 프로젝트: MUD 장비 제작소</title>
+    <title>도형의 3일 프로젝트: MUD 대장간 마스터</title>
     <style>
         body {
-            background-color: #000;
-            color: #00ff00;
-            font-family: 'Courier New', Courier, monospace;
+            background-color: #0c0d0e;
+            color: #d1d5db;
+            font-family: 'Consolas', 'Courier New', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
         .game-container {
-            width: 550px;
-            background-color: #111;
-            border: 2px solid #00ff00;
-            padding: 20px;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            width: 700px;
+            background-color: #1a1c1e;
+            border: 2px solid #3f444a;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border-radius: 8px;
         }
-        .log-window {
-            height: 300px;
-            border: 1px solid #00ff00;
-            padding: 10px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            background-color: #050505;
-            white-space: pre-line;
-        }
-        .status-bar {
-            margin-bottom: 15px;
-            font-weight: bold;
-            border-bottom: 1px dashed #00ff00;
-            padding-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .controls {
+        h2 { text-align: center; color: #e5e7eb; border-bottom: 2px solid #3f444a; padding-bottom: 10px; margin-top: 0; }
+        
+        /* 대시보드 구조 분할 */
+        .dashboard {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 15px;
+            margin-bottom: 15px;
+            background-color: #111214;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .dashboard-col div { margin-bottom: 5px; }
+        
+        .log-window {
+            height: 380px;
+            border: 1px solid #3f444a;
+            padding: 15px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background-color: #090a0b;
+            white-space: pre-line;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
         }
         button {
-            background-color: #000;
-            color: #00ff00;
-            border: 1px solid #00ff00;
-            padding: 12px;
+            background-color: #24272b;
+            color: #e5e7eb;
+            border: 1px solid #4b525a;
+            padding: 14px;
             font-family: inherit;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
         }
-        button:hover {
-            background-color: #00ff00;
-            color: #000;
-        }
-        /* 특수 이펙트용 스타일 설정 */
-        .special-alert {
-            color: #ff00ff !important; /* 보라색/핑크색 강조 */
-            font-weight: bold;
-        }
+        button:hover { background-color: #3b3f46; border-color: #6b7280; }
+        button:disabled { color: #4b525a; border-color: #2d3135; cursor: not-allowed; background-color: #17191c; }
+        #btn-craft { background-color: #851c1d; border-color: #a8292b; color: #fff; }
+        #btn-craft:hover { background-color: #a8292b; }
+
+        /* 등급별 접두사 텍스트 컬러 스키마 */
+        .rank-normal { color: #9ca3af; }
+        .rank-rare { color: #3b82f6; font-weight: bold; }
+        .rank-ancient { color: #a855f7; font-weight: bold; }
+        .rank-mythic { color: #ef4444; font-weight: bold; text-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+        .sys-gold { color: #f59e0b; font-weight: bold; }
+        .sys-alert { color: #10b981; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="game-container">
-    <h2>[ ⚒️ MUD LEGENDARY FORGE v3.0 ]</h2>
+    <h2>[ 🛡️ 전설의 대장간 시뮬레이터 v3.5 ]</h2>
     
-    <div class="status-bar">
-        <span>대장장이: Dohyong</span>
-        <span id="gold-display">소지 골드: 1,000 G</span>
+    <!-- 실시간 상태 창 및 인벤토리 상태 -->
+    <div class="dashboard">
+        <div class="dashboard-col">
+            <div><strong>[장인 정보]</strong> 명장 Dohyong</div>
+            <div><strong>[보유 자산]</strong> <span id="txt-gold" class="sys-gold">1,500 G</span></div>
+        </div>
+        <div class="dashboard-col">
+            <div><strong>[보유 자유재료]</strong></div>
+            <div>철광석: <span id="mat-iron">15개</span> | 드래곤 가죽: <span id="mat-leather">5개</span></div>
+        </div>
     </div>
 
+    <!-- 로그 텍스트 출력 콘솔 -->
     <div class="log-window" id="log-screen">
-        모험에서 모은 재료로 무기를 제작할 수 있는 용광로 앞에 섰습니다.
-        무기를 하나 제작하는 데 [100 골드]가 소모됩니다.
-        아주 희박한 확률로 고대의 특수 옵션이 부여됩니다!
+대장간의 화로가 뜨겁게 달아오르고 있습니다.
+[장비 제작]에는 <span class="sys-gold">철광석 3개</span>와 <span class="sys-gold">150 골드</span>가 소모되며, 희귀 확률로 가죽이 추가 소모됩니다.
+품질과 접두/접미사에 따라 아이템의 가치가 정밀하게 감정됩니다.
     </div>
 
+    <!-- 컨트롤 패널 -->
     <div class="controls">
-        <button id="btn-craft">🔨 무기 제작하기 (-100G)</button>
-        <button id="btn-clear">🧹 로그 지우기</button>
+        <button id="btn-craft">⚒️ 제련 개시 (철광석3 + 150G)</button>
+        <button id="btn-clear">🧹 작업대 청소</button>
     </div>
 </div>
 
 <script>
     const logScreen = document.getElementById('log-screen');
-    const goldDisplay = document.getElementById('gold-display');
+    const txtGold = document.getElementById('txt-gold');
+    const matIron = document.getElementById('mat-iron');
+    const matLeather = document.getElementById('mat-leather');
+    const btnCraft = document.getElementById('btn-craft');
 
-    let myGold = 1000;
+    // 1. 상태 변수
+    let gold = 1500;
+    let iron = 15;
+    let leather = 5;
 
-    // 1. 기초 데이터 풀 정의
-    const weaponTypes = ["도끼", "검", "망치", "창"];
-    
-    // 특수 옵션 장부 (확률 5% 미만 적용 타겟)
-    const specialOptions = [
-        { name: "흡혈의", effect: "공격 시 피해량의 10%만큼 체력 회복", priceMultiplier: 2.5 },
-        { name: "용암의", effect: "적에게 지속 화염 피해 부가", priceMultiplier: 3.0 },
-        { name: "서리한의", effect: "적의 이동 속도 50% 저하", priceMultiplier: 2.8 },
-        { name: "신이 내린", effect: "모든 능력치 극대화 및 치명타율 +50%", priceMultiplier: 5.0 } // 초희귀
+    // 2. 디테일 확장형 장비 데이터 사전
+    const baseWeapons = [
+        { name: "전투도끼", atkMin: 25, atkMax: 40, durMin: 60, durMax: 80, wType: "도끼" },
+        { name: "롱소드", atkMin: 20, atkMax: 35, durMin: 70, durMax: 90, wType: "검" },
+        { name: "워해머", atkMin: 30, atkMax: 50, durMin: 50, durMax: 70, wType: "망치" },
+        { name: "할버드", atkMin: 28, atkMax: 45, durMin: 65, durMax: 85, wType: "창" }
     ];
 
-    function printLog(text, isSpecial = false) {
-        if (isSpecial) {
-            logScreen.innerHTML += `\n<span class="special-alert">${text}</span>`;
-        } else {
-            logScreen.innerText += "\n" + text;
-        }
+    // 접두사 데이터 (수식어 및 버프 계수)
+    const prefixes = [
+        { text: "날카로운", atkMod: 1.1, durMod: 1.0, valMod: 1.2, rank: "normal" },
+        { text: "무디어진", atkMod: 0.8, durMod: 1.2, valMod: 0.7, rank: "normal" },
+        { text: "강화된", atkMod: 1.2, durMod: 1.3, valMod: 1.5, rank: "rare" },
+        { text: "치명적인", atkMod: 1.4, durMod: 0.9, valMod: 1.8, rank: "rare" },
+        { text: "저주받은 불꽃의", atkMod: 1.7, durMod: 0.8, valMod: 2.5, rank: "ancient" },
+        { text: "불멸의 고대", atkMod: 1.5, durMod: 2.0, valMod: 3.5, rank: "ancient" },
+        { text: "🌌 파멸 서리한의", atkMod: 2.5, durMod: 1.8, valMod: 7.0, rank: "mythic" },
+        { text: "👑 신을 초월한", atkMod: 3.5, durMod: 2.5, valMod: 10.0, rank: "mythic" }
+    ];
+
+    // 접미사 데이터 (명성 타이틀 및 고유 가격 상승률)
+    const suffixes = [
+        { text: "", valAdd: 0 },
+        { text: " (품질: 상)", valAdd: 50 },
+        { text: " [명품]", valAdd: 150 },
+        { text: "의 파괴자", valAdd: 300 },
+        { text: "의 구원자", valAdd: 400 },
+        { text: "각성 상태", valAdd: 600 }
+    ];
+
+    function printHtmlLog(htmlText) {
+        logScreen.innerHTML += "\n" + htmlText;
         logScreen.scrollTop = logScreen.scrollHeight;
     }
 
-    function updateGold() {
-        goldDisplay.innerText = `소지 골드: ${myGold.toLocaleString()} G`;
+    function updateDashboard() {
+        txtGold.innerText = `${gold.toLocaleString()} G`;
+        matIron.innerText = `${iron}개`;
+        matLeather.innerText = `${leather}개`;
     }
 
-    // 2. 핵심 무기 제작 시스템 논리
-    document.getElementById('btn-craft').addEventListener('click', () => {
-        if (myGold < 100) {
-            printLog("❌ 골드가 부족하여 무기를 제작할 수 없습니다! (제작비: 100G)");
-            return;
+    // 3. 고정밀 연출 및 제작 로직
+    btnCraft.addEventListener('click', () => {
+        // 자원 부족 검증
+        if (gold < 150) { printHtmlLog("❌ 제련 실패: 자금이 부족합니다."); return; }
+        if (iron < 3) { printHtmlLog("❌ 제련 실패: 철광석이 부족합니다."); return; }
+
+        // 자원 실시간 차감
+        gold -= 150;
+        iron -= 3;
+        
+        // 15% 확률로 고급 공정 발동 (드래곤 가죽 추가 소모 및 강제 고등급 버프)
+        let useLeather = false;
+        if (Math.random() < 0.25 && leather > 0) {
+            leather -= 1;
+            useLeather = true;
         }
 
-        // 제작비 차감
-        myGold -= 100;
-        updateGold();
+        updateDashboard();
+        btnCraft.disabled = true; // 연출 중 중복 클릭 방지
 
-        printLog(`\n--------------------------------------------------`);
-        printLog("🔨 모루 위에 달궈진 철을 올리고 망치질을 시작합니다... 탁! 탁! 콰아아-");
-
-        // [랜덤 1] 무기 종류 선택
-        const randomType = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
-
-        // [랜덤 2] 공격력 설정 (기본 10 ~ 50)
-        let attack = Math.floor(Math.random() * 41) + 10;
+        printHtmlLog(`\n------------------------------------------------------------`);
+        printHtmlLog(`[공정 1단] 용광로의 철을 모루에 올리고 타격을 시작합니다.`);
         
-        // [랜덤 3] 내구성 설정 (기본 50 ~ 100)
-        let durability = Math.floor(Math.random() * 51) + 50;
-
-        // [기본 가치 계산] (공격력 * 5) + (내구성 * 2)
-        let finalPrice = (attack * 5) + (durability * 2);
-
-        // [핵심: 특수 옵션 확률 연산]
-        let hasSpecial = false;
-        let selectedOption = null;
-        
-        const roll = Math.random(); // 0.0이상 ~ 1.0미만의 소수점 무작위 수 생성
-
-        if (roll < 0.05) { // 5% 확률 당첨
-            hasSpecial = true;
-            // 특수 옵션 중 하나를 무작위로 선택
-            selectedOption = specialOptions[Math.floor(Math.random() * specialOptions.length)];
-            
-            // 특수 옵션 적용에 따른 능력치 버프 및 가격 뻥튀기
-            attack = Math.floor(attack * 1.5);
-            finalPrice = Math.floor(finalPrice * selectedOption.priceMultiplier);
-        }
-
-        // 3. 연출 및 결과 출력
+        // 시간차 딜레이 망치 연출 (타격감 재현)
         setTimeout(() => {
-            if (hasSpecial) {
-                // 연출용 문구 출력
-                printLog("✨!!! 콰르릉! 뇌전이 대장간을 강타하며 기이한 기운이 깃듭니다 !!!✨", true);
-                printLog(`🔮 [${selectedOption.name} ${randomType}] 이(가) 완성되었습니다!`, true);
-                printLog(`▶ 특수 능력: [${selectedOption.effect}]`, true);
-                printLog(`⚔️ 공격력: ${attack} (증폭됨) | 🛡️ 내구성: ${durability} | 💰 감정가: ${finalPrice.toLocaleString()} G`, true);
-                
-                // 대박 옵션이 뜨면 제작비를 회수하고도 남는 골드 보너스 부여 (판매 처리 가정)
-                myGold += finalPrice;
-                printLog(`💰 특수 장비를 상점에 즉시 처분하여 ${finalPrice} G를 획득했습니다!`);
-                updateGold();
-            } else {
-                // 일반 제작 결과 출력
-                printLog(`평범한 [${randomType}] 이(가) 완성되었습니다.`);
-                printLog(`⚔️ 공격력: ${attack} | 🛡️ 내구성: ${durability} | 💰 감정가: ${finalPrice.toLocaleString()} G`);
-                
-                // 일반 템도 판매하여 골드 환산
-                myGold += finalPrice;
-                printLog(`💰 장비를 상점에 처분하여 ${finalPrice} G를 획득했습니다.`);
-                updateGold();
+            printHtmlLog(` 🔨 깡! - 불꽃이 튑니다.`);
+        }, 300);
+
+        setTimeout(() => {
+            printHtmlLog(useLeather ? ` 🔨 쾅! - [드래곤 가죽]을 덧대어 잔류 열처리를 시작합니다.` : ` 🔨 깡! - 철의 형상이 고정됩니다.`);
+        }, 600);
+
+        setTimeout(() => {
+            // 진짜 내부 연산 돌입
+            // A. 기초 무기 선정
+            const base = baseWeapons[Math.floor(Math.random() * baseWeapons.length)];
+            
+            // B. 가중치 확률 롤링 적용
+            let roll = Math.random();
+            if (useLeather) roll = roll * 0.4; // 가죽을 쓰면 소수점 수치가 낮아져 고등급 당첨률 강제 상승
+
+            // 확률 기준 분포 분할
+            let selectedPrefix;
+            if (roll < 0.02) selectedPrefix = prefixes.find(p => p.rank === "mythic"); // 2% 신화
+            else if (roll < 0.10) selectedPrefix = prefixes.find(p => p.text === "불멸의 고대" || p.text === "저주받은 불꽃의"); // 8% 고대
+            else if (roll < 0.35) selectedPrefix = prefixes.find(p => p.rank === "rare"); // 25% 희귀
+            else selectedPrefix = prefixes[Math.floor(Math.random() * 2)]; // 일반 2개 중 무작위
+
+            // C. 접미사 매칭
+            const selectedSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+
+            // D. 능력치 실시간 수식 연산 (변수 믹싱)
+            const rawAtk = Math.floor(Math.random() * (base.atkMax - base.atkMin + 1)) + base.atkMin;
+            const rawDur = Math.floor(Math.random() * (base.durMax - base.durMin + 1)) + base.durMin;
+
+            const finalAtk = Math.floor(rawAtk * selectedPrefix.atkMod);
+            const finalDur = Math.floor(rawDur * selectedPrefix.durMod);
+
+            // E. 고정밀 가격 측정 방정식
+            // 기본가 = (공격력 * 4) + (내구성 * 1.5)
+            // 최종가 = (기본가 * 접두사 배율) + 접미사 추가금
+            let appraisalValue = Math.floor(((rawAtk * 4) + (rawDur * 1.5)) * selectedPrefix.valMod) + selectedSuffix.valAdd;
+            if (useLeather) appraisalValue = Math.floor(appraisalValue * 1.2); // 재료 프리미엄
+
+            // F. 등급에 따른 클래스(CSS) 매핑
+            let rankClass = "rank-normal";
+            if (selectedPrefix.rank === "rare") rankClass = "rank-rare";
+            if (selectedPrefix.rank === "ancient") rankClass = "rank-ancient";
+            if (selectedPrefix.rank === "mythic") rankClass = "rank-mythic";
+
+            // G. 로그 인터페이스 인쇄
+            printHtmlLog(`[공정 3단] 식힘 물통에 무기를 넣어 제련을 완료했습니다!`);
+            
+            if (selectedPrefix.rank === "mythic" || selectedPrefix.rank === "ancient") {
+                printHtmlLog(`✨ 대장간의 대들보가 흔들리며 전설적인 역작이 탄생했습니다! ✨`);
             }
-        }, 600); // 0.6초간의 망치질 딜레이 연출
+
+            const fullName = `${selectedPrefix.text} ${base.name}${selectedSuffix.text}`;
+            printHtmlLog(`⚔️ 제련 장비: <span class="${rankClass}">${fullName}</span>`);
+            printHtmlLog(`   · 무기 분류: ${base.wType} 계열`);
+            printHtmlLog(`   · 물리 공격력: ${finalAtk} P (기본값: ${rawAtk})`);
+            printHtmlLog(`   · 최대 내구성: ${finalDur} / ${finalDur} P`);
+            printHtmlLog(`   · 상점 감정가: <span class="sys-gold">${appraisalValue.toLocaleString()} G</span>`);
+
+            // 정산 및 자금 회수
+            gold += appraisalValue;
+            printHtmlLog(`<span class="sys-alert">💰 장비가 모험가 연합에 즉시 납품되어 ${appraisalValue.toLocaleString()} G가 정산되었습니다.</span>`);
+            
+            updateDashboard();
+            btnCraft.disabled = false; // 버튼 복구
+        }, 1000);
     });
 
-    // 로그 클리어 버튼
     document.getElementById('btn-clear').addEventListener('click', () => {
-        logScreen.innerText = "용광로가 다시 조용해졌습니다.";
+        logScreen.innerText = "작업대를 깨끗하게 청소했습니다.";
     });
 </script>
 
