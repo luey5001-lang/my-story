@@ -2,249 +2,309 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>도형의 원버튼 너구리 게임</title>
+    <title>도형의 3D MUD-FPS: 고전 둠 스타일</title>
     <style>
         body {
-            background-color: #111;
-            color: #fff;
-            font-family: 'Courier New', Courier, monospace;
+            background-color: #050505;
+            color: #ef4444;
+            font-family: 'Consolas', 'Courier New', monospace;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            overflow: hidden;
+            user-select: none;
         }
-        .game-wrapper {
+        .game-container {
             text-align: center;
         }
-        /* 게임 화면 캔버스 */
         canvas {
-            background-color: #000;
             border: 4px solid #333;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            background-color: #000;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
             display: block;
-            margin-bottom: 15px;
         }
-        .score-board {
-            font-size: 18px;
-            margin-bottom: 10px;
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            background-color: #111;
+            padding: 10px;
+            border: 2px solid #333;
+            border-top: none;
+            font-size: 14px;
             font-weight: bold;
-            color: #f59e0b;
+            color: #d1d5db;
         }
-        /* 압도적인 크기의 원버튼 점프 컨트롤러 */
-        #btn-jump {
-            width: 100%;
-            max-width: 480px;
-            padding: 20px;
-            background-color: #ef4444;
+        .controls-panel {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            width: 640px;
+        }
+        button {
+            background-color: #222;
             color: #fff;
-            border: 3px solid #b91c1c;
-            border-radius: 12px;
-            font-size: 24px;
+            border: 1px solid #444;
+            padding: 12px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 6px #991b1b;
             font-family: inherit;
         }
-        #btn-jump:active {
-            box-shadow: 0 2px #991b1b;
-            transform: translateY(4px);
-        }
+        button:hover { background-color: #333; border-color: #ef4444; }
+        #btn-fire { background-color: #851c1d; border-color: #a8292b; grid-column: span 3; font-size: 20px; }
+        #btn-fire:active { background-color: #ef4444; }
     </style>
 </head>
 <body>
 
-<div class="game-wrapper">
-    <h2>[ 🦝 ONE-BUTTON NEOGURI ]</h2>
-    <div class="score-board">SCORE: <span id="txt-score">0</span> | LIVES: <span id="txt-lives">3</span></div>
+<div class="game-container">
+    <h2>[ 🪓 DOOM 2.5D RAYCASTER ]</h2>
     
-    <canvas id="gameCanvas" width="480" height="320"></canvas>
+    <!-- 3D 뷰포트 화면 -->
+    <canvas id="fpsCanvas" width="640" height="360"></canvas>
     
-    <button id="btn-jump">🚀 JUMP / DROP (1-CLICK)</button>
+    <!-- HUD 인터페이스 -->
+    <div class="hud">
+        <div>SCORE: <span id="txt-score" style="color:#f59e0b;">0</span></div>
+        <div>TARGET: <span id="txt-target" style="color:#ef4444;">N/A</span></div>
+        <div>AMMO: <span id="txt-ammo" style="color:#34d399;">999</span></div>
+    </div>
+
+    <!-- 터치/클릭 조작 패널 (모바일/마우스 대응용 원터치 제어) -->
+    <div class="controls-panel">
+        <button id="btn-left">◀ 좌회전</button>
+        <button id="btn-forward">▲ 전진</button>
+        <button id="btn-right">우회전 ▶</button>
+        <button id="btn-fire">💥 FIRE (사격)</button>
+    </div>
 </div>
 
 <script>
-    const canvas = document.getElementById('gameCanvas');
+    const canvas = document.getElementById('fpsCanvas');
     const ctx = canvas.getContext('2d');
-    const txtScore = document.getElementById('score');
-    const btnJump = document.getElementById('btn-jump');
 
-    // 1. 게임 환경 데이터 장부
-    let score = 0;
-    let lives = 3;
-    let gameOver = false;
+    // 1. 가상 2D 지도 장부 (1은 벽, 0은 통로)
+    // 이 지도를 기반으로 카메라 광선을 쏘아 3D 공간을 시뮬레이션합니다.
+    const mapWidth = 12;
+    const mapHeight = 12;
+    const map = [
+        1,1,1,1,1,1,1,1,1,1,1,1,
+        1,0,0,0,0,0,0,0,0,0,0,1,
+        1,0,1,1,0,0,0,0,1,1,0,1,
+        1,0,1,0,0,0,0,0,0,1,0,1,
+        1,0,0,0,0,1,1,0,0,0,0,1,
+        1,0,0,0,0,1,1,0,0,0,0,1,
+        1,0,1,0,0,0,0,0,0,1,0,1,
+        1,0,1,1,0,0,0,0,1,1,0,1,
+        1,0,0,0,0,0,0,0,0,0,0,1,
+        1,1,1,1,1,1,1,1,1,1,1,1
+    ];
 
-    // 2. 너구리 캐릭터 객체
-    let raccoon = {
-        x: 20,
-        y: 60,
-        width: 20,
-        height: 20,
-        speedX: 2,       // 자동으로 전진하는 가로 속도
-        velocityY: 0,    // 세로 중력 속도
-        gravity: 0.6,    // 중력 가속도
-        jumpPower: -8.5, // 점프 세기
-        isGrounded: false
+    // 2. 플레이어(카메라) 트래킹 변수
+    let player = {
+        x: 3.5, y: 3.5,     // 맵 타일 내 좌표
+        angle: 0,          // 바라보는 각도 (라디안)
+        fov: Math.PI / 3   // 시야각 (60도)
     };
 
-    // 3. 고정된 발판(루트) 데이터 세트
-    // 층별로 너구리가 타고 이동할 레일 발판
-    const platforms = [
-        { x: 0, y: 90, width: 420, height: 10, floor: 1 },    // 1층 발판 (오른쪽 끝이 뚫림)
-        { x: 60, y: 180, width: 420, height: 10, floor: 2 },   // 2층 발판 (왼쪽 끝이 뚫림)
-        { x: 0, y: 270, width: 420, height: 10, floor: 3 }     // 3층 발판 (오른쪽 끝이 뚫림)
+    let score = 0;
+    let currentEnemy = null; // 현재 정면에 출현한 몹 객체
+
+    // 3. 몬스터(몹) 데이터 엔진 변수
+    // 몹의 종류별 명세 사전
+    const enemyTypes = [
+        { type: "A", name: "임프 슬라임", hp: 30, color: "#10b981", size: 40 },
+        { type: "B", name: "지옥 좀비 해골", hp: 60, color: "#3b82f6", size: 50 },
+        { type: "BOSS", name: "🚨 사이버 데몬 (보스) 🚨", hp: 350, color: "#a855f7", size: 90 }
     ];
 
-    // 4. 피해야 할 장애물(가시) 배열
-    const obstacles = [
-        { x: 180, y: 75, width: 15, height: 15 },  // 1층 중간 가시
-        { x: 300, y: 165, width: 15, height: 15 }, // 2층 중간 가시
-        { x: 200, y: 255, width: 15, height: 15 }  // 3층 중간 가시
-    ];
-
-    // 점프 버튼 1클릭 이벤트 액션
-    btnJump.addEventListener('mousedown', executeAction);
-    window.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') { e.preventDefault(); executeAction(); }
-    });
-
-    function executeAction() {
-        if (gameOver) {
-            location.reload(); // 게임오버 시 아무데나 누르면 재시작
-            return;
+    // 몹 스폰 처리 기계
+    function spawnEnemy() {
+        const roll = Math.random();
+        let spec;
+        
+        if (roll < 0.04) {
+            // 4%의 아주 희박한 확률로 대형 보스 리젠
+            spec = enemyTypes[2]; 
+        } else if (roll < 0.5) {
+            spec = enemyTypes[0];
+        } else {
+            spec = enemyTypes[1];
         }
-        // 발판 위에 서 있을 때만 위로 점프 허용
-        if (raccoon.isGrounded) {
-            raccoon.velocityY = raccoon.jumpPower;
-            raccoon.isGrounded = false;
-            score += 10; // 점프할 때마다 보너스 점수
-        }
+
+        currentEnemy = {
+            name: spec.name,
+            hp: spec.hp,
+            maxHp: spec.hp,
+            color: spec.color,
+            size: spec.size,
+            distance: Math.random() * 3 + 1.5 // 플레이어와의 가상 거리
+        };
+        
+        document.getElementById('txt-target').innerText = `${currentEnemy.name} (HP: ${currentEnemy.hp})`;
     }
 
-    // 5. 실시간 물리 연산 및 엔진 루프
-    function update() {
-        if (gameOver) return;
+    // 4. 레이캐스팅 3D 그리기 엔진 코어
+    function render3D() {
+        // 화면 리셋 (천장과 바닥 분할 색상 칠하기)
+        ctx.fillStyle = "#111"; // 어두운 천장
+        ctx.fillRect(0, 0, canvas.width, canvas.height / 2);
+        ctx.fillStyle = "#222"; // 칙칙한 바닥
+        ctx.fillRect(0, canvas.height / 2, canvas.width, canvas.height / 2);
 
-        // 중력 작용 (공중에 떠 있으면 밑으로 가속)
-        raccoon.velocityY += raccoon.gravity;
-        raccoon.y += raccoon.velocityY;
+        // 화면의 가로 픽셀 열(Column) 개수만큼 광선을 쏩니다.
+        const numRays = canvas.width;
         
-        // 자동 가로 전진
-        raccoon.x += raccoon.speedX;
+        for (let i = 0; i < numRays; i++) {
+            // 각 픽셀 열에 해당하는 광선의 각도 계산
+            const rayAngle = (player.angle - player.fov / 2) + (i / numRays) * player.fov;
+            
+            let distanceToWall = 0;
+            let hitWall = false;
 
-        // 화면 양쪽 벽 충돌 처리 및 자동 반전 (ㄹ자 맵 이동 메커니즘)
-        if (raccoon.x + raccoon.width > canvas.width) {
-            raccoon.x = canvas.width - raccoon.width;
-            raccoon.speedX = -Math.abs(raccoon.speedX); // 왼쪽으로 반전
-        } else if (raccoon.x < 0) {
-            raccoon.x = 0;
-            raccoon.speedX = Math.abs(raccoon.speedX);  // 오른쪽으로 반전
-        }
+            // 광선 추적 증분값 설정
+            const eyeX = Math.sin(rayAngle);
+            const eyeY = Math.cos(rayAngle);
 
-        // 발판 착지 판단 계산 (물리 충돌 체크 장부)
-        raccoon.isGrounded = false;
-        for (let plat of platforms) {
-            if (raccoon.x + raccoon.width > plat.x && 
-                raccoon.x < plat.x + plat.width && 
-                raccoon.y + raccoon.height >= plat.y && 
-                raccoon.y + raccoon.height <= plat.y + 10 && 
-                raccoon.velocityY >= 0) {
+            while (!hitWall && distanceToWall < 16.0) {
+                distanceToWall += 0.05;
                 
-                raccoon.y = plat.y - raccoon.height;
-                raccoon.velocityY = 0;
-                raccoon.isGrounded = true;
-            }
-        }
+                let testX = Math.floor(player.x + eyeX * distanceToWall);
+                let testY = Math.floor(player.y + eyeY * distanceToWall);
 
-        // 아래로 떨어졌는데 다음 발판을 못 잡고 낙사했을 때의 안전장치
-        if (raccoon.y > canvas.height) {
-            resetRaccoon();
-        }
-
-        // 장애물 충돌 검사 (가시에 닿으면 라이프 차감)
-        for (let obs of obstacles) {
-            if (raccoon.x < obs.x + obs.width &&
-                raccoon.x + raccoon.width > obs.x &&
-                raccoon.y < obs.y + obs.height &&
-                raccoon.y + raccoon.height > obs.y) {
-                
-                lives--;
-                if (lives <= 0) {
-                    gameOver = true;
+                // 맵 영역을 벗어나면 무한 루프 방지를 위해 벽으로 간주 (무한 맵 기초 경계)
+                if (testX < 0 || testX >= mapWidth || testY < 0 || testY >= mapHeight) {
+                    hitWall = true;
+                    distanceToWall = 16.0;
                 } else {
-                    resetRaccoon();
+                    // 벽 타일(1)에 부딪힌 경우
+                    if (map[testY * mapWidth + testX] > 0) {
+                        hitWall = true;
+                    }
                 }
             }
-        }
 
-        // 스코어 실시간 업데이트
-        document.getElementById('txt-score').innerText = score;
-        document.getElementById('txt-lives').innerText = lives;
-    }
+            // 어안 렌즈 효과 보정 왜곡 계산
+            const correctedDist = distanceToWall * Math.cos(rayAngle - player.angle);
 
-    function resetRaccoon() {
-        raccoon.x = 20;
-        raccoon.y = 60;
-        raccoon.velocityY = 0;
-        raccoon.speedX = Math.abs(raccoon.speedX); // 처음 방향인 오른쪽으로 리셋
-    }
+            // 거리에 따른 벽 높이 계산 방정식 (가까울수록 길게 그려짐)
+            const ceiling = (canvas.height / 2.0) - canvas.height / correctedDist;
+            const floor = canvas.height - ceiling;
+            const wallHeight = floor - ceiling;
 
-    // 6. 도화지 화면 그리기 (렌더링 연산)
-    function draw() {
-        // 화면 초기화
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // 거리에 따른 명암(그림자) 효과 연산
+            const shade = Math.max(0, 255 - (correctedDist * 18));
+            ctx.strokeStyle = `rgb(${shade * 0.4}, ${shade * 0.4}, ${shade * 0.45})`; // 푸르스름한 둠 특유 벽면
 
-        // A. 발판 그리기 (갈색 발판 구조)
-        ctx.fillStyle = "#854d0e";
-        for (let plat of platforms) {
-            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-        }
-
-        // B. 장애물 그리기 (위험한 빨간 가시 삼각뿔)
-        ctx.fillStyle = "#ef4444";
-        for (let obs of obstacles) {
+            // 수직선 한 줄 그리기
             ctx.beginPath();
-            ctx.moveTo(obs.x + obs.width/2, obs.y);
-            ctx.lineTo(obs.x, obs.y + obs.height);
-            ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
-            ctx.fill();
+            ctx.moveTo(i, ceiling);
+            ctx.lineTo(i, floor);
+            ctx.stroke();
         }
 
-        // C. 주인공 너구리 캐릭터 그리기 (귀여운 노란색 사각형 주체)
-        ctx.fillStyle = "#fbbf24";
-        ctx.fillRect(raccoon.x, raccoon.y, raccoon.width, raccoon.height);
-        
-        // 눈 그리기 (전진 방향 식별용)
-        ctx.fillStyle = "#000";
-        if (raccoon.speedX > 0) {
-            ctx.fillRect(raccoon.x + 12, raccoon.y + 4, 4, 4); // 오른쪽 눈
-        } else {
-            ctx.fillRect(raccoon.x + 4, raccoon.y + 4, 4, 4);  // 왼쪽 눈
-        }
+        // 5. 3D 스프라이트 기법을 이용한 몹(Monster) 화면 투사 렌더링
+        if (currentEnemy) {
+            // 몹이 접근해오는 가상 연산 시뮬레이션 (자동 이동 처리)
+            currentEnemy.distance -= 0.005;
+            if (currentEnemy.distance <= 0.4) {
+                // 너무 가까워지면 플레이어를 공격한 것으로 간주하고 뒤로 물러남 (피해 연출 대체)
+                printActionLog("💥 크아악! 몹에게 기습당해 시야가 흔들립니다.");
+                currentEnemy.distance = 3.5;
+            }
 
-        // D. 게임오버 문구 스크린 인쇄
-        if (gameOver) {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#ef4444";
-            ctx.font = "bold 30px Courier New";
-            ctx.fillText("GAME OVER", 160, 140);
+            // 거리에 따른 몹 크기 스케일링
+            const spriteSize = (canvas.height / currentEnemy.distance) * (currentEnemy.size / 100);
+            
+            // 화면 중앙 정렬 좌표 산정
+            const spriteX = (canvas.width / 2) - (spriteSize / 2);
+            const spriteY = (canvas.height / 2) - (spriteSize / 2) + 20;
+
+            // 몹 몸체 그리기 (고전 의사 3D 빌보드 스프라이트 구조)
+            ctx.fillStyle = currentEnemy.color;
+            ctx.fillRect(spriteX, spriteY, spriteSize, spriteSize);
+
+            // 몹의 눈알 연출 (공포감 조성)
             ctx.fillStyle = "#fff";
-            ctx.font = "16px Courier New";
-            ctx.fillText("Click JUMP Button to Restart", 110, 180);
+            ctx.fillRect(spriteX + (spriteSize*0.25), spriteY + (spriteSize*0.3), spriteSize*0.15, spriteSize*0.15);
+            ctx.fillRect(spriteX + (spriteSize*0.6), spriteY + (spriteSize*0.3), spriteSize*0.15, spriteSize*0.15);
+            ctx.fillStyle = "#000";
+            ctx.fillRect(spriteX + (spriteSize*0.3), spriteY + (spriteSize*0.35), spriteSize*0.07, spriteSize*0.07);
+            ctx.fillRect(spriteX + (spriteSize*0.65), spriteY + (spriteSize*0.35), spriteSize*0.07, spriteSize*0.07);
         }
+
+        // 6. 플레이어 크로스헤어(조준점) UI
+        ctx.strokeStyle = "#ef4444";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(canvas.width/2 - 10, canvas.height/2); ctx.lineTo(canvas.width/2 + 10, canvas.height/2);
+        ctx.moveTo(canvas.width/2, canvas.height/2 - 10); ctx.lineTo(canvas.width/2, canvas.height/2 + 10);
+        ctx.stroke();
     }
 
-    // 7. 실시간 무한 반복 시계 구동 (FPS)
+    function printActionLog(msg) {
+        // 가상 HUD 로그 갱신 우회
+        console.log(msg);
+    }
+
+    // 7. 사격 및 조작 컨트롤러 논리 연동
+    document.getElementById('btn-fire').addEventListener('click', () => {
+        if (!currentEnemy) return;
+
+        // 발사 연출 효과 (화면 섬광 플래시)
+        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 랜덤 데미지 계산 (15 ~ 35)
+        const dmg = Math.floor(Math.random() * 21) + 15;
+        currentEnemy.hp -= dmg;
+
+        if (currentEnemy.hp <= 0) {
+            // 처치 완료
+            score += currentEnemy.maxHp === 350 ? 500 : 100; // 보스는 500점 고배율 정산
+            document.getElementById('txt-score').innerText = score;
+            currentEnemy = null;
+            document.getElementById('txt-target').innerText = "처치 완료! 다음 적 탐색 중...";
+            
+            // 1초 뒤 새로운 랜덤 몹 리스폰 연동
+            setTimeout(spawnEnemy, 1000);
+        } else {
+            document.getElementById('txt-target').innerText = `${currentEnemy.name} (HP: ${currentEnemy.hp})`;
+        }
+    });
+
+    // 가로 이동 및 시선 전환 바인딩 (무한 맵 컴팩트 이동 연산)
+    document.getElementById('btn-left').addEventListener('click', () => { player.angle -= 0.15; });
+    document.getElementById('btn-right').addEventListener('click', () => { player.angle += 0.15; });
+    document.getElementById('btn-forward').addEventListener('click', () => {
+        // 시선 방향으로 전진
+        let nextX = player.x + Math.sin(player.angle) * 0.3;
+        let nextY = player.y + Math.cos(player.angle) * 0.3;
+
+        // 벽 충돌 방지 및 무한 순환 맵 제어 규칙
+        if (map[Math.floor(nextY) * mapWidth + Math.floor(nextX)] === 0) {
+            player.x = nextX;
+            player.y = nextY;
+        }
+        
+        // 맵의 경계에 닿으면 반대편으로 강제 워프시켜 무한 반복 효과 구현
+        if (player.x > mapWidth - 1) player.x = 1;
+        if (player.x < 1) player.x = mapWidth - 2;
+        if (player.y > mapHeight - 1) player.y = 1;
+        if (player.y < 1) player.y = mapHeight - 2;
+    });
+
+    // 메인 엔진 무한 구동
     function gameLoop() {
-        update();
-        draw();
+        render3D();
         requestAnimationFrame(gameLoop);
     }
 
-    // 실행 선언
+    // 초기 실행 처리
+    spawnEnemy();
     gameLoop();
 </script>
 
