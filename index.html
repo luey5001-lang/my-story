@@ -2,310 +2,393 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>도형의 3D MUD-FPS: 고전 둠 스타일</title>
+    <title>도형의 MUD: 속성 대결과 무한 성장</title>
     <style>
         body {
-            background-color: #050505;
-            color: #ef4444;
+            background-color: #0c0d0e;
+            color: #d1d5db;
             font-family: 'Consolas', 'Courier New', monospace;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            user-select: none;
         }
         .game-container {
-            text-align: center;
+            width: 740px;
+            background-color: #1a1c1e;
+            border: 2px solid #3f444a;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border-radius: 8px;
+            position: relative;
         }
-        canvas {
-            border: 4px solid #333;
-            background-color: #000;
-            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
-            display: block;
-        }
-        .hud {
-            display: flex;
-            justify-content: space-between;
-            background-color: #111;
-            padding: 10px;
-            border: 2px solid #333;
-            border-top: none;
-            font-size: 14px;
-            font-weight: bold;
-            color: #d1d5db;
-        }
-        .controls-panel {
-            margin-top: 15px;
+        h2 { text-align: center; color: #fbbf24; border-bottom: 2px solid #3f444a; padding-bottom: 10px; margin-top: 0; }
+        
+        /* 캐릭터 및 대치 구도 대시보드 */
+        .dashboard {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+            background-color: #111214;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .dashboard-col {
+            border: 1px solid #2d3135;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .dashboard-col h3 { margin-top: 0; margin-bottom: 8px; font-size: 15px; border-bottom: 1px solid #2d3135; padding-bottom: 5px; }
+        
+        .log-window {
+            height: 300px;
+            border: 1px solid #3f444a;
+            padding: 15px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background-color: #090a0b;
+            white-space: pre-line;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        /* 제어 버튼 레이아웃 */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
-            width: 640px;
+            margin-bottom: 10px;
+        }
+        .loot-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            border-top: 1px dashed #3f444a;
+            padding-top: 10px;
+            display: none; /* 루팅 선택 상황에서만 켜짐 */
         }
         button {
-            background-color: #222;
-            color: #fff;
-            border: 1px solid #444;
+            background-color: #24272b;
+            color: #e5e7eb;
+            border: 1px solid #4b525a;
             padding: 12px;
-            font-size: 16px;
+            font-family: inherit;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
-            font-family: inherit;
+            border-radius: 4px;
         }
-        button:hover { background-color: #333; border-color: #ef4444; }
-        #btn-fire { background-color: #851c1d; border-color: #a8292b; grid-column: span 3; font-size: 20px; }
-        #btn-fire:active { background-color: #ef4444; }
+        button:hover { background-color: #3b3f46; border-color: #6b7280; }
+        button:disabled { color: #4b525a; border-color: #2d3135; cursor: not-allowed; background-color: #17191c; }
+        
+        #btn-attack { background-color: #851c1d; border-color: #a8292b; color: #fff; }
+        #btn-attack:hover { background-color: #a8292b; }
+        #btn-take { background-color: #065f46; border-color: #059669; color: #fff; }
+        #btn-take:hover { background-color: #059669; }
+        #btn-discard { background-color: #374151; border-color: #4b5563; color: #fff; }
+        #btn-discard:hover { background-color: #4b5563; }
+
+        /* 상태 창 레이어 */
+        .game-over-screen {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            color: #ef4444;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        .game-over-screen h1 { font-size: 50px; margin-bottom: 10px; letter-spacing: 5px; }
+
+        /* 속성 스타일 맵 */
+        .attr-fire { color: #f87171; font-weight: bold; } /* 화: 빨강 */
+        .attr-water { color: #60a5fa; font-weight: bold; } /* 수: 파랑 */
+        .attr-wood { color: #34d399; font-weight: bold; } /* 목: 초록 */
+        
+        .sys-item { color: #e9d5ff; font-weight: bold; }
+        .sys-monster { color: #fca5a5; font-weight: bold; }
+        .sys-heal { color: #f472b6; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="game-container">
-    <h2>[ 🪓 DOOM 2.5D RAYCASTER ]</h2>
-    
-    <!-- 3D 뷰포트 화면 -->
-    <canvas id="fpsCanvas" width="640" height="360"></canvas>
-    
-    <!-- HUD 인터페이스 -->
-    <div class="hud">
-        <div>SCORE: <span id="txt-score" style="color:#f59e0b;">0</span></div>
-        <div>TARGET: <span id="txt-target" style="color:#ef4444;">N/A</span></div>
-        <div>AMMO: <span id="txt-ammo" style="color:#34d399;">999</span></div>
+    <div class="game-over-screen" id="game-over">
+        <h1>💀 YOU DIED 💀</h1>
+        <p>전투 도중 쓰러졌습니다. 당신이 도달한 처치 수: <span id="txt-final-kill" style="font-weight:bold; color:#fbbf24;">0</span> 마리</p>
+        <button onclick="location.reload()" style="background-color: #b91c1c; color: #fff; border: none; margin-top: 20px; padding: 10px 20px; cursor: pointer; font-weight:bold;">🔄 다시 시작하기</button>
     </div>
 
-    <!-- 터치/클릭 조작 패널 (모바일/마우스 대응용 원터치 제어) -->
-    <div class="controls-panel">
-        <button id="btn-left">◀ 좌회전</button>
-        <button id="btn-forward">▲ 전진</button>
-        <button id="btn-right">우회전 ▶</button>
-        <button id="btn-fire">💥 FIRE (사격)</button>
+    <h2>[ ⚔️ MUD: 속성 상성과 스케일링 ]</h2>
+    
+    <div class="dashboard">
+        <!-- 좌측: 플레이어 장부 정보 -->
+        <div class="dashboard-col">
+            <h3>👤 플레이어 스펙</h3>
+            <div>HP: <span id="p-hp" style="color:#ef4444; font-weight:bold;">100/100</span></div>
+            <div>처치 수: <span id="p-kills" style="font-weight:bold; color:#fbbf24;">0 마리</span></div>
+            <div>장비: <span id="p-weapon-name" class="sys-item">녹슨 단검</span></div>
+            <div>공격력: <span id="p-weapon-atk" style="font-weight:bold;">10</span> | 속성: <span id="p-weapon-attr" class="attr-fire">🔥화</span></div>
+        </div>
+        <!-- 우측: 대치 중인 몹 장부 정보 -->
+        <div class="dashboard-col">
+            <h3>👹 대치 중인 몬스터</h3>
+            <div>이름: <span id="m-name" class="sys-monster">슬라임</span></div>
+            <div>HP: <span id="m-hp" style="color:#ef4444; font-weight:bold;">30/30</span></div>
+            <div>공격력: <span id="m-atk" style="font-weight:bold;">8</span> | 속성: <span id="m-attr" class="attr-water">💧수</span></div>
+        </div>
+    </div>
+
+    <!-- 로그 창 -->
+    <div class="log-window" id="log-screen">
+어두운 통로를 걷던 도중 슬라임이 가로막았습니다!
+- 속성 상성에 맞물리면 피해량이 변동됩니다.
+- <b>[🔥화 ➡️ 🍃목 ➡️ 💧수 ➡️ 🔥화]</b> 물고 물리는 상성 관계가 성립됩니다.
+- 유리한 상성은 <span class="attr-wood">+20% 증폭</span>, 불리한 상성은 <span class="loss">-20% 페널티</span>가 주어집니다.
+    </div>
+
+    <!-- 기본 전투 버튼 -->
+    <div class="controls" id="battle-controls">
+        <button id="btn-attack">⚔️ 공격하기</button>
+    </div>
+
+    <!-- 드롭 파밍 버튼 (숨김 상태였다가 드롭 시 전환) -->
+    <div class="loot-controls" id="loot-controls">
+        <button id="btn-take">👍 새로운 무기 장착</button>
+        <button id="btn-discard">👎 기존 무기 유지</button>
     </div>
 </div>
 
 <script>
-    const canvas = document.getElementById('fpsCanvas');
-    const ctx = canvas.getContext('2d');
+    const logScreen = document.getElementById('log-screen');
+    const p_hp = document.getElementById('p-hp');
+    const p_kills = document.getElementById('p-kills');
+    const p_weapon_name = document.getElementById('p-weapon-name');
+    const p_weapon_atk = document.getElementById('p-weapon-atk');
+    const p_weapon_attr = document.getElementById('p-weapon-attr');
+    
+    const m_name = document.getElementById('m-name');
+    const m_hp = document.getElementById('m-hp');
+    const m_atk = document.getElementById('m-atk');
+    const m_attr = document.getElementById('m-attr');
 
-    // 1. 가상 2D 지도 장부 (1은 벽, 0은 통로)
-    // 이 지도를 기반으로 카메라 광선을 쏘아 3D 공간을 시뮬레이션합니다.
-    const mapWidth = 12;
-    const mapHeight = 12;
-    const map = [
-        1,1,1,1,1,1,1,1,1,1,1,1,
-        1,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,1,1,0,0,0,0,1,1,0,1,
-        1,0,1,0,0,0,0,0,0,1,0,1,
-        1,0,0,0,0,1,1,0,0,0,0,1,
-        1,0,0,0,0,1,1,0,0,0,0,1,
-        1,0,1,0,0,0,0,0,0,1,0,1,
-        1,0,1,1,0,0,0,0,1,1,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,1,
-        1,1,1,1,1,1,1,1,1,1,1,1
-    ];
+    const btnAttack = document.getElementById('btn-attack');
+    const btnTake = document.getElementById('btn-take');
+    const btnDiscard = document.getElementById('btn-discard');
+    
+    const divBattle = document.getElementById('battle-controls');
+    const divLoot = document.getElementById('loot-controls');
+    const gameOverScreen = document.getElementById('game-over');
+    const txtFinalKill = document.getElementById('txt-final-kill');
 
-    // 2. 플레이어(카메라) 트래킹 변수
+    // 1. 상태 변수 정의
     let player = {
-        x: 3.5, y: 3.5,     // 맵 타일 내 좌표
-        angle: 0,          // 바라보는 각도 (라디안)
-        fov: Math.PI / 3   // 시야각 (60도)
+        hp: 100, maxHp: 100, kills: 0,
+        weapon: { name: "연습용 철검", atk: 15, attr: "fire" } // 속성: fire, water, wood
     };
 
-    let score = 0;
-    let currentEnemy = null; // 현재 정면에 출현한 몹 객체
+    let monster = null;
+    let droppedLoot = null; // 드롭된 신규 아이템 임시 저장 장부
 
-    // 3. 몬스터(몹) 데이터 엔진 변수
-    // 몹의 종류별 명세 사전
-    const enemyTypes = [
-        { type: "A", name: "임프 슬라임", hp: 30, color: "#10b981", size: 40 },
-        { type: "B", name: "지옥 좀비 해골", hp: 60, color: "#3b82f6", size: 50 },
-        { type: "BOSS", name: "🚨 사이버 데몬 (보스) 🚨", hp: 350, color: "#a855f7", size: 90 }
-    ];
+    // 속성 매핑 한글 및 CSS 클래스 장부
+    const attrMap = {
+        fire: { kr: "🔥화", cls: "attr-fire" },
+        water: { kr: "💧수", cls: "attr-water" },
+        wood: { kr: "🍃목", cls: "attr-wood" }
+    };
 
-    // 몹 스폰 처리 기계
-    function spawnEnemy() {
-        const roll = Math.random();
-        let spec;
-        
-        if (roll < 0.04) {
-            // 4%의 아주 희박한 확률로 대형 보스 리젠
-            spec = enemyTypes[2]; 
-        } else if (roll < 0.5) {
-            spec = enemyTypes[0];
+    const monsterNames = ["이끼 고블린", "맹렬한 화염마", "심해 아귀", "가시 드레이크", "검은 흑마법사"];
+    const weaponPrefixes = ["강철의", "황야의", "룬새김", "수호자의", "용사의"];
+    const weaponTypes = ["클레이모어", "배틀액스", "피어싱 창", "오선지 해머"];
+
+    function printHtmlLog(htmlText) {
+        logScreen.innerHTML += "\n" + htmlText;
+        logScreen.scrollTop = logScreen.scrollHeight;
+    }
+
+    function updateUI() {
+        p_hp.innerText = `${player.hp}/${player.maxHp}`;
+        p_kills.innerText = `${player.kills} 마리`;
+        p_weapon_name.innerText = player.weapon.name;
+        p_weapon_atk.innerText = player.weapon.atk;
+        p_weapon_attr.innerHTML = `<span class="${attrMap[player.weapon.attr].cls}">${attrMap[player.weapon.attr].kr}</span>`;
+
+        if (monster) {
+            m_name.innerText = monster.name;
+            m_hp.innerText = `${monster.hp}/${monster.maxHp}`;
+            m_atk.innerText = monster.atk;
+            m_attr.innerHTML = `<span class="${attrMap[monster.attr].cls}">${attrMap[monster.attr].kr}</span>`;
         } else {
-            spec = enemyTypes[1];
+            m_name.innerText = "전투 종료";
+            m_hp.innerText = "-";
+            m_atk.innerText = "-";
+            m_attr.innerText = "-";
+        }
+    }
+
+    // 2. 핵심: 3속성 가위바위보 상성 가중치 판별 연산
+    // [화 ➡️ 목 ➡️ 수 ➡️ 화]
+    function getMultiplier(attackerAttr, defenderAttr) {
+        if (attackerAttr === defenderAttr) return 1.0; // 동속성 변동 없음
+        
+        if (
+            (attackerAttr === "fire" && defenderAttr === "wood") ||
+            (attackerAttr === "wood" && defenderAttr === "water") ||
+            (attackerAttr === "water" && defenderAttr === "fire")
+        ) {
+            return 1.2; // 유리한 상성: 20% 증폭
         }
 
-        currentEnemy = {
-            name: spec.name,
-            hp: spec.hp,
-            maxHp: spec.hp,
-            color: spec.color,
-            size: spec.size,
-            distance: Math.random() * 3 + 1.5 // 플레이어와의 가상 거리
+        return 0.8; // 불리한 상성: 20% 감쇄
+    }
+
+    // 3. 몬스터 스케일링 리스폰 엔진
+    function spawnMonster() {
+        // 플레이어 장비 무기 공격력의 세기에 비례하여 몬스터도 동반 강화됨
+        const scaleFactor = Math.max(1, player.weapon.atk / 15);
+        const maxHp = Math.floor((Math.random() * 21 + 30) * scaleFactor);
+        const atk = Math.floor((Math.random() * 5 + 8) * scaleFactor);
+        const attrKeys = ["fire", "water", "wood"];
+
+        monster = {
+            name: monsterNames[Math.floor(Math.random() * monsterNames.length)],
+            hp: maxHp,
+            maxHp: maxHp,
+            atk: atk,
+            attr: attrKeys[Math.floor(Math.random() * attrKeys.length)]
         };
+
+        printHtmlLog(`\n------------------------------------------------------------`);
+        printHtmlLog(`👹 숲 뒤편에서 새로운 강도 계수(${scaleFactor.toFixed(1)})를 가진 <span class="sys-monster">${monster.name}</span>(속성: <span class="${attrMap[monster.attr].cls}">${attrMap[monster.attr].kr}</span>)이 습격해왔습니다!`);
+        updateUI();
+    }
+
+    // 4. 전투 연산 엔진
+    btnAttack.addEventListener('click', () => {
+        if (player.hp <= 0 || !monster) return;
+
+        btnAttack.disabled = true;
+
+        // A. 내 공격력 연산 (속성 매칭 반영)
+        const pMult = getMultiplier(player.weapon.attr, monster.attr);
+        let pDamage = Math.floor((player.weapon.atk + Math.floor(Math.random() * 5)) * pMult);
         
-        document.getElementById('txt-target').innerText = `${currentEnemy.name} (HP: ${currentEnemy.hp})`;
-    }
-
-    // 4. 레이캐스팅 3D 그리기 엔진 코어
-    function render3D() {
-        // 화면 리셋 (천장과 바닥 분할 색상 칠하기)
-        ctx.fillStyle = "#111"; // 어두운 천장
-        ctx.fillRect(0, 0, canvas.width, canvas.height / 2);
-        ctx.fillStyle = "#222"; // 칙칙한 바닥
-        ctx.fillRect(0, canvas.height / 2, canvas.width, canvas.height / 2);
-
-        // 화면의 가로 픽셀 열(Column) 개수만큼 광선을 쏩니다.
-        const numRays = canvas.width;
+        monster.hp -= pDamage;
         
-        for (let i = 0; i < numRays; i++) {
-            // 각 픽셀 열에 해당하는 광선의 각도 계산
-            const rayAngle = (player.angle - player.fov / 2) + (i / numRays) * player.fov;
+        let battleDetail = pMult > 1.0 
+            ? `<span class="profit">상성 저격 적중! (+20% 증폭)</span>` 
+            : (pMult < 1.0 ? `<span class="loss">상성 상 역카운터! (-20% 감쇄)</span>` : "");
             
-            let distanceToWall = 0;
-            let hitWall = false;
+        printHtmlLog(`⚔️ 당신의 격돌! ${monster.name}에게 ${pDamage}의 피해를 주었습니다. ${battleDetail}`);
 
-            // 광선 추적 증분값 설정
-            const eyeX = Math.sin(rayAngle);
-            const eyeY = Math.cos(rayAngle);
-
-            while (!hitWall && distanceToWall < 16.0) {
-                distanceToWall += 0.05;
-                
-                let testX = Math.floor(player.x + eyeX * distanceToWall);
-                let testY = Math.floor(player.y + eyeY * distanceToWall);
-
-                // 맵 영역을 벗어나면 무한 루프 방지를 위해 벽으로 간주 (무한 맵 기초 경계)
-                if (testX < 0 || testX >= mapWidth || testY < 0 || testY >= mapHeight) {
-                    hitWall = true;
-                    distanceToWall = 16.0;
-                } else {
-                    // 벽 타일(1)에 부딪힌 경우
-                    if (map[testY * mapWidth + testX] > 0) {
-                        hitWall = true;
-                    }
-                }
-            }
-
-            // 어안 렌즈 효과 보정 왜곡 계산
-            const correctedDist = distanceToWall * Math.cos(rayAngle - player.angle);
-
-            // 거리에 따른 벽 높이 계산 방정식 (가까울수록 길게 그려짐)
-            const ceiling = (canvas.height / 2.0) - canvas.height / correctedDist;
-            const floor = canvas.height - ceiling;
-            const wallHeight = floor - ceiling;
-
-            // 거리에 따른 명암(그림자) 효과 연산
-            const shade = Math.max(0, 255 - (correctedDist * 18));
-            ctx.strokeStyle = `rgb(${shade * 0.4}, ${shade * 0.4}, ${shade * 0.45})`; // 푸르스름한 둠 특유 벽면
-
-            // 수직선 한 줄 그리기
-            ctx.beginPath();
-            ctx.moveTo(i, ceiling);
-            ctx.lineTo(i, floor);
-            ctx.stroke();
+        // B. 몬스터 사망 시 처리
+        if (monster.hp <= 0) {
+            player.kills++;
+            printHtmlLog(`🎉 승리! <span class="sys-monster">${monster.name}</span>를 쓰러뜨렸습니다.`);
+            
+            monster = null;
+            rollDropTable(); // 드롭 테이블 굴리기
+            return;
         }
 
-        // 5. 3D 스프라이트 기법을 이용한 몹(Monster) 화면 투사 렌더링
-        if (currentEnemy) {
-            // 몹이 접근해오는 가상 연산 시뮬레이션 (자동 이동 처리)
-            currentEnemy.distance -= 0.005;
-            if (currentEnemy.distance <= 0.4) {
-                // 너무 가까워지면 플레이어를 공격한 것으로 간주하고 뒤로 물러남 (피해 연출 대체)
-                printActionLog("💥 크아악! 몹에게 기습당해 시야가 흔들립니다.");
-                currentEnemy.distance = 3.5;
-            }
+        // C. 적 반격 연산 (몹 ➡️ 내 상성 가산)
+        const mMult = getMultiplier(monster.attr, player.weapon.attr);
+        let mDamage = Math.floor((monster.atk + Math.floor(Math.random() * 3)) * mMult);
+        player.hp -= mDamage;
 
-            // 거리에 따른 몹 크기 스케일링
-            const spriteSize = (canvas.height / currentEnemy.distance) * (currentEnemy.size / 100);
-            
-            // 화면 중앙 정렬 좌표 산정
-            const spriteX = (canvas.width / 2) - (spriteSize / 2);
-            const spriteY = (canvas.height / 2) - (spriteSize / 2) + 20;
+        let monsterDetail = mMult > 1.0 
+            ? `<span class="loss">상성 가중치 부과! (+20% 추가피해)</span>` 
+            : (mMult < 1.0 ? `<span class="profit">효과적인 방어막 작동! (-20% 피해감소)</span>` : "");
 
-            // 몹 몸체 그리기 (고전 의사 3D 빌보드 스프라이트 구조)
-            ctx.fillStyle = currentEnemy.color;
-            ctx.fillRect(spriteX, spriteY, spriteSize, spriteSize);
+        printHtmlLog(`💥 ${monster.name}의 거친 격타! 당신에게 ${mDamage}의 고통을 줍니다. ${monsterDetail}`);
 
-            // 몹의 눈알 연출 (공포감 조성)
-            ctx.fillStyle = "#fff";
-            ctx.fillRect(spriteX + (spriteSize*0.25), spriteY + (spriteSize*0.3), spriteSize*0.15, spriteSize*0.15);
-            ctx.fillRect(spriteX + (spriteSize*0.6), spriteY + (spriteSize*0.3), spriteSize*0.15, spriteSize*0.15);
-            ctx.fillStyle = "#000";
-            ctx.fillRect(spriteX + (spriteSize*0.3), spriteY + (spriteSize*0.35), spriteSize*0.07, spriteSize*0.07);
-            ctx.fillRect(spriteX + (spriteSize*0.65), spriteY + (spriteSize*0.35), spriteSize*0.07, spriteSize*0.07);
+        // D. 사망 판정
+        if (player.hp <= 0) {
+            txtFinalKill.innerText = player.kills;
+            gameOverScreen.style.display = "flex";
+            return;
         }
 
-        // 6. 플레이어 크로스헤어(조준점) UI
-        ctx.strokeStyle = "#ef4444";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(canvas.width/2 - 10, canvas.height/2); ctx.lineTo(canvas.width/2 + 10, canvas.height/2);
-        ctx.moveTo(canvas.width/2, canvas.height/2 - 10); ctx.lineTo(canvas.width/2, canvas.height/2 + 10);
-        ctx.stroke();
-    }
-
-    function printActionLog(msg) {
-        // 가상 HUD 로그 갱신 우회
-        console.log(msg);
-    }
-
-    // 7. 사격 및 조작 컨트롤러 논리 연동
-    document.getElementById('btn-fire').addEventListener('click', () => {
-        if (!currentEnemy) return;
-
-        // 발사 연출 효과 (화면 섬광 플래시)
-        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // 랜덤 데미지 계산 (15 ~ 35)
-        const dmg = Math.floor(Math.random() * 21) + 15;
-        currentEnemy.hp -= dmg;
-
-        if (currentEnemy.hp <= 0) {
-            // 처치 완료
-            score += currentEnemy.maxHp === 350 ? 500 : 100; // 보스는 500점 고배율 정산
-            document.getElementById('txt-score').innerText = score;
-            currentEnemy = null;
-            document.getElementById('txt-target').innerText = "처치 완료! 다음 적 탐색 중...";
-            
-            // 1초 뒤 새로운 랜덤 몹 리스폰 연동
-            setTimeout(spawnEnemy, 1000);
-        } else {
-            document.getElementById('txt-target').innerText = `${currentEnemy.name} (HP: ${currentEnemy.hp})`;
-        }
+        updateUI();
+        btnAttack.disabled = false;
     });
 
-    // 가로 이동 및 시선 전환 바인딩 (무한 맵 컴팩트 이동 연산)
-    document.getElementById('btn-left').addEventListener('click', () => { player.angle -= 0.15; });
-    document.getElementById('btn-right').addEventListener('click', () => { player.angle += 0.15; });
-    document.getElementById('btn-forward').addEventListener('click', () => {
-        // 시선 방향으로 전진
-        let nextX = player.x + Math.sin(player.angle) * 0.3;
-        let nextY = player.y + Math.cos(player.angle) * 0.3;
+    // 5. 드롭 결정 테이블
+    function rollDropTable() {
+        const roll = Math.random();
 
-        // 벽 충돌 방지 및 무한 순환 맵 제어 규칙
-        if (map[Math.floor(nextY) * mapWidth + Math.floor(nextX)] === 0) {
-            player.x = nextX;
-            player.y = nextY;
+        // A. 20%의 확률로 완전 회복 물약 드롭 처리
+        if (roll < 0.20) {
+            player.hp = player.maxHp;
+            printHtmlLog(`🧪🧪 <span class="sys-heal">[드롭] 전설의 엘릭서를 발견하여 즉시 들이켜 모든 체력을 채웠습니다! (HP 100% 충전)</span>`);
+            updateUI();
+            
+            // 물약 획득 시 바로 다음 전투 이행
+            setTimeout(spawnMonster, 1200);
+            btnAttack.disabled = false;
+            return;
         }
-        
-        // 맵의 경계에 닿으면 반대편으로 강제 워프시켜 무한 반복 효과 구현
-        if (player.x > mapWidth - 1) player.x = 1;
-        if (player.x < 1) player.x = mapWidth - 2;
-        if (player.y > mapHeight - 1) player.y = 1;
-        if (player.y < 1) player.y = mapHeight - 2;
-    });
 
-    // 메인 엔진 무한 구동
-    function gameLoop() {
-        render3D();
-        requestAnimationFrame(gameLoop);
+        // B. 80% 확률로 가변 속성이 인챈트된 장비 파밍 모드 돌입
+        const pfx = weaponPrefixes[Math.floor(Math.random() * weaponPrefixes.length)];
+        const typ = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
+        const attrKeys = ["fire", "water", "wood"];
+        const selectedAttr = attrKeys[Math.floor(Math.random() * attrKeys.length)];
+
+        // 현재 무기 수준 및 처치 수에 따라 강도가 조금씩 우상향 상승함
+        const gearLevelFactor = 1 + (player.kills * 0.08);
+        const baseAtk = Math.floor((Math.random() * 11 + 10) * gearLevelFactor);
+
+        droppedLoot = {
+            name: `${pfx} ${typ}`,
+            atk: baseAtk,
+            attr: selectedAttr
+        };
+
+        printHtmlLog(`\n🎁 <span class="sys-item">[전리품 확인]</span> 바닥에서 반짝이는 무기를 발견했습니다.`);
+        printHtmlLog(`   · 무기명: <span class="sys-item">${droppedLoot.name}</span>`);
+        printHtmlLog(`   · 공격력: ${droppedLoot.atk} | 속성: <span class="${attrMap[droppedLoot.attr].cls}">${attrMap[droppedLoot.attr].kr}</span>`);
+        printHtmlLog(`   · 현재 장비 정보: ${player.weapon.name}(공격력: ${player.weapon.atk})`);
+        
+        // 전투 인터페이스 감추고 습득/버리기 인터페이스 노출
+        divBattle.style.display = "none";
+        divLoot.style.display = "grid";
+        updateUI();
     }
 
-    // 초기 실행 처리
-    spawnEnemy();
-    gameLoop();
+    // 6. 새로운 무기 파밍 수렴/거절 제어
+    btnTake.addEventListener('click', () => {
+        player.weapon = { ...droppedLoot };
+        droppedLoot = null;
+
+        printHtmlLog(`\n👍 새로운 무기 [${player.weapon.name}]를 손에 쥐었습니다. 이전 장비는 버려집니다.`);
+        
+        divLoot.style.display = "none";
+        divBattle.style.display = "grid";
+        btnAttack.disabled = false;
+
+        spawnMonster(); // 신규 장비를 착용했으니 다음 강화 몬스터 조우
+    });
+
+    btnDiscard.addEventListener('click', () => {
+        printHtmlLog(`\n👎 더러운 무기를 거절했습니다. 기존의 [${player.weapon.name}] 장비를 악착같이 유지합니다.`);
+        droppedLoot = null;
+
+        divLoot.style.display = "none";
+        divBattle.style.display = "grid";
+        btnAttack.disabled = false;
+
+        spawnMonster(); // 장비를 유지한 채 다음 전투 이행
+    });
+
+    // 실행
+    spawnMonster();
 </script>
 
 </body>
