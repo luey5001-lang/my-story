@@ -2,343 +2,250 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>도형의 MUD: 속성 대결과 무한 성장</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도형의 프로젝트: HACK_MAN</title>
     <style>
+        /* 터미널 감성 CSS */
         body {
-            background-color: #0c0d0e;
-            color: #d1d5db;
-            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: #050505;
+            color: #0f0; /* 해커 감성의 형광 녹색 */
+            font-family: 'Courier New', Courier, monospace;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
-        .game-container {
-            width: 740px;
-            background-color: #1a1c1e;
-            border: 2px solid #3f444a;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-            border-radius: 8px;
+        .terminal {
+            width: 90%;
+            max-width: 600px;
+            background-color: #000;
+            border: 2px solid #0f0;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            padding: 20px;
+            border-radius: 5px;
             position: relative;
         }
-        h2 { text-align: center; color: #fbbf24; border-bottom: 2px solid #3f444a; padding-bottom: 10px; margin-top: 0; }
+        /* 옛날 브라운관(CRT) 모니터의 스캔라인 효과 */
+        .terminal::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+        h2 { border-bottom: 1px dashed #0f0; padding-bottom: 10px; margin-top: 0; text-shadow: 0 0 5px #0f0; }
         
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-            background-color: #111214;
-            padding: 15px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        .dashboard-col {
-            border: 1px solid #2d3135;
-            padding: 10px;
-            border-radius: 4px;
-        }
-        .dashboard-col h3 { margin-top: 0; margin-bottom: 8px; font-size: 15px; border-bottom: 1px solid #2d3135; padding-bottom: 5px; color: #e5e7eb; }
+        .status-panel { margin-bottom: 20px; font-size: 14px; }
+        .trace-bar-container { width: 100%; background-color: #111; border: 1px solid #0f0; height: 20px; margin-top: 5px; position: relative; }
+        .trace-bar { height: 100%; background-color: #0f0; width: 0%; transition: width 0.3s; }
+        .trace-text { position: absolute; top: 0; left: 50%; transform: translateX(-50%); font-weight: bold; color: #fff; mix-blend-mode: difference; line-height: 20px; }
+        .warning { color: #f00; text-shadow: 0 0 5px #f00; }
+        .warning .trace-bar { background-color: #f00; }
+        .warning .trace-bar-container { border-color: #f00; }
+
+        .word-display { font-size: 32px; letter-spacing: 10px; text-align: center; margin: 30px 0; text-shadow: 0 0 8px #0f0; }
+        .used-letters { margin-bottom: 20px; font-size: 14px; color: #aaa; }
         
-        .log-window {
-            height: 300px;
-            border: 1px solid #3f444a;
-            padding: 15px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            background-color: #090a0b;
-            white-space: pre-line;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-        
-        .controls, .loot-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .loot-controls {
-            display: none; /* 아이템 드롭 시에만 켜짐 */
-            border-top: 1px dashed #3f444a;
-            padding-top: 15px;
+        .input-area { display: flex; align-items: center; gap: 10px; border-top: 1px dashed #0f0; padding-top: 15px; }
+        .prompt { font-weight: bold; }
+        input[type="text"] {
+            background: transparent; border: none; border-bottom: 2px solid #0f0; color: #0f0;
+            font-family: inherit; font-size: 20px; width: 40px; text-align: center; outline: none; text-transform: uppercase;
         }
         button {
-            background-color: #24272b;
-            color: #e5e7eb;
-            border: 1px solid #4b525a;
-            padding: 14px;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.2s;
+            background-color: #0f0; color: #000; border: none; padding: 8px 15px; font-family: inherit; font-weight: bold; cursor: pointer;
         }
-        button:hover { background-color: #3b3f46; border-color: #6b7280; }
-        button:disabled { color: #4b525a; border-color: #2d3135; cursor: not-allowed; background-color: #17191c; }
+        button:hover { background-color: #fff; }
         
-        #btn-attack { background-color: #851c1d; border-color: #a8292b; color: #fff; grid-column: span 2; }
-        #btn-attack:hover { background-color: #a8292b; }
-        #btn-take { background-color: #065f46; border-color: #059669; color: #fff; }
-        #btn-take:hover { background-color: #059669; }
-        #btn-discard { background-color: #374151; border-color: #4b5563; color: #fff; }
-        #btn-discard:hover { background-color: #4b5563; }
+        .log-screen { margin-top: 15px; height: 100px; overflow-y: auto; font-size: 12px; color: #888; }
+        .log-screen span { display: block; }
 
-        .game-over-screen {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            color: #ef4444;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-radius: 8px;
-            z-index: 10;
+        /* 블라인드 레이어 */
+        .overlay {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.9); z-index: 10; flex-direction: column; justify-content: center; align-items: center; text-align: center;
         }
-        .game-over-screen h1 { font-size: 50px; margin-bottom: 10px; letter-spacing: 5px; }
-
-        .attr-fire { color: #f87171; font-weight: bold; } /* 화: 빨강 */
-        .attr-water { color: #60a5fa; font-weight: bold; } /* 수: 파랑 */
-        .attr-wood { color: #34d399; font-weight: bold; } /* 목: 초록 */
-        
-        .sys-item { color: #e9d5ff; font-weight: bold; }
-        .sys-monster { color: #fca5a5; font-weight: bold; }
-        .sys-heal { color: #f472b6; font-weight: bold; }
-        .profit { color: #10b981; font-weight: bold; }
-        .loss { color: #ef4444; font-weight: bold; }
+        .overlay h1 { font-size: 40px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<div class="game-container">
-    <div class="game-over-screen" id="game-over">
-        <h1>💀 YOU DIED 💀</h1>
-        <p>전투 도중 쓰러졌습니다. 총 처치 수: <span id="txt-final-kill" style="font-weight:bold; color:#fbbf24;">0</span> 마리</p>
-        <button onclick="location.reload()" style="background-color: #b91c1c; color: #fff; border: none; margin-top: 20px; padding: 10px 20px; cursor: pointer; font-weight:bold;">🔄 다시 시작하기</button>
+<div class="terminal">
+    <!-- 결과 레이어 (성공/실패 시 화면을 덮음) -->
+    <div class="overlay" id="end-screen">
+        <h1 id="end-title">SYSTEM LOCKDOWN</h1>
+        <p id="end-desc">방화벽에 의해 추적당했습니다.</p>
+        <button onclick="location.reload()">> REBOOT SYSTEM_</button>
     </div>
 
-    <h2>[ ⚔️ MUD: 끝없는 굴레와 상성 ]</h2>
+    <h2>> MAINFRAME_DECRYPTION_PROTOCOL</h2>
     
-    <div class="dashboard">
-        <div class="dashboard-col">
-            <h3>👤 플레이어 정보</h3>
-            <div>HP: <span id="p-hp" style="color:#ef4444; font-weight:bold;">100/100</span></div>
-            <div>처치 수: <span id="p-kills" style="font-weight:bold; color:#fbbf24;">0 마리</span></div>
-            <div>장비: <span id="p-weapon-name" class="sys-item">녹슨 단검</span></div>
-            <div>공격력: <span id="p-weapon-atk" style="font-weight:bold;">10</span> | 속성: <span id="p-weapon-attr" class="attr-fire">🔥화</span></div>
-        </div>
-        <div class="dashboard-col">
-            <h3>👹 대치 중인 몬스터</h3>
-            <div>이름: <span id="m-name" class="sys-monster">대기 중...</span></div>
-            <div>HP: <span id="m-hp" style="color:#ef4444; font-weight:bold;">-</span></div>
-            <div>공격력: <span id="m-atk" style="font-weight:bold;">-</span> | 속성: <span id="m-attr">-</span></div>
+    <div class="status-panel" id="status-panel">
+        <div>> 타겟: 보안 방화벽 루트 패스워드</div>
+        <div>> 보안 추적 진행률 (최대 6회 오류 시 시스템 차단)</div>
+        <div class="trace-bar-container">
+            <div class="trace-bar" id="trace-bar"></div>
+            <div class="trace-text" id="trace-text">TRACE: 0%</div>
         </div>
     </div>
 
-    <div class="log-window" id="log-screen">
-던전에 진입했습니다. 속성 상성 규칙을 숙지하십시오.
-- <b>[🔥화 ➡️ 🍃목 ➡️ 💧수 ➡️ 🔥화]</b> 순으로 강한 상성을 지닙니다.
-- 유리한 상성은 <span class="profit">데미지 20% 증가</span>, 불리한 상성은 <span class="loss">데미지 20% 감소</span>가 적용됩니다.
-- 몬스터는 당신의 무기 강도에 맞춰 점점 강력해집니다.
+    <!-- 행맨 단어가 표시되는 곳 -->
+    <div class="word-display" id="word-display">_ _ _ _ _ _</div>
+    
+    <div class="used-letters">> 시도한 알파벳 데이터: <span id="used-letters-text">없음</span></div>
+
+    <!-- 터미널 입력 창 -->
+    <div class="input-area">
+        <span class="prompt">C:\> DECRYPT -key</span>
+        <input type="text" id="letter-input" maxlength="1" autocomplete="off">
+        <button id="btn-submit">INJECT</button>
     </div>
 
-    <div class="controls" id="battle-controls">
-        <button id="btn-attack">⚔️ 교전 (공격 및 반격)</button>
-    </div>
-
-    <div class="loot-controls" id="loot-controls">
-        <button id="btn-take">👍 새 무기 장착</button>
-        <button id="btn-discard">👎 기존 무기 유지</button>
+    <div class="log-screen" id="log-screen">
+        <span>[SYSTEM] 해독 프로토콜이 가동되었습니다.</span>
+        <span>[SYSTEM] 숨겨진 영어 패스워드를 한 글자씩 추론하십시오.</span>
     </div>
 </div>
 
 <script>
+    // 1. 시스템 데이터 (정답 단어장)
+    const wordList = [
+        "FIREWALL", "ENCRYPT", "HACKER", "SYSTEM", "NETWORK",
+        "MALWARE", "PROTOCOL", "OVERRIDE", "SECURITY", "BASTION"
+    ];
+    
+    // 무작위 단어 선정
+    const targetWord = wordList[Math.floor(Math.random() * wordList.length)];
+    
+    // 게임 장부
+    let guessedLetters = []; // 입력한 글자들을 담는 배열
+    let mistakes = 0;        // 틀린 횟수 (행맨의 목숨)
+    const MAX_MISTAKES = 6;  // 6번 틀리면 게임 오버
+
+    // DOM 요소 연결
+    const wordDisplay = document.getElementById('word-display');
+    const usedLettersText = document.getElementById('used-letters-text');
+    const traceBar = document.getElementById('trace-bar');
+    const traceText = document.getElementById('trace-text');
+    const statusPanel = document.getElementById('status-panel');
+    const letterInput = document.getElementById('letter-input');
+    const btnSubmit = document.getElementById('btn-submit');
     const logScreen = document.getElementById('log-screen');
-    const p_hp = document.getElementById('p-hp');
-    const p_kills = document.getElementById('p-kills');
-    const p_weapon_name = document.getElementById('p-weapon-name');
-    const p_weapon_atk = document.getElementById('p-weapon-atk');
-    const p_weapon_attr = document.getElementById('p-weapon-attr');
-    
-    const m_name = document.getElementById('m-name');
-    const m_hp = document.getElementById('m-hp');
-    const m_atk = document.getElementById('m-atk');
-    const m_attr = document.getElementById('m-attr');
+    const endScreen = document.getElementById('end-screen');
+    const endTitle = document.getElementById('end-title');
+    const endDesc = document.getElementById('end-desc');
 
-    const btnAttack = document.getElementById('btn-attack');
-    const btnTake = document.getElementById('btn-take');
-    const btnDiscard = document.getElementById('btn-discard');
-    
-    const divBattle = document.getElementById('battle-controls');
-    const divLoot = document.getElementById('loot-controls');
-    const gameOverScreen = document.getElementById('game-over');
-    const txtFinalKill = document.getElementById('txt-final-kill');
+    // 2. 단어 렌더링 (맞춘 글자는 보이고, 안 맞춘 글자는 _ 로 표시)
+    function updateWordDisplay() {
+        let displayStr = "";
+        let isWin = true;
 
-    let player = {
-        hp: 100, maxHp: 100, kills: 0,
-        weapon: { name: "녹슨 단검", atk: 12, attr: "fire" }
-    };
+        for (let i = 0; i < targetWord.length; i++) {
+            const char = targetWord[i];
+            if (guessedLetters.includes(char)) {
+                displayStr += char + " ";
+            } else {
+                displayStr += "_ ";
+                isWin = false; // 아직 못 맞춘 글자가 있으면 승리가 아님
+            }
+        }
+        
+        wordDisplay.innerText = displayStr.trim();
+        return isWin;
+    }
 
-    let monster = null;
-    let droppedLoot = null; 
-
-    const attrMap = {
-        fire: { kr: "🔥화", cls: "attr-fire" },
-        water: { kr: "💧수", cls: "attr-water" },
-        wood: { kr: "🍃목", cls: "attr-wood" }
-    };
-
-    const monsterNames = ["산성 고블린", "맹화의 정령", "심연의 나가", "가시덤불 트롤", "돌연변이 오크"];
-    const weaponPrefixes = ["초보자의", "용사의", "잊혀진", "피바람의", "고대의"];
-    const weaponTypes = ["장검", "전투도끼", "미스릴 창", "파괴의 해머"];
-
-    function printLog(text) {
-        logScreen.innerHTML += "\n" + text;
+    function printLog(msg, isError = false) {
+        const span = document.createElement('span');
+        span.innerText = msg;
+        if (isError) span.style.color = "#f00";
+        else span.style.color = "#0f0";
+        
+        logScreen.appendChild(span);
         logScreen.scrollTop = logScreen.scrollHeight;
     }
 
-    function updateUI() {
-        p_hp.innerText = `${Math.max(0, player.hp)}/${player.maxHp}`;
-        p_kills.innerText = `${player.kills} 마리`;
-        p_weapon_name.innerText = player.weapon.name;
-        p_weapon_atk.innerText = player.weapon.atk;
-        p_weapon_attr.innerHTML = `<span class="${attrMap[player.weapon.attr].cls}">${attrMap[player.weapon.attr].kr}</span>`;
+    function updateTraceStatus() {
+        const tracePercent = Math.floor((mistakes / MAX_MISTAKES) * 100);
+        traceBar.style.width = `${tracePercent}%`;
+        traceText.innerText = `TRACE: ${tracePercent}%`;
 
-        if (monster) {
-            m_name.innerText = monster.name;
-            m_hp.innerText = `${Math.max(0, monster.hp)}/${monster.maxHp}`;
-            m_atk.innerText = monster.atk;
-            m_attr.innerHTML = `<span class="${attrMap[monster.attr].cls}">${attrMap[monster.attr].kr}</span>`;
+        // 위험 수치 도달 시 붉은색 경고 디자인 적용
+        if (mistakes >= 4) {
+            statusPanel.classList.add('warning');
         }
     }
 
-    function getMultiplier(atkAttr, defAttr) {
-        if (atkAttr === defAttr) return 1.0;
-        if (
-            (atkAttr === "fire" && defAttr === "wood") ||
-            (atkAttr === "wood" && defAttr === "water") ||
-            (atkAttr === "water" && defAttr === "fire")
-        ) return 1.2;
-        return 0.8;
+    // 3. 게임 오버 / 승리 처리
+    function gameOver(isWin) {
+        endScreen.style.display = "flex";
+        if (isWin) {
+            endTitle.innerText = "ACCESS GRANTED";
+            endTitle.style.color = "#0f0";
+            endDesc.innerText = `패스워드 [ ${targetWord} ] 해독 성공.\n방화벽을 무력화하고 탈출했습니다.`;
+        } else {
+            endTitle.innerText = "SYSTEM LOCKDOWN";
+            endTitle.style.color = "#f00";
+            endDesc.innerText = `보안 시스템에 의해 강제 종료되었습니다.\n정답 패스워드는 [ ${targetWord} ] 였습니다.`;
+        }
     }
 
-    function spawnMonster() {
-        const scaleFactor = Math.max(1, player.weapon.atk / 12);
-        const maxHp = Math.floor((Math.random() * 20 + 30) * scaleFactor);
-        const atk = Math.floor((Math.random() * 5 + 6) * scaleFactor);
-        const attrKeys = ["fire", "water", "wood"];
+    // 4. 입력 처리 핵심 엔진
+    function handleGuess() {
+        const guess = letterInput.value.toUpperCase();
+        letterInput.value = ""; // 입력창 비우기
+        letterInput.focus();
 
-        monster = {
-            name: monsterNames[Math.floor(Math.random() * monsterNames.length)],
-            hp: maxHp, maxHp: maxHp, atk: atk,
-            attr: attrKeys[Math.floor(Math.random() * attrKeys.length)]
-        };
-
-        printLog(`\n------------------------------------------------------------`);
-        printLog(`👹 새로운 적 등장! <span class="sys-monster">${monster.name}</span> (속성: <span class="${attrMap[monster.attr].cls}">${attrMap[monster.attr].kr}</span>)`);
-        updateUI();
-    }
-
-    btnAttack.addEventListener('click', () => {
-        if (player.hp <= 0 || !monster) return;
-
-        btnAttack.disabled = true;
-
-        const pMult = getMultiplier(player.weapon.attr, monster.attr);
-        let pDamage = Math.floor(player.weapon.atk * pMult);
-        monster.hp -= pDamage;
-        
-        let battleDetail = pMult > 1.0 ? `<span class="profit">(+20% 상성 우위)</span>` : (pMult < 1.0 ? `<span class="loss">(-20% 상성 열위)</span>` : "");
-        printLog(`⚔️ 당신의 공격! ${monster.name}에게 ${pDamage} 데미지. ${battleDetail}`);
-
-        if (monster.hp <= 0) {
-            player.kills++;
-            printLog(`🎉 <span class="sys-monster">${monster.name}</span> 처치 성공!`);
-            monster = null;
-            rollDropTable();
+        // 입력 유효성 검사 (A-Z 알파벳만 허용)
+        if (!guess.match(/[A-Z]/)) {
+            printLog("[WARN] 잘못된 입력입니다. 영문 알파벳만 입력하십시오.", true);
             return;
         }
 
-        const mMult = getMultiplier(monster.attr, player.weapon.attr);
-        let mDamage = Math.floor(monster.atk * mMult);
-        player.hp -= mDamage;
-
-        let mDetail = mMult > 1.0 ? `<span class="loss">(+20% 상성 피해)</span>` : (mMult < 1.0 ? `<span class="profit">(-20% 상성 방어)</span>` : "");
-        printLog(`💥 적의 반격! 당신은 ${mDamage}의 피해를 입었습니다. ${mDetail}`);
-
-        if (player.hp <= 0) {
-            txtFinalKill.innerText = player.kills;
-            gameOverScreen.style.display = "flex";
-            updateUI();
+        // 이미 시도한 글자인지 체크
+        if (guessedLetters.includes(guess)) {
+            printLog(`[WARN] '${guess}'는 이미 테스트한 데이터입니다.`, true);
             return;
         }
 
-        updateUI();
-        btnAttack.disabled = false;
-    });
+        // 장부에 시도한 글자 등록
+        guessedLetters.push(guess);
+        usedLettersText.innerText = guessedLetters.join(", ");
 
-    function rollDropTable() {
-        const roll = Math.random();
-
-        // 25% 확률로 완전 회복 물약
-        if (roll < 0.25) {
-            player.hp = player.maxHp;
-            printLog(`\n🧪 <span class="sys-heal">[전리품] 기적의 엘릭서를 발견하여 즉시 마셨습니다! HP 100% 완전 회복.</span>`);
-            updateUI();
-            setTimeout(spawnMonster, 1000);
-            btnAttack.disabled = false;
-            return;
+        // 정답에 포함되어 있는지 검증
+        if (targetWord.includes(guess)) {
+            printLog(`[SUCCESS] 데이터 '${guess}' 일치. 암호화 노드 해독 중...`);
+        } else {
+            mistakes++;
+            printLog(`[DENIED] 데이터 '${guess}' 불일치. 보안 추적률이 상승합니다!`, true);
+            updateTraceStatus();
         }
 
-        // 75% 확률로 스케일링 무기 드롭
-        const pfx = weaponPrefixes[Math.floor(Math.random() * weaponPrefixes.length)];
-        const typ = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
-        const attrKeys = ["fire", "water", "wood"];
-        
-        const gearLevelFactor = 1 + (player.kills * 0.1); // 몬스터가 강해진 만큼 드롭템도 강해짐
-        const baseAtk = Math.floor((Math.random() * 10 + 10) * gearLevelFactor);
+        // 화면 갱신 및 승패 체크
+        const isWin = updateWordDisplay();
 
-        droppedLoot = {
-            name: `${pfx} ${typ}`,
-            atk: baseAtk,
-            attr: attrKeys[Math.floor(Math.random() * attrKeys.length)]
-        };
-
-        printLog(`\n🎁 <span class="sys-item">[장비 발견]</span> 몬스터가 무기를 떨어뜨렸습니다.`);
-        printLog(`   ▶ <span class="sys-item">${droppedLoot.name}</span> | 공격력: ${droppedLoot.atk} | 속성: <span class="${attrMap[droppedLoot.attr].cls}">${attrMap[droppedLoot.attr].kr}</span>`);
-        printLog(`   (현재 장비: ${player.weapon.atk} | <span class="${attrMap[player.weapon.attr].cls}">${attrMap[player.weapon.attr].kr}</span>)`);
-        
-        divBattle.style.display = "none";
-        divLoot.style.display = "grid";
-        updateUI();
+        if (isWin) {
+            setTimeout(() => gameOver(true), 500);
+        } else if (mistakes >= MAX_MISTAKES) {
+            setTimeout(() => gameOver(false), 500);
+        }
     }
 
-    btnTake.addEventListener('click', () => {
-        player.weapon = { ...droppedLoot };
-        droppedLoot = null;
-        printLog(`👍 새 무기를 장착했습니다!`);
-        
-        divLoot.style.display = "none";
-        divBattle.style.display = "grid";
-        btnAttack.disabled = false;
-        spawnMonster();
+    // 이벤트 리스너 연결
+    btnSubmit.addEventListener('click', handleGuess);
+    
+    // 엔터키를 쳐도 입력되도록 편의성 추가
+    letterInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') handleGuess();
     });
 
-    btnDiscard.addEventListener('click', () => {
-        printLog(`👎 드롭된 무기를 버리고 기존 장비를 유지합니다.`);
-        droppedLoot = null;
-        
-        divLoot.style.display = "none";
-        divBattle.style.display = "grid";
-        btnAttack.disabled = false;
-        spawnMonster();
-    });
-
-    spawnMonster();
+    // 초기화 실행
+    updateWordDisplay();
+    letterInput.focus();
 </script>
 
 </body>
