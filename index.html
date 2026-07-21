@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>도형의 프로젝트: NEON SLOT MACHINE</title>
+    <title>도형의 프로젝트: 즉석 복권 시뮬레이터</title>
     <style>
         body {
-            background-color: #121212;
+            background-color: #1a1a2e;
             color: #fff;
             font-family: 'Consolas', 'Courier New', monospace;
             display: flex;
@@ -16,199 +16,166 @@
             margin: 0;
             user-select: none;
         }
-        .machine-container {
-            width: 700px;
-            background-color: #1e1e24;
-            border: 4px solid #f59e0b;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 0 40px rgba(245, 158, 11, 0.3), inset 0 0 20px #000;
-        }
-        .header {
+        .game-container {
+            width: 90%;
+            max-width: 500px;
+            background-color: #16213e;
+            border: 3px solid #e94560;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.4);
             text-align: center;
-            margin-bottom: 20px;
         }
-        .header h1 {
-            margin: 0;
-            color: #fbbf24;
-            font-size: 36px;
-            letter-spacing: 5px;
-            text-shadow: 0 0 10px #f59e0b, 0 0 20px #f59e0b;
+        h2 {
+            color: #e94560;
+            margin-top: 0;
+            border-bottom: 2px dashed #e94560;
+            padding-bottom: 10px;
+            letter-spacing: 2px;
         }
         
-        /* 릴(Reel) 디자인 */
-        .slot-reels {
+        .dashboard {
             display: flex;
             justify-content: space-between;
-            background-color: #000;
-            padding: 20px;
-            border-radius: 10px;
-            border: 3px solid #333;
-            margin-bottom: 25px;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
-        }
-        .reel {
-            width: 30%;
-            height: 150px;
-            background-color: #fff;
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 80px;
-            border: 5px solid #cbd5e1;
-            box-shadow: inset 0 10px 20px rgba(0,0,0,0.2);
-            overflow: hidden;
-            position: relative;
-        }
-        /* 릴이 돌아갈 때 약간의 블러 효과 */
-        .spinning {
-            animation: shake 0.1s infinite;
-            filter: blur(2px);
-        }
-        @keyframes shake {
-            0% { transform: translateY(-5px); }
-            50% { transform: translateY(5px); }
-            100% { transform: translateY(-5px); }
-        }
-
-        /* 대시보드 및 컨트롤 */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            background-color: #000;
+            background-color: #0f3460;
             padding: 15px;
             border-radius: 8px;
-            border: 1px solid #444;
             margin-bottom: 20px;
-            font-size: 18px;
+            font-size: 16px;
+            font-weight: bold;
         }
-        .dashboard div { display: flex; justify-content: space-between; }
-        .gold-text { color: #fbbf24; font-weight: bold; }
-        
-        .bet-controls {
+        .gold-text { color: #facc15; }
+
+        /* 복권 영역 래퍼 (결과 레이어와 은박 캔버스를 겹침) */
+        .scratch-wrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            margin: 0 auto 20px auto;
+            border: 4px solid #fff;
+            border-radius: 8px;
+            background-color: #fff;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        /* 하단 결과 레이어 (심볼 6개 그리드) */
+        .result-grid {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            background-color: #f8fafc;
+        }
+        .result-cell {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
-            margin-bottom: 20px;
+            font-size: 45px;
+            border: 1px dashed #cbd5e1;
         }
-        .btn-bet {
-            background-color: #3b82f6; color: white; border: none; padding: 10px 20px;
-            font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer;
-        }
-        .btn-bet:hover { background-color: #2563eb; }
-        
-        #btn-spin {
-            width: 100%;
-            background: linear-gradient(to bottom, #ef4444, #b91c1c);
-            color: white;
-            border: 2px solid #7f1d1d;
-            padding: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            border-radius: 10px;
+
+        /* 상단 은박 캔버스 레이어 */
+        #scratch-pad {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10;
             cursor: pointer;
-            text-shadow: 1px 1px 2px #000;
-            box-shadow: 0 5px 0 #7f1d1d, 0 10px 20px rgba(0,0,0,0.5);
-            transition: all 0.1s;
+            touch-action: none; /* 모바일에서 긁을 때 화면 스크롤 방지 */
         }
-        #btn-spin:active {
-            transform: translateY(5px);
-            box-shadow: 0 0 0 #7f1d1d, 0 5px 10px rgba(0,0,0,0.5);
+
+        /* 컨트롤 버튼 */
+        .btn-buy {
+            width: 100%;
+            background-color: #e94560;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        #btn-spin:disabled {
-            background: #555; border-color: #333; box-shadow: none; color: #888; transform: translateY(5px); cursor: not-allowed;
-        }
+        .btn-buy:hover { background-color: #be2943; }
+        .btn-buy:disabled { background-color: #555; cursor: not-allowed; color: #888; }
 
         /* 로그 창 */
         .log-window {
-            height: 120px;
+            height: 100px;
             background-color: #000;
             border: 1px solid #333;
             border-radius: 5px;
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: 15px;
+            padding: 10px;
             overflow-y: auto;
-            font-size: 14px;
+            font-size: 13px;
             color: #aaa;
             white-space: pre-line;
+            text-align: left;
         }
-        .win-text { color: #34d399; font-weight: bold; font-size: 16px;}
-        .jackpot-text { color: #fbbf24; font-weight: bold; font-size: 18px; text-shadow: 0 0 5px #fbbf24; }
-        .lose-text { color: #ef4444; }
+        .win-text { color: #4ade80; font-weight: bold; }
+        .lose-text { color: #f87171; }
     </style>
 </head>
 <body>
 
-<div class="machine-container">
-    <div class="header">
-        <h1>NEON JACKPOT</h1>
-    </div>
-
-    <!-- 3열 슬롯 릴 -->
-    <div class="slot-reels">
-        <div class="reel" id="reel1">🍒</div>
-        <div class="reel" id="reel2">🍋</div>
-        <div class="reel" id="reel3">🍉</div>
-    </div>
-
-    <!-- 자산 및 배팅 대시보드 -->
+<div class="game-container">
+    <h2>🍀 LUCKY SCRATCH 🍀</h2>
+    
     <div class="dashboard">
-        <div><span>💰 보유 자산:</span> <span class="gold-text" id="txt-gold">5,000 G</span></div>
-        <div><span>🎯 현재 배팅:</span> <span class="gold-text" id="txt-bet">100 G</span></div>
+        <div>소지 자산: <span class="gold-text" id="txt-gold">5,000 G</span></div>
+        <div>복권 가격: <span style="color:#e94560;">500 G</span></div>
     </div>
 
-    <!-- 배팅 금액 조절 -->
-    <div class="bet-controls">
-        <button class="btn-bet" id="btn-bet-down">➖ 100 G</button>
-        <span style="font-size: 20px; font-weight: bold;">BET SIZE</span>
-        <button class="btn-bet" id="btn-bet-up">➕ 100 G</button>
+    <!-- 복권 긁기 영역 -->
+    <div class="scratch-wrapper">
+        <div class="result-grid" id="result-grid">
+            <!-- 자바스크립트가 여기에 6개의 심볼을 주입합니다 -->
+        </div>
+        <!-- 긁혀지는 은박 덮개 -->
+        <canvas id="scratch-pad" width="300" height="200"></canvas>
     </div>
 
-    <!-- 메인 스핀 버튼 -->
-    <button id="btn-spin">🎰 PULL TO SPIN!</button>
+    <button class="btn-buy" id="btn-buy">🎟️ 복권 구매 (500 G) 및 새 게임</button>
 
-    <!-- 게임 로그 -->
     <div class="log-window" id="log-screen">
-[SYSTEM] 슬롯머신 부팅 완료. 배당표(Paytable):
-- 7️⃣ 7️⃣ 7️⃣ : 배팅액 x 50 (JACKPOT!)
-- 💎 💎 💎 : 배팅액 x 20
-- 🔔 🔔 🔔 : 배팅액 x 10
-- 과일 3개 동일 (🍉, 🍇, 🍋, 🍒) : 배팅액 x 5
-- 🍒 🍒 (아무거나) : 배팅액 x 2
+[SYSTEM] 복권 발행소에 오신 것을 환영합니다.
+- 복권을 구매한 후, 마우스나 손가락으로 회색 화면을 문질러 긁어내세요!
+- 같은 심볼이 3개 나오면 당첨금을 지급합니다.
+(💰: 10000G, 💎: 5000G, 🍒: 1500G, 🔔: 500G)
     </div>
 </div>
 
 <script>
-    // 1. 심볼 데이터 및 확률 풀 (낮은 등급일수록 배열에 많이 넣어 출현 확률을 높임)
-    const symbols = [
-        "🍒", "🍒", "🍒", "🍒", 
-        "🍋", "🍋", "🍋", 
-        "🍉", "🍉", "🍉", 
-        "🍇", "🍇", 
-        "🔔", "🔔", 
-        "💎", 
-        "7️⃣" // 7은 단 1개만 넣어 극악의 확률 구성
-    ];
-
     let gold = 5000;
-    let currentBet = 100;
-    let isSpinning = false;
+    const TICKET_PRICE = 500;
+    
+    // 심볼 및 배당금 풀 (가중치 적용)
+    const prizeData = [
+        { symbol: '💰', payout: 10000, chance: 0.05 },  // 5% 극악
+        { symbol: '💎', payout: 5000, chance: 0.15 },   // 15%
+        { symbol: '🍒', payout: 1500, chance: 0.30 },   // 30%
+        { symbol: '🔔', payout: 500, chance: 0.50 }     // 50% 본전
+    ];
+    // 당첨되지 않을 때 채워넣을 꽝 전용 심볼들
+    const dummySymbols = ['💩', '❌', '💔', '💀'];
+
+    let isRevealed = true; // 현재 스크래치가 다 까졌는지 여부
+    let currentTicketResult = null; // 현재 당첨 정보
 
     // DOM 요소
     const txtGold = document.getElementById('txt-gold');
-    const txtBet = document.getElementById('txt-bet');
-    const btnBetDown = document.getElementById('btn-bet-down');
-    const btnBetUp = document.getElementById('btn-bet-up');
-    const btnSpin = document.getElementById('btn-spin');
     const logScreen = document.getElementById('log-screen');
-    const reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
+    const btnBuy = document.getElementById('btn-buy');
+    const resultGrid = document.getElementById('result-grid');
+    const canvas = document.getElementById('scratch-pad');
+    const ctx = canvas.getContext('2d');
 
     function updateUI() {
         txtGold.innerText = `${gold.toLocaleString()} G`;
-        txtBet.innerText = `${currentBet.toLocaleString()} G`;
     }
 
     function printLog(text) {
@@ -216,135 +183,187 @@
         logScreen.scrollTop = logScreen.scrollHeight;
     }
 
-    // 2. 배팅 금액 조절
-    btnBetDown.addEventListener('click', () => {
-        if (isSpinning) return;
-        if (currentBet > 100) {
-            currentBet -= 100;
-            updateUI();
-        }
-    });
+    // 1. 복권 당첨 조작(생성) 엔진
+    function generateTicket() {
+        let gridSymbols = [];
+        const isWin = Math.random() < 0.35; // 전체 복권 당첨 확률 35%
 
-    btnBetUp.addEventListener('click', () => {
-        if (isSpinning) return;
-        if (currentBet + 100 <= gold) {
-            currentBet += 100;
-            updateUI();
-        }
-    });
-
-    // 3. 무작위 심볼 뽑기 함수
-    function getRandomSymbol() {
-        return symbols[Math.floor(Math.random() * symbols.length)];
-    }
-
-    // 4. 슬롯 회전 및 당첨 연산 메인 엔진
-    btnSpin.addEventListener('click', () => {
-        if (isSpinning) return;
-        if (gold < currentBet) {
-            printLog("<span class='lose-text'>❌ 자금이 부족합니다. 배팅액을 낮춰주세요.</span>");
-            return;
-        }
-
-        // 스핀 시작 처리
-        isSpinning = true;
-        gold -= currentBet;
-        updateUI();
-        btnSpin.disabled = true;
-        printLog(`\n🎰 [SPIN] ${currentBet} G 배팅... 릴이 돌아갑니다!`);
-
-        // 릴 애니메이션 효과 적용
-        reels.forEach(reel => reel.classList.add('spinning'));
-
-        // 각 릴마다 빠르게 글자가 바뀌는 시각 효과 (setInterval)
-        const spinIntervals = [];
-        for (let i = 0; i < 3; i++) {
-            spinIntervals.push(setInterval(() => {
-                reels[i].innerText = getRandomSymbol();
-            }, 50)); // 0.05초마다 심볼 교체
-        }
-
-        // 최종 결과를 담을 배열
-        const finalResults = [];
-
-        // 릴 정지 타이머 (왼쪽부터 순차적으로 멈추는 극적 연출)
-        const stopTimes = [1000, 1600, 2400]; // 1초, 1.6초, 2.4초 뒤 정지
-
-        for (let i = 0; i < 3; i++) {
-            setTimeout(() => {
-                clearInterval(spinIntervals[i]); // 글자 바뀌는 애니메이션 중지
-                reels[i].classList.remove('spinning'); // 블러 효과 제거
-                
-                // 최종 심볼 확정
-                const finalSym = getRandomSymbol();
-                reels[i].innerText = finalSym;
-                finalResults[i] = finalSym;
-
-                // 마지막 3번째 릴이 멈췄을 때 당첨금 계산
-                if (i === 2) {
-                    calculatePayout(finalResults);
-                }
-            }, stopTimes[i]);
-        }
-    });
-
-    // 5. 배당금 판정 및 지급 로직
-    function calculatePayout(res) {
-        const [r1, r2, r3] = res;
-        let payout = 0;
-        let logMsg = "";
-
-        if (r1 === "7️⃣" && r2 === "7️⃣" && r3 === "7️⃣") {
-            payout = currentBet * 50;
-            logMsg = `<span class='jackpot-text'>🎉 JACKPOT!!! 777 달성! ${payout.toLocaleString()} G 획득!</span>`;
-        } 
-        else if (r1 === "💎" && r2 === "💎" && r3 === "💎") {
-            payout = currentBet * 20;
-            logMsg = `<span class='win-text'>💎 다이아몬드 3연속! ${payout.toLocaleString()} G 획득!</span>`;
-        }
-        else if (r1 === "🔔" && r2 === "🔔" && r3 === "🔔") {
-            payout = currentBet * 10;
-            logMsg = `<span class='win-text'>🔔 종 3연속! ${payout.toLocaleString()} G 획득!</span>`;
-        }
-        else if (r1 === r2 && r2 === r3) {
-            // 나머지 과일 3연속
-            payout = currentBet * 5;
-            logMsg = `<span class='win-text'>✨ ${r1} 3연속! ${payout.toLocaleString()} G 획득!</span>`;
-        }
-        else if ((r1 === "🍒" && r2 === "🍒") || (r2 === "🍒" && r3 === "🍒") || (r1 === "🍒" && r3 === "🍒")) {
-            // 체리 2개
-            payout = currentBet * 2;
-            logMsg = `<span class='win-text'>🍒 체리 2개 적중! 본전 포함 ${payout.toLocaleString()} G 획득!</span>`;
-        }
-        else {
-            // 꽝
-            logMsg = `<span class='lose-text'>📉 꽝입니다. 칩을 잃었습니다.</span>`;
-        }
-
-        // 정산
-        if (payout > 0) {
-            gold += payout;
-            updateUI();
-        }
-
-        printLog(logMsg);
-
-        // 자산이 0이 되면 게임 오버 처리
-        if (gold <= 0) {
-            printLog("<span class='lose-text'>💀 파산했습니다. 모든 자산을 잃었습니다. 화면을 새로고침하세요.</span>");
-        } else {
-            // 다음 스핀 준비
-            isSpinning = false;
-            btnSpin.disabled = false;
+        if (isWin) {
+            // 당첨일 경우: 3개의 동일한 당첨 심볼 배치
+            let roll = Math.random();
+            let cumulative = 0;
+            let winObj = prizeData[3]; // 기본값
             
-            // 소지금이 배팅금보다 적어지면 배팅금을 강제로 소지금에 맞춤
-            if (gold < currentBet) {
-                currentBet = Math.floor(gold / 100) * 100;
-                if(currentBet === 0) currentBet = gold; // 100단위 미만일 경우
-                updateUI();
+            for (let item of prizeData) {
+                cumulative += item.chance;
+                if (roll < cumulative) {
+                    winObj = item;
+                    break;
+                }
+            }
+            currentTicketResult = winObj;
+            
+            // 당첨 심볼 3개 푸시
+            gridSymbols.push(winObj.symbol, winObj.symbol, winObj.symbol);
+            
+            // 나머지 3개는 겹치지 않게 더미 심볼로 채움
+            while(gridSymbols.length < 6) {
+                let randomDummy = dummySymbols[Math.floor(Math.random() * dummySymbols.length)];
+                if (gridSymbols.filter(s => s === randomDummy).length < 2) {
+                    gridSymbols.push(randomDummy);
+                }
+            }
+        } else {
+            // 꽝일 경우: 어떤 심볼도 3개가 되지 않도록 교란하여 채움
+            currentTicketResult = null;
+            const allSymbols = [...prizeData.map(p => p.symbol), ...dummySymbols];
+            while(gridSymbols.length < 6) {
+                let sym = allSymbols[Math.floor(Math.random() * allSymbols.length)];
+                // 특정 심볼이 2개까지만 허용됨 (3개가 되면 당첨이므로 방지)
+                if (gridSymbols.filter(s => s === sym).length < 2) {
+                    gridSymbols.push(sym);
+                }
             }
         }
+
+        // 완성된 6개의 심볼을 무작위로 섞음 (Shuffle)
+        gridSymbols.sort(() => Math.random() - 0.5);
+
+        // HTML 그리드에 렌더링
+        resultGrid.innerHTML = '';
+        gridSymbols.forEach(sym => {
+            const div = document.createElement('div');
+            div.className = 'result-cell';
+            div.innerText = sym;
+            resultGrid.appendChild(div);
+        });
     }
+
+    // 2. 캔버스 은박 덮기 엔진
+    function initCanvas() {
+        // 복권 긁기 모드 활성화 (기존 그래픽 위에 덮어쓰기)
+        ctx.globalCompositeOperation = 'source-over';
+        
+        // 은박 텍스처(회색) 칠하기
+        ctx.fillStyle = '#94a3b8'; // 금속 느낌의 회색
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 안내 문구 인쇄
+        ctx.font = '20px "Courier New"';
+        ctx.fillStyle = '#334155';
+        ctx.textAlign = 'center';
+        ctx.fillText('마우스로 긁어주세요', canvas.width / 2, canvas.height / 2);
+
+        // 긁기 모드(지우개 모드)로 전환
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = 30; // 동전 굵기
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        
+        isRevealed = false;
+    }
+
+    // 3. 복권 구매 버튼 액션
+    btnBuy.addEventListener('click', () => {
+        if (gold < TICKET_PRICE) {
+            printLog("<span class='lose-text'>❌ 자금이 부족합니다. 게임 오버.</span>");
+            return;
+        }
+        gold -= TICKET_PRICE;
+        updateUI();
+        
+        generateTicket();
+        initCanvas();
+        printLog(`\n🎟️ 500 G 지불... 새 복권을 발급받았습니다. 긁어보세요!`);
+    });
+
+    // 4. 스크래치 물리 엔진 (마우스 & 터치 이벤트)
+    let isDrawing = false;
+    let lastX = 0, lastY = 0;
+
+    function getCoords(e) {
+        const rect = canvas.getBoundingClientRect();
+        // 터치 이벤트와 마우스 이벤트를 분기하여 좌표 추출
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        };
+    }
+
+    function startDraw(e) {
+        if (isRevealed) return;
+        isDrawing = true;
+        const pos = getCoords(e);
+        lastX = pos.x; lastY = pos.y;
+    }
+
+    function drawing(e) {
+        if (!isDrawing || isRevealed) return;
+        e.preventDefault(); // 모바일 스크롤 방지
+        const pos = getCoords(e);
+        
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        
+        lastX = pos.x; lastY = pos.y;
+    }
+
+    function stopDraw() {
+        if (!isDrawing || isRevealed) return;
+        isDrawing = false;
+        checkRevealPercent(); // 손을 뗄 때마다 긁은 면적 계산
+    }
+
+    // 마우스 이벤트 연결
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', drawing);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+    // 모바일 터치 이벤트 연결
+    canvas.addEventListener('touchstart', startDraw, {passive: false});
+    canvas.addEventListener('touchmove', drawing, {passive: false});
+    canvas.addEventListener('touchend', stopDraw);
+
+    // 5. 정산 엔진 (면적의 50% 이상을 긁었는지 픽셀 데이터로 검사)
+    function checkRevealPercent() {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let transparentPixels = 0;
+        
+        // rgba 배열에서 alpha(투명도) 채널만 순회하며 검사 (인덱스 3, 7, 11...)
+        for (let i = 3; i < imageData.data.length; i += 4) {
+            if (imageData.data[i] === 0) {
+                transparentPixels++;
+            }
+        }
+
+        const totalPixels = canvas.width * canvas.height;
+        const percent = transparentPixels / totalPixels;
+
+        // 50% 이상 지워졌다면 남은 은박을 자동으로 전부 날리고 결과 판정
+        if (percent > 0.5) {
+            isRevealed = true;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            processResult();
+        }
+    }
+
+    function processResult() {
+        if (currentTicketResult) {
+            const prize = currentTicketResult.payout;
+            gold += prize;
+            printLog(`<span class='win-text'>🎉 당첨! 동일한 [${currentTicketResult.symbol}] 3개 일치! 당첨금 ${prize.toLocaleString()} G 획득!</span>`);
+        } else {
+            printLog(`<span class='lose-text'>📉 꽝입니다... 일치하는 심볼이 3개가 되지 않습니다.</span>`);
+        }
+        updateUI();
+    }
+
+    // 초기 상태 덮어두기
+    initCanvas();
 </script>
 
 </body>
