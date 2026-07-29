@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>⚔️ 가챠 RPG - 어둠의 소환사</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>⚔️ 삼국지 전략 시뮬레이션 - 군웅할거</title>
   <style>
     * {
       margin: 0;
@@ -11,243 +11,174 @@
       box-sizing: border-box;
     }
     body {
-      background: #0a0c14;
-      font-family: 'Segoe UI', 'Arial', sans-serif;
+      background: #1a120b;
+      font-family: 'Noto Serif KR', 'Malgun Gothic', 'Arial', sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 16px;
-      background-image: radial-gradient(circle at 20% 20%, #1a1f35, #03050a);
+      padding: 15px;
+      background-image: radial-gradient(circle at 10% 30%, #3e2e1f, #0f0803);
     }
-    .game-wrapper {
-      max-width: 700px;
+    .game-container {
+      max-width: 900px;
       width: 100%;
-      background: linear-gradient(145deg, #1e2130, #12141e);
-      border-radius: 32px;
-      padding: 20px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
-      border: 1px solid #4a3f6b;
+      background: #d9c49c;
+      background-image: linear-gradient(145deg, #c8af7e, #b29762);
+      border: 6px solid #5c3e1f;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,215,120,0.3);
     }
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      background: #4b2e1a;
+      color: #f3e3b0;
+      padding: 10px 20px;
+      border-radius: 16px;
+      margin-bottom: 15px;
       flex-wrap: wrap;
+      border: 2px solid #c9a034;
+      font-weight: bold;
     }
-    .currency-box {
-      background: #2a1f3a;
-      border-radius: 40px;
-      padding: 10px 22px;
+    .stats {
       display: flex;
       gap: 25px;
-      box-shadow: inset 0 2px 8px rgba(0,0,0,0.7);
-      border: 1px solid #7a5fa0;
+      flex-wrap: wrap;
     }
-    .currency {
+    .btn-group {
       display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #f3e3c9;
-      font-weight: bold;
-      font-size: 1.2rem;
+      gap: 10px;
+      flex-wrap: wrap;
     }
-    .currency span {
-      color: #ffd966;
-    }
-    .btn {
-      background: #3b2d5c;
+    button {
+      background: #6b4c2b;
       border: none;
-      color: #f0e6d2;
+      color: #ffefc8;
       font-weight: bold;
-      padding: 10px 22px;
+      padding: 8px 18px;
       border-radius: 30px;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 0.9rem;
+      border-bottom: 3px solid #3b2b16;
       transition: 0.2s;
-      border-bottom: 3px solid #1f1535;
       letter-spacing: 0.5px;
     }
-    .btn:active {
+    button:active {
       transform: translateY(2px);
       border-bottom-width: 1px;
     }
-    .btn.gold {
-      background: #c49b4a;
-      border-color: #6b4c1e;
-      color: #1e1408;
+    button.golden {
+      background: #b8862c;
+      border-color: #5e3e0e;
     }
-    .btn.danger {
-      background: #5c2d3a;
-      border-color: #2f111a;
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      background: #7e9f5e;
+      padding: 15px;
+      border-radius: 20px;
+      border: 3px solid #4d6030;
+      margin: 15px 0;
+      box-shadow: inset 0 0 15px #2d3a1a;
     }
-    .gacha-area {
-      background: #1b1628;
-      border-radius: 28px;
-      padding: 20px;
-      margin: 18px 0;
+    .territory-card {
+      background: #b8a87d;
+      border-radius: 18px;
+      padding: 10px 5px;
       text-align: center;
-      border: 1px solid #5e4a7c;
-      box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
-    }
-    .gacha-title {
-      color: #cfbcff;
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-    .pull-buttons {
-      display: flex;
-      gap: 18px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .pull-btn {
-      background: #9b59b6;
-      border: none;
-      color: white;
-      font-weight: bold;
-      font-size: 1.2rem;
-      padding: 12px 28px;
-      border-radius: 50px;
+      border: 2px solid #5c4a2b;
       cursor: pointer;
       transition: 0.2s;
-      box-shadow: 0 6px 0 #5b2c6e;
-      border: 1px solid #d7a1f0;
+      box-shadow: 0 5px 0 #6b5d3b;
+      position: relative;
     }
-    .pull-btn:active {
-      transform: translateY(4px);
-      box-shadow: 0 2px 0 #5b2c6e;
+    .territory-card.enemy {
+      background: #c46b5a;
+      border-color: #8b3a2a;
+      box-shadow: 0 5px 0 #632b1e;
     }
-    .pull-btn.ten {
-      background: #e67e22;
-      box-shadow: 0 6px 0 #b85e0c;
-      border-color: #f5b041;
+    .territory-card.player-owned {
+      background: #5f8b4b;
+      border-color: #f5d742;
+      box-shadow: 0 0 12px #f5b042;
     }
-    .roster {
-      background: #171b26;
-      border-radius: 24px;
+    .territory-name {
+      font-weight: bold;
+      color: #1f2e0e;
+      font-size: 0.9rem;
+    }
+    .territory-info {
+      font-size: 0.7rem;
+      color: #2d2615;
+    }
+    .action-panel {
+      background: #e7d5ad;
+      border-radius: 18px;
       padding: 15px;
-      margin-top: 20px;
-      border: 1px solid #4a5568;
+      margin-top: 10px;
+      border: 2px solid #af8c5c;
     }
-    .roster h3 {
-      color: #d4c8a8;
-      margin-bottom: 15px;
+    .troop-display {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin: 12px 0;
+      flex-wrap: wrap;
+    }
+    .officer-box {
+      background: #4d3620;
+      color: #fae3b6;
+      padding: 8px 15px;
+      border-radius: 20px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .character-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      max-height: 280px;
-      overflow-y: auto;
-      padding-right: 6px;
-    }
-    .char-card {
-      background: #252a3a;
-      border-radius: 18px;
+    .log-area {
+      background: #faf3e0;
+      border-radius: 12px;
       padding: 10px;
-      width: 85px;
-      text-align: center;
-      border: 2px solid #4d3b6b;
-      transition: 0.2s;
-      position: relative;
-    }
-    .char-card.ssr {
-      border-color: #f1c40f;
-      box-shadow: 0 0 15px #f39c12;
-      background: #2f2a1c;
-    }
-    .char-icon {
-      font-size: 2.5rem;
-      filter: drop-shadow(0 4px 4px black);
-    }
-    .char-name {
-      font-weight: bold;
-      color: #ddd;
+      max-height: 100px;
+      overflow-y: auto;
       font-size: 0.8rem;
-      margin-top: 4px;
+      border: 1px solid #b5955c;
+      margin-top: 8px;
+      color: #2e2b1f;
     }
-    .char-level {
-      color: #a0b0c0;
-      font-size: 0.7rem;
-    }
-    .upgrade-btn {
-      background: #2e4053;
-      border: none;
-      color: white;
-      border-radius: 20px;
-      padding: 4px 8px;
-      font-size: 0.65rem;
-      margin-top: 5px;
-      cursor: pointer;
-    }
-    .result-log {
-      background: #0b0e14;
-      border-radius: 16px;
-      padding: 10px;
-      margin: 12px 0;
-      color: #b9c7dd;
-      font-size: 0.9rem;
-      max-height: 80px;
-      overflow-y: auto;
-      border: 1px solid #3c4455;
-    }
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: #2d2d3a;
-      border-radius: 10px;
-      margin: 8px 0;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: #c99c2b;
-      transition: width 0.2s;
-    }
-    @media (max-width: 500px) {
-      .char-card {
-        width: 70px;
+    @media (max-width: 550px) {
+      .map-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   </style>
 </head>
 <body>
-<div class="game-wrapper">
+<div class="game-container">
   <div class="header">
-    <div class="currency-box">
-      <div class="currency">💎 <span id="gemAmount">500</span></div>
-      <div class="currency">🪙 <span id="goldAmount">200</span></div>
+    <div class="stats">
+      <span>📅 턴 <span id="turnCount">1</span></span>
+      <span>🍚 식량 <span id="foodAmount">800</span></span>
+      <span>🪙 금 <span id="goldAmount">500</span></span>
     </div>
-    <button class="btn" id="addResourcesBtn">✨ 무료 재화</button>
+    <div class="btn-group">
+      <button id="nextTurnBtn" class="golden">⏩ 턴 종료</button>
+      <button id="recruitBtn">⚔️ 모병</button>
+    </div>
   </div>
 
-  <div class="gacha-area">
-    <div class="gacha-title">🌑 차원의 소환</div>
-    <div class="progress-bar">
-      <div class="progress-fill" id="pityProgress"></div>
-    </div>
-    <p style="color:#b9a5d6; margin:6px 0;">SSR 확률 5% | ⭐5 천장까지 <span id="pityCounter">0</span>/90</p>
-    <div class="pull-buttons">
-      <button class="pull-btn" id="pullOneBtn">🔮 1회 소환 (50💎)</button>
-      <button class="pull-btn ten" id="pullTenBtn">🌟 10연차 (450💎)</button>
-    </div>
-    <div class="result-log" id="resultLog">✨ 소환 결과가 여기에 표시됩니다.</div>
-  </div>
+  <!-- 영토 지도 -->
+  <div class="map-grid" id="mapGrid"></div>
 
-  <div class="roster">
-    <h3>📜 내 캐릭터 목록 <span style="font-size:0.8rem; color:#8e99aa;">(클릭 후 강화)</span></h3>
-    <div class="character-grid" id="characterList"></div>
-  </div>
-  <div style="display:flex; justify-content:space-between; margin-top:12px;">
-    <button class="btn danger" id="resetGameBtn">🗑️ 데이터 초기화</button>
-    <span style="color:#7f8c9b;">보유 캐릭터: <span id="ownedCount">0</span></span>
+  <div class="action-panel" id="actionPanel">
+    <h3 style="color:#3b2f1c; margin-bottom:6px;">📌 영토를 선택하여 행동</h3>
+    <div class="troop-display" id="troopInfo">
+      <div class="officer-box">👤 <span id="commanderName">유비</span> ⚔️병력 <span id="troopCount">3000</span></div>
+    </div>
+    <div class="log-area" id="logArea">⚔️ 군웅할거의 시대. 영토를 확장하십시오!</div>
   </div>
 </div>
 
@@ -255,205 +186,258 @@
   (() => {
     // ---------- 게임 상태 ----------
     const state = {
-      gem: 500,
-      gold: 200,
-      pityCounter: 0,        // 현재 천장 카운트 (최대 90)
-      characters: [],        // { id, name, rarity, level, icon }
+      turn: 1,
+      food: 800,
+      gold: 500,
+      playerTroops: 3000,
+      commanderName: '유비',
+      // 영토 데이터: id, name, owner ('player' or 'enemy'), troops, incomeFood, incomeGold
+      territories: [],
+      selectedTerritoryId: null,
     };
 
-    // 캐릭터 데이터베이스
-    const characterPool = {
-      SSR: [
-        { name: '어둠의 기사 레온', icon: '🗡️🛡️' },
-        { name: '대마법사 세라피나', icon: '🔮✨' },
-        { name: '용기사 카이', icon: '🐉⚔️' },
-        { name: '그림자 암살자 제로', icon: '🥷🌑' },
-        { name: '성스러운 여왕 엘레나', icon: '👑🌟' },
-      ],
-      SR: [
-        { name: '정령 궁수 리나', icon: '🏹🍃' },
-        { name: '도적 단테', icon: '🗡️💨' },
-        { name: '마법검사 아렌', icon: '⚡🗡️' },
-        { name: '성기사 토마스', icon: '🛡️✝️' },
-        { name: '흑마법사 모르간', icon: '💀📖' },
-      ],
-      R: [
-        { name: '모험가 켄', icon: '⚔️🛡️' },
-        { name: '수습마법사 루나', icon: '📘✨' },
-        { name: '병사 잭', icon: '🗡️' },
-        { name: '궁수 엘리', icon: '🏹' },
-      ]
-    };
+    // 초기 영토 설정 (4x4 = 8개 지역으로 간략화, 8영토)
+    const defaultTerritories = [
+      { id: 0, name: '성도', owner: 'player', troops: 1200, foodIncome: 80, goldIncome: 50 },
+      { id: 1, name: '한중', owner: 'player', troops: 800, foodIncome: 60, goldIncome: 40 },
+      { id: 2, name: '양양', owner: 'enemy', troops: 1100, foodIncome: 70, goldIncome: 45 },
+      { id: 3, name: '장안', owner: 'enemy', troops: 1500, foodIncome: 90, goldIncome: 70 },
+      { id: 4, name: '건업', owner: 'enemy', troops: 1300, foodIncome: 65, goldIncome: 55 },
+      { id: 5, name: '회계', owner: 'neutral', troops: 600, foodIncome: 40, goldIncome: 30 },
+      { id: 6, name: '업', owner: 'neutral', troops: 700, foodIncome: 45, goldIncome: 35 },
+      { id: 7, name: '북평', owner: 'enemy', troops: 1400, foodIncome: 75, goldIncome: 60 },
+    ];
 
     // DOM 요소
-    const gemSpan = document.getElementById('gemAmount');
+    const mapGrid = document.getElementById('mapGrid');
+    const turnSpan = document.getElementById('turnCount');
+    const foodSpan = document.getElementById('foodAmount');
     const goldSpan = document.getElementById('goldAmount');
-    const pityProgress = document.getElementById('pityProgress');
-    const pityCounterSpan = document.getElementById('pityCounter');
-    const resultLog = document.getElementById('resultLog');
-    const characterListDiv = document.getElementById('characterList');
-    const ownedCountSpan = document.getElementById('ownedCount');
+    const troopCountSpan = document.getElementById('troopCount');
+    const commanderNameSpan = document.getElementById('commanderName');
+    const logArea = document.getElementById('logArea');
 
-    // ---------- 유틸 ----------
+    // ---------- 저장/로드 ----------
     function saveGame() {
-      localStorage.setItem('gachaRpgSave', JSON.stringify(state));
+      localStorage.setItem('threeKingdomsSim', JSON.stringify(state));
     }
     function loadGame() {
-      const saved = localStorage.getItem('gachaRpgSave');
+      const saved = localStorage.getItem('threeKingdomsSim');
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          state.gem = parsed.gem ?? 500;
-          state.gold = parsed.gold ?? 200;
-          state.pityCounter = parsed.pityCounter ?? 0;
-          state.characters = parsed.characters ?? [];
-        } catch (e) {}
+          state.turn = parsed.turn || 1;
+          state.food = parsed.food ?? 800;
+          state.gold = parsed.gold ?? 500;
+          state.playerTroops = parsed.playerTroops ?? 3000;
+          state.territories = parsed.territories || [...defaultTerritories];
+          state.selectedTerritoryId = null;
+        } catch (e) { resetToDefault(); }
+      } else {
+        resetToDefault();
       }
     }
+    function resetToDefault() {
+      state.turn = 1;
+      state.food = 800;
+      state.gold = 500;
+      state.playerTroops = 3000;
+      state.territories = JSON.parse(JSON.stringify(defaultTerritories));
+      state.selectedTerritoryId = null;
+    }
 
+    // ---------- 로그 ----------
+    function addLog(msg) {
+      logArea.innerHTML = msg + '<br>' + logArea.innerHTML;
+      if (logArea.children.length > 5) logArea.removeChild(logArea.lastChild);
+    }
+
+    // ---------- UI 업데이트 ----------
     function updateUI() {
-      gemSpan.textContent = state.gem;
+      turnSpan.textContent = state.turn;
+      foodSpan.textContent = state.food;
       goldSpan.textContent = state.gold;
-      const progressPercent = Math.min(100, (state.pityCounter / 90) * 100);
-      pityProgress.style.width = `${progressPercent}%`;
-      pityCounterSpan.textContent = state.pityCounter;
-      ownedCountSpan.textContent = state.characters.length;
-      renderCharacterList();
+      troopCountSpan.textContent = state.playerTroops;
+      commanderNameSpan.textContent = state.commanderName;
+      renderMap();
       saveGame();
     }
 
-    function addLog(message) {
-      resultLog.innerHTML = message + '<br>' + resultLog.innerHTML;
-      resultLog.scrollTop = 0;
-    }
-
-    // ---------- 가챠 로직 ----------
-    function performPull(isTenPull = false) {
-      const cost = isTenPull ? 450 : 50;
-      if (state.gem < cost) {
-        addLog('❌ 다이아가 부족합니다!');
-        return;
-      }
-      state.gem -= cost;
-      const pulls = isTenPull ? 10 : 1;
-      const results = [];
-
-      for (let i = 0; i < pulls; i++) {
-        state.pityCounter++;
-        let rarity = 'R';
-        const rand = Math.random() * 100;
-
-        // SSR 확률 5% , 천장 90 도달 시 확정 SSR
-        if (state.pityCounter >= 90 || rand < 5) {
-          rarity = 'SSR';
-          state.pityCounter = 0; // 천장 리셋
-        } else if (rand < 20) { // SR 15% 추가 (5%+15% =20%)
-          rarity = 'SR';
-        }
-
-        // 해당 레어리티에서 랜덤 캐릭터 선택
-        const pool = characterPool[rarity];
-        const charData = pool[Math.floor(Math.random() * pool.length)];
-        
-        // 캐릭터 객체 생성
-        const newChar = {
-          id: Date.now() + Math.random() + i,
-          name: charData.name,
-          rarity: rarity,
-          level: 1,
-          icon: charData.icon,
-        };
-        state.characters.push(newChar);
-        results.push({ name: charData.name, rarity, icon: charData.icon });
-      }
-
-      // 결과 로그 표시
-      const ssrResults = results.filter(r => r.rarity === 'SSR');
-      const srResults = results.filter(r => r.rarity === 'SR');
-      let logMsg = '';
-      if (ssrResults.length > 0) {
-        logMsg += `🌟SSR 획득! ${ssrResults.map(c=>c.icon+c.name).join(', ')} `;
-      }
-      if (srResults.length > 0) {
-        logMsg += `✨SR: ${srResults.map(c=>c.name).join(', ')} `;
-      }
-      if (results.length > 2) logMsg += `외 ${results.length - ssrResults.length - srResults.length}명`;
-      addLog(logMsg || '🟢 R 캐릭터 획득');
-      updateUI();
-    }
-
-    // ---------- 캐릭터 강화 ----------
-    function upgradeCharacter(charId) {
-      const char = state.characters.find(c => c.id === charId);
-      if (!char) return;
-      const cost = char.level * 35 + 20;
-      if (state.gold < cost) {
-        addLog('💰 골드가 부족합니다!');
-        return;
-      }
-      state.gold -= cost;
-      char.level += 1;
-      addLog(`⬆️ ${char.icon} ${char.name} Lv.${char.level} 강화 완료!`);
-      updateUI();
-    }
-
-    // ---------- 렌더링 ----------
-    function renderCharacterList() {
-      if (!characterListDiv) return;
-      // 레어리티 순 정렬 SSR > SR > R
-      const sorted = [...state.characters].sort((a,b) => {
-        const order = {SSR:3, SR:2, R:1};
-        return (order[b.rarity]||0) - (order[a.rarity]||0);
-      });
-      characterListDiv.innerHTML = '';
-      if (sorted.length === 0) {
-        characterListDiv.innerHTML = '<p style="color:#6f7a8a; padding:12px;">아직 캐릭터가 없습니다. 소환해주세요!</p>';
-        return;
-      }
-      sorted.forEach(char => {
+    // 지도 렌더링
+    function renderMap() {
+      if (!mapGrid) return;
+      mapGrid.innerHTML = '';
+      state.territories.forEach(territory => {
         const card = document.createElement('div');
-        card.className = `char-card ${char.rarity === 'SSR' ? 'ssr' : ''}`;
+        let ownerClass = '';
+        if (territory.owner === 'player') ownerClass = 'player-owned';
+        else if (territory.owner === 'enemy') ownerClass = 'enemy';
+        card.className = `territory-card ${ownerClass}`;
         card.innerHTML = `
-          <div class="char-icon">${char.icon}</div>
-          <div class="char-name">${char.name}</div>
-          <div class="char-level">Lv.${char.level}</div>
-          <button class="upgrade-btn">🔧 강화</button>
+          <div class="territory-name">🏴 ${territory.name}</div>
+          <div class="territory-info">⚔️${territory.troops} 🍚${territory.foodIncome}/💰${territory.goldIncome}</div>
+          <div style="font-size:0.7rem;">${territory.owner === 'player' ? '🟢 아군' : (territory.owner==='enemy'?'🔴 적군':'⚪ 중립')}</div>
         `;
-        card.querySelector('.upgrade-btn').addEventListener('click', (e) => {
-          e.stopPropagation();
-          upgradeCharacter(char.id);
-        });
-        characterListDiv.appendChild(card);
+        card.addEventListener('click', () => selectTerritory(territory.id));
+        mapGrid.appendChild(card);
       });
     }
 
-    // ---------- 이벤트 연결 ----------
-    document.getElementById('pullOneBtn').addEventListener('click', () => performPull(false));
-    document.getElementById('pullTenBtn').addEventListener('click', () => performPull(true));
+    function selectTerritory(id) {
+      state.selectedTerritoryId = id;
+      const territory = state.territories.find(t => t.id === id);
+      if (!territory) return;
+      addLog(`📌 ${territory.name} 선택됨. 공격 또는 행동 선택.`);
+      // 공격 가능 여부 체크 및 버튼 표시는 action panel 활용
+    }
 
-    document.getElementById('addResourcesBtn').addEventListener('click', () => {
-      state.gem += 300;
-      state.gold += 500;
-      addLog('✨ 무료 재화 지급! +300💎 +500🪙');
+    // ---------- 게임 액션 ----------
+    function attackTerritory(targetId) {
+      if (state.selectedTerritoryId === null) {
+        addLog('⚠️ 먼저 공격할 영토를 선택하세요.');
+        return;
+      }
+      const playerTerritory = state.territories.find(t => t.id === state.selectedTerritoryId);
+      if (!playerTerritory || playerTerritory.owner !== 'player') {
+        addLog('❌ 아군 영토에서만 공격을 시작할 수 있습니다.');
+        return;
+      }
+      const target = state.territories.find(t => t.id === targetId);
+      if (!target || target.owner === 'player') {
+        addLog('❌ 적 또는 중립 영토만 공격 가능합니다.');
+        return;
+      }
+      if (state.playerTroops < 300) {
+        addLog('⚠️ 병력이 부족합니다. (최소 300 필요)');
+        return;
+      }
+      // 전투 로직
+      const attackPower = state.playerTroops * (0.8 + Math.random() * 0.5);
+      const defendPower = target.troops * (0.9 + Math.random() * 0.6);
+      const playerLoss = Math.floor(defendPower * 0.25);
+      const enemyLoss = Math.floor(attackPower * 0.35);
+
+      if (attackPower > defendPower) {
+        // 승리
+        state.playerTroops = Math.max(200, state.playerTroops - playerLoss);
+        target.troops = Math.max(0, target.troops - enemyLoss);
+        target.owner = 'player';
+        addLog(`⚔️ ${target.name} 공격 성공! 아군 손실 ${playerLoss}, 적 섬멸. 영토 획득!`);
+      } else {
+        // 패배
+        state.playerTroops = Math.max(100, state.playerTroops - Math.floor(playerLoss*1.3));
+        target.troops = Math.max(200, target.troops - Math.floor(enemyLoss*0.7));
+        addLog(`💔 ${target.name} 공격 실패... 아군 피해 ${Math.floor(playerLoss*1.3)}. 적 잔존 병력 ${target.troops}`);
+      }
+      state.selectedTerritoryId = null;
       updateUI();
+    }
+
+    function recruitTroops() {
+      const costGold = 120;
+      const costFood = 80;
+      if (state.gold < costGold || state.food < costFood) {
+        addLog('💰 식량 또는 금이 부족합니다.');
+        return;
+      }
+      state.gold -= costGold;
+      state.food -= costFood;
+      const added = 400 + Math.floor(Math.random() * 250);
+      state.playerTroops += added;
+      addLog(`⚔️ 병사 ${added}명 모집! 현재 병력 ${state.playerTroops}`);
+      updateUI();
+    }
+
+    function nextTurn() {
+      // 수입 계산
+      let foodIncome = 0;
+      let goldIncome = 0;
+      state.territories.forEach(t => {
+        if (t.owner === 'player') {
+          foodIncome += t.foodIncome;
+          goldIncome += t.goldIncome;
+        }
+      });
+      state.food += foodIncome;
+      state.gold += goldIncome;
+      // 유지비 (병력 당 식량 소모)
+      const upkeep = Math.floor(state.playerTroops * 0.08);
+      state.food = Math.max(0, state.food - upkeep);
+      
+      // 적 영토 행동 (일부 적군 성장)
+      state.territories.forEach(t => {
+        if (t.owner === 'enemy') {
+          t.troops = Math.min(2500, t.troops + Math.floor(Math.random() * 60 + 20));
+        } else if (t.owner === 'neutral') {
+          t.troops = Math.min(1500, t.troops + Math.floor(Math.random() * 30));
+        }
+      });
+
+      state.turn++;
+      addLog(`📅 턴 ${state.turn} 시작. 수입 +🍚${foodIncome} +💰${goldIncome}, 유지비 -🍚${upkeep}`);
+      
+      // 식량 부족 경고
+      if (state.food < 50) {
+        addLog('⚠️ 식량이 부족합니다! 병력 사기가 저하됩니다.');
+        state.playerTroops = Math.floor(state.playerTroops * 0.92);
+      }
+      
+      state.selectedTerritoryId = null;
+      updateUI();
+    }
+
+    // 적 AI 공격 (턴 종료 시 간단히)
+    function enemyTurnAction() {
+      const playerTerritories = state.territories.filter(t => t.owner === 'player');
+      if (playerTerritories.length === 0) return;
+      const enemyTerritories = state.territories.filter(t => t.owner === 'enemy' && t.troops > 400);
+      if (enemyTerritories.length === 0) return;
+      
+      // 랜덤하게 적 하나가 플레이어 영토 공격
+      const attacker = enemyTerritories[Math.floor(Math.random() * enemyTerritories.length)];
+      const target = playerTerritories[Math.floor(Math.random() * playerTerritories.length)];
+      
+      const attackPower = attacker.troops * (0.7 + Math.random()*0.5);
+      const defendPower = target.troops * (0.85 + Math.random()*0.5);
+      
+      if (attackPower > defendPower) {
+        target.owner = 'enemy';
+        target.troops = Math.floor(attacker.troops * 0.3);
+        attacker.troops = Math.floor(attacker.troops * 0.55);
+        addLog(`🚨 적군이 ${target.name}을(를) 점령했습니다!`);
+      } else {
+        attacker.troops = Math.floor(attacker.troops * 0.4);
+        target.troops = Math.floor(target.troops * 0.7);
+        addLog(`🛡️ ${target.name} 방어 성공! 적군 격퇴.`);
+      }
+    }
+
+    // ---------- 이벤트 핸들러 ----------
+    document.getElementById('nextTurnBtn').addEventListener('click', () => {
+      enemyTurnAction();
+      nextTurn();
+    });
+    document.getElementById('recruitBtn').addEventListener('click', recruitTroops);
+
+    // 지도에서 우클릭 or 공격 버튼 추가 (영토 선택 후 공격)
+    mapGrid.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const card = e.target.closest('.territory-card');
+      if (!card) return;
+      const index = Array.from(mapGrid.children).indexOf(card);
+      if (index >= 0 && index < state.territories.length) {
+        attackTerritory(state.territories[index].id);
+      }
     });
 
-    document.getElementById('resetGameBtn').addEventListener('click', () => {
-      if (confirm('정말 모든 데이터를 초기화하시겠습니까? 보유 캐릭터와 재화가 사라집니다.')) {
-        localStorage.removeItem('gachaRpgSave');
-        state.gem = 500;
-        state.gold = 200;
-        state.pityCounter = 0;
-        state.characters = [];
-        updateUI();
-        addLog('🗑️ 데이터가 초기화되었습니다.');
-      }
+    // 공격 안내 문구
+    window.addEventListener('load', () => {
+      addLog('🖱️ 영토 클릭 후, 다른 영토 우클릭으로 공격!');
     });
 
     // 초기화
     loadGame();
     updateUI();
-    addLog('⚔️ 어둠의 소환사에 오신 것을 환영합니다!');
   })();
 </script>
 </body>
