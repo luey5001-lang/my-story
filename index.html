@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>⚔️ 던전 슬레이어 - FPS 레이캐스팅</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>⚔️ 던전 슬레이어 - FPS</title>
   <style>
     * {
       margin: 0;
@@ -16,294 +16,492 @@
       font-family: 'Courier New', monospace;
       user-select: none;
       -webkit-user-select: none;
+      touch-action: none;
     }
     canvas {
       display: block;
       position: fixed;
       top: 0;
       left: 0;
-      image-rendering: pixelated;
-    }
-    #uiLayer {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 12px;
-      z-index: 10;
-      pointer-events: none;
-    }
-    .hud-item {
-      background: rgba(0,0,0,0.8);
-      border: 2px solid #ff4444;
-      color: #ff4444;
-      padding: 8px 16px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      border-radius: 8px;
     }
     #crosshair {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      color: #0f0;
-      font-size: 2rem;
+      color: #fff;
+      font-size: 1.5rem;
       pointer-events: none;
       z-index: 20;
-      text-shadow: 0 0 10px #0f0;
+      text-shadow: 0 0 8px #000;
+      opacity: 0.7;
+    }
+    #hud {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hud-box {
+      background: rgba(0,0,0,0.8);
+      border: 2px solid #c44;
+      color: #fff;
+      padding: 10px 18px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 10px;
+      font-family: monospace;
+    }
+    .hud-box.health {
+      border-color: #f44;
+      color: #f66;
+    }
+    .hud-box.ammo {
+      border-color: #fa0;
+      color: #fc0;
+    }
+    .hud-box.kills {
+      border-color: #4af;
+      color: #6cf;
     }
     #message {
       position: fixed;
-      top: 20px;
+      top: 30px;
       left: 50%;
       transform: translateX(-50%);
       color: #ff0;
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       font-weight: bold;
       pointer-events: none;
       z-index: 20;
-      text-shadow: 0 0 15px #ff0;
+      text-shadow: 0 0 15px #ff0, 0 0 30px #f80;
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: opacity 0.2s;
+      text-align: center;
     }
     #minimap {
       position: fixed;
       top: 20px;
       right: 20px;
-      border: 2px solid #444;
-      border-radius: 8px;
+      border: 2px solid #555;
+      border-radius: 10px;
       z-index: 10;
-      opacity: 0.8;
+      opacity: 0.85;
+      background: rgba(0,0,0,0.6);
     }
-    #instructions {
+    #mobileControls {
+      display: none;
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #aaa;
-      text-align: center;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      z-index: 30;
       pointer-events: none;
-      z-index: 5;
-      font-size: 0.9rem;
-      line-height: 1.8;
+      padding: 0 20px;
+      justify-content: space-between;
+    }
+    .mobile-pad {
+      pointer-events: all;
+      width: 100px;
+      height: 100px;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 2rem;
+    }
+    .shoot-btn {
+      pointer-events: all;
+      width: 90px;
+      height: 90px;
+      background: rgba(255,50,50,0.3);
+      border: 3px solid #f44;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    @media (max-width: 768px) {
+      #mobileControls {
+        display: flex;
+      }
+      #crosshair {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
-  <div id="crosshair">✚</div>
+  <canvas id="game"></canvas>
+  <div id="crosshair">⌖</div>
   <div id="message"></div>
-  <canvas id="minimap" width="180" height="180"></canvas>
-  <div id="instructions">
-    <p>🕹️ WASD 이동 | 마우스 시점</p>
-    <p>🖱️ 클릭 발사 | R 재장전</p>
-    <p>📱 모바일: 왼쪽 패드 이동 | 오른쪽 발사</p>
+  <canvas id="minimap" width="160" height="160"></canvas>
+  <div id="hud">
+    <div class="hud-box health">❤️ <span id="hp">100</span></div>
+    <div class="hud-box ammo">🔫 <span id="ammo">12</span></div>
+    <div class="hud-box kills">💀 <span id="kills">0</span></div>
   </div>
-  <div id="uiLayer">
-    <div class="hud-item">❤️ <span id="healthDisplay">100</span></div>
-    <div class="hud-item">🔫 <span id="ammoDisplay">12</span>/<span id="maxAmmoDisplay">12</span></div>
-    <div class="hud-item">💀 <span id="killDisplay">0</span></div>
+  <div id="mobileControls">
+    <div class="mobile-pad" id="movePad">⬆️</div>
+    <div class="shoot-btn" id="shootBtn">🔫</div>
   </div>
 
   <script>
     (() => {
-      const canvas = document.getElementById('gameCanvas');
+      // ==================== 캔버스 설정 ====================
+      const canvas = document.getElementById('game');
       const ctx = canvas.getContext('2d');
-      const minimapCanvas = document.getElementById('minimap');
-      const minimapCtx = minimapCanvas.getContext('2d');
+      const minimap = document.getElementById('minimap');
+      const mctx = minimap.getContext('2d');
 
-      // ==================== 맵 데이터 ====================
-      // 0: 빈공간, 1: 벽, 2: 기둥, 3: 출구
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // ==================== 맵 (0:빔, 1:벽, 2:기둥) ====================
       const MAP = [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,1,1,1,0,0,0,0,1,1,1,0,0,0,0,1],
-        [1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1],
-        [1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1],
-        [1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1],
-        [1,0,0,0,0,1,1,1,0,0,0,0,1,1,1,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,1,1,0,0,0,0,1,1,0,0,0,1],
+        [1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,2,2,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,2,2,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1],
+        [1,0,0,0,1,1,0,0,0,0,1,1,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
       ];
 
-      const MAP_WIDTH = MAP[0].length;
-      const MAP_HEIGHT = MAP.length;
-      const TILE_SIZE = 64; // 픽셀 단위 타일 크기
+      const MAP_W = MAP[0].length;
+      const MAP_H = MAP.length;
+      const TILE = 64;
 
       // ==================== 게임 상태 ====================
       const player = {
-        x: 3.5 * TILE_SIZE,
-        y: 3.5 * TILE_SIZE,
+        x: 2.5 * TILE,
+        y: 2.5 * TILE,
         angle: 0,
-        health: 100,
-        maxHealth: 100,
+        hp: 100,
+        maxHp: 100,
         ammo: 12,
         maxAmmo: 12,
         kills: 0,
-        speed: 3.5,
-        rotSpeed: 0.045,
+        speed: 3,
+        rotSpeed: 0.04,
       };
 
-      // 적 데이터
       let enemies = [];
-      const ENEMY_SPEED = 1.2;
-      const ENEMY_ATTACK_RANGE = 120;
-      const ENEMY_ATTACK_COOLDOWN = 60;
-      const ENEMY_SIGHT_RANGE = 400;
-
-      // 파티클 (피격/폭발 이펙트)
       let particles = [];
-
-      // 입력 상태
-      const keys = {};
-      let mouseDown = false;
-      let mouseX = 0;
-      let reloading = false;
-      let reloadTimer = 0;
-      const RELOAD_TIME = 40;
-
-      // 게임 상태
       let gameOver = false;
       let victory = false;
-      let messageTimer = 0;
+      let reloading = false;
+      let reloadTime = 0;
+      let msgText = '';
+      let msgTimer = 0;
+      let shootCooldown = 0;
 
-      // 모바일 컨트롤
-      let touchMoveActive = false;
-      let touchShootActive = false;
-      let touchMoveX = 0;
-      let touchMoveY = 0;
+      // ==================== 입력 ====================
+      const keys = {};
+      window.addEventListener('keydown', e => {
+        keys[e.code] = true;
+        if (e.code === 'KeyR') startReload();
+        e.preventDefault();
+      });
+      window.addEventListener('keyup', e => {
+        keys[e.code] = false;
+        e.preventDefault();
+      });
 
-      // ==================== 초기화 ====================
-      function spawnEnemies() {
-        enemies = [];
-        const spawnPoints = [
-          {x: 7.5, y: 3.5}, {x: 16.5, y: 5.5}, {x: 5.5, y: 9.5},
-          {x: 14.5, y: 9.5}, {x: 3.5, y: 15.5}, {x: 12.5, y: 15.5},
-          {x: 9.5, y: 12.5}, {x: 17.5, y: 14.5}, {x: 7.5, y: 7.5},
-        ];
-        spawnPoints.forEach(sp => {
-          enemies.push({
-            x: sp.x * TILE_SIZE,
-            y: sp.y * TILE_SIZE,
-            health: 3,
-            alive: true,
-            attackCooldown: 0,
-            patrolAngle: Math.random() * Math.PI * 2,
-            patrolTimer: 0,
-            type: Math.random() < 0.3 ? 'heavy' : 'normal',
-          });
+      // 마우스
+      let mouseDown = false;
+      canvas.addEventListener('mousedown', e => {
+        mouseDown = true;
+        if (e.button === 0) tryShoot();
+        if (player.ammo <= 0 && !reloading) startReload();
+      });
+      canvas.addEventListener('mouseup', () => { mouseDown = false; });
+      canvas.addEventListener('mousemove', e => {
+        if (document.pointerLockElement === canvas) {
+          player.angle += e.movementX * 0.003;
+        }
+      });
+      canvas.addEventListener('click', () => {
+        canvas.requestPointerLock();
+      });
+
+      // 모바일
+      let touchMove = false;
+      let touchDir = { x: 0, y: 0 };
+      const movePad = document.getElementById('movePad');
+      const shootBtn = document.getElementById('shootBtn');
+
+      if (movePad) {
+        movePad.addEventListener('touchstart', e => {
+          e.preventDefault();
+          touchMove = true;
+          updateTouchDir(e.touches[0]);
+        });
+        movePad.addEventListener('touchmove', e => {
+          e.preventDefault();
+          updateTouchDir(e.touches[0]);
+        });
+        movePad.addEventListener('touchend', e => {
+          e.preventDefault();
+          touchMove = false;
+          touchDir.x = 0;
+          touchDir.y = 0;
         });
       }
 
+      if (shootBtn) {
+        shootBtn.addEventListener('touchstart', e => {
+          e.preventDefault();
+          tryShoot();
+          if (player.ammo <= 0 && !reloading) startReload();
+        });
+      }
+
+      function updateTouchDir(touch) {
+        const rect = movePad.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        touchDir.x = (touch.clientX - cx) / (rect.width / 2);
+        touchDir.y = (touch.clientY - cy) / (rect.height / 2);
+        const len = Math.sqrt(touchDir.x ** 2 + touchDir.y ** 2);
+        if (len > 1) {
+          touchDir.x /= len;
+          touchDir.y /= len;
+        }
+      }
+
+      // ==================== 함수 ====================
+      function showMsg(text, dur = 60) {
+        msgText = text;
+        msgTimer = dur;
+        document.getElementById('message').style.opacity = '1';
+        document.getElementById('message').textContent = text;
+      }
+
+      function updateHUD() {
+        document.getElementById('hp').textContent = Math.max(0, player.hp);
+        document.getElementById('ammo').textContent = player.ammo;
+        document.getElementById('kills').textContent = player.kills;
+      }
+
+      function canMoveTo(x, y) {
+        const margin = 10;
+        const checks = [
+          [x - margin, y - margin],
+          [x + margin, y - margin],
+          [x - margin, y + margin],
+          [x + margin, y + margin],
+        ];
+        for (const [cx, cy] of checks) {
+          const mx = Math.floor(cx / TILE);
+          const my = Math.floor(cy / TILE);
+          if (mx < 0 || mx >= MAP_W || my < 0 || my >= MAP_H) return false;
+          if (MAP[my][mx] > 0) return false;
+        }
+        return true;
+      }
+
+      function castRay(ox, oy, angle) {
+        const sin = Math.sin(angle);
+        const cos = Math.cos(angle);
+        const invSin = sin === 0 ? 1e10 : 1 / sin;
+        const invCos = cos === 0 ? 1e10 : 1 / cos;
+        let mx = Math.floor(ox / TILE);
+        let my = Math.floor(oy / TILE);
+        const ddx = Math.abs(1 / (cos + 1e-10));
+        const ddy = Math.abs(1 / (sin + 1e-10));
+        let sx, sy, sdx, sdy;
+        if (cos < 0) { sx = -1; sdx = (ox / TILE - mx) * ddx; }
+        else { sx = 1; sdx = (mx + 1 - ox / TILE) * ddx; }
+        if (sin < 0) { sy = -1; sdy = (oy / TILE - my) * ddy; }
+        else { sy = 1; sdy = (my + 1 - oy / TILE) * ddy; }
+
+        let side = 0;
+        let tile = 0;
+        let dist = 0;
+        for (let i = 0; i < 60; i++) {
+          if (sdx < sdy) {
+            sdx += ddx;
+            mx += sx;
+            side = 0;
+          } else {
+            sdy += ddy;
+            my += sy;
+            side = 1;
+          }
+          if (mx < 0 || mx >= MAP_W || my < 0 || my >= MAP_H) {
+            tile = 1;
+            dist = 999;
+            break;
+          }
+          if (MAP[my][mx] > 0) {
+            tile = MAP[my][mx];
+            dist = side === 0 ? (mx - ox / TILE + (1 - sx) / 2) / cos
+                              : (my - oy / TILE + (1 - sy) / 2) / sin;
+            dist = Math.abs(dist);
+            break;
+          }
+        }
+        return { dist, tile, side, mx, my, hit: tile > 0 };
+      }
+
+      function startReload() {
+        if (reloading || player.ammo === player.maxAmmo) return;
+        reloading = true;
+        reloadTime = 35;
+        showMsg('🔄 재장전 중...', 35);
+      }
+
+      function tryShoot() {
+        if (gameOver || victory || reloading || player.ammo <= 0 || shootCooldown > 0) return;
+        shootCooldown = 8;
+        player.ammo--;
+        spawnMuzzleFlash();
+
+        // 적 충돌 검사
+        let bestEnemy = null;
+        let bestDist = Infinity;
+        for (const e of enemies) {
+          if (!e.alive) continue;
+          const dx = e.x - player.x;
+          const dy = e.y - player.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const angleToEnemy = Math.atan2(dy, dx);
+          let diff = angleToEnemy - player.angle;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          if (Math.abs(diff) < 0.12 && dist < 500 && dist < bestDist) {
+            bestDist = dist;
+            bestEnemy = e;
+          }
+        }
+
+        if (bestEnemy) {
+          bestEnemy.hp--;
+          spawnHitFX(bestEnemy);
+          if (bestEnemy.hp <= 0) {
+            bestEnemy.alive = false;
+            player.kills++;
+            spawnDeathFX(bestEnemy);
+            showMsg('💀 적 처치!', 40);
+            if (enemies.every(e => !e.alive)) {
+              victory = true;
+              showMsg('🏆 승리! 모든 적을 무찔렀다!', 999);
+            }
+          } else {
+            showMsg('🎯 명중!', 15);
+          }
+        }
+        updateHUD();
+        if (player.ammo <= 0) setTimeout(startReload, 400);
+      }
+
+      function spawnMuzzleFlash() {
+        for (let i = 0; i < 6; i++) {
+          particles.push({
+            sx: canvas.width * 0.55 + (Math.random() - 0.5) * 40,
+            sy: canvas.height * 0.65 + (Math.random() - 0.5) * 40,
+            life: 5,
+            maxLife: 5,
+            color: '#ff0',
+          });
+        }
+      }
+
+      function spawnHitFX(enemy) {
+        const dx = enemy.x - player.x;
+        const dy = enemy.y - player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx) - player.angle;
+        const sx = (0.5 + angle / (Math.PI / 3.5)) * canvas.width;
+        const sy = canvas.height / 2;
+        for (let i = 0; i < 8; i++) {
+          particles.push({
+            sx: sx + (Math.random() - 0.5) * 25,
+            sy: sy + (Math.random() - 0.5) * 25,
+            life: 8,
+            maxLife: 8,
+            color: '#f44',
+          });
+        }
+      }
+
+      function spawnDeathFX(enemy) {
+        const dx = enemy.x - player.x;
+        const dy = enemy.y - player.y;
+        const angle = Math.atan2(dy, dx) - player.angle;
+        const sx = (0.5 + angle / (Math.PI / 3.5)) * canvas.width;
+        const sy = canvas.height / 2;
+        for (let i = 0; i < 25; i++) {
+          particles.push({
+            sx: sx + (Math.random() - 0.5) * 50,
+            sy: sy + (Math.random() - 0.5) * 50,
+            life: 15 + Math.random() * 20,
+            maxLife: 35,
+            color: ['#f80', '#ff0', '#f44'][Math.floor(Math.random() * 3)],
+          });
+        }
+      }
+
+      function spawnEnemies() {
+        enemies = [];
+        const spots = [
+          [5,3],[10,3],[3,7],[12,7],[7,10],[2,13],[13,13],[9,5],[14,9]
+        ];
+        for (const [mx, my] of spots) {
+          enemies.push({
+            x: mx * TILE + TILE / 2,
+            y: my * TILE + TILE / 2,
+            hp: 3,
+            maxHp: 3,
+            alive: true,
+            atkCD: 0,
+            patrol: Math.random() * Math.PI * 2,
+            patrolT: 0,
+            heavy: Math.random() < 0.25,
+          });
+        }
+      }
+
       function resetGame() {
-        player.x = 3.5 * TILE_SIZE;
-        player.y = 3.5 * TILE_SIZE;
+        player.x = 2.5 * TILE;
+        player.y = 2.5 * TILE;
         player.angle = 0;
-        player.health = 100;
+        player.hp = 100;
         player.ammo = 12;
         player.kills = 0;
         gameOver = false;
         victory = false;
         reloading = false;
-        reloadTimer = 0;
+        reloadTime = 0;
         particles = [];
+        shootCooldown = 0;
         spawnEnemies();
         updateHUD();
-      }
-
-      function showMessage(msg, duration = 80) {
-        const el = document.getElementById('message');
-        el.textContent = msg;
-        el.style.opacity = '1';
-        messageTimer = duration;
-      }
-
-      // ==================== 레이캐스팅 엔진 ====================
-      function castRay(originX, originY, angle) {
-        const sin = Math.sin(angle);
-        const cos = Math.cos(angle);
-        
-        // DDA 알고리즘
-        let mapX = Math.floor(originX / TILE_SIZE);
-        let mapY = Math.floor(originY / TILE_SIZE);
-        
-        const deltaDistX = Math.abs(1 / (cos + 0.0001));
-        const deltaDistY = Math.abs(1 / (sin + 0.0001));
-        
-        let stepX, stepY, sideDistX, sideDistY;
-        
-        if (cos < 0) {
-          stepX = -1;
-          sideDistX = (originX / TILE_SIZE - mapX) * deltaDistX;
-        } else {
-          stepX = 1;
-          sideDistX = (mapX + 1 - originX / TILE_SIZE) * deltaDistX;
-        }
-        
-        if (sin < 0) {
-          stepY = -1;
-          sideDistY = (originY / TILE_SIZE - mapY) * deltaDistY;
-        } else {
-          stepY = 1;
-          sideDistY = (mapY + 1 - originY / TILE_SIZE) * deltaDistY;
-        }
-        
-        let hit = false;
-        let side = 0;
-        let hitTile = 0;
-        let distance = 0;
-        const maxSteps = 50;
-        
-        for (let i = 0; i < maxSteps; i++) {
-          if (sideDistX < sideDistY) {
-            sideDistX += deltaDistX;
-            mapX += stepX;
-            side = 0;
-          } else {
-            sideDistY += deltaDistY;
-            mapY += stepY;
-            side = 1;
-          }
-          
-          if (mapX < 0 || mapX >= MAP_WIDTH || mapY < 0 || mapY >= MAP_HEIGHT) {
-            hitTile = 1;
-            distance = 999;
-            hit = true;
-            break;
-          }
-          
-          if (MAP[mapY][mapX] > 0) {
-            hitTile = MAP[mapY][mapX];
-            hit = true;
-            if (side === 0) {
-              distance = (mapX - originX / TILE_SIZE + (1 - stepX) / 2) / cos;
-            } else {
-              distance = (mapY - originY / TILE_SIZE + (1 - stepY) / 2) / sin;
-            }
-            break;
-          }
-        }
-        
-        return {
-          distance: Math.abs(distance),
-          hitTile,
-          side,
-          mapX,
-          mapY,
-          hit,
-        };
+        document.getElementById('message').style.opacity = '0';
       }
 
       // ==================== 렌더링 ====================
@@ -311,490 +509,283 @@
         const w = canvas.width;
         const h = canvas.height;
         const hh = h / 2;
-        
-        // 하늘
-        const skyGrad = ctx.createLinearGradient(0, 0, 0, hh);
-        skyGrad.addColorStop(0, '#1a1a2e');
-        skyGrad.addColorStop(0.5, '#2d2d44');
-        skyGrad.addColorStop(1, '#4a4a5a');
-        ctx.fillStyle = skyGrad;
-        ctx.fillRect(0, 0, w, hh);
-        
-        // 바닥
-        const floorGrad = ctx.createLinearGradient(0, hh, 0, h);
-        floorGrad.addColorStop(0, '#3a3a2a');
-        floorGrad.addColorStop(1, '#1a1a0a');
-        ctx.fillStyle = floorGrad;
-        ctx.fillRect(0, hh, w, hh);
-        
-        // 레이캐스팅
-        const numRays = w;
         const fov = Math.PI / 3.5;
-        
-        for (let i = 0; i < numRays; i++) {
-          const rayAngle = player.angle - fov / 2 + (i / numRays) * fov;
+
+        // 천장
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, 0, w, hh);
+        // 바닥
+        ctx.fillStyle = '#3a3a2a';
+        ctx.fillRect(0, hh, w, hh);
+
+        // 벽 렌더링
+        for (let x = 0; x < w; x++) {
+          const rayAngle = player.angle - fov / 2 + (x / w) * fov;
           const ray = castRay(player.x, player.y, rayAngle);
-          
-          // 어안 렌즈 보정
-          const correctedDist = ray.distance * Math.cos(rayAngle - player.angle);
-          const wallHeight = Math.min(h * 2, (TILE_SIZE * h) / (correctedDist + 0.01));
-          
-          // 벽 색상 (타일 종류별)
-          let wallColor;
-          if (ray.hitTile === 1) {
-            wallColor = ray.side === 1 ? '#5a4a3a' : '#6b5a4b';
-          } else if (ray.hitTile === 2) {
-            wallColor = ray.side === 1 ? '#4a4a6a' : '#5a5a7a';
-          } else if (ray.hitTile === 3) {
-            wallColor = '#ffdd44';
-          } else {
-            wallColor = '#333';
-          }
-          
-          // 거리에 따른 어두움
-          const shade = Math.max(0.2, 1 - correctedDist / 800);
-          ctx.fillStyle = shadeColor(wallColor, shade);
-          
-          const wallTop = hh - wallHeight / 2;
-          const wallBottom = hh + wallHeight / 2;
-          ctx.fillRect(i, wallTop, 1, wallHeight);
-          
-          // 벽 텍스처 라인
-          if (wallHeight > 20) {
-            ctx.fillStyle = shadeColor('#000', shade * 0.3);
-            for (let ty = wallTop; ty < wallBottom; ty += Math.max(4, Math.floor(wallHeight / 15))) {
-              ctx.fillRect(i, ty, 1, 1);
+          const corrDist = ray.dist * Math.cos(rayAngle - player.angle);
+          const wallH = Math.min(h * 3, (TILE * h) / (corrDist + 0.01));
+          const top = hh - wallH / 2;
+
+          // 벽 색
+          let col;
+          if (ray.tile === 1) col = ray.side === 1 ? '#5a4a3a' : '#6b5a4b';
+          else if (ray.tile === 2) col = ray.side === 1 ? '#4a4a6a' : '#5a5a7a';
+          else col = '#333';
+
+          const shade = Math.max(0.15, 1 - corrDist / 700);
+          ctx.fillStyle = shadeColor(col, shade);
+          ctx.fillRect(x, top, 1, wallH);
+
+          // 벽 디테일
+          if (wallH > 30) {
+            ctx.fillStyle = shadeColor('#000', shade * 0.4);
+            const step = Math.max(3, Math.floor(wallH / 12));
+            for (let ty = top; ty < top + wallH; ty += step) {
+              ctx.fillRect(x, ty, 1, 1);
             }
           }
         }
-        
-        // 적 렌더링 (스프라이트)
-        renderSprites();
-        
-        // 파티클 렌더링
-        renderParticles();
-        
-        // 무기 렌더링
-        renderWeapon();
-        
-        // 피격 이펙트
-        if (player.health < 30) {
-          ctx.fillStyle = `rgba(255, 0, 0, ${0.3 * (1 - player.health / 30)})`;
-          ctx.fillRect(0, 0, w, h);
-        }
-      }
 
-      function shadeColor(color, percent) {
-        const num = parseInt(color.replace('#', ''), 16);
-        const amt = Math.round(2.55 * percent * 100);
-        const R = Math.max(0, Math.min(255, (num >> 16) + amt - 50));
-        const G = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF00) + amt - 50));
-        const B = Math.max(0, Math.min(255, (num & 0x0000FF) + amt - 50));
-        return `rgb(${R},${G},${B})`;
-      }
-
-      function renderSprites() {
-        const w = canvas.width;
-        const h = canvas.height;
-        const hh = h / 2;
-        const fov = Math.PI / 3.5;
-        
-        // 플레이어 기준으로 적 정렬 (먼 것부터)
-        const visibleEnemies = enemies.filter(e => e.alive).map(e => {
-          const dx = e.x - player.x;
-          const dy = e.y - player.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          let angle = Math.atan2(dy, dx) - player.angle;
-          
-          // 각도 정규화
-          while (angle > Math.PI) angle -= Math.PI * 2;
-          while (angle < -Math.PI) angle += Math.PI * 2;
-          
-          return { ...e, dist, angle, dx, dy };
-        }).filter(e => e.dist < 800 && Math.abs(e.angle) < fov * 1.2)
+        // 스프라이트 렌더링
+        const visible = enemies
+          .filter(e => e.alive)
+          .map(e => {
+            const dx = e.x - player.x;
+            const dy = e.y - player.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            let angle = Math.atan2(dy, dx) - player.angle;
+            while (angle > Math.PI) angle -= Math.PI * 2;
+            while (angle < -Math.PI) angle += Math.PI * 2;
+            return { ...e, dist, angle };
+          })
+          .filter(e => e.dist < 800 && Math.abs(e.angle) < fov * 1.2)
           .sort((a, b) => b.dist - a.dist);
-        
-        visibleEnemies.forEach(e => {
-          const screenX = (0.5 + e.angle / fov) * w;
-          const spriteHeight = Math.min(h * 2, (TILE_SIZE * 0.7 * h) / (e.dist + 0.01));
-          const spriteWidth = spriteHeight * 0.7;
-          const spriteTop = hh - spriteHeight / 2;
-          
-          if (spriteHeight < 5) return;
-          
-          // 적 몸체
-          const shade = Math.max(0.3, 1 - e.dist / 700);
-          
+
+        for (const e of visible) {
+          const sx = (0.5 + e.angle / fov) * w;
+          const sh = Math.min(h * 2.5, (TILE * 0.7 * h) / (e.dist + 0.01));
+          const sw = sh * 0.6;
+          const top = hh - sh / 2;
+          const shade = Math.max(0.2, 1 - e.dist / 700);
+
           // 몸
-          ctx.fillStyle = e.type === 'heavy' ? '#cc3333' : '#cc6633';
-          ctx.fillRect(screenX - spriteWidth/2, spriteTop, spriteWidth, spriteHeight);
-          
+          ctx.fillStyle = e.heavy ? '#c33' : '#c63';
+          ctx.fillRect(sx - sw / 2, top, sw, sh);
           // 머리
-          ctx.fillStyle = '#ddbb99';
-          ctx.fillRect(screenX - spriteWidth/4, spriteTop - spriteHeight*0.25, spriteWidth/2, spriteHeight*0.3);
-          
+          ctx.fillStyle = '#db9';
+          ctx.fillRect(sx - sw / 3, top - sh * 0.22, sw * 0.66, sh * 0.25);
           // 눈
-          ctx.fillStyle = '#ff0000';
-          ctx.fillRect(screenX - spriteWidth/6, spriteTop - spriteHeight*0.15, 3, 3);
-          ctx.fillRect(screenX + spriteWidth/8, spriteTop - spriteHeight*0.15, 3, 3);
-          
-          // 체력 바
-          if (e.health < 3) {
+          ctx.fillStyle = '#f00';
+          ctx.fillRect(sx - sw / 5, top - sh * 0.13, 3, 3);
+          ctx.fillRect(sx + sw / 7, top - sh * 0.13, 3, 3);
+          // 체력
+          if (e.hp < e.maxHp) {
             ctx.fillStyle = '#0f0';
-            ctx.fillRect(screenX - spriteWidth/3, spriteTop - 8, spriteWidth*0.66 * (e.health/3), 4);
+            ctx.fillRect(sx - sw / 3, top - 7, sw * 0.66 * (e.hp / e.maxHp), 4);
           }
-        });
-      }
+        }
 
-      function renderParticles() {
-        particles.forEach(p => {
-          ctx.fillStyle = p.color;
+        // 파티클
+        for (const p of particles) {
           ctx.globalAlpha = p.life / p.maxLife;
-          ctx.fillRect(p.screenX - 2, p.screenY - 2, 4, 4);
-        });
+          ctx.fillStyle = p.color;
+          ctx.fillRect(p.sx - 2, p.sy - 2, 4, 4);
+        }
         ctx.globalAlpha = 1;
-      }
 
-      function renderWeapon() {
-        const w = canvas.width;
-        const h = canvas.height;
-        
-        // 총기 반동 애니메이션
-        const recoil = reloading ? Math.sin(reloadTimer * 0.3) * 15 : 0;
-        
-        // 권총
-        ctx.fillStyle = '#444';
-        ctx.fillRect(w * 0.55, h * 0.6 + recoil, w * 0.12, h * 0.25);
+        // 무기
+        const recoil = reloading ? Math.sin(reloadTime * 0.35) * 12 : 0;
+        ctx.fillStyle = '#555';
+        ctx.fillRect(w * 0.58, h * 0.62 + recoil, w * 0.1, h * 0.2);
         ctx.fillStyle = '#333';
-        ctx.fillRect(w * 0.57, h * 0.58 + recoil, w * 0.06, h * 0.08);
-        
-        // 총구
-        ctx.fillStyle = '#222';
-        ctx.fillRect(w * 0.64, h * 0.62 + recoil, w * 0.04, h * 0.04);
-        
-        // 발사 섬광
-        if (mouseDown && player.ammo > 0 && !reloading) {
+        ctx.fillRect(w * 0.6, h * 0.6 + recoil, w * 0.04, h * 0.06);
+        if (mouseDown && player.ammo > 0 && !reloading && shootCooldown > 5) {
           ctx.fillStyle = '#ff0';
           ctx.beginPath();
-          ctx.arc(w * 0.68, h * 0.63 + recoil, 12, 0, Math.PI * 2);
+          ctx.arc(w * 0.68, h * 0.63 + recoil, 10, 0, Math.PI * 2);
           ctx.fill();
         }
+
+        // 피격 효과
+        if (player.hp < 30) {
+          ctx.fillStyle = `rgba(255,0,0,${0.35 * (1 - player.hp / 30)})`;
+          ctx.fillRect(0, 0, w, h);
+        }
+
+        // 게임 오버 / 승리
+        if (gameOver) {
+          ctx.fillStyle = 'rgba(0,0,0,0.7)';
+          ctx.fillRect(0, 0, w, h);
+          ctx.fillStyle = '#f44';
+          ctx.font = 'bold 48px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('GAME OVER', w / 2, h / 2);
+          ctx.fillStyle = '#fff';
+          ctx.font = '20px monospace';
+          ctx.fillText('클릭하여 다시 시작', w / 2, h / 2 + 40);
+        }
+        if (victory) {
+          ctx.fillStyle = 'rgba(0,0,0,0.5)';
+          ctx.fillRect(0, 0, w, h);
+          ctx.fillStyle = '#ff0';
+          ctx.font = 'bold 48px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('VICTORY!', w / 2, h / 2);
+          ctx.fillStyle = '#fff';
+          ctx.font = '20px monospace';
+          ctx.fillText('클릭하여 다시 시작', w / 2, h / 2 + 40);
+        }
+      }
+
+      function shadeColor(hex, pct) {
+        const n = parseInt(hex.slice(1), 16);
+        const r = Math.max(0, Math.min(255, ((n >> 16) & 0xff) * pct));
+        const g = Math.max(0, Math.min(255, ((n >> 8) & 0xff) * pct));
+        const b = Math.max(0, Math.min(255, (n & 0xff) * pct));
+        return `rgb(${Math.floor(r)},${Math.floor(g)},${Math.floor(b)})`;
       }
 
       function renderMinimap() {
-        const mw = minimapCanvas.width;
-        const mh = minimapCanvas.height;
-        const scale = mw / (MAP_WIDTH * TILE_SIZE);
-        
-        minimapCtx.fillStyle = '#000';
-        minimapCtx.fillRect(0, 0, mw, mh);
-        
-        // 맵 그리기
-        for (let y = 0; y < MAP_HEIGHT; y++) {
-          for (let x = 0; x < MAP_WIDTH; x++) {
-            if (MAP[y][x] === 1) {
-              minimapCtx.fillStyle = '#555';
-            } else if (MAP[y][x] === 2) {
-              minimapCtx.fillStyle = '#335';
-            } else if (MAP[y][x] === 3) {
-              minimapCtx.fillStyle = '#ff0';
-            } else {
-              minimapCtx.fillStyle = '#222';
-            }
-            minimapCtx.fillRect(
-              x * TILE_SIZE * scale,
-              y * TILE_SIZE * scale,
-              TILE_SIZE * scale,
-              TILE_SIZE * scale
-            );
+        const mw = minimap.width;
+        const mh = minimap.height;
+        const sc = mw / (MAP_W * TILE);
+        mctx.fillStyle = '#000';
+        mctx.fillRect(0, 0, mw, mh);
+        for (let y = 0; y < MAP_H; y++) {
+          for (let x = 0; x < MAP_W; x++) {
+            mctx.fillStyle = MAP[y][x] === 1 ? '#555' : MAP[y][x] === 2 ? '#335' : '#222';
+            mctx.fillRect(x * TILE * sc, y * TILE * sc, TILE * sc, TILE * sc);
           }
         }
-        
-        // 적 표시
-        enemies.forEach(e => {
-          if (!e.alive) return;
-          minimapCtx.fillStyle = '#f44';
-          minimapCtx.fillRect(e.x * scale - 2, e.y * scale - 2, 4, 4);
-        });
-        
-        // 플레이어 표시
-        minimapCtx.fillStyle = '#0f0';
-        minimapCtx.fillRect(player.x * scale - 3, player.y * scale - 3, 6, 6);
-        
-        // 시야 방향
-        minimapCtx.strokeStyle = '#0f0';
-        minimapCtx.beginPath();
-        minimapCtx.moveTo(player.x * scale, player.y * scale);
-        minimapCtx.lineTo(
-          (player.x + Math.cos(player.angle) * 40) * scale,
-          (player.y + Math.sin(player.angle) * 40) * scale
-        );
-        minimapCtx.stroke();
+        for (const e of enemies) {
+          if (!e.alive) continue;
+          mctx.fillStyle = '#f44';
+          mctx.fillRect(e.x * sc - 2, e.y * sc - 2, 5, 5);
+        }
+        mctx.fillStyle = '#0f0';
+        mctx.fillRect(player.x * sc - 3, player.y * sc - 3, 7, 7);
+        mctx.strokeStyle = '#0f0';
+        mctx.beginPath();
+        mctx.moveTo(player.x * sc, player.y * sc);
+        mctx.lineTo((player.x + Math.cos(player.angle) * 30) * sc, (player.y + Math.sin(player.angle) * 30) * sc);
+        mctx.stroke();
       }
 
-      // ==================== 게임 로직 ====================
-      function shoot() {
-        if (reloading || player.ammo <= 0 || gameOver || victory) {
-          if (player.ammo <= 0 && !reloading) {
-            reload();
-          }
-          return;
-        }
-        
-        player.ammo--;
-        spawnMuzzleFlash();
-        
-        // 히트스캔
-        const ray = castRay(player.x, player.y, player.angle);
-        
-        // 적 충돌 체크
-        let hitEnemy = null;
-        let closestDist = ray.distance * TILE_SIZE;
-        
-        enemies.forEach(e => {
-          if (!e.alive) return;
-          const dx = e.x - player.x;
-          const dy = e.y - player.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          
-          // 플레이어 시야 각도와의 차이
-          const angleToEnemy = Math.atan2(dy, dx);
-          let angleDiff = angleToEnemy - player.angle;
-          while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
-          while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
-          
-          if (Math.abs(angleDiff) < 0.08 && dist < closestDist) {
-            closestDist = dist;
-            hitEnemy = e;
-          }
-        });
-        
-        if (hitEnemy && closestDist < 600) {
-          hitEnemy.health--;
-          spawnHitParticles(hitEnemy.x, hitEnemy.y);
-          
-          if (hitEnemy.health <= 0) {
-            hitEnemy.alive = false;
-            player.kills++;
-            showMessage('💀 적 처치!', 40);
-            spawnDeathParticles(hitEnemy.x, hitEnemy.y);
-          } else {
-            showMessage('🎯 명중!', 15);
-          }
-        }
-        
-        updateHUD();
-        
-        if (player.ammo <= 0) {
-          setTimeout(reload, 300);
-        }
-      }
-
-      function reload() {
-        if (reloading || player.ammo === player.maxAmmo) return;
-        reloading = true;
-        reloadTimer = RELOAD_TIME;
-        showMessage('🔄 재장전 중...', RELOAD_TIME);
-      }
-
-      function spawnMuzzleFlash() {
-        const w = canvas.width;
-        const h = canvas.height;
-        for (let i = 0; i < 8; i++) {
-          particles.push({
-            screenX: w * 0.68 + (Math.random() - 0.5) * 30,
-            screenY: h * 0.63 + (Math.random() - 0.5) * 30,
-            life: 6,
-            maxLife: 6,
-            color: '#ff0',
-          });
-        }
-      }
-
-      function spawnHitParticles(x, y) {
-        // 3D 위치를 화면 좌표로 변환 (근사)
-        const dx = x - player.x;
-        const dy = y - player.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const angle = Math.atan2(dy, dx) - player.angle;
-        const screenX = (0.5 + angle / (Math.PI / 3.5)) * canvas.width;
-        const screenY = canvas.height / 2;
-        
-        for (let i = 0; i < 5; i++) {
-          particles.push({
-            screenX: screenX + (Math.random() - 0.5) * 20,
-            screenY: screenY + (Math.random() - 0.5) * 20,
-            life: 10,
-            maxLife: 10,
-            color: '#f44',
-          });
-        }
-      }
-
-      function spawnDeathParticles(x, y) {
-        const dx = x - player.x;
-        const dy = y - player.y;
-        const angle = Math.atan2(dy, dx) - player.angle;
-        const screenX = (0.5 + angle / (Math.PI / 3.5)) * canvas.width;
-        const screenY = canvas.height / 2;
-        
-        for (let i = 0; i < 20; i++) {
-          particles.push({
-            screenX: screenX + (Math.random() - 0.5) * 40,
-            screenY: screenY + (Math.random() - 0.5) * 40,
-            life: 20 + Math.random() * 15,
-            maxLife: 35,
-            color: Math.random() < 0.5 ? '#f80' : '#ff0',
-          });
-        }
-      }
-
-      function updateEnemies() {
-        enemies.forEach(e => {
-          if (!e.alive) return;
-          
-          const dx = player.x - e.x;
-          const dy = player.y - e.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          
-          // 플레이어 추적
-          if (dist < ENEMY_SIGHT_RANGE && dist > 80) {
-            const angle = Math.atan2(dy, dx);
-            const moveX = Math.cos(angle) * ENEMY_SPEED;
-            const moveY = Math.sin(angle) * ENEMY_SPEED;
-            
-            // 벽 충돌 체크하며 이동
-            const newX = e.x + moveX;
-            const newY = e.y + moveY;
-            const mapX = Math.floor(newX / TILE_SIZE);
-            const mapY = Math.floor(newY / TILE_SIZE);
-            
-            if (mapX >= 0 && mapX < MAP_WIDTH && MAP[Math.floor(e.y / TILE_SIZE)][mapX] === 0) {
-              e.x = newX;
-            }
-            if (mapY >= 0 && mapY < MAP_HEIGHT && MAP[mapY][Math.floor(e.x / TILE_SIZE)] === 0) {
-              e.y = newY;
-            }
-          } else if (dist >= ENEMY_SIGHT_RANGE) {
-            // 순찰
-            e.patrolTimer++;
-            if (e.patrolTimer > 100) {
-              e.patrolAngle = Math.random() * Math.PI * 2;
-              e.patrolTimer = 0;
-            }
-            const pMoveX = Math.cos(e.patrolAngle) * ENEMY_SPEED * 0.4;
-            const pMoveY = Math.sin(e.patrolAngle) * ENEMY_SPEED * 0.4;
-            const pNewX = e.x + pMoveX;
-            const pNewY = e.y + pMoveY;
-            if (MAP[Math.floor(e.y/TILE_SIZE)][Math.floor(pNewX/TILE_SIZE)] === 0) e.x = pNewX;
-            if (MAP[Math.floor(pNewY/TILE_SIZE)][Math.floor(e.x/TILE_SIZE)] === 0) e.y = pNewY;
-          }
-          
-          // 공격
-          if (dist < ENEMY_ATTACK_RANGE && e.attackCooldown <= 0) {
-            const damage = e.type === 'heavy' ? 18 : 10;
-            player.health -= damage;
-            e.attackCooldown = ENEMY_ATTACK_COOLDOWN;
-            showMessage('💢 피격!', 20);
-            
-            if (player.health <= 0) {
-              player.health = 0;
-              gameOver = true;
-              showMessage('☠️ 사망... 게임 오버', 200);
-            }
-            updateHUD();
-          }
-          if (e.attackCooldown > 0) e.attackCooldown--;
-        });
-        
-        // 모든 적 처치 시 승리
-        if (enemies.every(e => !e.alive) && !victory && !gameOver) {
-          victory = true;
-          showMessage('🏆 승리! 모든 적을 처치했습니다!', 300);
-        }
-      }
-
-      function updateParticles() {
-        for (let i = particles.length - 1; i >= 0; i--) {
-          particles[i].life--;
-          particles[i].screenY -= 1.5;
-          if (particles[i].life <= 0) {
-            particles.splice(i, 1);
-          }
-        }
-      }
-
-      function updateHUD() {
-        document.getElementById('healthDisplay').textContent = Math.max(0, player.health);
-        document.getElementById('ammoDisplay').textContent = player.ammo;
-        document.getElementById('maxAmmoDisplay').textContent = player.maxAmmo;
-        document.getElementById('killDisplay').textContent = player.kills;
-      }
-
-      function movePlayer() {
-        if (gameOver || victory) return;
-        
-        let moveX = 0;
-        let moveY = 0;
-        
-        // 키보드 입력
-        if (keys['KeyW'] || keys['ArrowUp']) {
-          moveX += Math.cos(player.angle) * player.speed;
-          moveY += Math.sin(player.angle) * player.speed;
-        }
-        if (keys['KeyS'] || keys['ArrowDown']) {
-          moveX -= Math.cos(player.angle) * player.speed;
-          moveY -= Math.sin(player.angle) * player.speed;
-        }
-        if (keys['KeyA']) {
-          moveX += Math.cos(player.angle - Math.PI/2) * player.speed;
-          moveY += Math.sin(player.angle - Math.PI/2) * player.speed;
-        }
-        if (keys['KeyD']) {
-          moveX += Math.cos(player.angle + Math.PI/2) * player.speed;
-          moveY += Math.sin(player.angle + Math.PI/2) * player.speed;
-        }
-        
-        // 모바일 입력
-        if (touchMoveActive) {
-          moveX += touchMoveX * player.speed * 0.7;
-          moveY += touchMoveY * player.speed * 0.7;
-        }
-        
-        // 좌우 회전
-        if (keys['ArrowLeft'] || keys['KeyQ']) {
-          player.angle -= player.rotSpeed;
-        }
-        if (keys['ArrowRight'] || keys['KeyE']) {
-          player.angle += player.rotSpeed;
-        }
-        
-        // 벽 충돌 체크하며 이동
-        const newX = player.x + moveX;
-        const newY = player.y + moveY;
-        
-        const margin = 15;
-        const cx = Math.floor(newX / TILE_SIZE);
-        const cy = Math.floor(newY / TILE_SIZE);
-        const ox = Math.floor(player.x / TILE_SIZE);
-        const oy = Math.floor(player.y / TILE_SIZE);
-        
-        if (cx >= 0 && cx < MAP_WIDTH && MAP[oy][cx] === 0) {
-          player.x = newX;
-        }
-        if (cy >= 0 && cy < MAP_HEIGHT && MAP[cy][ox] === 0) {
-          player.y = newY;
-        }
-        
-        // 맵 경계
-        player.x = Math.max(margin, Math.min(MAP_WIDTH * TILE_SIZE - margin, player.x));
-        player.y = Math.max(margin, Math.min(MAP_HEIGHT * TILE_SIZE - margin, player.y));
-      }
-
+      // ==================== 게임 루프 ====================
       function update() {
         if (gameOver || victory) {
           updateParticles();
           return;
         }
-        
-        movePlayer();
+
+        // 이동
+        let mx = 0, my = 0;
+        if (keys['KeyW'] || keys['ArrowUp']) { mx += Math.cos(player.angle) * player.speed; my += Math.sin(player.angle) * player.speed; }
+        if (keys['KeyS'] || keys['ArrowDown']) { mx -= Math.cos(player.angle) * player.speed; my -= Math.sin(player.angle) * player.speed; }
+        if (keys['KeyA']) { mx += Math.cos(player.angle - Math.PI / 2) * player.speed; my += Math.sin(player.angle - Math.PI / 2) * player.speed; }
+        if (keys['KeyD']) { mx += Math.cos(player.angle + Math.PI / 2) * player.speed; my += Math.sin(player.angle + Math.PI / 2) * player.speed; }
+        if (keys['ArrowLeft'] || keys['KeyQ']) player.angle -= player.rotSpeed;
+        if (keys['ArrowRight'] || keys['KeyE']) player.angle += player.rotSpeed;
+
+        // 모바일 이동
+        if (touchMove) {
+          mx += touchDir.x * player.speed * 0.8;
+          my += touchDir.y * player.speed * 0.8;
+        }
+
+        const nx = player.x + mx;
+        const ny = player.y + my;
+        if (canMoveTo(nx, player.y)) player.x = nx;
+        if (canMoveTo(player.x, ny)) player.y = ny;
+
+        player.x = Math.max(8, Math.min(MAP_W * TILE - 8, player.x));
+        player.y = Math.max(8, Math.min(MAP_H * TILE - 8, player.y));
+
+        // 적 AI
+        for (const e of enemies) {
+          if (!e.alive) continue;
+          const dx = player.x - e.x;
+          const dy = player.y - e.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 350 && dist > 60) {
+            const a = Math.atan2(dy, dx);
+            const emx = Math.cos(a) * 1.3;
+            const emy = Math.sin(a) * 1.3;
+            if (canMoveTo(e.x + emx, e.y)) e.x += emx;
+            if (canMoveTo(e.x, e.y + emy)) e.y += emy;
+          } else if (dist >= 350) {
+            e.patrolT++;
+            if (e.patrolT > 80) { e.patrol = Math.random() * Math.PI * 2; e.patrolT = 0; }
+            const pmx = Math.cos(e.patrol) * 0.5;
+            const pmy = Math.sin(e.patrol) * 0.5;
+            if (canMoveTo(e.x + pmx, e.y)) e.x += pmx;
+            if (canMoveTo(e.x, e.y + pmy)) e.y += pmy;
+          }
+
+          if (dist < 100 && e.atkCD <= 0) {
+            const dmg = e.heavy ? 16 : 9;
+            player.hp -= dmg;
+            e.atkCD = 55;
+            showMsg('💢 피격!', 18);
+            if (player.hp <= 0) {
+              player.hp = 0;
+              gameOver = true;
+              showMsg('☠️ 사망...', 999);
+            }
+            updateHUD();
+          }
+          if (e.atkCD > 0) e.atkCD--;
+        }
+
+        // 재장전
+        if (reloading) {
+          reloadTime--;
+          if (reloadTime <= 0) {
+            reloading = false;
+            player.ammo = player.maxAmmo;
+            showMsg('✅ 장전 완료!', 25);
+            updateHUD();
+          }
+        }
+
+        if (shootCooldown > 0) shootCooldown--;
+        if (msgTimer > 0) {
+          msgTimer--;
+          if (msgTimer <= 0) document.getElementById('message').style.opacity = '0';
+        }
+        updateParticles();
+      }
+
+      function updateParticles() {
+        for (let i = particles.length - 1; i >= 0; i--) {
+          particles[i].life--;
+          particles[i].sy -= 2;
+          if (particles[i].life <= 0) particles.splice(i, 1);
+        }
+      }
+
+      function gameLoop() {
+        update();
+        render();
+        renderMinimap();
+        requestAnimationFrame(gameLoop);
+      }
+
+      // 클릭으로 재시작
+      canvas.addEventListener('click', e => {
+        if (gameOver || victory) {
+          resetGame();
+        }
+      });
+
+      // 초기화 및 시작
+      spawnEnemies();
+      updateHUD();
+      gameLoop();
+      console.log('⚔️ 던전 슬레이어 준비 완료!');
+      console.log('🕹️ WASD 이동 | 마우스 시점 | 클릭 발사 | R 재장전');
+    })();
+  </script>
+</body>
+</html>
