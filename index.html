@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>👾 갤럭시안 - Galaxian</title>
+  <title>🃏 텍사스 홀덤 - Texas Hold'em</title>
   <style>
     * {
       margin: 0;
@@ -11,845 +11,919 @@
       box-sizing: border-box;
     }
     body {
-      background: #000;
+      background: #0a5a2a;
+      background-image:
+        radial-gradient(ellipse at center, #0d7a3a 0%, #063d1e 60%, #032010 100%);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      overflow: hidden;
+      font-family: 'Georgia', 'Times New Roman', serif;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: none;
-      font-family: 'Courier New', monospace;
+      overflow-x: hidden;
     }
-    .cabinet {
-      background: #1a1a2e;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 0 80px rgba(0, 100, 255, 0.3), 0 0 200px rgba(0, 0, 0, 0.9);
-      border: 3px solid #334;
+    .casino-table {
+      background: #1a6b35;
+      background-image:
+        radial-gradient(ellipse at 50% 50%, #1e8c45 0%, #0f5c28 40%, #073d18 80%, #042010 100%);
+      border-radius: 50%;
+      width: 95vw;
+      max-width: 850px;
+      aspect-ratio: 1.6/1;
+      min-height: 520px;
+      position: relative;
+      box-shadow:
+        0 0 0 18px #3d1c00,
+        0 0 0 24px #5c2e00,
+        0 0 0 30px #3d1c00,
+        0 0 0 36px #1a0a00,
+        0 10px 60px rgba(0,0,0,0.8);
+      border: 4px solid #c9a44b;
+      margin: 20px;
     }
-    canvas {
-      display: block;
-      border-radius: 8px;
-      background: #000;
-      box-shadow: inset 0 0 60px rgba(0, 20, 80, 0.6);
+    .table-felt {
+      position: absolute;
+      top: 15%;
+      left: 10%;
+      right: 10%;
+      bottom: 15%;
+      border-radius: 50%;
+      border: 3px solid rgba(255,215,0,0.3);
+      pointer-events: none;
     }
-    .info-panel {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      color: #fff;
-      font-weight: bold;
-      font-size: 1rem;
-      gap: 15px;
-    }
-    .score-box {
-      background: #111;
-      border: 2px solid #f00;
-      color: #f00;
-      padding: 10px 22px;
-      border-radius: 8px;
-      font-size: 1.4rem;
-      text-shadow: 0 0 10px #f00;
-      letter-spacing: 2px;
-    }
-    .lives-box {
-      color: #0f0;
-      font-size: 1.3rem;
-    }
-    .hi-box {
-      background: #111;
-      border: 1px solid #ff0;
-      color: #ff0;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-    }
-    button {
-      background: #222;
-      color: #fff;
-      border: 1px solid #555;
-      padding: 8px 18px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 0.85rem;
-      transition: 0.2s;
-    }
-    button:hover {
-      background: #444;
-      border-color: #0ff;
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-    }
-    #gameOverOverlay {
-      position: fixed;
-      top: 50%;
+    /* 커뮤니티 카드 */
+    .community-cards {
+      position: absolute;
+      top: 38%;
       left: 50%;
       transform: translate(-50%, -50%);
-      color: #f00;
-      font-size: 3rem;
+      display: flex;
+      gap: 10px;
+      z-index: 5;
+    }
+    .card {
+      width: 70px;
+      height: 100px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 2px 3px 12px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       font-weight: bold;
-      text-shadow: 0 0 40px #f00, 0 0 80px #800;
-      pointer-events: none;
+      font-size: 1.4rem;
+      position: relative;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 2px solid #ddd;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 4px 8px 20px rgba(0,0,0,0.6);
+    }
+    .card.red {
+      color: #c00;
+    }
+    .card.black {
+      color: #222;
+    }
+    .card .suit {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+    .card .rank {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #1a3a6b, #0d2240);
+      border: 3px solid #c9a44b;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-back::after {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 2px solid rgba(255,215,0,0.4);
+      border-radius: 3px;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 4px,
+        rgba(255,255,255,0.03) 4px,
+        rgba(255,255,255,0.03) 8px
+      );
+    }
+    /* 플레이어 영역 */
+    .player-area {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
       z-index: 10;
-      display: none;
+    }
+    .player-area.you {
+      bottom: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .player-area.dealer-pos {
+      top: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .player-area.left-pos {
+      top: 45%;
+      left: 5%;
+      transform: translateY(-50%);
+    }
+    .player-area.right-pos {
+      top: 45%;
+      right: 5%;
+      transform: translateY(-50%);
+    }
+    .player-cards {
+      display: flex;
+      gap: 6px;
+    }
+    .player-cards .card {
+      width: 55px;
+      height: 78px;
+      font-size: 1rem;
+    }
+    .player-cards .card .rank {
+      font-size: 1.2rem;
+    }
+    .player-cards .card .suit {
+      font-size: 1.3rem;
+    }
+    .player-name {
+      color: #fff;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-shadow: 0 2px 4px #000;
+      background: rgba(0,0,0,0.6);
+      padding: 4px 12px;
+      border-radius: 12px;
+    }
+    .player-chips {
+      color: #ffd700;
+      font-size: 0.8rem;
+      font-weight: bold;
+      background: rgba(0,0,0,0.7);
+      padding: 3px 10px;
+      border-radius: 10px;
+    }
+    .bet-amount {
+      color: #ff0;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-shadow: 0 0 10px #ff0;
+      background: rgba(0,0,0,0.5);
+      padding: 2px 10px;
+      border-radius: 10px;
+    }
+    .dealer-badge {
+      background: #c9a44b;
+      color: #000;
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    .fold-badge {
+      color: #f44;
+      font-weight: bold;
+      font-size: 0.8rem;
+      text-shadow: 0 0 10px #f00;
+    }
+    /* 팟 */
+    .pot-display {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #ffd700;
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-shadow: 0 0 15px #ffd700;
+      z-index: 6;
+      background: rgba(0,0,0,0.5);
+      padding: 4px 16px;
+      border-radius: 15px;
+    }
+    /* 액션 버튼 */
+    .action-buttons {
+      position: absolute;
+      bottom: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 20;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .action-btn {
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      color: #fff;
+      transition: 0.2s;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+      font-family: 'Georgia', serif;
+    }
+    .action-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.3);
+    }
+    .btn-fold {
+      background: #8b3a3a;
+    }
+    .btn-check {
+      background: #3a6b8b;
+    }
+    .btn-call {
+      background: #3a8b5a;
+    }
+    .btn-raise {
+      background: #c9a44b;
+      color: #000;
+    }
+    .btn-allin {
+      background: #c9302c;
+    }
+    .action-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    /* 레이즈 슬라이더 */
+    .raise-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.7);
+      padding: 8px 14px;
+      border-radius: 20px;
+    }
+    .raise-slider {
+      width: 100px;
+      accent-color: #c9a44b;
+    }
+    .raise-amount {
+      color: #ffd700;
+      font-weight: bold;
+      min-width: 50px;
       text-align: center;
     }
-    .controls-hint {
-      color: #555;
-      font-size: 0.7rem;
+    /* 결과 메시지 */
+    .result-message {
+      position: absolute;
+      top: 18%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #ff0;
+      font-size: 1.3rem;
+      font-weight: bold;
+      text-shadow: 0 0 20px #ff0;
+      z-index: 15;
       text-align: center;
-      margin-top: 8px;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+    /* 칩 아이콘 */
+    .chip-stack {
+      position: absolute;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: -8px;
+    }
+    .chip {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 3px dashed rgba(255,255,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.6rem;
+      color: #fff;
+      text-shadow: 0 1px 2px #000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    }
+    .chip.white {
+      background: #eee;
+      color: #333;
+      border-color: #ccc;
+    }
+    .chip.red {
+      background: #d44;
+      border-color: #a22;
+    }
+    .chip.blue {
+      background: #44d;
+      border-color: #22a;
+    }
+    .chip.green {
+      background: #4a4;
+      border-color: #2a2;
+    }
+    .chip.black {
+      background: #222;
+      border-color: #000;
+    }
+    @media (max-width: 600px) {
+      .card {
+        width: 45px;
+        height: 65px;
+        font-size: 0.9rem;
+      }
+      .card .rank {
+        font-size: 1rem;
+      }
+      .card .suit {
+        font-size: 1.1rem;
+      }
+      .player-cards .card {
+        width: 38px;
+        height: 55px;
+      }
+      .community-cards {
+        gap: 4px;
+      }
+      .action-btn {
+        padding: 8px 12px;
+        font-size: 0.7rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="cabinet">
-    <div class="info-panel">
-      <div class="hi-box">HI: <span id="highScore">0</span></div>
-      <div class="score-box"><span id="score">0</span></div>
-      <div class="lives-box" id="lives">🛸🛸🛸</div>
+  <div class="casino-table" id="table">
+    <div class="table-felt"></div>
+
+    <!-- 결과 메시지 -->
+    <div class="result-message" id="resultMsg"></div>
+
+    <!-- 팟 -->
+    <div class="pot-display">💰 POT: <span id="potDisplay">0</span></div>
+
+    <!-- 커뮤니티 카드 -->
+    <div class="community-cards" id="communityCards">
+      <div class="card card-back"></div>
+      <div class="card card-back"></div>
+      <div class="card card-back"></div>
+      <div class="card card-back"></div>
+      <div class="card card-back"></div>
     </div>
-    <canvas id="game" width="600" height="650"></canvas>
-    <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
-      <button id="startBtn">🎮 1P START</button>
-      <button id="resetBtn">🔄 RESET</button>
+
+    <!-- 상대1 (왼쪽) -->
+    <div class="player-area left-pos" id="opp1Area">
+      <div class="player-name">🤖 상대1</div>
+      <div class="player-chips">💎 <span id="opp1Chips">1000</span></div>
+      <div class="player-cards" id="opp1Cards">
+        <div class="card card-back"></div>
+        <div class="card card-back"></div>
+      </div>
+      <div class="bet-amount" id="opp1Bet"></div>
     </div>
-    <div class="controls-hint">🕹️ ← → 이동 | 스페이스바 발사 | 📱 터치 드래그</div>
+
+    <!-- 상대2 (오른쪽) -->
+    <div class="player-area right-pos" id="opp2Area">
+      <div class="player-name">🤖 상대2</div>
+      <div class="player-chips">💎 <span id="opp2Chips">1000</span></div>
+      <div class="player-cards" id="opp2Cards">
+        <div class="card card-back"></div>
+        <div class="card card-back"></div>
+      </div>
+      <div class="bet-amount" id="opp2Bet"></div>
+    </div>
+
+    <!-- 딜러 (위쪽) -->
+    <div class="player-area dealer-pos" id="dealerArea">
+      <div class="player-name">🤖 딜러</div>
+      <div class="player-chips">💎 <span id="dealerChips">1000</span></div>
+      <div class="player-cards" id="dealerCards">
+        <div class="card card-back"></div>
+        <div class="card card-back"></div>
+      </div>
+      <div class="bet-amount" id="dealerBet"></div>
+    </div>
+
+    <!-- 플레이어 -->
+    <div class="player-area you" id="playerArea">
+      <div class="player-name">⭐ 나</div>
+      <div class="player-chips">💎 <span id="playerChips">1000</span></div>
+      <div class="player-cards" id="playerCards">
+        <div class="card card-back"></div>
+        <div class="card card-back"></div>
+      </div>
+      <div class="bet-amount" id="playerBet"></div>
+    </div>
+
+    <!-- 액션 버튼 -->
+    <div class="action-buttons" id="actionButtons">
+      <button class="action-btn btn-fold" id="btnFold">Fold</button>
+      <button class="action-btn btn-check" id="btnCheck">Check</button>
+      <button class="action-btn btn-call" id="btnCall">Call <span id="callAmount">0</span></button>
+      <div class="raise-controls">
+        <button class="action-btn btn-raise" id="btnRaise">Raise</button>
+        <input type="range" class="raise-slider" id="raiseSlider" min="0" max="100" value="20">
+        <span class="raise-amount" id="raiseAmount">20</span>
+      </div>
+      <button class="action-btn btn-allin" id="btnAllIn">All In</button>
+    </div>
   </div>
-  <div id="gameOverOverlay">GAME OVER</div>
 
   <script>
     (() => {
-      const canvas = document.getElementById('game');
-      const ctx = canvas.getContext('2d');
-      const W = canvas.width;
-      const H = canvas.height;
+      // ==================== 카드 데이터 ====================
+      const SUITS = [
+        { name: 'spades', symbol: '♠', color: 'black' },
+        { name: 'hearts', symbol: '♥', color: 'red' },
+        { name: 'diamonds', symbol: '♦', color: 'red' },
+        { name: 'clubs', symbol: '♣', color: 'black' },
+      ];
+      const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+      const RANK_VALUES = { '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14 };
 
-      // ==================== 사운드 (Web Audio API) ====================
-      let audioCtx = null;
-      function initAudio() {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      function createDeck() {
+        const deck = [];
+        for (const suit of SUITS) {
+          for (const rank of RANKS) {
+            deck.push({ rank, suit: suit.symbol, color: suit.color, value: RANK_VALUES[rank] });
+          }
         }
+        return shuffle(deck);
       }
-      function playBeep(freq, duration, type = 'square', vol = 0.08) {
-        if (!audioCtx) return;
-        try {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = type;
-          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-          gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start();
-          osc.stop(audioCtx.currentTime + duration);
-        } catch (e) {}
+
+      function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
       }
-      function sfxShoot() { playBeep(600, 0.08, 'square', 0.06); }
-      function sfxHit() { playBeep(120, 0.2, 'sawtooth', 0.08); }
-      function sfxEnemyDive() { playBeep(200, 0.3, 'sawtooth', 0.04); }
-      function sfxPlayerHit() { playBeep(60, 0.5, 'sawtooth', 0.12); }
 
       // ==================== 게임 상태 ====================
-      let score = 0;
-      let highScore = 0;
-      let lives = 3;
-      let gameRunning = false;
-      let gameOver = false;
-      let stageClear = false;
-      let stageNum = 1;
-      let frameCount = 0;
-
-      // ==================== 플레이어 ====================
-      const player = {
-        x: W / 2,
-        y: H - 60,
-        w: 36,
-        h: 36,
-        speed: 4.5,
+      const PLAYERS = ['player', 'dealer', 'opp1', 'opp2'];
+      const state = {
+        deck: [],
+        communityCards: [],
+        players: {
+          player: { cards: [], chips: 1000, bet: 0, folded: false, allIn: false, name: '나' },
+          dealer: { cards: [], chips: 1000, bet: 0, folded: false, allIn: false, name: '딜러' },
+          opp1: { cards: [], chips: 1000, bet: 0, folded: false, allIn: false, name: '상대1' },
+          opp2: { cards: [], chips: 1000, bet: 0, folded: false, allIn: false, name: '상대2' },
+        },
+        pot: 0,
+        currentBet: 0,
+        dealerIndex: 0,
+        currentPlayerIndex: 0,
+        phase: 'preflop', // preflop, flop, turn, river, showdown
+        gameInProgress: false,
+        smallBlind: 5,
+        bigBlind: 10,
+        actionOrder: [],
+        actionIndex: 0,
       };
 
-      // ==================== 총알 ====================
-      let bullets = [];
-      const BULLET_SPEED = 7;
-      const MAX_BULLETS = 2;
-      let shootCooldown = 0;
+      // ==================== UI 업데이트 ====================
+      function updateAllUI() {
+        updatePotDisplay();
+        updateChipsDisplay();
+        updateBetDisplays();
+        updateCommunityCards();
+        updatePlayerCards();
+        updateActionButtons();
+      }
 
-      // ==================== 적 ====================
-      let enemies = [];
-      let divingEnemies = [];
-      const ENEMY_COLS = 10;
-      const ENEMY_ROWS = 5;
-      const ENEMY_W = 30;
-      const ENEMY_H = 28;
-      const ENEMY_GAP = 8;
+      function updatePotDisplay() {
+        document.getElementById('potDisplay').textContent = state.pot;
+      }
 
-      // 적 타입별 점수 (원작 기준)
-      const SCORE_TABLE = {
-        boss: { purple: 200, blue: 150 },
-        middle: { red: 100, purple: 80 },
-        bottom: { yellow: 60, green: 50 },
-      };
+      function updateChipsDisplay() {
+        document.getElementById('playerChips').textContent = state.players.player.chips;
+        document.getElementById('dealerChips').textContent = state.players.dealer.chips;
+        document.getElementById('opp1Chips').textContent = state.players.opp1.chips;
+        document.getElementById('opp2Chips').textContent = state.players.opp2.chips;
+      }
 
-      function createEnemyGrid() {
-        enemies = [];
-        divingEnemies = [];
-        const totalW = ENEMY_COLS * (ENEMY_W + ENEMY_GAP);
-        const startX = (W - totalW) / 2 + ENEMY_W / 2;
-        const startY = 50;
-
-        for (let row = 0; row < ENEMY_ROWS; row++) {
-          for (let col = 0; col < ENEMY_COLS; col++) {
-            let type, color, points;
-            if (row === 0) {
-              type = 'boss';
-              color = col < 3 || col >= ENEMY_COLS - 3 ? 'purple' : 'blue';
-              points = color === 'purple' ? 200 : 150;
-            } else if (row <= 2) {
-              type = 'middle';
-              color = col < 3 || col >= ENEMY_COLS - 3 ? 'purple' : 'red';
-              points = color === 'red' ? 100 : 80;
-            } else {
-              type = 'bottom';
-              color = col < 3 || col >= ENEMY_COLS - 3 ? 'green' : 'yellow';
-              points = color === 'yellow' ? 60 : 50;
-            }
-
-            enemies.push({
-              x: startX + col * (ENEMY_W + ENEMY_GAP),
-              y: startY + row * (ENEMY_H + ENEMY_GAP),
-              w: ENEMY_W,
-              h: ENEMY_H,
-              type: type,
-              color: color,
-              points: points,
-              alive: true,
-              gridCol: col,
-              gridRow: row,
-              diveState: null,
-              formationX: startX + col * (ENEMY_W + ENEMY_GAP),
-              formationY: startY + row * (ENEMY_H + ENEMY_GAP),
-            });
+      function updateBetDisplays() {
+        for (const p of PLAYERS) {
+          const el = document.getElementById(p + 'Bet');
+          if (el) {
+            el.textContent = state.players[p].bet > 0 ? `베팅: ${state.players[p].bet}` : '';
           }
         }
       }
 
-      // ==================== 적 편대 이동 ====================
-      let formationDir = 1;
-      let formationSpeed = 0.6;
-      let formationMoveCounter = 0;
-      const FORMATION_MOVE_INTERVAL = 30;
-      let formationDropAmount = 0;
-
-      // ==================== 적 급강하 시스템 ====================
-      let diveTimer = 0;
-      const DIVE_INTERVAL_MIN = 50;
-      const DIVE_INTERVAL_MAX = 120;
-
-      function startDive(enemy) {
-        if (enemy.diveState || !enemy.alive) return;
-        enemy.diveState = {
-          phase: 'peel',
-          targetX: enemy.x + (Math.random() - 0.5) * 200,
-          targetY: H + 50,
-          angle: 0,
-          speed: 3 + Math.random() * 2.5,
-          curveTimer: 0,
-          curveAmp: (Math.random() - 0.5) * 80,
-          returnFormation: false,
-          peelX: enemy.x,
-          peelY: enemy.y,
-          swoopPhase: 0,
-        };
-        divingEnemies.push(enemy);
-        sfxEnemyDive();
-      }
-
-      // ==================== 폭발 파티클 ====================
-      let particles = [];
-
-      function spawnExplosion(x, y, color = '#ff0') {
-        for (let i = 0; i < 16; i++) {
-          const angle = (Math.PI * 2 / 16) * i;
-          const speed = 1.5 + Math.random() * 3;
-          particles.push({
-            x: x,
-            y: y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            life: 18 + Math.random() * 12,
-            maxLife: 30,
-            color: color,
-            size: 1.5 + Math.random() * 2.5,
-          });
+      function updateCommunityCards() {
+        const container = document.getElementById('communityCards');
+        container.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+          if (i < state.communityCards.length) {
+            const card = state.communityCards[i];
+            container.appendChild(createCardElement(card, true));
+          } else {
+            const div = document.createElement('div');
+            div.className = 'card card-back';
+            container.appendChild(div);
+          }
         }
       }
 
-      // ==================== 별 배경 ====================
-      let stars = [];
-      function createStars() {
-        stars = [];
-        for (let i = 0; i < 60; i++) {
-          stars.push({
-            x: Math.random() * W,
-            y: Math.random() * H,
-            size: 0.5 + Math.random() * 2,
-            brightness: 0.3 + Math.random() * 0.7,
-            twinkle: Math.random() * Math.PI * 2,
-          });
+      function updatePlayerCards() {
+        // 플레이어 카드 (공개)
+        const playerContainer = document.getElementById('playerCards');
+        playerContainer.innerHTML = '';
+        for (const card of state.players.player.cards) {
+          playerContainer.appendChild(createCardElement(card, true));
+        }
+        if (state.players.player.cards.length === 0) {
+          playerContainer.innerHTML = '<div class="card card-back"></div><div class="card card-back"></div>';
+        }
+
+        // 상대 카드 (비공개)
+        for (const opp of ['dealer', 'opp1', 'opp2']) {
+          const container = document.getElementById(opp + 'Cards');
+          container.innerHTML = '';
+          if (state.players[opp].folded) {
+            container.innerHTML = '<div class="fold-badge">FOLD</div>';
+          } else if (state.phase === 'showdown') {
+            for (const card of state.players[opp].cards) {
+              container.appendChild(createCardElement(card, true));
+            }
+          } else {
+            for (const card of state.players[opp].cards) {
+              container.appendChild(createCardElement(card, false));
+            }
+          }
+          if (state.players[opp].cards.length === 0 && !state.players[opp].folded) {
+            container.innerHTML = '<div class="card card-back"></div><div class="card card-back"></div>';
+          }
         }
       }
-      createStars();
 
-      // ==================== 입력 ====================
-      const keys = {};
-      let touchX = null;
-
-      window.addEventListener('keydown', e => {
-        keys[e.code] = true;
-        if (e.code === 'Space') {
-          e.preventDefault();
-          initAudio();
-          if (!gameRunning && !gameOver) startGame();
+      function createCardElement(card, faceUp) {
+        const div = document.createElement('div');
+        if (faceUp) {
+          div.className = `card ${card.color}`;
+          div.innerHTML = `<span class="rank">${card.rank}</span><span class="suit">${card.suit}</span>`;
+        } else {
+          div.className = 'card card-back';
         }
-        if (e.code === 'KeyR') resetGame();
-      });
-      window.addEventListener('keyup', e => { keys[e.code] = false; });
+        return div;
+      }
 
-      canvas.addEventListener('mousemove', e => {
-        if (!gameRunning || gameOver) return;
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = W / rect.width;
-        player.x = (e.clientX - rect.left) * scaleX;
-        player.x = Math.max(player.w / 2, Math.min(W - player.w / 2, player.x));
-      });
+      function updateActionButtons() {
+        const isPlayerTurn = state.gameInProgress &&
+          state.actionOrder[state.actionIndex] === 'player' &&
+          !state.players.player.folded &&
+          !state.players.player.allIn;
 
-      canvas.addEventListener('touchstart', e => {
-        e.preventDefault();
-        initAudio();
-        if (!gameRunning && !gameOver) startGame();
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = W / rect.width;
-        touchX = (e.touches[0].clientX - rect.left) * scaleX;
-      });
-      canvas.addEventListener('touchmove', e => {
-        e.preventDefault();
-        if (!gameRunning || gameOver) return;
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = W / rect.width;
-        touchX = (e.touches[0].clientX - rect.left) * scaleX;
-      });
-      canvas.addEventListener('touchend', e => {
-        e.preventDefault();
-        touchX = null;
-      });
+        const callAmt = state.currentBet - state.players.player.bet;
+        document.getElementById('callAmount').textContent = Math.max(0, callAmt);
+        document.getElementById('raiseSlider').max = state.players.player.chips;
+        document.getElementById('raiseAmount').textContent = document.getElementById('raiseSlider').value;
+
+        const buttons = ['btnFold', 'btnCheck', 'btnCall', 'btnRaise', 'btnAllIn'];
+        buttons.forEach(id => {
+          document.getElementById(id).disabled = !isPlayerTurn;
+        });
+
+        // Check/Call 전환
+        const btnCheck = document.getElementById('btnCheck');
+        const btnCall = document.getElementById('btnCall');
+        if (callAmt <= 0) {
+          btnCheck.style.display = 'inline-block';
+          btnCall.style.display = 'none';
+        } else {
+          btnCheck.style.display = 'none';
+          btnCall.style.display = 'inline-block';
+        }
+      }
+
+      function showResult(msg) {
+        const el = document.getElementById('resultMsg');
+        el.textContent = msg;
+        el.style.opacity = '1';
+        setTimeout(() => { el.style.opacity = '0'; }, 3000);
+      }
+
+      // ==================== 포커 핸드 평가 ====================
+      function evaluateHand(cards) {
+        const allCards = [...cards];
+        const values = allCards.map(c => c.value).sort((a, b) => b - a);
+        const suits = allCards.map(c => c.suit);
+
+        const isFlush = suits.every(s => s === suits[0]);
+        const uniqueValues = [...new Set(values)].sort((a, b) => b - a);
+        const isStraight = uniqueValues.length === 5 && uniqueValues[0] - uniqueValues[4] === 4;
+        // Ace-low 스트레이트
+        const isAceLowStraight = uniqueValues.join(',') === '14,5,4,3,2';
+
+        const valueCounts = {};
+        values.forEach(v => valueCounts[v] = (valueCounts[v] || 0) + 1);
+        const counts = Object.values(valueCounts).sort((a, b) => b - a);
+
+        if (isFlush && isStraight) {
+          return { rank: 8, name: '스트레이트 플러시', value: uniqueValues[0] };
+        }
+        if (isFlush && isAceLowStraight) {
+          return { rank: 8, name: '스트레이트 플러시', value: 5 };
+        }
+        if (counts[0] === 4) {
+          const quad = Object.keys(valueCounts).find(k => valueCounts[k] === 4);
+          return { rank: 7, name: '포카드', value: parseInt(quad) };
+        }
+        if (counts[0] === 3 && counts[1] === 2) {
+          const triple = Object.keys(valueCounts).find(k => valueCounts[k] === 3);
+          return { rank: 6, name: '풀하우스', value: parseInt(triple) };
+        }
+        if (isFlush) {
+          return { rank: 5, name: '플러시', value: values[0] };
+        }
+        if (isStraight) {
+          return { rank: 4, name: '스트레이트', value: uniqueValues[0] };
+        }
+        if (isAceLowStraight) {
+          return { rank: 4, name: '스트레이트', value: 5 };
+        }
+        if (counts[0] === 3) {
+          const triple = Object.keys(valueCounts).find(k => valueCounts[k] === 3);
+          return { rank: 3, name: '트리플', value: parseInt(triple) };
+        }
+        if (counts[0] === 2 && counts[1] === 2) {
+          const pairs = Object.keys(valueCounts).filter(k => valueCounts[k] === 2).map(Number).sort((a, b) => b - a);
+          return { rank: 2, name: '투페어', value: pairs[0], kicker: pairs[1] };
+        }
+        if (counts[0] === 2) {
+          const pair = Object.keys(valueCounts).find(k => valueCounts[k] === 2);
+          return { rank: 1, name: '원페어', value: parseInt(pair) };
+        }
+        return { rank: 0, name: '하이카드', value: values[0] };
+      }
+
+      function getBestHand(playerCards, communityCards) {
+        const allCards = [...playerCards, ...communityCards];
+        if (allCards.length < 5) return null;
+
+        let bestHand = null;
+        const combinations = getCombinations(allCards, 5);
+        for (const combo of combinations) {
+          const evaluation = evaluateHand(combo);
+          if (!bestHand ||
+            evaluation.rank > bestHand.rank ||
+            (evaluation.rank === bestHand.rank && evaluation.value > bestHand.value)) {
+            bestHand = evaluation;
+          }
+        }
+        return bestHand;
+      }
+
+      function getCombinations(arr, k) {
+        if (k === 0) return [[]];
+        if (arr.length < k) return [];
+        const result = [];
+        const first = arr[0];
+        const rest = arr.slice(1);
+        for (const combo of getCombinations(rest, k - 1)) {
+          result.push([first, ...combo]);
+        }
+        for (const combo of getCombinations(rest, k)) {
+          result.push(combo);
+        }
+        return result;
+      }
+
+      function determineWinner() {
+        const activePlayers = PLAYERS.filter(p => !state.players[p].folded);
+        if (activePlayers.length === 1) return [activePlayers[0]];
+
+        const hands = {};
+        for (const p of activePlayers) {
+          hands[p] = getBestHand(state.players[p].cards, state.communityCards);
+        }
+
+        let bestRank = -1;
+        let bestValue = -1;
+        let winners = [];
+        for (const p of activePlayers) {
+          const h = hands[p];
+          if (!h) continue;
+          if (h.rank > bestRank || (h.rank === bestRank && h.value > bestValue)) {
+            bestRank = h.rank;
+            bestValue = h.value;
+            winners = [p];
+          } else if (h.rank === bestRank && h.value === bestValue) {
+            winners.push(p);
+          }
+        }
+        return winners;
+      }
 
       // ==================== 게임 로직 ====================
-      function startGame() {
-        if (gameRunning) return;
-        gameRunning = true;
-        gameOver = false;
-        stageClear = false;
-        score = 0;
-        lives = 3;
-        stageNum = 1;
-        bullets = [];
-        divingEnemies = [];
-        particles = [];
-        formationDir = 1;
-        formationSpeed = 0.6;
-        formationDropAmount = 0;
-        diveTimer = 0;
-        player.x = W / 2;
-        document.getElementById('score').textContent = '0';
-        document.getElementById('lives').textContent = '🛸🛸🛸';
-        document.getElementById('gameOverOverlay').style.display = 'none';
-        createEnemyGrid();
-      }
+      function startNewHand() {
+        state.deck = createDeck();
+        state.communityCards = [];
+        state.pot = 0;
+        state.currentBet = 0;
+        state.phase = 'preflop';
+        state.gameInProgress = true;
 
-      function resetGame() {
-        gameRunning = false;
-        gameOver = false;
-        stageClear = false;
-        score = 0;
-        lives = 3;
-        stageNum = 1;
-        bullets = [];
-        enemies = [];
-        divingEnemies = [];
-        particles = [];
-        formationDir = 1;
-        formationSpeed = 0.6;
-        formationDropAmount = 0;
-        diveTimer = 0;
-        player.x = W / 2;
-        document.getElementById('score').textContent = '0';
-        document.getElementById('lives').textContent = '🛸🛸🛸';
-        document.getElementById('gameOverOverlay').style.display = 'none';
-        createEnemyGrid();
-      }
+        for (const p of PLAYERS) {
+          state.players[p].cards = [];
+          state.players[p].bet = 0;
+          state.players[p].folded = false;
+          state.players[p].allIn = false;
+        }
 
-      function playerHit() {
-        lives--;
-        sfxPlayerHit();
-        spawnExplosion(player.x, player.y, '#0ff');
-        document.getElementById('lives').textContent = '🛸'.repeat(Math.max(0, lives));
-
-        if (lives <= 0) {
-          gameRunning = false;
-          gameOver = true;
-          if (score > highScore) {
-            highScore = score;
-            document.getElementById('highScore').textContent = highScore;
-            try { localStorage.setItem('galaxianHighScore', highScore); } catch (e) {}
+        // 카드 배분
+        for (const p of PLAYERS) {
+          if (state.players[p].chips > 0) {
+            state.players[p].cards = [state.deck.pop(), state.deck.pop()];
+          } else {
+            state.players[p].folded = true;
           }
-          document.getElementById('gameOverOverlay').style.display = 'block';
+        }
+
+        // 블라인드
+        const sbPlayer = getNextActivePlayer(0);
+        const bbPlayer = getNextActivePlayer(1);
+        if (sbPlayer && bbPlayer) {
+          postBlind(sbPlayer, state.smallBlind);
+          postBlind(bbPlayer, state.bigBlind);
+          state.currentBet = state.bigBlind;
+        }
+
+        // 액션 순서 설정
+        state.actionOrder = [];
+        let startIdx = 2; // 빅블라인드 다음부터
+        for (let i = 0; i < PLAYERS.length; i++) {
+          const idx = (startIdx + i) % PLAYERS.length;
+          const p = PLAYERS[idx];
+          if (!state.players[p].folded && !state.players[p].allIn && state.players[p].chips > 0) {
+            state.actionOrder.push(p);
+          }
+        }
+        state.actionIndex = 0;
+
+        updateAllUI();
+        showResult('🃏 새 핸드 시작!');
+
+        if (state.actionOrder[state.actionIndex] !== 'player') {
+          setTimeout(processAIAction, 800);
+        }
+      }
+
+      function getNextActivePlayer(startOffset) {
+        const activePlayers = PLAYERS.filter(p => !state.players[p].folded && state.players[p].chips > 0);
+        if (activePlayers.length === 0) return null;
+        return activePlayers[Math.min(startOffset, activePlayers.length - 1)];
+      }
+
+      function postBlind(player, amount) {
+        const actual = Math.min(amount, state.players[player].chips);
+        state.players[player].chips -= actual;
+        state.players[player].bet += actual;
+        state.pot += actual;
+        if (state.players[player].chips <= 0) state.players[player].allIn = true;
+      }
+
+      function playerFold() {
+        state.players.player.folded = true;
+        advanceAction();
+        updateAllUI();
+        showResult('😔 폴드했습니다');
+        checkRoundEnd();
+      }
+
+      function playerCheck() {
+        advanceAction();
+        updateAllUI();
+        checkRoundEnd();
+      }
+
+      function playerCall() {
+        const callAmt = Math.min(state.currentBet - state.players.player.bet, state.players.player.chips);
+        state.players.player.chips -= callAmt;
+        state.players.player.bet += callAmt;
+        state.pot += callAmt;
+        if (state.players.player.chips <= 0) state.players.player.allIn = true;
+        advanceAction();
+        updateAllUI();
+        checkRoundEnd();
+      }
+
+      function playerRaise(amount) {
+        const totalBetNeeded = state.currentBet + amount;
+        const actual = Math.min(totalBetNeeded - state.players.player.bet, state.players.player.chips);
+        state.players.player.chips -= actual;
+        state.players.player.bet += actual;
+        state.pot += actual;
+        state.currentBet = state.players.player.bet;
+        if (state.players.player.chips <= 0) state.players.player.allIn = true;
+
+        // 액션 리셋 (다른 플레이어들이 다시 콜해야 함)
+        resetActionOrder();
+        state.actionIndex = 0;
+        updateAllUI();
+        showResult(`💰 ${amount} 레이즈!`);
+        if (state.actionOrder[state.actionIndex] !== 'player') {
+          setTimeout(processAIAction, 800);
+        }
+      }
+
+      function playerAllIn() {
+        const amount = state.players.player.chips;
+        state.players.player.bet += amount;
+        state.pot += amount;
+        state.players.player.chips = 0;
+        state.players.player.allIn = true;
+        if (state.players.player.bet > state.currentBet) {
+          state.currentBet = state.players.player.bet;
+          resetActionOrder();
+        }
+        state.actionIndex = 0;
+        updateAllUI();
+        showResult('🔥 올인!');
+        if (state.actionOrder[state.actionIndex] !== 'player') {
+          setTimeout(processAIAction, 800);
+        }
+        checkRoundEnd();
+      }
+
+      function resetActionOrder() {
+        state.actionOrder = [];
+        const startIdx = PLAYERS.indexOf('player');
+        for (let i = 0; i < PLAYERS.length; i++) {
+          const idx = (startIdx + i) % PLAYERS.length;
+          const p = PLAYERS[idx];
+          if (!state.players[p].folded && !state.players[p].allIn && state.players[p].chips > 0) {
+            state.actionOrder.push(p);
+          }
+        }
+      }
+
+      function advanceAction() {
+        state.actionIndex++;
+        if (state.actionIndex >= state.actionOrder.length) {
+          // 라운드 종료
+          advancePhase();
         } else {
-          // 잠시 무적 후 재개
-          player.x = W / 2;
+          updateAllUI();
+          if (state.actionOrder[state.actionIndex] !== 'player') {
+            setTimeout(processAIAction, 800);
+          }
         }
       }
 
-      function nextStage() {
-        stageNum++;
-        formationSpeed = 0.6 + stageNum * 0.15;
-        formationDropAmount = 0;
-        diveTimer = 0;
-        bullets = [];
-        divingEnemies = [];
-        particles = [];
-        createEnemyGrid();
-        stageClear = false;
+      function checkRoundEnd() {
+        const activePlayers = PLAYERS.filter(p => !state.players[p].folded);
+        if (activePlayers.length === 1) {
+          endHand(activePlayers[0]);
+        }
       }
 
-      function shoot() {
-        if (!gameRunning || gameOver || stageClear) return;
-        if (shootCooldown > 0) return;
-        const activeBullets = bullets.filter(b => b.active).length;
-        if (activeBullets >= MAX_BULLETS) return;
-
-        bullets.push({
-          x: player.x,
-          y: player.y - player.h / 2,
-          active: true,
-        });
-        shootCooldown = 15;
-        sfxShoot();
-      }
-
-      // ==================== 충돌 감지 ====================
-      function rectCollision(a, b) {
-        return (
-          a.x - a.w / 2 < b.x + b.w / 2 &&
-          a.x + a.w / 2 > b.x - b.w / 2 &&
-          a.y - a.h / 2 < b.y + b.h / 2 &&
-          a.y + a.h / 2 > b.y - b.h / 2
-        );
-      }
-
-      // ==================== 업데이트 ====================
-      function update() {
-        if (!gameRunning || gameOver) return;
-        frameCount++;
-
-        // 플레이어 이동 (키보드)
-        if (keys['ArrowLeft'] || keys['KeyA']) {
-          player.x -= player.speed;
-        }
-        if (keys['ArrowRight'] || keys['KeyD']) {
-          player.x += player.speed;
-        }
-        // 터치 이동
-        if (touchX !== null) {
-          player.x += (touchX - player.x) * 0.2;
-        }
-        player.x = Math.max(player.w / 2, Math.min(W - player.w / 2, player.x));
-
-        // 발사
-        if (keys['Space'] || keys['KeyJ'] || keys['KeyF']) {
-          shoot();
-        }
-        if (shootCooldown > 0) shootCooldown--;
-
-        // 총알 이동
-        for (const b of bullets) {
-          if (!b.active) continue;
-          b.y -= BULLET_SPEED;
-          if (b.y < -20) b.active = false;
-        }
-
-        // 편대 이동
-        formationMoveCounter++;
-        if (formationMoveCounter >= FORMATION_MOVE_INTERVAL) {
-          formationMoveCounter = 0;
-          const aliveEnemies = enemies.filter(e => e.alive && !e.diveState);
-          if (aliveEnemies.length > 0) {
-            let leftmost = Infinity;
-            let rightmost = -Infinity;
-            for (const e of aliveEnemies) {
-              leftmost = Math.min(leftmost, e.x);
-              rightmost = Math.max(rightmost, e.x);
-            }
-
-            if (rightmost + formationDir * formationSpeed > W - 20 || leftmost + formationDir * formationSpeed < 20) {
-              formationDir *= -1;
-              formationDropAmount += 8;
-            }
-
-            for (const e of aliveEnemies) {
-              e.formationX += formationDir * formationSpeed;
-              e.formationY += 8;
-              e.x = e.formationX;
-              e.y = e.formationY;
-            }
-
-            formationDropAmount = 0;
-          }
-        }
-
-        // 편대 위치로 부드럽게 이동 (다이브 중 아닌 적)
-        for (const e of enemies) {
-          if (!e.alive || e.diveState) continue;
-          e.x += (e.formationX - e.x) * 0.3;
-          e.y += (e.formationY - e.y) * 0.3;
-        }
-
-        // 적 급강하 타이머
-        diveTimer++;
-        const aliveCount = enemies.filter(e => e.alive).length;
-        const diveInterval = Math.max(20, DIVE_INTERVAL_MIN + (aliveCount < 10 ? 10 : 40));
-        if (diveTimer > diveInterval) {
-          diveTimer = 0;
-          const available = enemies.filter(e => e.alive && !e.diveState);
-          if (available.length > 0) {
-            // 보스 타입 우선 선택
-            const bosses = available.filter(e => e.type === 'boss');
-            const candidates = bosses.length > 0 ? bosses : available;
-            const chosen = candidates[Math.floor(Math.random() * candidates.length)];
-            startDive(chosen);
-          }
-        }
-
-        // 다이빙 적 업데이트
-        for (let i = divingEnemies.length - 1; i >= 0; i--) {
-          const e = divingEnemies[i];
-          if (!e.alive) {
-            divingEnemies.splice(i, 1);
-            continue;
-          }
-          const ds = e.diveState;
-          if (!ds) continue;
-
-          if (ds.phase === 'peel') {
-            // 편대에서 이탈
-            ds.peelX += (ds.targetX - ds.peelX) * 0.03;
-            ds.peelY += -2;
-            e.x = ds.peelX;
-            e.y = ds.peelY;
-            ds.swoopPhase++;
-            if (ds.swoopPhase > 25) {
-              ds.phase = 'swoop';
-              ds.swoopPhase = 0;
-              ds.speed = 3.5 + Math.random() * 2;
-            }
-          } else if (ds.phase === 'swoop') {
-            // 급강하
-            e.y += ds.speed;
-            e.x += Math.sin(ds.swoopPhase * 0.3) * 2;
-            ds.swoopPhase++;
-
-            // 플레이어에게 총알 발사 (원작처럼)
-            if (Math.random() < 0.03 && e.y > player.y - 200) {
-              // 적 총알
-            }
-
-            if (e.y > H + 40) {
-              // 화면 아래로 빠져나감 - 편대 복귀
-              ds.phase = 'return';
-              e.y = -30;
-              ds.swoopPhase = 0;
-            }
-          } else if (ds.phase === 'return') {
-            // 편대 복귀
-            e.y += 2;
-            e.x += (e.formationX - e.x) * 0.08;
-            if (e.y >= e.formationY) {
-              e.diveState = null;
-              e.y = e.formationY;
-              e.x = e.formationX;
-              const idx = divingEnemies.indexOf(e);
-              if (idx >= 0) divingEnemies.splice(idx, 1);
-            }
-          }
-
-          // 다이빙 중 플레이어와 충돌
-          if (ds.phase === 'swoop' && rectCollision(
-            { x: e.x, y: e.y, w: e.w, h: e.h },
-            { x: player.x, y: player.y, w: player.w, h: player.h }
-          )) {
-            spawnExplosion(e.x, e.y, '#f80');
-            e.alive = false;
-            const idx = divingEnemies.indexOf(e);
-            if (idx >= 0) divingEnemies.splice(idx, 1);
-            playerHit();
-          }
-        }
-
-        // 총알-적 충돌
-        for (const b of bullets) {
-          if (!b.active) continue;
-          for (const e of enemies) {
-            if (!e.alive) continue;
-            if (rectCollision(
-              { x: b.x, y: b.y, w: 4, h: 8 },
-              { x: e.x, y: e.y, w: e.w, h: e.h }
-            )) {
-              b.active = false;
-              e.alive = false;
-              if (e.diveState) {
-                const idx = divingEnemies.indexOf(e);
-                if (idx >= 0) divingEnemies.splice(idx, 1);
-              }
-              score += e.points;
-              document.getElementById('score').textContent = score;
-              spawnExplosion(e.x, e.y, e.color === 'purple' ? '#f0f' : e.color === 'blue' ? '#0af' : e.color === 'red' ? '#f44' : e.color === 'yellow' ? '#ff0' : '#0f0');
-              sfxHit();
-              break;
-            }
-          }
-        }
-
-        // 파티클 업데이트
-        for (let i = particles.length - 1; i >= 0; i--) {
-          const p = particles[i];
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.05;
-          p.life--;
-          if (p.life <= 0) particles.splice(i, 1);
-        }
-
-        // 스테이지 클리어 체크
-        if (enemies.every(e => !e.alive) && !stageClear) {
-          stageClear = true;
-          setTimeout(() => {
-            if (gameRunning && !gameOver) nextStage();
-          }, 1200);
-        }
-
-        // 적이 너무 내려오면 게임오버 (원작처럼)
-        for (const e of enemies) {
-          if (!e.alive || e.diveState) continue;
-          if (e.y > H - 80) {
-            gameRunning = false;
-            gameOver = true;
-            if (score > highScore) {
-              highScore = score;
-              document.getElementById('highScore').textContent = highScore;
-              try { localStorage.setItem('galaxianHighScore', highScore); } catch (e) {}
-            }
-            document.getElementById('gameOverOverlay').style.display = 'block';
+      function advancePhase() {
+        switch (state.phase) {
+          case 'preflop':
+            state.phase = 'flop';
+            state.communityCards.push(state.deck.pop(), state.deck.pop(), state.deck.pop());
             break;
-          }
-        }
-      }
-
-      // ==================== 렌더링 ====================
-      function draw() {
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, W, H);
-
-        // 별
-        for (const s of stars) {
-          const twinkle = 0.5 + 0.5 * Math.sin(frameCount * 0.05 + s.twinkle);
-          ctx.fillStyle = `rgba(255,255,255,${s.brightness * twinkle})`;
-          ctx.fillRect(s.x, s.y, s.size, s.size);
+          case 'flop':
+            state.phase = 'turn';
+            state.communityCards.push(state.deck.pop());
+            break;
+          case 'turn':
+            state.phase = 'river';
+            state.communityCards.push(state.deck.pop());
+            break;
+          case 'river':
+            state.phase = 'showdown';
+            showdown();
+            return;
         }
 
-        // 파티클
-        for (const p of particles) {
-          ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
-          ctx.fillStyle = p.color;
-          ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+        // 베팅 초기화
+        for (const p of PLAYERS) {
+          state.players[p].bet = 0;
         }
-        ctx.globalAlpha = 1;
+        state.currentBet = 0;
 
-        // 적 그리기
-        for (const e of enemies) {
-          if (!e.alive) continue;
-          drawEnemy(e.x, e.y, e.color, e.type);
-        }
-
-        // 총알
-        ctx.fillStyle = '#fff';
-        for (const b of bullets) {
-          if (!b.active) continue;
-          ctx.fillRect(b.x - 2, b.y - 6, 4, 12);
-          // 총알 글로우
-          ctx.fillStyle = 'rgba(255,255,200,0.4)';
-          ctx.fillRect(b.x - 3, b.y - 8, 6, 16);
-          ctx.fillStyle = '#fff';
-        }
-
-        // 플레이어
-        drawPlayer(player.x, player.y);
-
-        // 스테이지 클리어 메시지
-        if (stageClear) {
-          ctx.fillStyle = '#fff';
-          ctx.font = 'bold 28px "Courier New"';
-          ctx.textAlign = 'center';
-          ctx.fillText('STAGE CLEAR!', W / 2, H / 2);
-          ctx.textAlign = 'start';
-        }
-      }
-
-      function drawPlayer(x, y) {
-        ctx.save();
-        ctx.translate(x, y);
-
-        // 본체
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.moveTo(0, -16);
-        ctx.lineTo(-14, 14);
-        ctx.lineTo(-6, 8);
-        ctx.lineTo(0, 14);
-        ctx.lineTo(6, 8);
-        ctx.lineTo(14, 14);
-        ctx.closePath();
-        ctx.fill();
-
-        // 내부 디테일
-        ctx.fillStyle = '#0af';
-        ctx.beginPath();
-        ctx.moveTo(0, -8);
-        ctx.lineTo(-6, 8);
-        ctx.lineTo(0, 5);
-        ctx.lineTo(6, 8);
-        ctx.closePath();
-        ctx.fill();
-
-        // 조종석
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(0, -2, 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 엔진 글로우
-        ctx.fillStyle = '#f80';
-        ctx.beginPath();
-        ctx.arc(0, 10, 5, 0, Math.PI);
-        ctx.fill();
-
-        ctx.restore();
-      }
-
-      function drawEnemy(x, y, color, type) {
-        ctx.save();
-        ctx.translate(x, y);
-
-        const colorMap = {
-          purple: '#d0f',
-          blue: '#0cf',
-          red: '#f33',
-          yellow: '#ff0',
-          green: '#0f0',
-        };
-        const mainColor = colorMap[color] || '#fff';
-
-        if (type === 'boss') {
-          // 보스 타입 (상단 행) - 더 큰 디자인
-          ctx.fillStyle = mainColor;
-          ctx.beginPath();
-          ctx.moveTo(0, -14);
-          ctx.lineTo(-13, -5);
-          ctx.lineTo(-10, 10);
-          ctx.lineTo(0, 14);
-          ctx.lineTo(10, 10);
-          ctx.lineTo(13, -5);
-          ctx.closePath();
-          ctx.fill();
-          // 눈
-          ctx.fillStyle = '#000';
-          ctx.fillRect(-5, -3, 4, 4);
-          ctx.fillRect(1, -3, 4, 4);
-          // 더듬이
-          ctx.strokeStyle = mainColor;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(-13, -5);
-          ctx.lineTo(-18, -12);
-          ctx.moveTo(13, -5);
-          ctx.lineTo(18, -12);
-          ctx.stroke();
-        } else if (type === 'middle') {
-          // 중간 타입
-          ctx.fillStyle = mainColor;
-          ctx.beginPath();
-          ctx.moveTo(0, -12);
-          ctx.lineTo(-11, -3);
-          ctx.lineTo(-9, 10);
-          ctx.lineTo(0, 12);
-          ctx.lineTo(9, 10);
-          ctx.lineTo(11, -3);
-          ctx.closePath();
-          ctx.fill();
-          ctx.fillStyle = '#000';
-          ctx.fillRect(-4, -2, 3, 3);
-          ctx.fillRect(1, -2, 3, 3);
-        } else {
-          // 하단 타입
-          ctx.fillStyle = mainColor;
-          ctx.beginPath();
-          ctx.moveTo(0, -10);
-          ctx.lineTo(-9, -1);
-          ctx.lineTo(-8, 9);
-          ctx.lineTo(0, 11);
-          ctx.lineTo(8, 9);
-          ctx.lineTo(9, -1);
-          ctx.closePath();
-          ctx.fill();
-          ctx.fillStyle = '#000';
-          ctx.fillRect(-3, 0, 2.5, 2.5);
-          ctx.fillRect(1, 0, 2.5, 2.5);
-        }
-
-        ctx.restore();
-      }
-
-      // ==================== 게임 루프 ====================
-      function gameLoop() {
-        update();
-        draw();
-        requestAnimationFrame(gameLoop);
-      }
-
-      // ==================== 이벤트 ====================
-      document.getElementById('startBtn').addEventListener('click', () => {
-        initAudio();
-        startGame();
-      });
-      document.getElementById('resetBtn').addEventListener('click', resetGame);
-
-      // ==================== 초기화 ====================
-      try {
-        const saved = localStorage.getItem('galaxianHighScore');
-        if (saved) highScore = parseInt(saved) || 0;
-      } catch (e) {}
-      document.getElementById('highScore').textContent = highScore;
-      document.getElementById('lives').textContent = '🛸🛸🛸';
-      createEnemyGrid();
-      gameLoop();
-
-      console.log('👾 갤럭시안 준비 완료!');
-      console.log('🕹️ ← → 이동 | 스페이스바 발사');
-    })();
-  </script>
-</body>
-</html>
+        // 새 액션 순서
+        state.actionOrder = [];
+        for (const p of PLAYERS) {
+          if (!state.players[p].folded && !state.players[p].allIn && state.players[p].ch
