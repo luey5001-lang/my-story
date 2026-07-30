@@ -3,11 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>🃏 하이롤러 텍사스 홀덤 - High Roller</title>
+  <title>🃏 텍사스 홀덤 - Texas Hold'em</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
-      background: #0a0a0a;
+      background: #0d0d0d;
       background-image: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a14 100%);
       min-height: 100vh;
       display: flex;
@@ -16,47 +20,30 @@
       font-family: 'Georgia', 'Times New Roman', serif;
       user-select: none;
       -webkit-user-select: none;
-      overflow-x: hidden;
+      padding: 10px;
     }
     .game-wrapper {
-      width: 95vw;
-      max-width: 850px;
+      width: 100%;
+      max-width: 800px;
     }
-    /* 상단 정보 바 */
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: linear-gradient(180deg, #1a0a00, #2a1500);
+      background: #1a0f00;
       border: 2px solid #c9a44b;
-      border-radius: 15px;
-      padding: 12px 20px;
+      border-radius: 12px;
+      padding: 10px 18px;
       margin-bottom: 10px;
       color: #fff;
       flex-wrap: wrap;
-      gap: 10px;
-    }
-    .player-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .avatar {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #c9a44b, #8b6914);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      border: 2px solid #ffd700;
+      gap: 8px;
     }
     .rank-badge {
       background: #2a1a3a;
       border: 2px solid #a0f;
-      padding: 5px 12px;
-      border-radius: 20px;
+      padding: 4px 10px;
+      border-radius: 15px;
       font-size: 0.8rem;
       font-weight: bold;
       color: #d0f;
@@ -67,68 +54,60 @@
       background: #3a2a0a;
       animation: glow 1.5s infinite;
     }
-    .rank-badge.highroller {
-      border-color: #f0f;
-      color: #f0f;
-      background: #1a0a2a;
-      animation: glow 0.8s infinite;
-    }
     @keyframes glow {
-      0%, 100% { box-shadow: 0 0 8px currentColor; }
-      50% { box-shadow: 0 0 25px currentColor, 0 0 40px currentColor; }
+      0%,
+      100% {
+        box-shadow: 0 0 8px currentColor;
+      }
+      50% {
+        box-shadow: 0 0 20px currentColor, 0 0 35px currentColor;
+      }
     }
-    .chip-display {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 1.3rem;
+    .chips-total {
+      font-size: 1.2rem;
       font-weight: bold;
+      color: #ffd700;
     }
-    .chip-icon {
-      font-size: 1.8rem;
-      animation: bounce 0.6s infinite alternate;
-    }
-    @keyframes bounce {
-      from { transform: translateY(0); }
-      to { transform: translateY(-5px); }
-    }
-    .win-streak {
+    .streak-badge {
       background: #f44;
       color: #fff;
-      padding: 5px 10px;
-      border-radius: 15px;
+      padding: 4px 10px;
+      border-radius: 12px;
       font-size: 0.8rem;
       font-weight: bold;
       animation: pulse 1s infinite;
     }
     @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
+      0%,
+      100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.08);
+      }
     }
-    /* 게임 테이블 */
     .table {
       background: radial-gradient(ellipse at center, #1a7a3a 0%, #0e5c25 50%, #063d15 100%);
-      border-radius: 180px;
-      padding: 25px;
+      border-radius: 160px;
+      padding: 20px;
       position: relative;
-      min-height: 520px;
-      box-shadow: 0 0 0 12px #3d1c00, 0 0 0 19px #5c2e00, 0 0 0 25px #2a0f00, 0 20px 60px rgba(0,0,0,0.9);
+      min-height: 500px;
+      box-shadow: 0 0 0 12px #3d1c00, 0 0 0 19px #5c2e00, 0 0 0 25px #2a0f00, 0 20px 60px rgba(0, 0, 0, 0.9);
       border: 3px solid #c9a44b;
-    }
-    .blinds-display {
-      text-align: center;
-      color: #ffd700;
-      font-size: 0.85rem;
-      margin-bottom: 4px;
-      opacity: 0.8;
     }
     .pot-display {
       text-align: center;
       color: #ffd700;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: bold;
-      text-shadow: 0 0 15px #ffd700;
-      margin-bottom: 8px;
+      text-shadow: 0 0 12px #ffd700;
+      margin-bottom: 6px;
+    }
+    .blinds-info {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.75rem;
+      margin-bottom: 4px;
     }
     .community-area {
       display: flex;
@@ -147,60 +126,159 @@
       justify-content: center;
       align-items: center;
       font-weight: bold;
-      box-shadow: 2px 3px 10px rgba(0,0,0,0.5);
+      box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.5);
       border: 2px solid #ccc;
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition: transform 0.3s;
     }
-    .card:hover { transform: translateY(-3px); }
-    .card.red { color: #c00; }
-    .card.black { color: #222; }
-    .card .suit { font-size: 1.3rem; }
-    .card .rank { font-size: 1.1rem; }
+    .card.red {
+      color: #c00;
+    }
+    .card.black {
+      color: #222;
+    }
+    .card .suit {
+      font-size: 1.3rem;
+    }
+    .card .rank {
+      font-size: 1.1rem;
+    }
     .card-back {
       background: linear-gradient(135deg, #1a3a6b, #0d2240);
       border: 2px solid #c9a44b;
-      position: relative;
-      overflow: hidden;
     }
-    .card-back::after {
-      content: '♠♥♦♣';
-      position: absolute;
-      font-size: 0.5rem;
-      color: rgba(255,215,0,0.3);
-      text-align: center;
-      line-height: 1.2;
+    .card-small {
+      width: 42px;
+      height: 60px;
     }
-    .card-small { width: 40px; height: 57px; }
-    .card-small .suit { font-size: 1rem; }
-    .card-small .rank { font-size: 0.85rem; }
+    .card-small .suit {
+      font-size: 1rem;
+    }
+    .card-small .rank {
+      font-size: 0.85rem;
+    }
     .opponents-row {
       display: flex;
       justify-content: space-around;
       align-items: center;
-      margin: 10px 0;
+      margin: 8px 0;
       flex-wrap: wrap;
     }
     .player-spot {
       text-align: center;
       color: #fff;
-      padding: 6px;
-      min-width: 90px;
+      padding: 5px;
+      min-width: 85px;
     }
     .player-spot .name {
       font-weight: bold;
       font-size: 0.85rem;
-      background: rgba(0,0,0,0.5);
-      padding: 3px 10px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 3px 8px;
       border-radius: 10px;
       display: inline-block;
     }
-    .player-spot .chips { color: #ffd700; font-size: 0.75rem; }
-    .player-spot .bet { color: #ff0; font-size: 0.8rem; font-weight: bold; }
-    .player-spot .folded { color: #f44; font-weight: bold; }
-    .cards-row { display: flex; gap: 3px; justify-content: center; margin-top: 3px; }
-    .my-area { text-align: center; margin-top: 10px; }
-    .my-cards { display: flex; gap: 8px; justify-content: center; margin: 6px 0; }
-    /* 리액션 오버레이 */
+    .player-spot .chips {
+      color: #ffd700;
+      font-size: 0.75rem;
+    }
+    .player-spot .bet {
+      color: #ff0;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    .player-spot .folded {
+      color: #f44;
+      font-weight: bold;
+    }
+    .cards-row {
+      display: flex;
+      gap: 3px;
+      justify-content: center;
+      margin-top: 3px;
+    }
+    .my-area {
+      text-align: center;
+      margin-top: 8px;
+    }
+    .my-cards {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin: 5px 0;
+    }
+    .result-msg {
+      text-align: center;
+      color: #ff0;
+      font-size: 1rem;
+      font-weight: bold;
+      text-shadow: 0 0 10px #ff0;
+      margin: 5px 0;
+      min-height: 24px;
+    }
+    .actions {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .btn {
+      padding: 9px 15px;
+      border-radius: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      color: #fff;
+      font-family: 'Georgia', serif;
+      font-size: 0.85rem;
+      transition: 0.2s;
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+    }
+    .btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-fold {
+      background: #8b3a3a;
+    }
+    .btn-check {
+      background: #3a6b8b;
+    }
+    .btn-call {
+      background: #3a8b5a;
+    }
+    .btn-raise {
+      background: #c9a44b;
+      color: #000;
+    }
+    .btn-allin {
+      background: #c9302c;
+    }
+    .raise-box {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 4px 8px;
+      border-radius: 18px;
+    }
+    .raise-box input {
+      width: 60px;
+      accent-color: #c9a44b;
+    }
+    .raise-box span {
+      color: #ffd700;
+      font-weight: bold;
+      min-width: 35px;
+      font-size: 0.8rem;
+    }
     .reaction-overlay {
       position: fixed;
       top: 50%;
@@ -216,150 +294,79 @@
       transform: translate(-50%, -50%) scale(1);
     }
     .reaction-text {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-weight: bold;
-      text-shadow: 0 0 20px currentColor;
+      text-shadow: 0 0 15px currentColor;
     }
-    .win-reaction { color: #ffd700; text-shadow: 0 0 40px #ffd700, 0 0 80px #f80; }
-    .lose-reaction { color: #f44; text-shadow: 0 0 30px #f00; }
-    .bigwin-reaction { color: #0ff; text-shadow: 0 0 50px #0ff, 0 0 100px #0af; animation: bigWinShake 0.5s; }
-    @keyframes bigWinShake {
-      0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(0); }
-      25% { transform: translate(-50%, -50%) scale(1.2) rotate(-5deg); }
-      75% { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); }
+    .win-reaction {
+      color: #ffd700;
     }
-    .chips-fly {
-      position: fixed;
-      pointer-events: none;
-      z-index: 99;
-      font-size: 2rem;
-      animation: chipsFlyUp 1.5s forwards;
-    }
-    @keyframes chipsFlyUp {
-      0% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-200px) scale(2); }
-    }
-    /* 버튼 */
-    .actions {
-      display: flex;
-      gap: 6px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-    .btn {
-      padding: 10px 16px;
-      border-radius: 25px;
-      font-weight: bold;
-      cursor: pointer;
-      border: none;
-      color: #fff;
-      font-family: 'Georgia', serif;
-      font-size: 0.85rem;
-      transition: 0.2s;
-      box-shadow: 0 3px 0 rgba(0,0,0,0.3);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
-    .btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
-    .btn-fold { background: #8b3a3a; }
-    .btn-check { background: #3a6b8b; }
-    .btn-call { background: #3a8b5a; }
-    .btn-raise { background: #c9a44b; color: #000; }
-    .btn-allin { background: #c9302c; animation: pulseBtn 1.5s infinite; }
-    @keyframes pulseBtn {
-      0%, 100% { box-shadow: 0 3px 0 rgba(0,0,0,0.3); }
-      50% { box-shadow: 0 3px 0 rgba(0,0,0,0.3), 0 0 25px #f44; }
-    }
-    .raise-box {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(0,0,0,0.5);
-      padding: 5px 8px;
-      border-radius: 20px;
-    }
-    .raise-box input { width: 60px; accent-color: #c9a44b; }
-    .raise-box span { color: #ffd700; font-weight: bold; min-width: 35px; font-size: 0.8rem; }
-    .result-msg {
-      text-align: center;
-      color: #ff0;
-      font-size: 1.1rem;
-      font-weight: bold;
-      text-shadow: 0 0 15px #ff0;
-      margin: 6px 0;
-      min-height: 28px;
-    }
-    .confetti {
-      position: fixed;
-      pointer-events: none;
-      z-index: 98;
-      animation: confettiFall 2s forwards;
-    }
-    @keyframes confettiFall {
-      0% { opacity: 1; transform: translateY(-100vh) rotate(0deg); }
-      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+    .lose-reaction {
+      color: #f66;
     }
     @media (max-width: 500px) {
-      .card { width: 38px; height: 54px; }
-      .card .suit { font-size: 0.9rem; }
-      .card .rank { font-size: 0.8rem; }
-      .card-small { width: 28px; height: 40px; }
-      .btn { padding: 7px 10px; font-size: 0.7rem; }
-      .top-bar { font-size: 0.8rem; }
+      .card {
+        width: 38px;
+        height: 54px;
+      }
+      .card .suit {
+        font-size: 0.9rem;
+      }
+      .card .rank {
+        font-size: 0.8rem;
+      }
+      .card-small {
+        width: 30px;
+        height: 42px;
+      }
+      .btn {
+        padding: 7px 10px;
+        font-size: 0.7rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="game-wrapper">
-    <!-- 상단 정보 -->
     <div class="top-bar">
-      <div class="player-info">
-        <div class="avatar" id="avatarEmoji">🃏</div>
-        <div>
-          <div style="font-weight:bold;">플레이어</div>
-          <div class="rank-badge" id="rankBadge">🔰 루키</div>
-        </div>
+      <div>
+        <span style="font-weight:bold;color:#fff;">🃏 플레이어</span>
+        <span class="rank-badge" id="rankBadge">🔰 루키</span>
       </div>
-      <div class="chip-display">
-        <span class="chip-icon">💎</span>
-        <span id="totalChips">1,000</span>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <span class="win-streak" id="streakDisplay" style="display:none;">🔥 0연승</span>
-        <span style="color:#aaa;font-size:0.8rem;">핸드: <span id="handCount">1</span></span>
+      <div class="chips-total">💎 <span id="totalChips">1,000</span></div>
+      <div>
+        <span class="streak-badge" id="streakBadge" style="display:none;">🔥 0연승</span>
+        <span style="color:#aaa;font-size:0.8rem;margin-left:6px;">핸드 #<span id="handNum">1</span></span>
       </div>
     </div>
 
-    <!-- 테이블 -->
     <div class="table">
-      <div class="blinds-display">블라인드: <span id="blindDisplay">5/10</span></div>
+      <div class="blinds-info">블라인드: <span id="blindInfo">5/10</span></div>
       <div class="pot-display">💰 POT: <span id="pot">0</span></div>
 
       <div class="opponents-row">
-        <div class="player-spot" id="opp1Spot">
-          <div class="name">🤖 <span id="opp1Name">실버</span></div>
-          <div class="chips">💎 <span id="opp1Chips">2,000</span></div>
+        <div class="player-spot">
+          <div class="name" id="opp1Name">🤖 상대1</div>
+          <div class="chips">💎 <span id="opp1Chips">1500</span></div>
           <div class="cards-row" id="opp1Cards"></div>
           <div class="bet" id="opp1Bet"></div>
         </div>
-        <div class="player-spot" id="opp2Spot">
-          <div class="name">🤖 <span id="opp2Name">골드</span></div>
-          <div class="chips">💎 <span id="opp2Chips">3,000</span></div>
+        <div class="player-spot">
+          <div class="name" id="opp2Name">🤖 상대2</div>
+          <div class="chips">💎 <span id="opp2Chips">2500</span></div>
           <div class="cards-row" id="opp2Cards"></div>
           <div class="bet" id="opp2Bet"></div>
         </div>
-        <div class="player-spot" id="opp3Spot">
-          <div class="name">🤖 <span id="opp3Name">플래티넘</span></div>
-          <div class="chips">💎 <span id="opp3Chips">5,000</span></div>
+        <div class="player-spot">
+          <div class="name" id="opp3Name">🤖 상대3</div>
+          <div class="chips">💎 <span id="opp3Chips">4000</span></div>
           <div class="cards-row" id="opp3Cards"></div>
           <div class="bet" id="opp3Bet"></div>
         </div>
       </div>
 
       <div class="community-area" id="communityCards"></div>
-      <div class="result-msg" id="resultMsg"></div>
+      <div class="result-msg" id="resultMsg">🃏 게임 시작!</div>
 
       <div class="my-area">
         <div style="color:#fff;font-weight:bold;">⭐ 나</div>
@@ -373,7 +380,7 @@
         <button class="btn btn-call" id="callBtn">Call <span id="callAmt">0</span></button>
         <div class="raise-box">
           <button class="btn btn-raise" id="raiseBtn">Raise</button>
-          <input type="range" id="raiseSlider" min="10" max="100" value="20">
+          <input type="range" id="raiseSlider" min="10" max="200" value="20">
           <span id="raiseAmt">20</span>
         </div>
         <button class="btn btn-allin" id="allinBtn">All In</button>
@@ -386,13 +393,15 @@
   <script>
     (() => {
       // ==================== 카드 ====================
-      const SUITS = ['♠','♥','♦','♣'];
-      const RANKS = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-      const VALUES = {2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,J:11,Q:12,K:13,A:14};
+      const SUITS = ['♠', '♥', '♦', '♣'];
+      const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+      const VALUES = { 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, J: 11, Q: 12, K: 13, A: 14 };
 
       function createDeck() {
         const d = [];
-        for (const s of SUITS) for (const r of RANKS) d.push({ rank: r, suit: s, color: (s==='♥'||s==='♦')?'red':'black', value: VALUES[r] });
+        for (const s of SUITS)
+          for (const r of RANKS)
+            d.push({ rank: r, suit: s, color: (s === '♥' || s === '♦') ? 'red' : 'black', value: VALUES[r] });
         return d.sort(() => Math.random() - 0.5);
       }
 
@@ -400,70 +409,56 @@
       const PLAYERS = ['me', 'opp1', 'opp2', 'opp3'];
       let deck, community, pot, currentBet, phase, gameActive;
       let players = {};
-      let actionOrder = [], actionIdx = 0;
+      let actionOrder = [],
+        actionIdx = 0;
       let totalChips = 1000;
       let handCount = 0;
       let winStreak = 0;
-      let currentBlinds = { small: 5, big: 10 };
+      let smallBlind = 5,
+        bigBlind = 10;
 
-      const opponentNames = {
-        opp1: ['초보자', '실버', '프로', '베테랑', '마스터'],
-        opp2: ['중수', '골드', '달인', '고수', '그랜드마스터'],
-        opp3: ['강자', '플래티넘', '전설', '지배자', '하이롤러'],
-      };
-
-      function getOpponentTier(chips) {
-        if (chips >= 50000) return 4;
-        if (chips >= 20000) return 3;
-        if (chips >= 5000) return 2;
-        if (chips >= 2000) return 1;
-        return 0;
-      }
-
-      function getRankInfo() {
-        if (totalChips >= 50000) return { name: '하이롤러', cls: 'highroller', emoji: '👑' };
-        if (totalChips >= 20000) return { name: 'VIP', cls: 'vip', emoji: '💎' };
-        if (totalChips >= 5000) return { name: '프로', cls: '', emoji: '⭐' };
-        if (totalChips >= 2000) return { name: '베테랑', cls: '', emoji: '🃏' };
-        if (totalChips >= 1000) return { name: '루키', cls: '', emoji: '🃏' };
-        return { name: '초보자', cls: '', emoji: '🎴' };
-      }
-
-      function updateRankDisplay() {
-        const rank = getRankInfo();
-        const badge = document.getElementById('rankBadge');
-        badge.textContent = '🔰 ' + rank.name;
-        badge.className = 'rank-badge ' + rank.cls;
-        document.getElementById('avatarEmoji').textContent = rank.emoji;
+      function getRank() {
+        if (totalChips >= 50000) return { name: '하이롤러', cls: 'vip' };
+        if (totalChips >= 20000) return { name: 'VIP', cls: 'vip' };
+        if (totalChips >= 5000) return { name: '프로', cls: '' };
+        if (totalChips >= 2000) return { name: '베테랑', cls: '' };
+        return { name: '루키', cls: '' };
       }
 
       function updateBlinds() {
-        if (totalChips >= 50000) currentBlinds = { small: 500, big: 1000 };
-        else if (totalChips >= 20000) currentBlinds = { small: 200, big: 400 };
-        else if (totalChips >= 5000) currentBlinds = { small: 50, big: 100 };
-        else if (totalChips >= 2000) currentBlinds = { small: 20, big: 40 };
-        else currentBlinds = { small: 5, big: 10 };
-        document.getElementById('blindDisplay').textContent = `${currentBlinds.small}/${currentBlinds.big}`;
+        if (totalChips >= 50000) { smallBlind = 500;
+          bigBlind = 1000; } else if (totalChips >= 20000) { smallBlind = 200;
+          bigBlind = 400; } else if (totalChips >= 5000) { smallBlind = 50;
+          bigBlind = 100; } else if (totalChips >= 2000) { smallBlind = 20;
+          bigBlind = 40; } else { smallBlind = 5;
+          bigBlind = 10; }
+        document.getElementById('blindInfo').textContent = `${smallBlind}/${bigBlind}`;
+      }
+
+      function updateRankUI() {
+        const r = getRank();
+        const badge = document.getElementById('rankBadge');
+        badge.textContent = '🔰 ' + r.name;
+        badge.className = 'rank-badge ' + r.cls;
       }
 
       function initPlayers() {
-        const opp1Tier = getOpponentTier(totalChips);
-        const opp2Tier = Math.min(4, opp1Tier + 1);
-        const opp3Tier = Math.min(4, opp1Tier + 2);
-
+        const mult = Math.max(1, Math.floor(totalChips / 1000));
         players = {
-          me: { cards: [], chips: 0, bet: 0, folded: false, allIn: false, name: '나' },
-          opp1: { cards: [], chips: 1500 + opp1Tier * 2000, bet: 0, folded: false, allIn: false, name: opponentNames.opp1[opp1Tier] },
-          opp2: { cards: [], chips: 2500 + opp2Tier * 3000, bet: 0, folded: false, allIn: false, name: opponentNames.opp2[opp2Tier] },
-          opp3: { cards: [], chips: 4000 + opp3Tier * 5000, bet: 0, folded: false, allIn: false, name: opponentNames.opp3[opp3Tier] },
+          me: { cards: [], chips: Math.floor(totalChips * 0.3), bet: 0, folded: false, allIn: false, name: '나' },
+          opp1: { cards: [], chips: 1500 * mult, bet: 0, folded: false, allIn: false, name: '상대1' },
+          opp2: { cards: [], chips: 2500 * mult, bet: 0, folded: false, allIn: false, name: '상대2' },
+          opp3: { cards: [], chips: 4000 * mult, bet: 0, folded: false, allIn: false, name: '상대3' },
         };
-        players.me.chips = Math.floor(totalChips * 0.3);
-        document.getElementById('opp1Name').textContent = players.opp1.name;
-        document.getElementById('opp2Name').textContent = players.opp2.name;
-        document.getElementById('opp3Name').textContent = players.opp3.name;
+        document.getElementById('opp1Name').textContent = '🤖 상대1';
+        document.getElementById('opp2Name').textContent = '🤖 상대2';
+        document.getElementById('opp3Name').textContent = '🤖 상대3';
+        document.getElementById('opp1Chips').textContent = players.opp1.chips.toLocaleString();
+        document.getElementById('opp2Chips').textContent = players.opp2.chips.toLocaleString();
+        document.getElementById('opp3Chips').textContent = players.opp3.chips.toLocaleString();
       }
 
-      function resetHand() {
+      function startNewHand() {
         deck = createDeck();
         community = [];
         pot = 0;
@@ -485,22 +480,29 @@
           if (!players[p].folded) players[p].cards = [deck.pop(), deck.pop()];
         }
 
-        const sb = getNextActive(0);
-        const bb = getNextActive(1);
-        if (sb) postBlind(sb, currentBlinds.small);
-        if (bb) postBlind(bb, currentBlinds.big);
-        currentBet = currentBlinds.big;
+        const active = PLAYERS.filter(p => !players[p].folded && players[p].chips > 0);
+        if (active.length < 2) {
+          document.getElementById('resultMsg').textContent = '⚠️ 상대 칩 부족! 게임 리셋 필요';
+          gameActive = false;
+          updateAllUI();
+          return;
+        }
+
+        const sb = active[0];
+        const bb = active[1] || active[0];
+        postBlind(sb, Math.min(smallBlind, players[sb].chips));
+        postBlind(bb, Math.min(bigBlind, players[bb].chips));
+        currentBet = Math.min(bigBlind, players[bb].bet);
 
         buildActionOrder(2);
         updateBlinds();
         updateAllUI();
-        document.getElementById('handCount').textContent = handCount;
-        if (actionOrder[actionIdx] !== 'me') setTimeout(aiTurn, 600);
-      }
+        document.getElementById('handNum').textContent = handCount;
+        document.getElementById('resultMsg').textContent = '🃏 당신의 턴입니다';
 
-      function getNextActive(offset) {
-        const active = PLAYERS.filter(p => !players[p].folded && players[p].chips > 0);
-        return active[Math.min(offset, active.length - 1)] || null;
+        if (actionOrder.length > 0 && actionOrder[actionIdx] !== 'me') {
+          setTimeout(aiTurn, 700);
+        }
       }
 
       function postBlind(p, amt) {
@@ -514,39 +516,45 @@
       function buildActionOrder(startOffset) {
         actionOrder = [];
         const active = PLAYERS.filter(p => !players[p].folded && !players[p].allIn);
-        const startIdx = active.indexOf(getNextActive(startOffset));
-        if (startIdx < 0) return;
+        if (active.length === 0) return;
+        const startIdx = Math.min(startOffset, active.length - 1);
         for (let i = 0; i < active.length; i++) {
           actionOrder.push(active[(startIdx + i) % active.length]);
         }
         actionIdx = 0;
       }
 
-      // ==================== 족보 ====================
+      function getNextActivePlayer() {
+        const active = PLAYERS.filter(p => !players[p].folded && !players[p].allIn);
+        return active.length > 0 ? active[0] : null;
+      }
+
+      // ==================== 족보 평가 ====================
       function evaluateHand(cards) {
-        const vals = cards.map(c => c.value).sort((a,b) => b-a);
+        const vals = cards.map(c => c.value).sort((a, b) => b - a);
         const suits = cards.map(c => c.suit);
         const flush = suits.every(s => s === suits[0]);
-        const unique = [...new Set(vals)].sort((a,b) => b-a);
+        const unique = [...new Set(vals)].sort((a, b) => b - a);
         const straight = unique.length === 5 && unique[0] - unique[4] === 4;
         const aceLow = unique.join(',') === '14,5,4,3,2';
         const counts = {};
-        vals.forEach(v => counts[v] = (counts[v]||0)+1);
-        const freq = Object.values(counts).sort((a,b) => b-a);
+        vals.forEach(v => counts[v] = (counts[v] || 0) + 1);
+        const freq = Object.values(counts).sort((a, b) => b - a);
 
         if (flush && straight) return { rank: 8, name: '🌟 스트레이트 플러시', val: unique[0] };
         if (flush && aceLow) return { rank: 8, name: '🌟 스트레이트 플러시', val: 5 };
-        if (freq[0] === 4) return { rank: 7, name: '💎 포카드', val: +Object.keys(counts).find(k=>counts[k]===4) };
-        if (freq[0]===3 && freq[1]===2) return { rank: 6, name: '🏠 풀하우스', val: +Object.keys(counts).find(k=>counts[k]===3) };
+        if (freq[0] === 4) return { rank: 7, name: '💎 포카드', val: +Object.keys(counts).find(k => counts[k] === 4) };
+        if (freq[0] === 3 && freq[1] === 2) return { rank: 6, name: '🏠 풀하우스', val: +Object.keys(counts).find(k => counts[
+            k] === 3) };
         if (flush) return { rank: 5, name: '🎨 플러시', val: vals[0] };
         if (straight) return { rank: 4, name: '📏 스트레이트', val: unique[0] };
         if (aceLow) return { rank: 4, name: '📏 스트레이트', val: 5 };
-        if (freq[0]===3) return { rank: 3, name: '🔺 트리플', val: +Object.keys(counts).find(k=>counts[k]===3) };
-        if (freq[0]===2 && freq[1]===2) {
-          const pairs = Object.keys(counts).filter(k=>counts[k]===2).map(Number).sort((a,b)=>b-a);
+        if (freq[0] === 3) return { rank: 3, name: '🔺 트리플', val: +Object.keys(counts).find(k => counts[k] === 3) };
+        if (freq[0] === 2 && freq[1] === 2) {
+          const pairs = Object.keys(counts).filter(k => counts[k] === 2).map(Number).sort((a, b) => b - a);
           return { rank: 2, name: '👥 투페어', val: pairs[0], val2: pairs[1] };
         }
-        if (freq[0]===2) return { rank: 1, name: '👤 원페어', val: +Object.keys(counts).find(k=>counts[k]===2) };
+        if (freq[0] === 2) return { rank: 1, name: '👤 원페어', val: +Object.keys(counts).find(k => counts[k] === 2) };
         return { rank: 0, name: '🃏 하이카드', val: vals[0] };
       }
 
@@ -554,27 +562,38 @@
         const all = [...pcards, ...ccards];
         if (all.length < 5) return null;
         let best = null;
+
         function combos(arr, k, start, cur) {
           if (cur.length === k) {
             const ev = evaluateHand(cur);
             if (!best || ev.rank > best.rank || (ev.rank === best.rank && ev.val > best.val)) best = ev;
             return;
           }
-          for (let i = start; i < arr.length; i++) { cur.push(arr[i]); combos(arr, k, i+1, cur); cur.pop(); }
+          for (let i = start; i < arr.length; i++) {
+            cur.push(arr[i]);
+            combos(arr, k, i + 1, cur);
+            cur.pop();
+          }
         }
         combos(all, 5, 0, []);
         return best;
       }
 
       function showdown() {
+        phase = 'showdown';
         const active = PLAYERS.filter(p => !players[p].folded);
         if (active.length === 1) { endHand(active[0]); return; }
-        let bestRank = -1, bestVal = -1, winners = [];
+
+        let bestRank = -1,
+          bestVal = -1,
+          winners = [];
         for (const p of active) {
           const h = getBestHand(players[p].cards, community);
           if (!h) continue;
           if (h.rank > bestRank || (h.rank === bestRank && h.val > bestVal)) {
-            bestRank = h.rank; bestVal = h.val; winners = [p];
+            bestRank = h.rank;
+            bestVal = h.val;
+            winners = [p];
           } else if (h.rank === bestRank && h.val === bestVal) {
             winners.push(p);
           }
@@ -594,102 +613,217 @@
         pot = 0;
 
         const isPlayerWin = winArr.includes('me');
+
         if (isPlayerWin) {
           winStreak++;
           totalChips = players.me.chips + Math.floor(totalChips * 0.7);
           const winHand = getBestHand(players.me.cards, community);
           const handRank = winHand ? winHand.rank : 0;
-
-          if (handRank >= 7) showBigWinReaction(winHand.name);
-          else if (winStreak >= 5) showStreakReaction();
-          else if (winStreak >= 3) showWinReaction('🔥 연승!');
-          else showWinReaction('💰 Win!');
-
-          spawnChipsFly();
-          if (handRank >= 6) spawnConfetti();
+          showReaction(true, handRank);
         } else {
           winStreak = 0;
           totalChips = players.me.chips + Math.floor(totalChips * 0.7);
           if (totalChips < 100) totalChips = 200;
-          showLoseReaction();
+          showReaction(false, 0);
         }
 
         document.getElementById('totalChips').textContent = totalChips.toLocaleString();
-        document.getElementById('streakDisplay').style.display = winStreak >= 2 ? 'inline-block' : 'none';
-        document.getElementById('streakDisplay').textContent = `🔥 ${winStreak}연승`;
-        updateRankDisplay();
+        const streakEl = document.getElementById('streakBadge');
+        if (winStreak >= 2) {
+          streakEl.style.display = 'inline-block';
+          streakEl.textContent = '🔥 ' + winStreak + '연승';
+        } else {
+          streakEl.style.display = 'none';
+        }
+        updateRankUI();
 
         const winNames = winArr.map(w => players[w].name).join(', ');
         const hand = winArr.length === 1 ? getBestHand(players[winArr[0]].cards, community) : null;
         document.getElementById('resultMsg').textContent = hand ?
-          `🏆 ${winNames} 승리! (${hand.name})` : `🏆 ${winNames} 승리!`;
+          '🏆 ' + winNames + ' 승리! (' + hand.name + ')' :
+          '🏆 ' + winNames + ' 승리!';
         updateAllUI();
 
+        // 2초 후 새 핸드
         setTimeout(() => {
           initPlayers();
-          resetHand();
-          document.getElementById('resultMsg').textContent = '🃏 새 핸드 시작!';
+          startNewHand();
         }, 2000);
       }
 
-      // ==================== 리액션 ====================
-      function showWinReaction(text) {
+      function showReaction(isWin, handRank) {
         const overlay = document.getElementById('reactionOverlay');
-        overlay.innerHTML = `<div style="font-size:5rem;">💰</div><div class="reaction-text win-reaction">${text}</div>`;
+        if (isWin) {
+          if (handRank >= 7) {
+            overlay.innerHTML =
+              '<div style="font-size:5rem;">🎰</div><div class="reaction-text win-reaction" style="font-size:1.8rem;">JACKPOT!!</div>';
+          } else if (winStreak >= 5) {
+            overlay.innerHTML =
+              '<div style="font-size:5rem;">🔥</div><div class="reaction-text win-reaction">' + winStreak +
+              '연승! 무적!</div>';
+          } else if (winStreak >= 3) {
+            overlay.innerHTML = '<div style="font-size:4rem;">💰</div><div class="reaction-text win-reaction">연승 중!</div>';
+          } else {
+            overlay.innerHTML = '<div style="font-size:4rem;">💰</div><div class="reaction-text win-reaction">Win!</div>';
+          }
+        } else {
+          const emojis = ['😤', '😢', '💸', '🫠'];
+          const texts = ['아쉽다...', '다음엔!', '리벤지!', '한방이...'];
+          overlay.innerHTML = '<div style="font-size:4rem;">' + emojis[Math.floor(Math.random() * 4)] +
+            '</div><div class="reaction-text lose-reaction">' + texts[Math.floor(Math.random() * 4)] + '</div>';
+        }
         overlay.className = 'reaction-overlay show';
-        setTimeout(() => { overlay.className = 'reaction-overlay'; }, 1500);
+        setTimeout(() => { overlay.className = 'reaction-overlay'; }, 1800);
       }
 
-      function showBigWinReaction(handName) {
-        const overlay = document.getElementById('reactionOverlay');
-        overlay.innerHTML = `<div style="font-size:6rem;">🎰</div><div class="reaction-text bigwin-reaction">${handName}!!</div><div style="font-size:2rem;color:#ffd700;">JACKPOT!</div>`;
-        overlay.className = 'reaction-overlay show bigwin-reaction';
-        setTimeout(() => { overlay.className = 'reaction-overlay'; }, 2500);
+      // ==================== 플레이어 액션 ====================
+      function fold() {
+        if (!gameActive || actionOrder.length === 0 || actionOrder[actionIdx] !== 'me') return;
+        players.me.folded = true;
+        document.getElementById('resultMsg').textContent = '😔 폴드했습니다';
+        nextAction();
       }
 
-      function showStreakReaction() {
-        const overlay = document.getElementById('reactionOverlay');
-        overlay.innerHTML = `<div style="font-size:5rem;">🔥</div><div class="reaction-text win-reaction">${winStreak}연승!</div><div style="color:#f80;">무적 모드!</div>`;
-        overlay.className = 'reaction-overlay show';
-        setTimeout(() => { overlay.className = 'reaction-overlay'; }, 2000);
+      function check() {
+        if (!gameActive || actionOrder.length === 0 || actionOrder[actionIdx] !== 'me') return;
+        nextAction();
       }
 
-      function showLoseReaction() {
-        const overlay = document.getElementById('reactionOverlay');
-        const reactions = ['😤', '😢', '💸', '🫠', '😭'];
-        const emoji = reactions[Math.floor(Math.random() * reactions.length)];
-        const texts = ['아쉽다...', '다음엔 이긴다!', '리벤지!', '한방이 아쉽네'];
-        const text = texts[Math.floor(Math.random() * texts.length)];
-        overlay.innerHTML = `<div style="font-size:5rem;">${emoji}</div><div class="reaction-text lose-reaction">${text}</div>`;
-        overlay.className = 'reaction-overlay show';
-        setTimeout(() => { overlay.className = 'reaction-overlay'; }, 1500);
+      function call() {
+        if (!gameActive || actionOrder.length === 0 || actionOrder[actionIdx] !== 'me') return;
+        const amt = Math.min(currentBet - players.me.bet, players.me.chips);
+        players.me.chips -= amt;
+        players.me.bet += amt;
+        pot += amt;
+        if (players.me.chips <= 0) players.me.allIn = true;
+        nextAction();
       }
 
-      function spawnChipsFly() {
-        const chips = ['💎','🪙','💰','✨','💵'];
-        for (let i = 0; i < 8; i++) {
-          setTimeout(() => {
-            const el = document.createElement('div');
-            el.className = 'chips-fly';
-            el.textContent = chips[Math.floor(Math.random()*chips.length)];
-            el.style.left = (30 + Math.random() * 40) + '%';
-            el.style.top = (40 + Math.random() * 20) + '%';
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 1500);
-          }, i * 100);
+      function raise(amt) {
+        if (!gameActive || actionOrder.length === 0 || actionOrder[actionIdx] !== 'me') return;
+        const total = currentBet + amt;
+        const needed = Math.min(total - players.me.bet, players.me.chips);
+        players.me.chips -= needed;
+        players.me.bet += needed;
+        pot += needed;
+        currentBet = players.me.bet;
+        if (players.me.chips <= 0) players.me.allIn = true;
+        buildActionOrder(PLAYERS.indexOf('me') + 1);
+        document.getElementById('resultMsg').textContent = '💰 ' + amt + ' 레이즈!';
+        updateAllUI();
+        if (actionOrder.length > 0 && actionOrder[actionIdx] !== 'me') setTimeout(aiTurn, 700);
+      }
+
+      function allIn() {
+        if (!gameActive || actionOrder.length === 0 || actionOrder[actionIdx] !== 'me') return;
+        const amt = players.me.chips;
+        players.me.bet += amt;
+        pot += amt;
+        players.me.chips = 0;
+        players.me.allIn = true;
+        if (players.me.bet > currentBet) {
+          currentBet = players.me.bet;
+          buildActionOrder(PLAYERS.indexOf('me') + 1);
+        }
+        document.getElementById('resultMsg').textContent = '🔥 올인!';
+        nextAction();
+      }
+
+      function nextAction() {
+        actionIdx++;
+        if (actionIdx >= actionOrder.length) {
+          advancePhase();
+        } else {
+          updateAllUI();
+          if (actionOrder[actionIdx] !== 'me') setTimeout(aiTurn, 700);
         }
       }
 
-      function spawnConfetti() {
-        const colors = ['#f00','#0f0','#00f','#ff0','#f0f','#0ff','#f80'];
-        for (let i = 0; i < 30; i++) {
-          setTimeout(() => {
-            const el = document.createElement('div');
-            el.className = 'confetti';
-            el.textContent = '🎉';
-            el.style.left = Math.random() * 100 + '%';
-            el.style.fontSize = (1 + Math.random() * 2) + 'rem';
-            el.style.animationDuration = (1.5 + Math.random() * 2) + 's';
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 3500);
-          }, i * 50);
+      function advancePhase() {
+        const phases = ['preflop', 'flop', 'turn', 'river', 'showdown'];
+        const idx = phases.indexOf(phase);
+        if (idx < 0 || idx >= 4) { showdown(); return; }
+
+        if (phase === 'preflop') {
+          community.push(deck.pop(), deck.pop(), deck.pop());
+          phase = 'flop';
+        } else if (phase === 'flop') {
+          community.push(deck.pop());
+          phase = 'turn';
+        } else if (phase === 'turn') {
+          community.push(deck.pop());
+          phase = 'river';
+        } else if (phase === 'river') {
+          showdown();
+          updateAllUI();
+          return;
+        }
+
+        for (const p of PLAYERS) players[p].bet = 0;
+        currentBet = 0;
+        buildActionOrder(0);
+        updateAllUI();
+        if (actionOrder.length > 0 && actionOrder[actionIdx] !== 'me') setTimeout(aiTurn, 700);
+      }
+
+      // ==================== AI ====================
+      function aiTurn() {
+        if (!gameActive) return;
+        if (actionOrder.length === 0) { advancePhase(); return; }
+        const p = actionOrder[actionIdx];
+        if (p === 'me') { updateAllUI(); return; }
+
+        const callAmt = currentBet - players[p].bet;
+        const hand = getBestHand(players[p].cards, community);
+        const strength = hand ? hand.rank : 0;
+
+        if (callAmt <= 0) {
+          if (strength >= 4 || Math.random() < 0.25) {
+            const r = Math.floor(Math.random() * (bigBlind * 2)) + bigBlind;
+            const total = currentBet + r;
+            const needed = Math.min(total - players[p].bet, players[p].chips);
+            players[p].chips -= needed;
+            players[p].bet += needed;
+            pot += needed;
+            currentBet = players[p].bet;
+            if (players[p].chips <= 0) players[p].allIn = true;
+            buildActionOrder(PLAYERS.indexOf(p) + 1);
+          }
+        } else {
+          if (strength <= 1 && callAmt > bigBlind * 3) {
+            players[p].folded = true;
+          } else if (strength >= 5 && Math.random() < 0.4) {
+            const r = Math.floor(Math.random() * (bigBlind * 4)) + bigBlind * 2;
+            const total = currentBet + r;
+            const needed = Math.min(total - players[p].bet, players[p].chips);
+            players[p].chips -= needed;
+            players[p].bet += needed;
+            pot += needed;
+            currentBet = players[p].bet;
+            if (players[p].chips <= 0) players[p].allIn = true;
+            buildActionOrder(PLAYERS.indexOf(p) + 1);
+          } else if (Math.random() < 0.65) {
+            const amt = Math.min(callAmt, players[p].chips);
+            players[p].chips -= amt;
+            players[p].bet += amt;
+            pot += amt;
+            if (players[p].chips <= 0) players[p].allIn = true;
+          } else {
+            players[p].folded = true;
+          }
+        }
+
+        const active = PLAYERS.filter(pl => !players[pl].folded);
+        if (active.length <= 1) {
+          endHand(active);
+          updateAllUI();
+          return;
+        }
+
+        nextAction();
+      }
+
+      // ==================== UI ====================
+      function updateAllUI() {
+        document.getElementById('pot').textContent = pot.toLocaleString();
+        document.getElementById('
