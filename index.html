@@ -3,585 +3,728 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>🔮 만세력 계산기 - 사주팔자</title>
+  <title>🎰 마카오 골드 슬롯 - Macau Gold Slot</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: linear-gradient(180deg, #1a0a0a 0%, #2a1a1a 50%, #1a0a0a 100%);
+      background: #0a0a0a;
+      background-image:
+        radial-gradient(ellipse at 30% 20%, #1a0a2e 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, #2e1a0a 0%, transparent 50%),
+        radial-gradient(ellipse at center, #0a0a0a 0%, #000 100%);
       min-height: 100vh;
-      font-family: 'Noto Serif KR', 'Malgun Gothic', 'Georgia', serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px;
-      color: #d4c5a0;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      user-select: none;
+      -webkit-user-select: none;
+      padding: 10px;
+      overflow-x: hidden;
     }
-    .container {
-      background: linear-gradient(180deg, #2a1a0a, #1a0a05);
-      border: 3px solid #8b6914;
-      border-radius: 20px;
-      padding: 24px;
-      max-width: 550px;
+    .machine {
+      background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 30%, #1a1a1a 100%);
+      border-radius: 25px;
+      padding: 15px;
+      box-shadow:
+        0 0 0 6px #c9a44b,
+        0 0 0 10px #8b6914,
+        0 0 0 14px #c9a44b,
+        0 0 0 18px #3d2a00,
+        0 0 0 22px #1a0a00,
+        0 20px 60px rgba(0,0,0,0.9),
+        inset 0 0 100px rgba(255,215,0,0.05);
+      max-width: 500px;
       width: 100%;
-      box-shadow: 0 0 40px rgba(139, 105, 20, 0.3), 0 20px 60px rgba(0, 0, 0, 0.8);
+      position: relative;
+      overflow: hidden;
     }
-    .title {
+    .machine::before {
+      content: '';
+      position: absolute;
+      top: -2px; left: 10%; right: 10%; height: 2px;
+      background: linear-gradient(90deg, transparent, #ffd700, #fff, #ffd700, transparent);
+      animation: scanLine 3s linear infinite;
+    }
+    @keyframes scanLine {
+      0% { left: -50%; }
+      100% { left: 150%; }
+    }
+    .top-display {
+      background: #000;
+      border: 3px solid #c9a44b;
+      border-radius: 12px;
+      padding: 10px;
       text-align: center;
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .jackpot-display {
       font-size: 1.8rem;
       font-weight: bold;
       color: #ffd700;
-      text-shadow: 0 0 15px #ffd700;
-      margin-bottom: 6px;
+      text-shadow: 0 0 20px #ffd700, 0 0 40px #f80, 0 0 60px #f00;
+      animation: jackpotGlow 1s infinite;
       letter-spacing: 3px;
     }
-    .subtitle {
-      text-align: center;
-      font-size: 0.8rem;
-      color: #a08060;
-      margin-bottom: 20px;
+    @keyframes jackpotGlow {
+      0%,100% { text-shadow: 0 0 20px #ffd700, 0 0 40px #f80; }
+      50% { text-shadow: 0 0 40px #ffd700, 0 0 80px #f80, 0 0 120px #f00; }
     }
-    .input-group {
+    .jackpot-label {
+      font-size: 0.7rem;
+      color: #c9a44b;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+    .screen {
+      background: linear-gradient(180deg, #0a0a1a 0%, #0d0d2a 100%);
+      border: 4px solid #c9a44b;
+      border-radius: 15px;
+      padding: 10px;
+      position: relative;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+      margin-bottom: 10px;
+    }
+    .reels-container {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      padding: 10px 0;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .reel {
+      width: 90px;
+      height: 240px;
+      background: linear-gradient(180deg, #111 0%, #1a1a2e 50%, #111 100%);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      border: 2px solid #333;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+    .reel-strip {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-bottom: 16px;
+      transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
     }
-    .input-row {
+    .reel.spinning .reel-strip {
+      transition: transform 0.15s linear;
+    }
+    .reel.stopping .reel-strip {
+      transition: transform 0.8s cubic-bezier(0.1, 0.8, 0.2, 1);
+    }
+    .symbol {
+      width: 90px;
+      height: 80px;
       display: flex;
-      gap: 8px;
       align-items: center;
-      flex-wrap: wrap;
+      justify-content: center;
+      font-size: 2.8rem;
+      position: relative;
+      flex-shrink: 0;
     }
-    .input-row label {
-      min-width: 70px;
-      font-weight: bold;
-      color: #c9a44b;
-      font-size: 0.9rem;
+    .symbol::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 4px; right: 4px; bottom: 2px;
+      border-radius: 8px;
+      background: radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.1), transparent);
     }
-    select,
-    input {
-      flex: 1;
-      min-width: 80px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 2px solid #5a3a1a;
-      background: #1a0a05;
-      color: #ffd700;
-      font-size: 0.9rem;
-      font-family: 'Noto Serif KR', serif;
-      appearance: none;
-      -webkit-appearance: none;
-      cursor: pointer;
+    .payline-indicator {
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: #ffd700;
+      box-shadow: 0 0 15px #ffd700;
+      z-index: 5;
+      pointer-events: none;
     }
-    select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23c9a44b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-      padding-right: 30px;
-    }
-    input[type="number"] {
-      appearance: textfield;
-      -moz-appearance: textfield;
-    }
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-    }
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #c9a44b, #8b6914);
-      color: #1a0a05;
-      font-size: 1.1rem;
-      font-weight: bold;
-      cursor: pointer;
-      letter-spacing: 2px;
-      transition: 0.2s;
-      box-shadow: 0 4px 0 #5a3a1a;
-      font-family: 'Noto Serif KR', serif;
-      margin-bottom: 16px;
-    }
-    .btn:active {
-      transform: translateY(3px);
-      box-shadow: 0 1px 0 #5a3a1a;
-    }
-    .result {
-      background: #1a0a05;
-      border: 2px solid #5a3a1a;
-      border-radius: 16px;
-      padding: 16px;
-    }
-    .pillars {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    @media (max-width: 400px) {
-      .pillars {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    .pillar {
-      text-align: center;
-      background: #2a1a0a;
-      border-radius: 12px;
-      padding: 10px 6px;
-      border: 1px solid #5a3a1a;
-      transition: 0.2s;
-    }
-    .pillar:hover {
-      border-color: #c9a44b;
-      box-shadow: 0 0 15px rgba(201, 164, 75, 0.2);
-    }
-    .pillar-label {
-      font-size: 0.7rem;
-      color: #a08060;
-      margin-bottom: 4px;
-      letter-spacing: 1px;
-    }
-    .pillar-stem {
-      font-size: 1.6rem;
-      font-weight: bold;
-      color: #ffd700;
-      text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
-    }
-    .pillar-branch {
-      font-size: 1.6rem;
-      font-weight: bold;
-      color: #ffa500;
-      text-shadow: 0 0 8px rgba(255, 165, 0, 0.5);
-    }
-    .pillar-elements {
-      font-size: 0.65rem;
-      color: #8a7a6a;
-      margin-top: 2px;
-    }
-    .detail-section {
-      margin-top: 10px;
-      padding: 10px;
-      background: #2a1a0a;
-      border-radius: 10px;
-      border: 1px solid #3a2a1a;
-    }
-    .detail-title {
-      font-size: 0.8rem;
-      color: #c9a44b;
-      font-weight: bold;
-      margin-bottom: 6px;
-      letter-spacing: 1px;
-    }
-    .detail-row {
+    .info-bar {
       display: flex;
       justify-content: space-between;
-      font-size: 0.8rem;
-      padding: 3px 0;
-      border-bottom: 1px dotted #3a2a1a;
+      align-items: center;
+      padding: 8px 12px;
+      background: #000;
+      border-radius: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
-    .detail-row span:last-child {
+    .info-item {
       color: #ffd700;
       font-weight: bold;
+      font-size: 0.9rem;
     }
-    .element-badge {
+    .info-item span {
+      color: #fff;
+    }
+    .bet-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .bet-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid #c9a44b;
+      background: #1a1a2e;
+      color: #ffd700;
+      font-size: 1.2rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bet-btn:active { background: #c9a44b; color: #000; }
+    .bet-amount {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fff;
+      min-width: 50px;
+      text-align: center;
+    }
+    .spin-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 50px;
+      border: 3px solid #ffd700;
+      background: linear-gradient(180deg, #c9302c, #8b1a1a);
+      color: #fff;
+      font-size: 1.3rem;
+      font-weight: bold;
+      cursor: pointer;
+      letter-spacing: 3px;
+      transition: 0.2s;
+      box-shadow: 0 6px 0 #5a0a0a, 0 0 30px rgba(255,0,0,0.3);
+      margin-top: 10px;
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+    }
+    .spin-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%);
+      opacity: 0;
+      transition: 0.3s;
+    }
+    .spin-btn:hover::after { opacity: 1; }
+    .spin-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #5a0a0a, 0 0 15px rgba(255,0,0,0.2);
+    }
+    .spin-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .win-display {
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #ffd700;
+      min-height: 35px;
+      text-shadow: 0 0 15px #ffd700;
+      transition: 0.3s;
+      padding: 5px;
+    }
+    .win-display.bigwin {
+      animation: bigWinPulse 0.5s infinite;
+      font-size: 2rem;
+    }
+    @keyframes bigWinPulse {
+      0%,100% { transform: scale(1); color: #ffd700; }
+      50% { transform: scale(1.2); color: #fff; }
+    }
+    .feature-badge {
       display: inline-block;
-      padding: 2px 8px;
-      border-radius: 10px;
+      padding: 4px 10px;
+      border-radius: 12px;
       font-size: 0.7rem;
       font-weight: bold;
-      margin: 1px;
+      animation: pulse 0.8s infinite;
+      background: #f80;
+      color: #fff;
     }
-    .elem-wood {
-      background: #2a5a2a;
-      color: #8f8;
+    @keyframes pulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
-    .elem-fire {
-      background: #5a2a2a;
-      color: #f88;
+    .particles-area {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 999;
     }
-    .elem-earth {
-      background: #5a4a2a;
-      color: #fc8;
+    .coin-particle {
+      position: absolute;
+      font-size: 2rem;
+      animation: coinFall 2s forwards;
+      pointer-events: none;
     }
-    .elem-metal {
-      background: #4a4a5a;
-      color: #ccf;
+    @keyframes coinFall {
+      0% { opacity: 1; transform: translateY(-100px) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(110vh) rotate(720deg); }
     }
-    .elem-water {
-      background: #2a3a5a;
-      color: #8cf;
+    .jackpot-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      animation: fadeIn 0.5s;
     }
-    .note {
-      font-size: 0.7rem;
-      color: #6a5a4a;
-      text-align: center;
-      margin-top: 10px;
-      font-style: italic;
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .jackpot-text {
+      font-size: 4rem;
+      font-weight: bold;
+      color: #ffd700;
+      text-shadow: 0 0 50px #ffd700, 0 0 100px #f80;
+      animation: jackpotBig 0.3s infinite;
+    }
+    @keyframes jackpotBig {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+    }
+    .balance-display {
+      color: #ffd700;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    @media (max-width: 400px) {
+      .reel { width: 65px; height: 180px; }
+      .symbol { width: 65px; height: 60px; font-size: 2rem; }
+      .spin-btn { font-size: 1rem; padding: 12px; }
+      .jackpot-display { font-size: 1.3rem; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="title">🔮 만세력</div>
-    <div class="subtitle">사주팔자 계산기</div>
+  <div class="particles-area" id="particlesArea"></div>
 
-    <div class="input-group">
-      <div class="input-row">
-        <label>📅 생년</label>
-        <input type="number" id="year" value="1990" min="1900" max="2100" placeholder="년">
-        <select id="month">
-          <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
-          <option value="4">4월</option><option value="5">5월</option><option value="6">6월</option>
-          <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
-          <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
-        </select>
+  <div class="machine">
+    <div class="top-display">
+      <div class="jackpot-label">💎 GRAND JACKPOT 💎</div>
+      <div class="jackpot-display" id="jackpotDisplay">₩10,000,000</div>
+    </div>
+
+    <div class="screen">
+      <div class="reels-container" id="reelsContainer">
+        <div class="reel" id="reel0"><div class="reel-strip"></div></div>
+        <div class="reel" id="reel1"><div class="reel-strip"></div></div>
+        <div class="reel" id="reel2"><div class="reel-strip"></div></div>
+        <div class="reel" id="reel3"><div class="reel-strip"></div></div>
+        <div class="reel" id="reel4"><div class="reel-strip"></div></div>
       </div>
-      <div class="input-row">
-        <label>📆 생일</label>
-        <input type="number" id="day" value="15" min="1" max="31" placeholder="일">
-        <select id="hour">
-          <option value="0">자시 (23:30-01:30)</option><option value="1">축시 (01:30-03:30)</option>
-          <option value="2">인시 (03:30-05:30)</option><option value="3">묘시 (05:30-07:30)</option>
-          <option value="4">진시 (07:30-09:30)</option><option value="5">사시 (09:30-11:30)</option>
-          <option value="6">오시 (11:30-13:30)</option><option value="7">미시 (13:30-15:30)</option>
-          <option value="8">신시 (15:30-17:30)</option><option value="9">유시 (17:30-19:30)</option>
-          <option value="10">술시 (19:30-21:30)</option><option value="11">해시 (21:30-23:30)</option>
-        </select>
-      </div>
-      <div class="input-row">
-        <label>🌓 성별</label>
-        <select id="gender">
-          <option value="male">남성 (양)</option>
-          <option value="female">여성 (음)</option>
-        </select>
-        <label>☀️ 양력</label>
-        <select id="calendar">
-          <option value="solar">양력</option>
-          <option value="lunar">음력 (대략)</option>
-        </select>
+
+      <div class="win-display" id="winDisplay">🎰 베팅하고 스핀하세요!</div>
+
+      <div class="info-bar">
+        <div class="info-item">💰 잔액: <span id="balanceDisplay">₩1,000,000</span></div>
+        <div class="bet-controls">
+          <button class="bet-btn" id="betDown">−</button>
+          <span class="bet-amount" id="betDisplay">₩1,000</span>
+          <button class="bet-btn" id="betUp">+</button>
+          <button class="bet-btn" id="maxBet" style="font-size:0.7rem;width:auto;border-radius:15px;padding:0 10px;">MAX</button>
+        </div>
+        <div class="info-item" id="freeSpinsBadge" style="display:none;">
+          <span class="feature-badge">🔄 프리스핀 <span id="freeSpinsCount">0</span></span>
+        </div>
       </div>
     </div>
 
-    <button class="btn" id="calculateBtn">🔮 만세력 계산하기</button>
-
-    <div class="result" id="resultArea">
-      <div class="pillars" id="pillarsArea">
-        <div class="pillar"><div class="pillar-label">시주</div><div class="pillar-stem">-</div><div class="pillar-branch">-</div></div>
-        <div class="pillar"><div class="pillar-label">일주</div><div class="pillar-stem">-</div><div class="pillar-branch">-</div></div>
-        <div class="pillar"><div class="pillar-label">월주</div><div class="pillar-stem">-</div><div class="pillar-branch">-</div></div>
-        <div class="pillar"><div class="pillar-label">년주</div><div class="pillar-stem">-</div><div class="pillar-branch">-</div></div>
-      </div>
-      <div class="detail-section" id="detailArea">
-        <div class="detail-title">📊 오행 분석</div>
-        <div id="elementAnalysis">생년월일시를 입력하고 계산하기를 눌러주세요</div>
-      </div>
+    <button class="spin-btn" id="spinBtn">🎰 SPIN</button>
+    <div style="text-align:center;margin-top:6px;font-size:0.65rem;color:#555;">
+      🍒 체리 x3 = 5x | 💎 다이아 x3 = 20x | 7️⃣ 7 x3 = 50x | 🎰 7-7-7-7-7 = JACKPOT
     </div>
-    <div class="note">※ 참고용으로만 사용하세요. 실제 사주는 전문가와 상담하세요.</div>
   </div>
 
   <script>
     (() => {
-      // ==================== 천간(天干) ====================
-      const STEMS = ['갑(甲)', '을(乙)', '병(丙)', '정(丁)', '무(戊)', '기(己)', '경(庚)', '신(辛)', '임(壬)', '계(癸)'];
-      const STEM_ELEMENTS = ['목', '목', '화', '화', '토', '토', '금', '금', '수', '수'];
-      const STEM_YINYANG = ['양', '음', '양', '음', '양', '음', '양', '음', '양', '음'];
+      // ==================== 심볼 정의 ====================
+      const SYMBOLS = [
+        { id: 'cherry', icon: '🍒', name: '체리', payout3: 5, payout4: 15, payout5: 30 },
+        { id: 'lemon', icon: '🍋', name: '레몬', payout3: 3, payout4: 8, payout5: 15 },
+        { id: 'orange', icon: '🍊', name: '오렌지', payout3: 4, payout4: 10, payout5: 20 },
+        { id: 'plum', icon: '🫐', name: '자두', payout3: 4, payout4: 10, payout5: 20 },
+        { id: 'grape', icon: '🍇', name: '포도', payout3: 6, payout4: 18, payout5: 35 },
+        { id: 'bell', icon: '🔔', name: '벨', payout3: 8, payout4: 25, payout5: 50 },
+        { id: 'diamond', icon: '💎', name: '다이아', payout3: 20, payout4: 60, payout5: 150 },
+        { id: 'seven', icon: '7️⃣', name: '세븐', payout3: 50, payout4: 200, payout5: 500 },
+        { id: 'wild', icon: '🌟', name: '와일드', payout3: 100, payout4: 500, payout5: 2000 },
+      ];
 
-      // ==================== 지지(地支) ====================
-      const BRANCHES = ['자(子)', '축(丑)', '인(寅)', '묘(卯)', '진(辰)', '사(巳)', '오(午)', '미(未)', '신(申)', '유(酉)', '술(戌)', '해(亥)'];
-      const BRANCH_ELEMENTS = ['수', '토', '목', '목', '토', '화', '화', '토', '금', '금', '토', '수'];
-      const BRANCH_ANIMALS = ['쥐', '소', '호랑이', '토끼', '용', '뱀', '말', '양', '원숭이', '닭', '개', '돼지'];
+      const REEL_STRIPS = [
+        ['cherry','lemon','orange','plum','grape','bell','diamond','seven','cherry','lemon','orange','plum','grape','bell','diamond','seven','cherry','lemon','orange','plum','grape','bell','diamond','seven','wild'],
+        ['lemon','orange','plum','grape','bell','diamond','seven','cherry','lemon','orange','plum','grape','bell','diamond','seven','cherry','lemon','orange','plum','grape','bell','diamond','seven','cherry','wild'],
+        ['orange','plum','grape','bell','diamond','seven','cherry','lemon','orange','plum','grape','bell','diamond','seven','cherry','lemon','orange','plum','grape','bell','diamond','seven','cherry','lemon','wild'],
+        ['plum','grape','bell','diamond','seven','cherry','lemon','orange','plum','grape','bell','diamond','seven','cherry','lemon','orange','plum','grape','bell','diamond','seven','cherry','lemon','orange'],
+        ['grape','bell','diamond','seven','cherry','lemon','orange','plum','grape','bell','diamond','seven','cherry','lemon','orange','plum','grape','bell','diamond','seven','cherry','lemon','orange','plum','grape'],
+      ];
 
-      // ==================== 60갑자 ====================
-      function getSexagenary(index) {
-        const stemIdx = ((index % 10) + 10) % 10;
-        const branchIdx = ((index % 12) + 12) % 12;
-        return {
-          stem: STEMS[stemIdx],
-          branch: BRANCHES[branchIdx],
-          stemIdx: stemIdx,
-          branchIdx: branchIdx,
-          stemElement: STEM_ELEMENTS[stemIdx],
-          branchElement: BRANCH_ELEMENTS[branchIdx],
-          stemYinYang: STEM_YINYANG[stemIdx],
-          animal: BRANCH_ANIMALS[branchIdx],
-        };
-      }
+      // ==================== 상태 ====================
+      let balance = 1000000;
+      let betAmount = 1000;
+      let jackpot = 10000000;
+      let isSpinning = false;
+      let freeSpinsRemaining = 0;
+      let reelPositions = [0, 0, 0, 0, 0];
+      let reelResults = [null, null, null, null, null];
+      const betOptions = [500, 1000, 2000, 5000, 10000, 20000, 50000];
 
-      // ==================== 년주 계산 ====================
-      function getYearPillar(year) {
-        const baseYear = 1984;
-        const diff = year - baseYear;
-        const index = diff;
-        return getSexagenary(index);
-      }
+      // ==================== DOM ====================
+      const reelsContainer = document.getElementById('reelsContainer');
+      const winDisplay = document.getElementById('winDisplay');
+      const spinBtn = document.getElementById('spinBtn');
+      const balanceDisplay = document.getElementById('balanceDisplay');
+      const betDisplay = document.getElementById('betDisplay');
+      const jackpotDisplay = document.getElementById('jackpotDisplay');
+      const freeSpinsBadge = document.getElementById('freeSpinsBadge');
+      const freeSpinsCount = document.getElementById('freeSpinsCount');
+      const particlesArea = document.getElementById('particlesArea');
 
-      // ==================== 월주 계산 (절기 기준 근사) ====================
-      function getMonthPillar(year, month, day) {
-        const yearStem = getYearPillar(year).stemIdx;
-        const monthBranch = (month + 1) % 12;
-
-        const monthStemTable = [
-          [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1],
-          [4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3],
-          [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5],
-          [8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7],
-          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-        ];
-
-        const row = yearStem % 5;
-        const stemIdx = monthStemTable[row][monthBranch];
-        const branchIdx = monthBranch;
-
-        return {
-          stem: STEMS[stemIdx],
-          branch: BRANCHES[branchIdx],
-          stemIdx: stemIdx,
-          branchIdx: branchIdx,
-          stemElement: STEM_ELEMENTS[stemIdx],
-          branchElement: BRANCH_ELEMENTS[branchIdx],
-          stemYinYang: STEM_YINYANG[stemIdx],
-          animal: BRANCH_ANIMALS[branchIdx],
-        };
-      }
-
-      // ==================== 일주 계산 ====================
-      function daysBetween(y1, m1, d1, y2, m2, d2) {
-        const date1 = new Date(y1, m1 - 1, d1);
-        const date2 = new Date(y2, m2 - 1, d2);
-        return Math.round((date2 - date1) / (1000 * 60 * 60 * 24));
-      }
-
-      function getDayPillar(year, month, day) {
-        const baseDate = { year: 1900, month: 1, day: 1 };
-        const baseStem = 0;
-        const baseBranch = 0;
-
-        const days = daysBetween(baseDate.year, baseDate.month, baseDate.day, year, month, day);
-        const index = days;
-        return getSexagenary(index);
-      }
-
-      // ==================== 시주 계산 ====================
-      function getHourPillar(dayStemIdx, hourBranch) {
-        const hourStemTable = [
-          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-          [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1],
-          [4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3],
-          [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5],
-          [8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7],
-        ];
-
-        const row = dayStemIdx % 5;
-        const stemIdx = hourStemTable[row][hourBranch];
-
-        return {
-          stem: STEMS[stemIdx],
-          branch: BRANCHES[hourBranch],
-          stemIdx: stemIdx,
-          branchIdx: hourBranch,
-          stemElement: STEM_ELEMENTS[stemIdx],
-          branchElement: BRANCH_ELEMENTS[hourBranch],
-          stemYinYang: STEM_YINYANG[stemIdx],
-          animal: BRANCH_ANIMALS[hourBranch],
-        };
-      }
-
-      // ==================== 음력 변환 (간단 근사) ====================
-      function lunarToSolarApprox(year, month, day) {
-        const lunarNewYear = [
-          [1990, 1, 27],
-          [1991, 2, 15],
-          [1992, 2, 4],
-          [1993, 1, 23],
-          [1994, 2, 10],
-          [1995, 1, 31],
-          [1996, 2, 19],
-          [1997, 2, 7],
-          [1998, 1, 28],
-          [1999, 2, 16],
-          [2000, 2, 5],
-          [2001, 1, 24],
-          [2002, 2, 12],
-          [2003, 2, 1],
-          [2004, 1, 22],
-          [2005, 2, 9],
-          [2006, 1, 29],
-          [2007, 2, 18],
-          [2008, 2, 7],
-          [2009, 1, 26],
-          [2010, 2, 14],
-          [2011, 2, 3],
-          [2012, 1, 23],
-          [2013, 2, 10],
-          [2014, 1, 31],
-          [2015, 2, 19],
-          [2016, 2, 8],
-          [2017, 1, 28],
-          [2018, 2, 16],
-          [2019, 2, 5],
-          [2020, 1, 25],
-          [2021, 2, 12],
-          [2022, 2, 1],
-          [2023, 1, 22],
-          [2024, 2, 10],
-          [2025, 1, 29],
-        ];
-
-        const found = lunarNewYear.find(n => n[0] === year);
-        if (!found) return { year, month, day };
-
-        const baseDate = new Date(found[0], found[1] - 1, found[2]);
-        const inputDate = new Date(year, month - 1, day);
-        const diffDays = Math.round((inputDate - baseDate) / (1000 * 60 * 60 * 24));
-
-        if (diffDays < 0) {
-          const prevFound = lunarNewYear.find(n => n[0] === year - 1);
-          if (prevFound) {
-            const prevBase = new Date(prevFound[0], prevFound[1] - 1, prevFound[2]);
-            const prevDiff = Math.round((inputDate - prevBase) / (1000 * 60 * 60 * 24));
-            if (prevDiff >= 0) {
-              const solarDate = new Date(prevBase);
-              solarDate.setDate(solarDate.getDate() + prevDiff);
-              return { year: solarDate.getFullYear(), month: solarDate.getMonth() + 1, day: solarDate.getDate() };
-            }
+      // ==================== 초기화 ====================
+      function initReels() {
+        for (let i = 0; i < 5; i++) {
+          const strip = document.getElementById('reel' + i).querySelector('.reel-strip');
+          strip.innerHTML = '';
+          for (let j = 0; j < REEL_STRIPS[i].length; j++) {
+            const symId = REEL_STRIPS[i][j];
+            const sym = SYMBOLS.find(s => s.id === symId);
+            const div = document.createElement('div');
+            div.className = 'symbol';
+            div.textContent = sym.icon;
+            div.dataset.symId = symId;
+            strip.appendChild(div);
           }
-          return { year, month, day };
+          reelPositions[i] = Math.floor(Math.random() * REEL_STRIPS[i].length);
+          updateReelPosition(i, false);
         }
-
-        const solarDate = new Date(baseDate);
-        solarDate.setDate(solarDate.getDate() + diffDays);
-        return { year: solarDate.getFullYear(), month: solarDate.getMonth() + 1, day: solarDate.getDate() };
       }
 
-      // ==================== 오행 분석 ====================
-      function analyzeElements(yearP, monthP, dayP, hourP) {
-        const pillars = [yearP, monthP, dayP, hourP];
-        const counts = { 목: 0, 화: 0, 토: 0, 금: 0, 수: 0 };
+      function updateReelPosition(index, animate = true) {
+        const reel = document.getElementById('reel' + index);
+        const strip = reel.querySelector('.reel-strip');
+        const symHeight = 80;
+        const offset = -reelPositions[index] * symHeight;
 
-        pillars.forEach(p => {
-          counts[p.stemElement]++;
-          counts[p.branchElement]++;
-        });
-
-        const total = 8;
-        const percentages = {};
-        for (const [elem, count] of Object.entries(counts)) {
-          percentages[elem] = Math.round((count / total) * 100);
+        if (!animate) {
+          strip.style.transition = 'none';
+          strip.style.transform = `translateY(${offset}px)`;
+          strip.offsetHeight;
+          strip.style.transition = '';
+        } else {
+          strip.style.transform = `translateY(${offset}px)`;
         }
-
-        const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-        const strongest = sorted[0][0];
-        const weakest = sorted[sorted.length - 1][0];
-
-        const elementColors = {
-          목: '#8f8',
-          화: '#f88',
-          토: '#fc8',
-          금: '#ccf',
-          수: '#8cf',
-        };
-
-        let analysis = '<div style="margin-top:8px;">';
-        for (const [elem, count] of sorted) {
-          const bar = '█'.repeat(count) + '░'.repeat(8 - count);
-          analysis +=
-            `<div style="margin:4px 0;"><span class="element-badge elem-${elem === '목' ? 'wood' : elem === '화' ? 'fire' : elem === '토' ? 'earth' : elem === '금' ? 'metal' : 'water'}">${elem}</span> ${bar} ${count}개 (${percentages[elem]}%)</div>`;
-        }
-        analysis +=
-          `<p style="margin-top:8px;font-size:0.8rem;">💪 가장 강한 오행: <span style="color:${elementColors[strongest]};font-weight:bold;">${strongest}</span> | 가장 약한 오행: <span style="color:${elementColors[weakest]};font-weight:bold;">${weakest}</span></p>`;
-        analysis += '</div>';
-        return analysis;
       }
 
-      // ==================== 메인 계산 ====================
-      function calculate() {
-        let year = parseInt(document.getElementById('year').value);
-        let month = parseInt(document.getElementById('month').value);
-        let day = parseInt(document.getElementById('day').value);
-        const hourIdx = parseInt(document.getElementById('hour').value);
-        const calendarType = document.getElementById('calendar').value;
-        const gender = document.getElementById('gender').value;
+      function getVisibleSymbol(reelIndex, rowOffset = 0) {
+        const stripLen = REEL_STRIPS[reelIndex].length;
+        const idx = ((reelPositions[reelIndex] + rowOffset) % stripLen + stripLen) % stripLen;
+        return REEL_STRIPS[reelIndex][idx];
+      }
 
-        if (!year || !month || !day || year < 1900 || year > 2100) {
-          alert('올바른 생년월일을 입력해주세요 (1900~2100)');
+      // ==================== 스핀 ====================
+      function spin() {
+        if (isSpinning) return;
+        if (freeSpinsRemaining <= 0 && balance < betAmount) {
+          showWinMessage('💰 잔액이 부족합니다!');
           return;
         }
 
-        if (day < 1 || day > 31) {
-          alert('올바른 일자를 입력해주세요 (1~31)');
+        if (freeSpinsRemaining <= 0) {
+          balance -= betAmount;
+          jackpot += Math.floor(betAmount * 0.1);
+        } else {
+          freeSpinsRemaining--;
+          if (freeSpinsRemaining <= 0) {
+            freeSpinsBadge.style.display = 'none';
+          }
+          freeSpinsCount.textContent = freeSpinsRemaining;
+        }
+
+        isSpinning = true;
+        spinBtn.disabled = true;
+        winDisplay.textContent = '🎰 스핀 중...';
+        winDisplay.className = 'win-display';
+        reelResults = [null, null, null, null, null];
+
+        // 릴 애니메이션
+        const spinDurations = [800, 1000, 1200, 1400, 1600];
+        const targetPositions = [];
+
+        for (let i = 0; i < 5; i++) {
+          const reel = document.getElementById('reel' + i);
+          reel.classList.add('spinning');
+
+          const currentPos = reelPositions[i];
+          const extraSpins = 3 + Math.floor(Math.random() * 4);
+          targetPositions[i] = currentPos + extraSpins * REEL_STRIPS[i].length + Math.floor(Math.random() * REEL_STRIPS[i].length);
+
+          reelPositions[i] = targetPositions[i] % REEL_STRIPS[i].length;
+          updateReelPosition(i, true);
+
+          setTimeout(() => {
+            reel.classList.remove('spinning');
+            reel.classList.add('stopping');
+            reelResults[i] = getVisibleSymbol(i, 1);
+
+            if (i === 4) {
+              setTimeout(() => {
+                for (let j = 0; j < 5; j++) {
+                  document.getElementById('reel' + j).classList.remove('stopping');
+                }
+                checkWins();
+              }, 600);
+            }
+          }, spinDurations[i]);
+        }
+
+        updateDisplay();
+      }
+
+      // ==================== 당첨 체크 ====================
+      function checkWins() {
+        const centerSymbols = [];
+        for (let i = 0; i < 5; i++) {
+          centerSymbols.push(getVisibleSymbol(i, 1));
+        }
+
+        // 와일드 처리
+        const effectiveSymbols = centerSymbols.map(s => s);
+
+        // 잭팟: 5개 모두 세븐 또는 와일드
+        const allSevenOrWild = effectiveSymbols.every(s => s === 'seven' || s === 'wild');
+        if (allSevenOrWild) {
+          triggerJackpot();
           return;
         }
 
-        // 음력 → 양력 변환
-        if (calendarType === 'lunar') {
-          const solar = lunarToSolarApprox(year, month, day);
-          year = solar.year;
-          month = solar.month;
-          day = solar.day;
+        // 5개 매칭
+        const match5 = getConsecutiveMatch(effectiveSymbols, 5);
+        if (match5) {
+          const sym = SYMBOLS.find(s => s.id === match5);
+          const payout = sym.payout5 * betAmount;
+          addWinnings(payout, `5 ${sym.name}! ${payout.toLocaleString()}원`);
+          spawnCoins(30);
+          return;
         }
 
-        const yearPillar = getYearPillar(year);
-        const monthPillar = getMonthPillar(year, month, day);
-        const dayPillar = getDayPillar(year, month, day);
-        const hourPillar = getHourPillar(dayPillar.stemIdx, hourIdx);
+        // 4개 매칭
+        for (let start = 0; start <= 1; start++) {
+          const subset = effectiveSymbols.slice(start, start + 4);
+          const match4 = getConsecutiveMatch(subset, 4);
+          if (match4) {
+            const sym = SYMBOLS.find(s => s.id === match4);
+            const payout = sym.payout4 * betAmount;
+            addWinnings(payout, `4 ${sym.name}! ${payout.toLocaleString()}원`);
+            spawnCoins(20);
+            return;
+          }
+        }
 
-        displayResult(yearPillar, monthPillar, dayPillar, hourPillar, year, month, day, hourIdx, gender);
+        // 3개 매칭
+        let totalWin = 0;
+        let winMessages = [];
+        for (let start = 0; start <= 2; start++) {
+          const subset = effectiveSymbols.slice(start, start + 3);
+          const match3 = getConsecutiveMatch(subset, 3);
+          if (match3) {
+            const sym = SYMBOLS.find(s => s.id === match3);
+            const payout = sym.payout3 * betAmount;
+            totalWin += payout;
+            winMessages.push(`3 ${sym.name}!`);
+          }
+        }
+
+        if (totalWin > 0) {
+          addWinnings(totalWin, winMessages.join(' | ') + ` ${totalWin.toLocaleString()}원`);
+          spawnCoins(12);
+        } else {
+          // 프리스핀 트리거 (산발된 다이아 3개)
+          const diamondCount = centerSymbols.filter(s => s === 'diamond').length;
+          if (diamondCount >= 3) {
+            triggerFreeSpins(5 + diamondCount * 3);
+          } else {
+            winDisplay.textContent = '😔 다음 기회에...';
+            winDisplay.className = 'win-display';
+          }
+        }
+
+        finishSpin();
       }
 
-      function displayResult(yearP, monthP, dayP, hourP, year, month, day, hourIdx, gender) {
-        const pillars = [
-          { label: '시주 (時柱)', data: hourP },
-          { label: '일주 (日柱)', data: dayP },
-          { label: '월주 (月柱)', data: monthP },
-          { label: '년주 (年柱)', data: yearP },
-        ];
+      function getConsecutiveMatch(symbols, count) {
+        for (let start = 0; start <= symbols.length - count; start++) {
+          const subset = symbols.slice(start, start + count);
+          const baseSymbol = subset[0];
+          if (baseSymbol === 'wild') continue;
+          const allMatch = subset.every(s => s === baseSymbol || s === 'wild');
+          if (allMatch && baseSymbol !== 'wild') return baseSymbol;
+        }
+        return null;
+      }
 
-        const pillarsArea = document.getElementById('pillarsArea');
-        pillarsArea.innerHTML = pillars.map(p => `
-          <div class="pillar">
-            <div class="pillar-label">${p.label}</div>
-            <div class="pillar-stem">${p.data.stem}</div>
-            <div class="pillar-branch">${p.data.branch}</div>
-            <div class="pillar-elements">
-              <span class="element-badge elem-${p.data.stemElement === '목' ? 'wood' : p.data.stemElement === '화' ? 'fire' : p.data.stemElement === '토' ? 'earth' : p.data.stemElement === '금' ? 'metal' : 'water'}">${p.data.stemElement}</span>
-              <span class="element-badge elem-${p.data.branchElement === '목' ? 'wood' : p.data.branchElement === '화' ? 'fire' : p.data.branchElement === '토' ? 'earth' : p.data.branchElement === '금' ? 'metal' : 'water'}">${p.data.branchElement}</span>
-            </div>
-          </div>
-        `).join('');
+      function triggerJackpot() {
+        const win = jackpot;
+        balance += win;
+        jackpot = 5000000;
 
-        const detailArea = document.getElementById('detailArea');
-        const genderText = gender === 'male' ? '남성 (양)' : '여성 (음)';
-        const animal = yearP.animal;
-
-        detailArea.innerHTML = `
-          <div class="detail-title">📊 상세 정보</div>
-          <div class="detail-row"><span>생년월일</span><span>${year}년 ${month}월 ${day}일</span></div>
-          <div class="detail-row"><span>성별</span><span>${genderText}</span></div>
-          <div class="detail-row"><span>띠</span><span>${animal}띠</span></div>
-          <div class="detail-row"><span>일간(日干)</span><span>${dayP.stem} (${dayP.stemElement})</span></div>
-          <div style="margin-top:10px;" class="detail-title">📊 오행 분포</div>
-          ${analyzeElements(yearP, monthP, dayP, hourP)}
+        const overlay = document.createElement('div');
+        overlay.className = 'jackpot-overlay';
+        overlay.innerHTML = `
+          <div class="jackpot-text">🎰 JACKPOT! 🎰</div>
+          <div style="font-size:2rem;color:#fff;">${win.toLocaleString()}원 당첨!</div>
+          <button style="padding:12px 30px;margin-top:20px;font-size:1.2rem;border-radius:30px;background:#ffd700;border:none;cursor:pointer;font-weight:bold;" 
+                  onclick="this.parentElement.parentElement.remove()">🎉 확인</button>
         `;
+        document.body.appendChild(overlay);
+
+        spawnCoins(50);
+        spawnConfetti();
+        winDisplay.textContent = `🎰 JACKPOT! ${win.toLocaleString()}원`;
+        winDisplay.className = 'win-display bigwin';
+
+        updateDisplay();
+        finishSpin();
+      }
+
+      function triggerFreeSpins(count) {
+        freeSpinsRemaining += count;
+        freeSpinsBadge.style.display = 'inline-block';
+        freeSpinsCount.textContent = freeSpinsRemaining;
+        winDisplay.textContent = `🔄 프리스핀 ${count}회 획득!`;
+        winDisplay.className = 'win-display';
+        spawnCoins(15);
+        finishSpin();
+      }
+
+      function addWinnings(amount, message) {
+        balance += amount;
+        winDisplay.textContent = '🎉 ' + message;
+        if (amount >= betAmount * 50) {
+          winDisplay.className = 'win-display bigwin';
+          spawnConfetti();
+        } else {
+          winDisplay.className = 'win-display';
+        }
+        updateDisplay();
+      }
+
+      function finishSpin() {
+        isSpinning = false;
+        spinBtn.disabled = false;
+        updateDisplay();
+      }
+
+      // ==================== 이펙트 ====================
+      function spawnCoins(count) {
+        for (let i = 0; i < count; i++) {
+          setTimeout(() => {
+            const coin = document.createElement('span');
+            coin.className = 'coin-particle';
+            coin.textContent = ['💰', '🪙', '💎', '✨'][Math.floor(Math.random() * 4)];
+            coin.style.left = Math.random() * 100 + '%';
+            coin.style.animationDelay = '0s';
+            coin.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+            particlesArea.appendChild(coin);
+            setTimeout(() => coin.remove(), 3000);
+          }, i * 60);
+        }
+      }
+
+      function spawnConfetti() {
+        const colors = ['🎉', '🎊', '✨', '💫', '🌟', '💥'];
+        for (let i = 0; i < 40; i++) {
+          const piece = document.createElement('span');
+          piece.style.cssText = `
+            position: fixed;
+            pointer-events: none;
+            z-index: 998;
+            font-size: ${1.5 + Math.random() * 2}rem;
+            left: ${Math.random() * 100}%;
+            top: -50px;
+            animation: confettiFall ${2 + Math.random() * 3}s forwards;
+            animation-delay: ${Math.random() * 1}s;
+          `;
+          piece.textContent = colors[Math.floor(Math.random() * colors.length)];
+          document.body.appendChild(piece);
+          setTimeout(() => piece.remove(), 4000);
+        }
+      }
+
+      function showWinMessage(msg) {
+        winDisplay.textContent = msg;
+        winDisplay.className = 'win-display';
+      }
+
+      // ==================== UI 업데이트 ====================
+      function updateDisplay() {
+        balanceDisplay.textContent = '₩' + balance.toLocaleString();
+        betDisplay.textContent = '₩' + betAmount.toLocaleString();
+        jackpotDisplay.textContent = '₩' + jackpot.toLocaleString();
+        spinBtn.textContent = freeSpinsRemaining > 0 ?
+          `🎰 FREE SPIN (${freeSpinsRemaining})` : '🎰 SPIN';
+      }
+
+      function changeBet(direction) {
+        if (isSpinning) return;
+        const currentIdx = betOptions.indexOf(betAmount);
+        let newIdx = currentIdx + direction;
+        if (newIdx < 0) newIdx = betOptions.length - 1;
+        if (newIdx >= betOptions.length) newIdx = 0;
+        betAmount = betOptions[newIdx];
+        updateDisplay();
+      }
+
+      function setMaxBet() {
+        if (isSpinning) return;
+        betAmount = betOptions[betOptions.length - 1];
+        if (betAmount > balance && freeSpinsRemaining <= 0) {
+          betAmount = betOptions.find(b => b <= balance) || betOptions[0];
+        }
+        updateDisplay();
       }
 
       // ==================== 이벤트 ====================
-      document.getElementById('calculateBtn').addEventListener('click', calculate);
+      document.getElementById('spinBtn').addEventListener('click', spin);
+      document.getElementById('betUp').addEventListener('click', () => changeBet(1));
+      document.getElementById('betDown').addEventListener('click', () => changeBet(-1));
+      document.getElementById('maxBet').addEventListener('click', setMaxBet);
 
-      // 오늘 날짜로 기본 설정
-      const today = new Date();
-      document.getElementById('year').value = today.getFullYear();
-      document.getElementById('month').value = today.getMonth() + 1;
-      document.getElementById('day').value = today.getDate();
+      // 키보드 스페이스바로 스핀
+      document.addEventListener('keydown', e => {
+        if (e.code === 'Space' && !isSpinning) {
+          e.preventDefault();
+          spin();
+        }
+      });
 
-      // 페이지 로드 시 자동 계산
-      calculate();
-
-      console.log('🔮 만세력 계산기 준비 완료!');
+      // ==================== 시작 ====================
+      initReels();
+      updateDisplay();
+      winDisplay.textContent = '🎰 스핀을 눌러 시작하세요!';
+      console.log('🎰 마카오 골드 슬롯 준비 완료!');
+      console.log('🕹️ SPIN 버튼 또는 스페이스바로 플레이!');
     })();
   </script>
 </body>
