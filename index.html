@@ -63,7 +63,6 @@
     }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-
     .gacha-banner {
       text-align: center;
       padding: 20px;
@@ -93,7 +92,6 @@
       overflow-y: auto;
       font-size: 0.85rem;
     }
-
     .card-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -136,15 +134,13 @@
     .card-item .level { font-size: 0.7rem; color: #aaa; }
     .card-count {
       position: absolute;
-      top: 5px;
-      right: 8px;
+      top: 5px; right: 8px;
       background: #000;
       color: #ffd700;
       font-size: 0.7rem;
       padding: 1px 6px;
       border-radius: 10px;
     }
-
     .shop-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -168,7 +164,6 @@
       color: #000;
       font-size: 0.8rem;
     }
-
     .quest-list { display: flex; flex-direction: column; gap: 8px; }
     .quest-item {
       background: #2a2a4a;
@@ -178,6 +173,8 @@
       justify-content: space-between;
       align-items: center;
       border: 1px solid #4a4a7a;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     .quest-item button {
       padding: 8px 16px;
@@ -192,7 +189,6 @@
     .quest-item button:disabled { opacity: 0.5; cursor: not-allowed; }
     .progress-bar { width: 100%; height: 6px; background: #3a3a5a; border-radius: 3px; margin-top: 4px; overflow: hidden; }
     .progress-fill { height: 100%; background: #ffd700; transition: width 0.3s; }
-
     .deck-area { display: flex; gap: 10px; flex-wrap: wrap; }
     .deck-slot {
       width: 80px;
@@ -209,7 +205,6 @@
     }
     .deck-slot.filled { border: 2px solid #c9a44b; background: #2a2a4a; }
     .deck-slot:hover { border-color: #ffd700; }
-
     .modal {
       position: fixed;
       top: 0; left: 0;
@@ -240,7 +235,17 @@
       color: #000;
     }
     button:disabled { opacity: 0.4; cursor: not-allowed; }
-
+    .filter-btn {
+      padding: 6px 12px;
+      border-radius: 15px;
+      border: 1px solid #4a4a7a;
+      background: #2a2a4a;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .filter-btn.active { background: #c9a44b; color: #000; border-color: #c9a44b; }
     @media (max-width: 500px) {
       .card-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
       .gacha-btn { padding: 10px 16px; font-size: 0.85rem; }
@@ -284,20 +289,19 @@
 
       <div class="tab-content" id="tab-collection">
         <div style="margin-bottom:10px;display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="filter-btn" data-filter="all" style="background:#c9a44b;color:#000;">전체</button>
+          <button class="filter-btn active" data-filter="all">전체</button>
           <button class="filter-btn" data-filter="legendary">⭐전설</button>
           <button class="filter-btn" data-filter="epic">에픽</button>
           <button class="filter-btn" data-filter="rare">레어</button>
           <button class="filter-btn" data-filter="common">일반</button>
         </div>
         <div class="card-grid" id="collectionGrid"></div>
-        <div id="cardDetail" style="margin-top:10px;"></div>
       </div>
 
       <div class="tab-content" id="tab-deck">
         <h3 style="margin-bottom:10px;">⚔️ 내 덱 (최대 5장)</h3>
         <div class="deck-area" id="deckSlots"></div>
-        <p style="color:#aaa;font-size:0.8rem;margin-top:8px;">컬렉션에서 카드를 클릭하여 덱에 추가/제거</p>
+        <p style="color:#aaa;font-size:0.8rem;margin-top:8px;">컬렉션 탭에서 카드를 클릭하여 덱에 추가/제거</p>
         <p style="margin-top:8px;"><strong>덱 파워:</strong> <span id="deckPower">0</span></p>
       </div>
 
@@ -306,26 +310,26 @@
           <div class="shop-item">
             <div style="font-size:2rem;">💎</div>
             <strong>300 다이아</strong>
-            <p style="color:#aaa;font-size:0.8rem;">무료 (광고)</p>
-            <button onclick="buyShop('gems300')">받기</button>
+            <p style="color:#aaa;font-size:0.8rem;">무료</p>
+            <button id="btnGems300">받기</button>
           </div>
           <div class="shop-item">
             <div style="font-size:2rem;">🎫</div>
             <strong>가챠 티켓 x3</strong>
             <p style="color:#aaa;font-size:0.8rem;">500💰</p>
-            <button onclick="buyShop('tickets3')">구매</button>
+            <button id="btnTickets3">구매</button>
           </div>
           <div class="shop-item">
             <div style="font-size:2rem;">⭐</div>
             <strong>진화의 돌 30</strong>
             <p style="color:#aaa;font-size:0.8rem;">300💰</p>
-            <button onclick="buyShop('dust30')">구매</button>
+            <button id="btnDust30">구매</button>
           </div>
           <div class="shop-item">
             <div style="font-size:2rem;">🪙</div>
             <strong>1000 골드</strong>
             <p style="color:#aaa;font-size:0.8rem;">100💎</p>
-            <button onclick="buyShop('gold1000')">구매</button>
+            <button id="btnGold1000">구매</button>
           </div>
         </div>
       </div>
@@ -341,395 +345,339 @@
   </div>
 
   <script>
-    (() => {
-      // ==================== 카드 데이터베이스 ====================
-      const CARD_DB = [
-        { id: 'c01', name: '불꽃 전사', icon: '⚔️🔥', rarity: 'common', hp: 100, atk: 30 },
-        { id: 'c02', name: '얼음 마법사', icon: '🧊❄️', rarity: 'common', hp: 80, atk: 35 },
-        { id: 'c03', name: '바람 궁수', icon: '🏹💨', rarity: 'common', hp: 90, atk: 28 },
-        { id: 'c04', name: '대지 수호자', icon: '🛡️⛰️', rarity: 'common', hp: 130, atk: 18 },
-        { id: 'c05', name: '번개 검사', icon: '⚡🗡️', rarity: 'rare', hp: 140, atk: 45 },
-        { id: 'c06', name: '그림자 암살자', icon: '🥷🌑', rarity: 'rare', hp: 110, atk: 55 },
-        { id: 'c07', name: '신성한 사제', icon: '✨🙏', rarity: 'rare', hp: 160, atk: 25 },
-        { id: 'c08', name: '용기사', icon: '🐉⚔️', rarity: 'epic', hp: 220, atk: 65 },
-        { id: 'c09', name: '대마법사', icon: '🔮🌟', rarity: 'epic', hp: 180, atk: 75 },
-        { id: 'c10', name: '천사장', icon: '👼✨', rarity: 'epic', hp: 250, atk: 55 },
-        { id: 'c11', name: '태초의 드래곤', icon: '🐲💥', rarity: 'legendary', hp: 400, atk: 120 },
-        { id: 'c12', name: '시공의 지배자', icon: '⏳🌌', rarity: 'legendary', hp: 350, atk: 140 },
-        { id: 'c13', name: '혼돈의 군주', icon: '👑💀', rarity: 'legendary', hp: 380, atk: 130 },
+    // ==================== 카드 DB ====================
+    const CARD_DB = [
+      { id: 'c01', name: '불꽃 전사', icon: '⚔️🔥', rarity: 'common', hp: 100, atk: 30 },
+      { id: 'c02', name: '얼음 마법사', icon: '🧊❄️', rarity: 'common', hp: 80, atk: 35 },
+      { id: 'c03', name: '바람 궁수', icon: '🏹💨', rarity: 'common', hp: 90, atk: 28 },
+      { id: 'c04', name: '대지 수호자', icon: '🛡️⛰️', rarity: 'common', hp: 130, atk: 18 },
+      { id: 'c05', name: '번개 검사', icon: '⚡🗡️', rarity: 'rare', hp: 140, atk: 45 },
+      { id: 'c06', name: '그림자 암살자', icon: '🥷🌑', rarity: 'rare', hp: 110, atk: 55 },
+      { id: 'c07', name: '신성한 사제', icon: '✨🙏', rarity: 'rare', hp: 160, atk: 25 },
+      { id: 'c08', name: '용기사', icon: '🐉⚔️', rarity: 'epic', hp: 220, atk: 65 },
+      { id: 'c09', name: '대마법사', icon: '🔮🌟', rarity: 'epic', hp: 180, atk: 75 },
+      { id: 'c10', name: '천사장', icon: '👼✨', rarity: 'epic', hp: 250, atk: 55 },
+      { id: 'c11', name: '태초의 드래곤', icon: '🐲💥', rarity: 'legendary', hp: 400, atk: 120 },
+      { id: 'c12', name: '시공의 지배자', icon: '⏳🌌', rarity: 'legendary', hp: 350, atk: 140 },
+      { id: 'c13', name: '혼돈의 군주', icon: '👑💀', rarity: 'legendary', hp: 380, atk: 130 },
+    ];
+
+    // ==================== 상태 ====================
+    let gems = 500, gold = 1000, dust = 50, tickets = 0;
+    let pityCount = 0;
+    const PITY_MAX = 80;
+    let ownedCards = {};
+    let deck = [];
+    let currentFilter = 'all';
+    let quests = [];
+    let cardsOpened = 0;
+
+    // ==================== 함수 ====================
+    function addCard(cardId, count = 1) {
+      if (!ownedCards[cardId]) ownedCards[cardId] = { count: 0, level: 1 };
+      ownedCards[cardId].count += count;
+      cardsOpened += count;
+    }
+
+    function getCardStats(cardId) {
+      const card = CARD_DB.find(c => c.id === cardId);
+      if (!card || !ownedCards[cardId]) return { hp: 0, atk: 0, level: 1 };
+      const lv = ownedCards[cardId].level;
+      return {
+        hp: Math.floor(card.hp * (1 + (lv - 1) * 0.2)),
+        atk: Math.floor(card.atk * (1 + (lv - 1) * 0.2)),
+        level: lv,
+      };
+    }
+
+    function showModal(msg) {
+      document.getElementById('modalContent').innerHTML =
+        `<p style="font-size:1.1rem;white-space:pre-line;">${msg}</p>
+         <button onclick="document.getElementById('modal').style.display='none'">확인</button>`;
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    document.getElementById('modal').addEventListener('click', function(e) {
+      if (e.target === this) this.style.display = 'none';
+    });
+
+    // ==================== 가챠 ====================
+    function pullGacha(times) {
+      const actualPulls = times >= 10 ? times + 1 : times;
+      let cost = times >= 10 ? 450 : 50 * times;
+
+      if (tickets >= actualPulls) { tickets -= actualPulls;
+        cost = 0; } else if (tickets > 0) { const r = actualPulls - tickets;
+        cost = r * 50;
+        tickets = 0; }
+
+      if (gems < cost && cost > 0) { showModal('❌ 다이아가 부족합니다!'); return; }
+      gems -= cost;
+
+      const results = [];
+      for (let i = 0; i < actualPulls; i++) {
+        pityCount++;
+        let rarity;
+        const roll = Math.random() * 100;
+        if (pityCount >= PITY_MAX || roll < 3) { rarity = 'legendary';
+          pityCount = 0; } else if (roll < 15) { rarity = 'epic'; } else if (roll < 50) { rarity = 'rare'; } else { rarity =
+            'common'; }
+        const pool = CARD_DB.filter(c => c.rarity === rarity);
+        const card = pool[Math.floor(Math.random() * pool.length)];
+        addCard(card.id, 1);
+        results.push(card);
+      }
+
+      updateQuests();
+      updateAllUI();
+      showGachaResult(results);
+      saveGame();
+    }
+
+    function showGachaResult(results) {
+      const c = document.getElementById('gachaResult');
+      const leg = results.filter(r => r.rarity === 'legendary');
+      let h = '';
+      if (leg.length > 0) h +=
+        '<div style="color:#f80;font-size:1.3rem;font-weight:bold;">🌟 전설 카드 획득!!</div>';
+      h += '<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;">';
+      h += results.slice(0, 12).map(r => {
+        const cl = r.rarity === 'legendary' ? '#f80' : r.rarity === 'epic' ? '#a0f' : r.rarity === 'rare' ?
+          '#4af' : '#aaa';
+        return `<span style="color:${cl};">${r.icon}${r.name}</span>`;
+      }).join(' ');
+      h += '</div>';
+      if (results.length > 12) h += `<p>외 ${results.length - 12}장</p>`;
+      c.innerHTML = h;
+      if (leg.length > 0) showModal('🎉 대박! 전설 카드 획득!\n' + leg.map(r => r.icon + r.name).join(', '));
+    }
+
+    // ==================== 진화 ====================
+    function evolveCard(cardId) {
+      const card = CARD_DB.find(c => c.id === cardId);
+      if (!card || !ownedCards[cardId]) return;
+      const cost = 30 * ownedCards[cardId].level;
+      if (dust < cost) { showModal('⭐ 진화의 돌 부족! 필요: ' + cost); return; }
+      dust -= cost;
+      ownedCards[cardId].level++;
+      updateAllUI();
+      saveGame();
+      const s = getCardStats(cardId);
+      showModal(`🆙 ${card.icon} ${card.name} Lv.${ownedCards[cardId].level}!\nHP: ${s.hp} ATK: ${s.atk}`);
+    }
+
+    // ==================== 덱 ====================
+    function toggleDeck(cardId) {
+      if (deck.includes(cardId)) { deck = deck.filter(id => id !== cardId); } else { if (deck.length >= 5) { showModal(
+          '⚠️ 덱은 최대 5장!'); return; }
+        if (!ownedCards[cardId] || ownedCards[cardId].count <= 0) return;
+        deck.push(cardId); }
+      updateAllUI();
+      saveGame();
+    }
+
+    function getDeckPower() { return deck.reduce((s, id) => { const st = getCardStats(id); return s + st.hp + st.atk *
+        2; }, 0); }
+
+    // ==================== 상점 ====================
+    function buyShop(item) {
+      switch (item) {
+        case 'gems300':
+          gems += 300;
+          break;
+        case 'tickets3':
+          if (gold < 500) { showModal('💰 골드 부족!'); return; }
+          gold -= 500;
+          tickets += 3;
+          break;
+        case 'dust30':
+          if (gold < 300) { showModal('💰 골드 부족!'); return; }
+          gold -= 300;
+          dust += 30;
+          break;
+        case 'gold1000':
+          if (gems < 100) { showModal('💎 다이아 부족!'); return; }
+          gems -= 100;
+          gold += 1000;
+          break;
+      }
+      updateAllUI();
+      saveGame();
+      showModal('✅ 구매 완료!');
+    }
+
+    // ==================== 퀘스트 ====================
+    function initQuests() {
+      quests = [
+        { id: 'q1', name: '카드 10장 수집', goal: 10, reward: { gems: 100 }, claimed: false, progress: 0 },
+        { id: 'q2', name: '카드 50장 수집', goal: 50, reward: { tickets: 5 }, claimed: false, progress: 0 },
+        { id: 'q3', name: '레어 이상 카드 3장', goal: 3, reward: { dust: 50 }, claimed: false, progress: 0 },
+        { id: 'q4', name: '에픽 이상 카드 1장', goal: 1, reward: { gems: 300 }, claimed: false, progress: 0 },
       ];
+    }
 
-      // ==================== 게임 상태 ====================
-      let gems = 500;
-      let gold = 1000;
-      let dust = 50;
-      let tickets = 0;
-      let playerLevel = 1;
-      let pityCount = 0;
-      const PITY_MAX = 80;
-      let ownedCards = {};
-      let deck = [];
-      let currentFilter = 'all';
-      let quests = [];
-      let cardsOpened = 0;
-
-      // ==================== 초기화 ====================
-      function initGame() {
-        // 기본 카드 지급
-        addCard('c01', 1);
-        addCard('c02', 1);
-        addCard('c03', 1);
-        initQuests();
-        loadGame();
-        updateAllUI();
-      }
-
-      function addCard(cardId, count = 1) {
-        if (!ownedCards[cardId]) {
-          ownedCards[cardId] = { count: 0, level: 1, exp: 0 };
-        }
-        ownedCards[cardId].count += count;
-        cardsOpened += count;
-      }
-
-      function initQuests() {
-        quests = [
-          { id: 'q1', name: '카드 10장 수집', goal: 10, reward: { gems: 100 }, claimed: false },
-          { id: 'q2', name: '카드 50장 수집', goal: 50, reward: { tickets: 5 }, claimed: false },
-          { id: 'q3', name: '레어 이상 카드 3장 보유', goal: 3, reward: { dust: 50 }, claimed: false },
-          { id: 'q4', name: '에픽 이상 카드 1장 보유', goal: 1, reward: { gems: 300 }, claimed: false },
-        ];
-        updateQuestProgress();
-      }
-
-      function updateQuestProgress() {
-        const rareCount = Object.entries(ownedCards).filter(([id]) => {
-          const c = CARD_DB.find(cd => cd.id === id);
-          return c && ['rare', 'epic', 'legendary'].includes(c.rarity);
-        }).length;
-        const epicCount = Object.entries(ownedCards).filter(([id]) => {
-          const c = CARD_DB.find(cd => cd.id === id);
-          return c && ['epic', 'legendary'].includes(c.rarity);
-        }).length;
-
-        quests.forEach(q => {
-          if (q.id === 'q1' || q.id === 'q2') q.progress = Math.min(cardsOpened, q.goal);
-          if (q.id === 'q3') q.progress = Math.min(rareCount, q.goal);
-          if (q.id === 'q4') q.progress = Math.min(epicCount, q.goal);
-        });
-      }
-
-      // ==================== 가챠 ====================
-      function pullGacha(times) {
-        const actualPulls = times >= 10 ? times + 1 : times;
-        let cost = times >= 10 ? 450 : 50 * times;
-
-        if (tickets >= actualPulls) {
-          tickets -= actualPulls;
-          cost = 0;
-        } else if (tickets > 0) {
-          const remaining = actualPulls - tickets;
-          cost = remaining * 50;
-          tickets = 0;
-        }
-
-        if (gems < cost && cost > 0) {
-          showModal('❌ 다이아가 부족합니다!');
-          return;
-        }
-        gems -= cost;
-
-        const results = [];
-        for (let i = 0; i < actualPulls; i++) {
-          pityCount++;
-          let rarity;
-          const roll = Math.random() * 100;
-
-          if (pityCount >= PITY_MAX || roll < 3) {
-            rarity = 'legendary';
-            pityCount = 0;
-          } else if (roll < 15) {
-            rarity = 'epic';
-          } else if (roll < 50) {
-            rarity = 'rare';
-          } else {
-            rarity = 'common';
-          }
-
-          const pool = CARD_DB.filter(c => c.rarity === rarity);
-          const card = pool[Math.floor(Math.random() * pool.length)];
-          addCard(card.id, 1);
-          results.push(card);
-        }
-
-        updateQuestProgress();
-        updateAllUI();
-        showGachaResult(results);
-        saveGame();
-      }
-
-      function showGachaResult(results) {
-        const container = document.getElementById('gachaResult');
-        const legendary = results.filter(r => r.rarity === 'legendary');
-        const epic = results.filter(r => r.rarity === 'epic');
-
-        let html = '';
-        if (legendary.length > 0) {
-          html += '<div style="color:#f80;font-size:1.3rem;font-weight:bold;">🌟 전설 카드 획득!!</div>';
-        }
-        if (epic.length >= 2) {
-          html += '<div style="color:#a0f;font-size:1rem;">💜 에픽 카드 다수!</div>';
-        }
-        html += '<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;">';
-        html += results.slice(0, 12).map(r => {
-          const color = r.rarity === 'legendary' ? '#f80' : r.rarity === 'epic' ? '#a0f' : r.rarity === 'rare' ?
-            '#4af' : '#aaa';
-          return `<span style="color:${color};">${r.icon}${r.name}</span>`;
-        }).join(' ');
-        html += '</div>';
-        if (results.length > 12) html += `<p>외 ${results.length - 12}장</p>`;
-        container.innerHTML = html;
-
-        if (legendary.length > 0) {
-          showModal('🎉 대박! 전설 카드 획득!\n' + legendary.map(r => r.icon + r.name).join(', '));
-        }
-      }
-
-      // ==================== 카드 진화 ====================
-      function evolveCard(cardId) {
-        const card = CARD_DB.find(c => c.id === cardId);
-        if (!card || !ownedCards[cardId]) return;
-        const cost = 30 * ownedCards[cardId].level;
-        if (dust < cost) {
-          showModal('⭐ 진화의 돌이 부족합니다! 필요: ' + cost);
-          return;
-        }
-        dust -= cost;
-        ownedCards[cardId].level++;
-        ownedCards[cardId].exp = 0;
-        updateAllUI();
-        saveGame();
-        const stats = getCardStats(cardId);
-        showModal(`🆙 ${card.icon} ${card.name} Lv.${ownedCards[cardId].level}!\nHP: ${stats.hp} ATK: ${stats.atk}`);
-      }
-
-      function getCardStats(cardId) {
-        const card = CARD_DB.find(c => c.id === cardId);
-        if (!card || !ownedCards[cardId]) return { hp: 0, atk: 0, level: 1 };
-        const lv = ownedCards[cardId].level;
-        return {
-          hp: Math.floor(card.hp * (1 + (lv - 1) * 0.2)),
-          atk: Math.floor(card.atk * (1 + (lv - 1) * 0.2)),
-          level: lv,
-        };
-      }
-
-      // ==================== 덱 ====================
-      function toggleDeck(cardId) {
-        if (deck.includes(cardId)) {
-          deck = deck.filter(id => id !== cardId);
-        } else {
-          if (deck.length >= 5) { showModal('⚠️ 덱은 최대 5장까지!'); return; }
-          if (!ownedCards[cardId] || ownedCards[cardId].count <= 0) return;
-          deck.push(cardId);
-        }
-        updateAllUI();
-        saveGame();
-      }
-
-      function getDeckPower() {
-        return deck.reduce((sum, cardId) => {
-          const stats = getCardStats(cardId);
-          return sum + stats.hp + stats.atk * 2;
-        }, 0);
-      }
-
-      // ==================== 상점 ====================
-      function buyShop(item) {
-        switch (item) {
-          case 'gems300':
-            gems += 300;
-            break;
-          case 'tickets3':
-            if (gold < 500) { showModal('💰 골드 부족!'); return; }
-            gold -= 500;
-            tickets += 3;
-            break;
-          case 'dust30':
-            if (gold < 300) { showModal('💰 골드 부족!'); return; }
-            gold -= 300;
-            dust += 30;
-            break;
-          case 'gold1000':
-            if (gems < 100) { showModal('💎 다이아 부족!'); return; }
-            gems -= 100;
-            gold += 1000;
-            break;
-        }
-        updateAllUI();
-        saveGame();
-        showModal('✅ 구매 완료!');
-      }
-
-      // ==================== 퀘스트 ====================
-      function claimQuest(questId) {
-        const q = quests.find(q => q.id === questId);
-        if (!q || q.claimed) return;
-        if (q.progress < q.goal) { showModal('📋 목표 미달성!'); return; }
-        q.claimed = true;
-        if (q.reward.gems) gems += q.reward.gems;
-        if (q.reward.tickets) tickets += q.reward.tickets;
-        if (q.reward.dust) dust += q.reward.dust;
-        updateAllUI();
-        saveGame();
-        showModal('🎁 보상 획득!');
-      }
-
-      // ==================== 모달 ====================
-      function showModal(msg) {
-        const modal = document.getElementById('modal');
-        const content = document.getElementById('modalContent');
-        content.innerHTML = `<p style="font-size:1.1rem;white-space:pre-line;">${msg}</p>
-          <button onclick="document.getElementById('modal').style.display='none'">확인</button>`;
-        modal.style.display = 'flex';
-      }
-
-      document.getElementById('modal').addEventListener('click', function(e) {
-        if (e.target === this) this.style.display = 'none';
+    function updateQuests() {
+      const rareCount = Object.entries(ownedCards).filter(([id]) => {
+        const c = CARD_DB.find(cd => cd.id === id);
+        return c && ['rare', 'epic', 'legendary'].includes(c.rarity);
+      }).length;
+      const epicCount = Object.entries(ownedCards).filter(([id]) => {
+        const c = CARD_DB.find(cd => cd.id === id);
+        return c && ['epic', 'legendary'].includes(c.rarity);
+      }).length;
+      quests.forEach(q => {
+        if (q.id === 'q1' || q.id === 'q2') q.progress = Math.min(cardsOpened, q.goal);
+        if (q.id === 'q3') q.progress = Math.min(rareCount, q.goal);
+        if (q.id === 'q4') q.progress = Math.min(epicCount, q.goal);
       });
+    }
 
-      // ==================== UI ====================
-      function updateAllUI() {
-        document.getElementById('gemDisplay').textContent = gems.toLocaleString();
-        document.getElementById('goldDisplay').textContent = gold.toLocaleString();
-        document.getElementById('dustDisplay').textContent = dust.toLocaleString();
-        document.getElementById('ticketDisplay').textContent = tickets;
-        document.getElementById('playerLevel').textContent = playerLevel;
-        document.getElementById('pityCounter').textContent = pityCount;
-        updateCollectionUI();
-        updateDeckUI();
-        updateQuestUI();
+    function claimQuest(questId) {
+      const q = quests.find(q => q.id === questId);
+      if (!q || q.claimed || q.progress < q.goal) { showModal('📋 완료되지 않음!'); return; }
+      q.claimed = true;
+      if (q.reward.gems) gems += q.reward.gems;
+      if (q.reward.tickets) tickets += q.reward.tickets;
+      if (q.reward.dust) dust += q.reward.dust;
+      updateAllUI();
+      saveGame();
+      showModal('🎁 보상 획득!');
+    }
+
+    // ==================== UI ====================
+    function updateAllUI() {
+      document.getElementById('gemDisplay').textContent = gems.toLocaleString();
+      document.getElementById('goldDisplay').textContent = gold.toLocaleString();
+      document.getElementById('dustDisplay').textContent = dust.toLocaleString();
+      document.getElementById('ticketDisplay').textContent = tickets;
+      document.getElementById('pityCounter').textContent = pityCount;
+      updateCollectionUI();
+      updateDeckUI();
+      updateQuestUI();
+    }
+
+    function updateCollectionUI() {
+      const grid = document.getElementById('collectionGrid');
+      let entries = Object.entries(ownedCards);
+      if (currentFilter !== 'all') entries = entries.filter(([id]) => { const c = CARD_DB.find(cd => cd.id === id); return c &&
+          c.rarity === currentFilter; });
+      if (entries.length === 0) { grid.innerHTML =
+          '<p style="color:#aaa;text-align:center;padding:20px;">보유한 카드가 없습니다</p>'; return; }
+      grid.innerHTML = entries.map(([id, data]) => {
+        const card = CARD_DB.find(c => c.id === id);
+        if (!card) return '';
+        const stats = getCardStats(id);
+        const inDeck = deck.includes(id);
+        return `
+          <div class="card-item ${card.rarity==='legendary'?'legendary':''}" 
+               onclick="toggleDeck('${id}')" 
+               style="${inDeck?'border-color:#0f0;box-shadow:0 0 10px #0f0;':''}">
+            <div class="card-count">x${data.count}</div>
+            <div class="icon">${card.icon}</div>
+            <div class="name">${card.name}</div>
+            <div class="rarity rarity-${card.rarity}">${card.rarity.toUpperCase()}</div>
+            <div class="level">Lv.${stats.level} ❤️${stats.hp} ⚔️${stats.atk}</div>
+            <button style="margin-top:4px;padding:3px 8px;font-size:0.65rem;background:#c9a44b;border:none;border-radius:10px;cursor:pointer;color:#000;" 
+                    onclick="event.stopPropagation();evolveCard('${id}')">진화</button>
+            ${inDeck?'<div style="color:#0f0;font-size:0.6rem;">✅ 덱</div>':''}
+          </div>`;
+      }).join('');
+    }
+
+    function updateDeckUI() {
+      const slots = document.getElementById('deckSlots');
+      let html = '';
+      for (let i = 0; i < 5; i++) {
+        if (i < deck.length) {
+          const card = CARD_DB.find(c => c.id === deck[i]);
+          const stats = getCardStats(deck[i]);
+          html +=
+            `<div class="deck-slot filled" onclick="toggleDeck('${deck[i]}')"><div>${card?.icon||''}<br><small>${card?.name||''}</small><br><small>Lv.${stats.level}</small></div></div>`;
+        } else { html += '<div class="deck-slot">빈 슬롯</div>'; }
       }
+      slots.innerHTML = html;
+      document.getElementById('deckPower').textContent = getDeckPower();
+    }
 
-      function updateCollectionUI() {
-        const grid = document.getElementById('collectionGrid');
-        let entries = Object.entries(ownedCards);
-        if (currentFilter !== 'all') {
-          entries = entries.filter(([id]) => {
-            const c = CARD_DB.find(cd => cd.id === id);
-            return c && c.rarity === currentFilter;
-          });
-        }
-
-        if (entries.length === 0) {
-          grid.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;">보유한 카드가 없습니다</p>';
-          return;
-        }
-
-        grid.innerHTML = entries.map(([id, data]) => {
-          const card = CARD_DB.find(c => c.id === id);
-          if (!card) return '';
-          const stats = getCardStats(id);
-          const inDeck = deck.includes(id);
-          return `
-            <div class="card-item ${card.rarity === 'legendary' ? 'legendary' : ''}" 
-                 onclick="toggleDeck('${id}')" 
-                 style="${inDeck ? 'border-color:#0f0;box-shadow:0 0 10px #0f0;' : ''}">
-              <div class="card-count">x${data.count}</div>
-              <div class="icon">${card.icon}</div>
-              <div class="name">${card.name}</div>
-              <div class="rarity rarity-${card.rarity}">${card.rarity.toUpperCase()}</div>
-              <div class="level">Lv.${stats.level} ❤️${stats.hp} ⚔️${stats.atk}</div>
-              <button style="margin-top:4px;padding:3px 8px;font-size:0.65rem;background:#c9a44b;border:none;border-radius:10px;cursor:pointer;color:#000;" 
-                      onclick="event.stopPropagation();evolveCard('${id}')">진화</button>
-              ${inDeck ? '<div style="color:#0f0;font-size:0.6rem;">덱에 있음</div>' : ''}
-            </div>
-          `;
-        }).join('');
-      }
-
-      function updateDeckUI() {
-        const slots = document.getElementById('deckSlots');
-        let html = '';
-        for (let i = 0; i < 5; i++) {
-          if (i < deck.length) {
-            const card = CARD_DB.find(c => c.id === deck[i]);
-            const stats = getCardStats(deck[i]);
-            if (card) {
-              html += `<div class="deck-slot filled" onclick="toggleDeck('${deck[i]}')">
-                <div>${card.icon}<br><small>${card.name}</small><br><small>Lv.${stats.level}</small></div>
-              </div>`;
-            }
-          } else {
-            html += '<div class="deck-slot">빈 슬롯</div>';
-          }
-        }
-        slots.innerHTML = html;
-        document.getElementById('deckPower').textContent = getDeckPower();
-      }
-
-      function updateQuestUI() {
-        const list = document.getElementById('questList');
-        list.innerHTML = quests.map(q => `
-          <div class="quest-item">
-            <div style="flex:1;">
-              <strong>${q.name}</strong>
-              <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,q.progress/q.goal*100)}%"></div></div>
-              <small>${Math.min(q.progress,q.goal)}/${q.goal} | 보상: ${q.reward.gems?'💎'+q.reward.gems:''}${q.reward.tickets?'🎫'+q.reward.tickets:''}${q.reward.dust?'⭐'+q.reward.dust:''}</small>
-            </div>
-            <button ${q.claimed||q.progress<q.goal?'disabled':''} onclick="claimQuest('${q.id}')">
-              ${q.claimed?'완료':'받기'}
-            </button>
+    function updateQuestUI() {
+      document.getElementById('questList').innerHTML = quests.map(q => `
+        <div class="quest-item">
+          <div style="flex:1;min-width:150px;">
+            <strong>${q.name}</strong>
+            <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,q.progress/q.goal*100)}%"></div></div>
+            <small>${Math.min(q.progress,q.goal)}/${q.goal} | 보상: ${q.reward.gems?'💎'+q.reward.gems:''}${q.reward.tickets?'🎫'+q.reward.tickets:''}${q.reward.dust?'⭐'+q.reward.dust:''}</small>
           </div>
-        `).join('');
-      }
+          <button ${q.claimed||q.progress<q.goal?'disabled':''} onclick="claimQuest('${q.id}')">${q.claimed?'완료':'받기'}</button>
+        </div>`).join('');
+    }
 
-      // ==================== 저장/로드 ====================
-      function saveGame() {
-        const data = { gems, gold, dust, tickets, playerLevel, pityCount, ownedCards, deck, cardsOpened, quests };
-        localStorage.setItem('cardMasterSave', JSON.stringify(data));
-      }
+    // ==================== 저장 ====================
+    function saveGame() {
+      localStorage.setItem('cardMasterSave', JSON.stringify({ gems, gold, dust, tickets, pityCount, ownedCards, deck,
+        cardsOpened, quests }));
+    }
 
-      function loadGame() {
-        const saved = localStorage.getItem('cardMasterSave');
-        if (saved) {
-          try {
-            const data = JSON.parse(saved);
-            gems = data.gems ?? 500;
-            gold = data.gold ?? 1000;
-            dust = data.dust ?? 50;
-            tickets = data.tickets ?? 0;
-            playerLevel = data.playerLevel ?? 1;
-            pityCount = data.pityCount ?? 0;
-            ownedCards = data.ownedCards ?? {};
-            deck = data.deck ?? [];
-            cardsOpened = data.cardsOpened ?? 0;
-            quests = data.quests ?? [];
-            if (quests.length === 0) initQuests();
-          } catch (e) { initQuests(); }
-        }
-      }
+    function loadGame() {
+      const s = localStorage.getItem('cardMasterSave');
+      if (s) {
+        try {
+          const d = JSON.parse(s);
+          gems = d.gems ?? 500;
+          gold = d.gold ?? 1000;
+          dust = d.dust ?? 50;
+          tickets = d.tickets ?? 0;
+          pityCount = d.pityCount ?? 0;
+          ownedCards = d.ownedCards ?? {};
+          deck = d.deck ?? [];
+          cardsOpened = d.cardsOpened ?? 0;
+          quests = d.quests ?? [];
+          if (quests.length === 0) initQuests();
+          else updateQuests();
+        } catch (e) { initQuests(); }
+      } else { initQuests(); }
+    }
 
-      // ==================== 이벤트 ====================
-      document.getElementById('pullOne').addEventListener('click', () => pullGacha(1));
-      document.getElementById('pullTen').addEventListener('click', () => pullGacha(10));
+    // ==================== 이벤트 ====================
+    document.getElementById('pullOne').addEventListener('click', () => pullGacha(1));
+    document.getElementById('pullTen').addEventListener('click', () => pullGacha(10));
+    document.getElementById('btnGems300').addEventListener('click', () => buyShop('gems300'));
+    document.getElementById('btnTickets3').addEventListener('click', () => buyShop('tickets3'));
+    document.getElementById('btnDust30').addEventListener('click', () => buyShop('dust30'));
+    document.getElementById('btnGold1000').addEventListener('click', () => buyShop('gold1000'));
 
-      // 탭 전환
-      document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-          const tabId = this.dataset.tab;
-          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-          document.getElementById('tab-' + tabId).classList.add('active');
-          if (tabId === 'collection') updateCollectionUI();
-        });
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+        if (this.dataset.tab === 'collection') updateCollectionUI();
       });
+    });
 
-      // 필터 버튼
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          document.querySelectorAll('.filter-btn').forEach(b => {
-            b.style.background = '';
-            b.style.color = '';
-          });
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentFilter = this.dataset.filter;
+        updateCollectionUI();
+      });
+    });
+
+    // ==================== 글로벌 함수 ====================
+    window.toggleDeck = toggleDeck;
+    window.evolveCard = evolveCard;
+    window.claimQuest = claimQuest;
+    window.buyShop = buyShop;
+
+    // ==================== 시작 ====================
+    loadGame();
+    addCard('c01', 1);
+    addCard('c02', 1);
+    addCard('c03', 1);
+    updateQuests();
+    updateAllUI();
+    console.log('🌟 스타 카드 마스터 준비 완료!');
+  </script>
+</body>
+</html>
