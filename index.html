@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>🌟 스타 카드 마스터 - 트레이딩 카드 가챠</title>
+  <title>🌟 스타 카드 마스터 - 홀로그램 가챠</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: linear-gradient(180deg, #0a0a1a 0%, #1a1a3a 50%, #0a0a1a 100%);
+      background: radial-gradient(ellipse at center, #0a0a1a 0%, #050510 100%);
       min-height: 100vh;
       font-family: 'Segoe UI', 'Arial', sans-serif;
       user-select: none;
@@ -16,8 +16,54 @@
       display: flex;
       justify-content: center;
       padding: 10px;
+      overflow-x: hidden;
     }
-    .app { max-width: 750px; width: 100%; }
+    .app { max-width: 750px; width: 100%; position: relative; }
+
+    /* ========== 글로벌 이펙트 ========== */
+    .particles-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .spark {
+      position: absolute;
+      pointer-events: none;
+      animation: sparkFly 1.2s forwards;
+      font-size: 1.5rem;
+      z-index: 201;
+    }
+    @keyframes sparkFly {
+      0% { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); }
+    }
+    .confetti-piece {
+      position: fixed;
+      pointer-events: none;
+      z-index: 199;
+      animation: confettiFall 2.5s forwards;
+      font-size: 1.8rem;
+    }
+    @keyframes confettiFall {
+      0% { opacity: 1; transform: translateY(-120vh) rotate(0deg) scale(1); }
+      80% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(110vh) rotate(720deg) scale(0.3); }
+    }
+    .screen-shake {
+      animation: screenShake 0.6s ease-out;
+    }
+    @keyframes screenShake {
+      0%,100% { transform: translate(0); }
+      10% { transform: translate(-6px, 3px); }
+      30% { transform: translate(5px, -4px); }
+      50% { transform: translate(-3px, 6px); }
+      70% { transform: translate(4px, -2px); }
+      90% { transform: translate(-2px, 1px); }
+    }
+
+    /* ========== 헤더 ========== */
     .header {
       background: linear-gradient(135deg, #1a1a3a, #2a2a5a);
       border-radius: 16px;
@@ -63,15 +109,89 @@
     }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+
+    /* ========== 가챠 ========== */
     .gacha-banner {
       text-align: center;
       padding: 20px;
       background: linear-gradient(135deg, #2a1a4a, #1a2a4a);
       border-radius: 16px;
       margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
     }
-    .gacha-title { font-size: 1.5rem; font-weight: bold; color: #ffd700; margin-bottom: 6px; }
-    .gacha-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+    .gacha-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: conic-gradient(from 0deg, transparent, rgba(255,215,0,0.08), transparent, rgba(255,136,0,0.08), transparent);
+      animation: rotateBg 8s linear infinite;
+    }
+    @keyframes rotateBg {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .gacha-title { font-size: 1.5rem; font-weight: bold; color: #ffd700; margin-bottom: 6px; position: relative; z-index: 1; }
+    .gacha-card-preview {
+      position: relative;
+      z-index: 1;
+      display: inline-block;
+      width: 140px;
+      height: 200px;
+      margin: 10px;
+      perspective: 800px;
+    }
+    .holo-card {
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #1a1a4a, #2a2a6a, #1a1a4a);
+      border: 3px solid #c9a44b;
+      position: relative;
+      overflow: hidden;
+      animation: floatCard 3s ease-in-out infinite;
+      box-shadow: 0 0 30px rgba(201,164,75,0.5), 0 0 60px rgba(201,164,75,0.2);
+      transform-style: preserve-3d;
+    }
+    @keyframes floatCard {
+      0%,100% { transform: translateY(0) rotateY(0deg); }
+      25% { transform: translateY(-8px) rotateY(2deg); }
+      75% { transform: translateY(-4px) rotateY(-2deg); }
+    }
+    .holo-card::before {
+      content: '';
+      position: absolute;
+      inset: -50%;
+      background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.15), transparent, rgba(255,215,0,0.2), transparent);
+      animation: holoSpin 3s linear infinite;
+    }
+    @keyframes holoSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .holo-card-inner {
+      position: absolute;
+      inset: 4px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 50% 50%, #2a2a5a, #0a0a2a);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+    .holo-question {
+      font-size: 4rem;
+      color: #ffd700;
+      text-shadow: 0 0 30px #ffd700;
+      animation: pulseGlow 1.5s infinite;
+    }
+    @keyframes pulseGlow {
+      0%,100% { text-shadow: 0 0 20px #ffd700; }
+      50% { text-shadow: 0 0 50px #ffd700, 0 0 80px #f80; }
+    }
+    .gacha-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; position: relative; z-index: 1; }
     .gacha-btn {
       padding: 12px 24px;
       border-radius: 25px;
@@ -82,16 +202,52 @@
       font-size: 1rem;
       transition: 0.2s;
       box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+      position: relative;
+      overflow: hidden;
     }
     .gacha-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+    .gacha-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .gacha-btn:hover::after { opacity: 1; }
     .btn-single { background: #4a4a8a; }
-    .btn-ten { background: #c9a44b; color: #000; }
+    .btn-ten { background: #c9a44b; color: #000; animation: btnGlow 2s infinite; }
+    @keyframes btnGlow {
+      0%,100% { box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 0 15px #c9a44b; }
+      50% { box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 0 35px #ffd700; }
+    }
     .gacha-result {
       margin-top: 12px;
       max-height: 200px;
       overflow-y: auto;
       font-size: 0.85rem;
+      position: relative;
+      z-index: 1;
     }
+    .result-card-line {
+      display: inline-block;
+      padding: 4px 10px;
+      margin: 2px;
+      border-radius: 12px;
+      animation: popIn 0.4s ease-out;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .legendary-bg { background: linear-gradient(135deg, #f80, #f40); color: #fff; text-shadow: 0 0 10px #fff; }
+    .epic-bg { background: linear-gradient(135deg, #a0f, #60c); color: #fff; }
+    .rare-bg { background: linear-gradient(135deg, #4af, #28c); color: #fff; }
+    .common-bg { background: #555; color: #ccc; }
+
+    /* ========== 컬렉션 ========== */
     .card-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -109,29 +265,43 @@
       cursor: pointer;
       transition: 0.2s;
       position: relative;
+      overflow: hidden;
     }
-    .card-item:hover { border-color: #c9a44b; }
+    .card-item:hover { border-color: #c9a44b; transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
     .card-item.legendary {
       border-color: #ff8800;
       animation: legendaryGlow 2s infinite;
     }
+    .card-item.legendary::after {
+      content: '';
+      position: absolute;
+      inset: -20px;
+      background: conic-gradient(from 0deg, transparent, rgba(255,136,0,0.2), transparent, rgba(255,200,0,0.2), transparent);
+      animation: holoSpin 4s linear infinite;
+    }
     @keyframes legendaryGlow {
       0%,100% { box-shadow: 0 0 20px rgba(255,136,0,0.5); }
-      50% { box-shadow: 0 0 40px rgba(255,136,0,0.8); }
+      50% { box-shadow: 0 0 50px rgba(255,136,0,0.9); }
     }
-    .card-item .icon { font-size: 2.5rem; }
-    .card-item .name { font-weight: bold; font-size: 0.8rem; margin: 4px 0; }
+    .card-item .icon { font-size: 2.5rem; position: relative; z-index: 1; }
+    .card-item .name { font-weight: bold; font-size: 0.8rem; margin: 4px 0; position: relative; z-index: 1; }
     .card-item .rarity {
       font-size: 0.7rem;
       padding: 2px 6px;
       border-radius: 8px;
       display: inline-block;
+      position: relative;
+      z-index: 1;
     }
     .rarity-common { background: #888; color: #fff; }
     .rarity-rare { background: #4af; color: #fff; }
     .rarity-epic { background: #a0f; color: #fff; }
-    .rarity-legendary { background: #f80; color: #fff; }
-    .card-item .level { font-size: 0.7rem; color: #aaa; }
+    .rarity-legendary { background: #f80; color: #fff; animation: pulse 1s infinite; }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .card-item .level { font-size: 0.7rem; color: #aaa; position: relative; z-index: 1; }
     .card-count {
       position: absolute;
       top: 5px; right: 8px;
@@ -140,7 +310,10 @@
       font-size: 0.7rem;
       padding: 1px 6px;
       border-radius: 10px;
+      z-index: 2;
     }
+
+    /* ========== 상점 ========== */
     .shop-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -152,7 +325,9 @@
       padding: 12px;
       text-align: center;
       border: 2px solid #4a4a7a;
+      transition: 0.2s;
     }
+    .shop-item:hover { border-color: #c9a44b; }
     .shop-item button {
       margin-top: 8px;
       padding: 8px 16px;
@@ -164,6 +339,8 @@
       color: #000;
       font-size: 0.8rem;
     }
+
+    /* ========== 퀘스트 ========== */
     .quest-list { display: flex; flex-direction: column; gap: 8px; }
     .quest-item {
       background: #2a2a4a;
@@ -189,6 +366,8 @@
     .quest-item button:disabled { opacity: 0.5; cursor: not-allowed; }
     .progress-bar { width: 100%; height: 6px; background: #3a3a5a; border-radius: 3px; margin-top: 4px; overflow: hidden; }
     .progress-fill { height: 100%; background: #ffd700; transition: width 0.3s; }
+
+    /* ========== 덱 ========== */
     .deck-area { display: flex; gap: 10px; flex-wrap: wrap; }
     .deck-slot {
       width: 80px;
@@ -205,24 +384,31 @@
     }
     .deck-slot.filled { border: 2px solid #c9a44b; background: #2a2a4a; }
     .deck-slot:hover { border-color: #ffd700; }
+
+    /* ========== 모달 ========== */
     .modal {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
-      z-index: 100;
+      background: rgba(0,0,0,0.85);
+      z-index: 300;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .modal-content {
-      background: #2a2a5a;
+      background: linear-gradient(135deg, #2a2a5a, #1a1a3a);
       border-radius: 16px;
       padding: 20px;
       max-width: 400px;
       width: 90%;
       text-align: center;
       border: 2px solid #c9a44b;
+      animation: modalIn 0.4s ease-out;
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
     .modal-content button {
       margin-top: 12px;
@@ -244,16 +430,22 @@
       cursor: pointer;
       font-size: 0.75rem;
       font-weight: bold;
+      transition: 0.2s;
     }
     .filter-btn.active { background: #c9a44b; color: #000; border-color: #c9a44b; }
+
     @media (max-width: 500px) {
       .card-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
       .gacha-btn { padding: 10px 16px; font-size: 0.85rem; }
+      .holo-card { width: 100px; height: 150px; }
+      .gacha-card-preview { width: 100px; height: 150px; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="particles-container" id="particlesContainer"></div>
+
+  <div class="app" id="appContainer">
     <div class="header">
       <div class="resources">
         <div class="resource">💎 <span id="gemDisplay">500</span></div>
@@ -276,9 +468,16 @@
       <div class="tab-content active" id="tab-gacha">
         <div class="gacha-banner">
           <div class="gacha-title">🌟 스타 카드 소환</div>
-          <div style="font-size:5rem;color:#ffd700;margin:10px 0;">🃏</div>
-          <p style="color:#aaa;font-size:0.8rem;">전설: 3% | 에픽: 12% | 레어: 35% | 일반: 50%</p>
-          <p style="color:#f80;font-size:0.85rem;">⭐ 전설 천장까지 <span id="pityCounter">0</span>/80</p>
+          <div class="gacha-card-preview">
+            <div class="holo-card">
+              <div class="holo-card-inner">
+                <span class="holo-question">?</span>
+                <span style="color:#aaa;font-size:0.7rem;">카드</span>
+              </div>
+            </div>
+          </div>
+          <p style="color:#aaa;font-size:0.8rem;position:relative;z-index:1;">전설: 3% | 에픽: 12% | 레어: 35% | 일반: 50%</p>
+          <p style="color:#f80;font-size:0.85rem;position:relative;z-index:1;">⭐ 전설 천장까지 <span id="pityCounter">0</span>/80</p>
           <div class="gacha-buttons">
             <button class="gacha-btn btn-single" id="pullOne">🔮 1회 (50💎)</button>
             <button class="gacha-btn btn-ten" id="pullTen">🌟 10+1회 (450💎)</button>
@@ -307,30 +506,10 @@
 
       <div class="tab-content" id="tab-shop">
         <div class="shop-grid">
-          <div class="shop-item">
-            <div style="font-size:2rem;">💎</div>
-            <strong>300 다이아</strong>
-            <p style="color:#aaa;font-size:0.8rem;">무료</p>
-            <button id="btnGems300">받기</button>
-          </div>
-          <div class="shop-item">
-            <div style="font-size:2rem;">🎫</div>
-            <strong>가챠 티켓 x3</strong>
-            <p style="color:#aaa;font-size:0.8rem;">500💰</p>
-            <button id="btnTickets3">구매</button>
-          </div>
-          <div class="shop-item">
-            <div style="font-size:2rem;">⭐</div>
-            <strong>진화의 돌 30</strong>
-            <p style="color:#aaa;font-size:0.8rem;">300💰</p>
-            <button id="btnDust30">구매</button>
-          </div>
-          <div class="shop-item">
-            <div style="font-size:2rem;">🪙</div>
-            <strong>1000 골드</strong>
-            <p style="color:#aaa;font-size:0.8rem;">100💎</p>
-            <button id="btnGold1000">구매</button>
-          </div>
+          <div class="shop-item"><div style="font-size:2rem;">💎</div><strong>300 다이아</strong><p style="color:#aaa;font-size:0.8rem;">무료</p><button id="btnGems300">받기</button></div>
+          <div class="shop-item"><div style="font-size:2rem;">🎫</div><strong>티켓 x3</strong><p style="color:#aaa;font-size:0.8rem;">500💰</p><button id="btnTickets3">구매</button></div>
+          <div class="shop-item"><div style="font-size:2rem;">⭐</div><strong>진화돌 30</strong><p style="color:#aaa;font-size:0.8rem;">300💰</p><button id="btnDust30">구매</button></div>
+          <div class="shop-item"><div style="font-size:2rem;">🪙</div><strong>1000 골드</strong><p style="color:#aaa;font-size:0.8rem;">100💎</p><button id="btnGold1000">구매</button></div>
         </div>
       </div>
 
@@ -347,19 +526,19 @@
   <script>
     // ==================== 카드 DB ====================
     const CARD_DB = [
-      { id: 'c01', name: '불꽃 전사', icon: '⚔️🔥', rarity: 'common', hp: 100, atk: 30 },
-      { id: 'c02', name: '얼음 마법사', icon: '🧊❄️', rarity: 'common', hp: 80, atk: 35 },
-      { id: 'c03', name: '바람 궁수', icon: '🏹💨', rarity: 'common', hp: 90, atk: 28 },
-      { id: 'c04', name: '대지 수호자', icon: '🛡️⛰️', rarity: 'common', hp: 130, atk: 18 },
-      { id: 'c05', name: '번개 검사', icon: '⚡🗡️', rarity: 'rare', hp: 140, atk: 45 },
-      { id: 'c06', name: '그림자 암살자', icon: '🥷🌑', rarity: 'rare', hp: 110, atk: 55 },
-      { id: 'c07', name: '신성한 사제', icon: '✨🙏', rarity: 'rare', hp: 160, atk: 25 },
-      { id: 'c08', name: '용기사', icon: '🐉⚔️', rarity: 'epic', hp: 220, atk: 65 },
-      { id: 'c09', name: '대마법사', icon: '🔮🌟', rarity: 'epic', hp: 180, atk: 75 },
-      { id: 'c10', name: '천사장', icon: '👼✨', rarity: 'epic', hp: 250, atk: 55 },
-      { id: 'c11', name: '태초의 드래곤', icon: '🐲💥', rarity: 'legendary', hp: 400, atk: 120 },
-      { id: 'c12', name: '시공의 지배자', icon: '⏳🌌', rarity: 'legendary', hp: 350, atk: 140 },
-      { id: 'c13', name: '혼돈의 군주', icon: '👑💀', rarity: 'legendary', hp: 380, atk: 130 },
+      { id: 'c01', name: '불꽃 전사', icon: '⚔️🔥', rarity: 'common', hp: 100, atk: 30, img: '🦁' },
+      { id: 'c02', name: '얼음 마법사', icon: '🧊❄️', rarity: 'common', hp: 80, atk: 35, img: '🧙‍♀️' },
+      { id: 'c03', name: '바람 궁수', icon: '🏹💨', rarity: 'common', hp: 90, atk: 28, img: '🧝' },
+      { id: 'c04', name: '대지 수호자', icon: '🛡️⛰️', rarity: 'common', hp: 130, atk: 18, img: '🛡️' },
+      { id: 'c05', name: '번개 검사', icon: '⚡🗡️', rarity: 'rare', hp: 140, atk: 45, img: '⚡' },
+      { id: 'c06', name: '그림자 암살자', icon: '🥷🌑', rarity: 'rare', hp: 110, atk: 55, img: '🥷' },
+      { id: 'c07', name: '신성한 사제', icon: '✨🙏', rarity: 'rare', hp: 160, atk: 25, img: '🧝‍♂️' },
+      { id: 'c08', name: '용기사', icon: '🐉⚔️', rarity: 'epic', hp: 220, atk: 65, img: '🐉' },
+      { id: 'c09', name: '대마법사', icon: '🔮🌟', rarity: 'epic', hp: 180, atk: 75, img: '🔮' },
+      { id: 'c10', name: '천사장', icon: '👼✨', rarity: 'epic', hp: 250, atk: 55, img: '👼' },
+      { id: 'c11', name: '태초의 드래곤', icon: '🐲💥', rarity: 'legendary', hp: 400, atk: 120, img: '🐲' },
+      { id: 'c12', name: '시공의 지배자', icon: '⏳🌌', rarity: 'legendary', hp: 350, atk: 140, img: '⏳' },
+      { id: 'c13', name: '혼돈의 군주', icon: '👑💀', rarity: 'legendary', hp: 380, atk: 130, img: '👑' },
     ];
 
     // ==================== 상태 ====================
@@ -371,6 +550,45 @@
     let currentFilter = 'all';
     let quests = [];
     let cardsOpened = 0;
+
+    // ==================== 이펙트 시스템 ====================
+    function spawnSparks(x, y, count = 15) {
+      const container = document.getElementById('particlesContainer');
+      const emojis = ['✨', '💫', '⭐', '🌟', '💥', '🔥', '💎'];
+      for (let i = 0; i < count; i++) {
+        const spark = document.createElement('span');
+        spark.className = 'spark';
+        spark.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        spark.style.left = x + 'px';
+        spark.style.top = y + 'px';
+        spark.style.setProperty('--dx', (Math.random() - 0.5) * 200 + 'px');
+        spark.style.setProperty('--dy', (Math.random() - 0.5) * 200 - 50 + 'px');
+        spark.style.animationDuration = (0.8 + Math.random() * 1.2) + 's';
+        container.appendChild(spark);
+        setTimeout(() => spark.remove(), 1500);
+      }
+    }
+
+    function spawnConfetti() {
+      const container = document.getElementById('particlesContainer');
+      const emojis = ['🎉', '🎊', '✨', '💎', '🌟', '🃏', '🎴', '💰'];
+      for (let i = 0; i < 35; i++) {
+        const piece = document.createElement('span');
+        piece.className = 'confetti-piece';
+        piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.animationDelay = Math.random() * 1.5 + 's';
+        piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+        container.appendChild(piece);
+        setTimeout(() => piece.remove(), 3500);
+      }
+    }
+
+    function screenShake() {
+      const app = document.getElementById('appContainer');
+      app.classList.add('screen-shake');
+      setTimeout(() => app.classList.remove('screen-shake'), 600);
+    }
 
     // ==================== 함수 ====================
     function addCard(cardId, count = 1) {
@@ -405,27 +623,37 @@
     function pullGacha(times) {
       const actualPulls = times >= 10 ? times + 1 : times;
       let cost = times >= 10 ? 450 : 50 * times;
-
       if (tickets >= actualPulls) { tickets -= actualPulls;
         cost = 0; } else if (tickets > 0) { const r = actualPulls - tickets;
         cost = r * 50;
         tickets = 0; }
-
       if (gems < cost && cost > 0) { showModal('❌ 다이아가 부족합니다!'); return; }
       gems -= cost;
 
       const results = [];
+      let gotLegendary = false;
       for (let i = 0; i < actualPulls; i++) {
         pityCount++;
         let rarity;
         const roll = Math.random() * 100;
         if (pityCount >= PITY_MAX || roll < 3) { rarity = 'legendary';
-          pityCount = 0; } else if (roll < 15) { rarity = 'epic'; } else if (roll < 50) { rarity = 'rare'; } else { rarity =
+          pityCount = 0;
+          gotLegendary = true; } else if (roll < 15) { rarity = 'epic'; } else if (roll < 50) { rarity = 'rare'; } else { rarity =
             'common'; }
         const pool = CARD_DB.filter(c => c.rarity === rarity);
         const card = pool[Math.floor(Math.random() * pool.length)];
         addCard(card.id, 1);
         results.push(card);
+      }
+
+      // 이펙트
+      screenShake();
+      const btn = document.getElementById('pullTen');
+      const rect = btn.getBoundingClientRect();
+      spawnSparks(rect.left + rect.width / 2, rect.top + rect.height / 2, 25);
+      if (gotLegendary) {
+        setTimeout(() => spawnConfetti(), 300);
+        setTimeout(() => screenShake(), 500);
       }
 
       updateQuests();
@@ -438,13 +666,12 @@
       const c = document.getElementById('gachaResult');
       const leg = results.filter(r => r.rarity === 'legendary');
       let h = '';
-      if (leg.length > 0) h +=
-        '<div style="color:#f80;font-size:1.3rem;font-weight:bold;">🌟 전설 카드 획득!!</div>';
+      if (leg.length > 0) h += '<div style="color:#f80;font-size:1.3rem;font-weight:bold;">🌟 전설 카드 획득!!</div>';
       h += '<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;">';
-      h += results.slice(0, 12).map(r => {
-        const cl = r.rarity === 'legendary' ? '#f80' : r.rarity === 'epic' ? '#a0f' : r.rarity === 'rare' ?
-          '#4af' : '#aaa';
-        return `<span style="color:${cl};">${r.icon}${r.name}</span>`;
+      h += results.slice(0, 12).map((r, i) => {
+        const bg = r.rarity === 'legendary' ? 'legendary-bg' : r.rarity === 'epic' ? 'epic-bg' : r.rarity === 'rare' ?
+          'rare-bg' : 'common-bg';
+        return `<span class="result-card-line ${bg}" style="animation-delay:${i*0.05}s">${r.icon}${r.name}</span>`;
       }).join(' ');
       h += '</div>';
       if (results.length > 12) h += `<p>외 ${results.length - 12}장</p>`;
@@ -452,7 +679,6 @@
       if (leg.length > 0) showModal('🎉 대박! 전설 카드 획득!\n' + leg.map(r => r.icon + r.name).join(', '));
     }
 
-    // ==================== 진화 ====================
     function evolveCard(cardId) {
       const card = CARD_DB.find(c => c.id === cardId);
       if (!card || !ownedCards[cardId]) return;
@@ -463,10 +689,10 @@
       updateAllUI();
       saveGame();
       const s = getCardStats(cardId);
+      spawnSparks(window.innerWidth / 2, window.innerHeight / 2, 20);
       showModal(`🆙 ${card.icon} ${card.name} Lv.${ownedCards[cardId].level}!\nHP: ${s.hp} ATK: ${s.atk}`);
     }
 
-    // ==================== 덱 ====================
     function toggleDeck(cardId) {
       if (deck.includes(cardId)) { deck = deck.filter(id => id !== cardId); } else { if (deck.length >= 5) { showModal(
           '⚠️ 덱은 최대 5장!'); return; }
@@ -479,7 +705,6 @@
     function getDeckPower() { return deck.reduce((s, id) => { const st = getCardStats(id); return s + st.hp + st.atk *
         2; }, 0); }
 
-    // ==================== 상점 ====================
     function buyShop(item) {
       switch (item) {
         case 'gems300':
@@ -506,7 +731,6 @@
       showModal('✅ 구매 완료!');
     }
 
-    // ==================== 퀘스트 ====================
     function initQuests() {
       quests = [
         { id: 'q1', name: '카드 10장 수집', goal: 10, reward: { gems: 100 }, claimed: false, progress: 0 },
@@ -539,12 +763,12 @@
       if (q.reward.gems) gems += q.reward.gems;
       if (q.reward.tickets) tickets += q.reward.tickets;
       if (q.reward.dust) dust += q.reward.dust;
+      spawnSparks(window.innerWidth / 2, window.innerHeight / 2, 15);
       updateAllUI();
       saveGame();
       showModal('🎁 보상 획득!');
     }
 
-    // ==================== UI ====================
     function updateAllUI() {
       document.getElementById('gemDisplay').textContent = gems.toLocaleString();
       document.getElementById('goldDisplay').textContent = gold.toLocaleString();
@@ -569,15 +793,13 @@
         const stats = getCardStats(id);
         const inDeck = deck.includes(id);
         return `
-          <div class="card-item ${card.rarity==='legendary'?'legendary':''}" 
-               onclick="toggleDeck('${id}')" 
-               style="${inDeck?'border-color:#0f0;box-shadow:0 0 10px #0f0;':''}">
+          <div class="card-item ${card.rarity==='legendary'?'legendary':''}" onclick="toggleDeck('${id}')" style="${inDeck?'border-color:#0f0;box-shadow:0 0 15px #0f0;':''}">
             <div class="card-count">x${data.count}</div>
-            <div class="icon">${card.icon}</div>
+            <div class="icon" style="font-size:3rem;">${card.img||card.icon}</div>
             <div class="name">${card.name}</div>
             <div class="rarity rarity-${card.rarity}">${card.rarity.toUpperCase()}</div>
             <div class="level">Lv.${stats.level} ❤️${stats.hp} ⚔️${stats.atk}</div>
-            <button style="margin-top:4px;padding:3px 8px;font-size:0.65rem;background:#c9a44b;border:none;border-radius:10px;cursor:pointer;color:#000;" 
+            <button style="margin-top:4px;padding:3px 8px;font-size:0.65rem;background:#c9a44b;border:none;border-radius:10px;cursor:pointer;color:#000;z-index:2;position:relative;" 
                     onclick="event.stopPropagation();evolveCard('${id}')">진화</button>
             ${inDeck?'<div style="color:#0f0;font-size:0.6rem;">✅ 덱</div>':''}
           </div>`;
@@ -592,7 +814,7 @@
           const card = CARD_DB.find(c => c.id === deck[i]);
           const stats = getCardStats(deck[i]);
           html +=
-            `<div class="deck-slot filled" onclick="toggleDeck('${deck[i]}')"><div>${card?.icon||''}<br><small>${card?.name||''}</small><br><small>Lv.${stats.level}</small></div></div>`;
+            `<div class="deck-slot filled" onclick="toggleDeck('${deck[i]}')"><div>${card?.img||card?.icon||''}<br><small>${card?.name||''}</small><br><small>Lv.${stats.level}</small></div></div>`;
         } else { html += '<div class="deck-slot">빈 슬롯</div>'; }
       }
       slots.innerHTML = html;
@@ -611,14 +833,13 @@
         </div>`).join('');
     }
 
-    // ==================== 저장 ====================
     function saveGame() {
-      localStorage.setItem('cardMasterSave', JSON.stringify({ gems, gold, dust, tickets, pityCount, ownedCards, deck,
+      localStorage.setItem('cardMasterSave2', JSON.stringify({ gems, gold, dust, tickets, pityCount, ownedCards, deck,
         cardsOpened, quests }));
     }
 
     function loadGame() {
-      const s = localStorage.getItem('cardMasterSave');
+      const s = localStorage.getItem('cardMasterSave2');
       if (s) {
         try {
           const d = JSON.parse(s);
@@ -637,7 +858,6 @@
       } else { initQuests(); }
     }
 
-    // ==================== 이벤트 ====================
     document.getElementById('pullOne').addEventListener('click', () => pullGacha(1));
     document.getElementById('pullTen').addEventListener('click', () => pullGacha(10));
     document.getElementById('btnGems300').addEventListener('click', () => buyShop('gems300'));
@@ -664,20 +884,17 @@
       });
     });
 
-    // ==================== 글로벌 함수 ====================
     window.toggleDeck = toggleDeck;
     window.evolveCard = evolveCard;
     window.claimQuest = claimQuest;
-    window.buyShop = buyShop;
 
-    // ==================== 시작 ====================
     loadGame();
     addCard('c01', 1);
     addCard('c02', 1);
     addCard('c03', 1);
     updateQuests();
     updateAllUI();
-    console.log('🌟 스타 카드 마스터 준비 완료!');
+    console.log('🌟 스타 카드 마스터 - 홀로그램 가챠 준비 완료!');
   </script>
 </body>
 </html>
