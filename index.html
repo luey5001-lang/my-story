@@ -3,18 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>슈퍼 로또 6/45: 1억배 당첨 시뮬레이터</title>
+  <title>슈퍼 로또 6/45 - 1등 1/814 초정밀 부스트 시뮬레이터</title>
+  
+  <!-- Fonts & Tailwind CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  
   <style>
     :root {
-      --lotto-yellow: #fbc400;
-      --lotto-blue: #69c8f2;
-      --lotto-red: #ff7272;
-      --lotto-gray: #aaaaaa;
-      --lotto-green: #b0d840;
+      --ball-yellow: #fbc400;
+      --ball-blue: #2b7fff;
+      --ball-red: #ff3b30;
+      --ball-gray: #8e8e93;
+      --ball-green: #34c759;
     }
 
     * {
@@ -25,9 +28,9 @@
     }
 
     body {
-      background: radial-gradient(circle at 50% 20%, #151a30 0%, #0a0d1a 55%, #05070e 100%);
-      font-family: 'Pretendard', sans-serif;
-      color: #ffffff;
+      background: radial-gradient(circle at 50% 15%, #111827 0%, #080c16 50%, #030509 100%);
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      color: #f3f4f6;
       min-height: 100vh;
       overflow-x: hidden;
       margin: 0;
@@ -38,324 +41,433 @@
       font-family: 'Orbitron', monospace;
     }
 
-    /* 3D Lotto Ball Spheres */
-    .lotto-ball {
+    /* 3D Glass & Neumorphic Studio Panels */
+    .studio-panel {
+      background: rgba(17, 24, 39, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    /* Tactile 3D Buttons */
+    .btn-tactile {
+      transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.5), 0 6px 14px rgba(0, 0, 0, 0.35);
+    }
+    .btn-tactile:active:not(:disabled) {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5), 0 2px 5px rgba(0, 0, 0, 0.35);
+    }
+    .btn-tactile:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: grayscale(0.85);
+      transform: none !important;
+    }
+
+    /* 3D Shaded Lotto Spheres */
+    .lotto-ball-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       border-radius: 9999px;
       font-weight: 900;
       box-shadow: 
-        inset -3px -4px 8px rgba(0, 0, 0, 0.45),
-        inset 3px 4px 6px rgba(255, 255, 255, 0.65),
-        0 4px 10px rgba(0, 0, 0, 0.5);
+        inset -2px -3px 6px rgba(0, 0, 0, 0.5),
+        inset 2px 3px 5px rgba(255, 255, 255, 0.65),
+        0 4px 8px rgba(0, 0, 0, 0.45);
       position: relative;
+    }
+
+    .ball-theme-yellow {
+      background: radial-gradient(circle at 35% 30%, #fff7a1 0%, #fbc400 65%, #b57a00 100%);
+      color: #3b2800;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+    .ball-theme-blue {
+      background: radial-gradient(circle at 35% 30%, #aadaff 0%, #2b7fff 65%, #0f4bb5 100%);
+      color: #ffffff;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
     }
-
-    .ball-1-10 { background: radial-gradient(circle at 35% 30%, #fff7a1 0%, #fbc400 65%, #c48a00 100%); color: #3b2800; text-shadow: none; }
-    .ball-11-20 { background: radial-gradient(circle at 35% 30%, #d4f2ff 0%, #69c8f2 65%, #187bb0 100%); color: #ffffff; }
-    .ball-21-30 { background: radial-gradient(circle at 35% 30%, #ffd0d0 0%, #ff6262 65%, #ab1717 100%); color: #ffffff; }
-    .ball-31-40 { background: radial-gradient(circle at 35% 30%, #e0e0e0 0%, #9e9e9e 65%, #505050 100%); color: #ffffff; }
-    .ball-41-45 { background: radial-gradient(circle at 35% 30%, #f0ffcc 0%, #b0d840 65%, #62880b 100%); color: #1c3000; text-shadow: none; }
-
-    /* Button Tactile Effect */
-    .btn-tactile {
-      transition: all 0.08s ease;
-      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.6), 0 6px 12px rgba(0, 0, 0, 0.4);
+    .ball-theme-red {
+      background: radial-gradient(circle at 35% 30%, #ffb1b1 0%, #ff3b30 65%, #a80f07 100%);
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
     }
-    .btn-tactile:active:not(:disabled) {
-      transform: translateY(3px);
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.4);
+    .ball-theme-gray {
+      background: radial-gradient(circle at 35% 30%, #eeeeee 0%, #8e8e93 65%, #444448 100%);
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
     }
-    .btn-tactile:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      filter: grayscale(0.8);
-      transform: none;
+    .ball-theme-green {
+      background: radial-gradient(circle at 35% 30%, #c4ffd2 0%, #34c759 65%, #12792d 100%);
+      color: #063110;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
     }
 
-    /* Screen Shake Animation */
-    @keyframes studioTremble {
+    /* Golden Ring Glow for Matched Numbers */
+    .ball-matched {
+      box-shadow: 0 0 0 3px #ffd700, 0 0 18px #ffb700 !important;
+      animation: pulseMatch 1.2s infinite alternate ease-in-out;
+    }
+    @keyframes pulseMatch {
+      0% { transform: scale(1); filter: brightness(1); }
+      100% { transform: scale(1.14); filter: brightness(1.25); }
+    }
+
+    /* Screen Tremble on Big Win */
+    @keyframes bigWinTremble {
       0%, 100% { transform: translate(0, 0); }
-      20% { transform: translate(-3px, 3px); }
-      40% { transform: translate(3px, -2px); }
-      60% { transform: translate(-2px, -3px); }
-      80% { transform: translate(2px, 2px); }
+      15% { transform: translate(-4px, 4px) rotate(-0.5deg); }
+      30% { transform: translate(4px, -4px) rotate(0.5deg); }
+      45% { transform: translate(-3px, -3px) rotate(-0.3deg); }
+      60% { transform: translate(3px, 3px) rotate(0.3deg); }
+      75% { transform: translate(-2px, 1px); }
     }
-    .screen-shake {
-      animation: studioTremble 0.35s ease-in-out;
+    .shake-active {
+      animation: bigWinTremble 0.45s ease-in-out;
     }
 
-    /* Rack Ball Drop Animation */
-    @keyframes dropIn {
-      0% { transform: translateY(-70px) scale(0.3); opacity: 0; }
-      70% { transform: translateY(6px) scale(1.15); opacity: 1; }
+    /* Rack Ball Arrival Animation */
+    @keyframes ballDropSpring {
+      0% { transform: translateY(-50px) scale(0.4); opacity: 0; }
+      65% { transform: translateY(5px) scale(1.15); opacity: 1; }
+      85% { transform: translateY(-2px) scale(0.96); }
       100% { transform: translateY(0) scale(1); opacity: 1; }
     }
-    .ball-drop {
-      animation: dropIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    .ball-rack-animate {
+      animation: ballDropSpring 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
   </style>
 </head>
-<body class="flex flex-col items-center justify-start p-2 sm:p-4 text-slate-100 min-h-screen">
+<body class="flex flex-col items-center justify-start p-2 sm:p-4 min-h-screen">
 
-  <!-- Header & Live Broadcast Marquee -->
-  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 bg-slate-900/90 border border-slate-700/80 rounded-2xl shadow-xl backdrop-blur-md mb-3">
+  <!-- Top Broadcast Marquee Bar -->
+  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 studio-panel rounded-2xl mb-3 border border-slate-700/60 shadow-2xl">
     <div class="flex items-center gap-3">
-      <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 text-slate-950 font-black text-xl shadow-lg shadow-amber-500/30">
+      <div class="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-yellow-600 text-slate-950 font-black text-xl shadow-lg shadow-amber-500/20">
         6/45
-        <span class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 border-2 border-slate-900 rounded-full animate-ping"></span>
+        <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 border-2 border-slate-900"></span>
+        </span>
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <h1 class="text-base sm:text-xl font-black tracking-tight text-white">슈퍼 로또 6/45</h1>
-          <span class="px-2 py-0.5 rounded text-[10px] font-black bg-red-600 text-white tracking-wider animate-pulse">LIVE 추첨</span>
+          <h1 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-1.5">
+            슈퍼 로또 6/45 <span class="text-amber-400">라이브 스튜디오</span>
+          </h1>
+          <span class="px-2 py-0.5 rounded text-[10px] font-black bg-gradient-to-r from-red-600 to-rose-600 text-white tracking-wider animate-pulse">ON-AIR</span>
         </div>
-        <p class="text-[11px] text-slate-400 font-medium">대한민국 최초 1억 배 당첨 확률 증폭 시뮬레이터</p>
+        <p class="text-[11px] text-slate-400 font-medium flex items-center gap-1.5">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>확률 보정 가동: <strong>1등 1/814</strong> (0.123%) | <strong>2등 1/135</strong> (0.741%)</span>
+        </p>
       </div>
     </div>
 
-    <!-- Probability Mode Switch (100,000,000x vs Reality 1x) -->
-    <div class="flex items-center gap-3">
-      <div class="flex items-center bg-slate-950/80 p-1.5 rounded-xl border border-slate-800">
-        <button id="modeFeverBtn" class="px-3 py-1.5 rounded-lg text-xs font-black transition-all bg-gradient-to-r from-amber-500 to-red-500 text-slate-950 shadow-md">
-          🔥 1억 배 당첨 모드
-        </button>
-        <button id="modeRealBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 transition-all hover:text-white">
-          💀 현실 모드 (1배)
-        </button>
+    <!-- Quick Utilities -->
+    <div class="flex items-center gap-2">
+      <div class="hidden sm:flex items-center gap-1 px-3 py-1 rounded-xl bg-slate-900/80 border border-slate-700 text-xs font-semibold text-amber-300">
+        <span>회차: 제</span>
+        <strong id="roundBadge" class="font-digital text-sm text-white">1140</strong>
+        <span>회</span>
       </div>
-
-      <button id="soundToggleBtn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold flex items-center gap-1.5 text-amber-300" title="사운드 켜기/끄기">
+      <button id="soundToggleBtn" class="btn-tactile px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold flex items-center gap-1.5 text-amber-300">
         <span id="soundIcon">🔊</span>
+        <span class="hidden md:inline">SOUND</span>
       </button>
-      <button id="helpBtn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300">
-        ❓ 안내
+      <button id="helpModalBtn" class="btn-tactile px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 flex items-center gap-1">
+        <span>❓</span>
+        <span class="hidden md:inline">확률 가이드</span>
       </button>
     </div>
   </header>
 
-  <!-- Jackpot & Wallet Status Bar -->
-  <section class="w-full max-w-6xl grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-    <div class="bg-gradient-to-b from-slate-900 to-slate-950 p-2.5 rounded-xl border border-slate-800 text-center shadow-lg">
-      <span class="text-[10px] text-slate-400 font-bold block">1등 추정 누적 당첨금</span>
-      <span id="jackpotAmountText" class="font-digital text-sm sm:text-lg font-black text-amber-400">2,854,192,800 원</span>
+  <!-- Live Financial & Jackpot Scoreboard -->
+  <section class="w-full max-w-6xl grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+    <div class="studio-panel p-3 rounded-xl border border-amber-500/30 text-center relative overflow-hidden group">
+      <div class="absolute -right-3 -top-3 text-4xl opacity-10 group-hover:opacity-20 transition text-amber-400">👑</div>
+      <span class="text-[10px] text-amber-300/80 font-bold block tracking-wider">1등 추정 누적 당첨금</span>
+      <span id="jackpotText" class="font-digital text-sm sm:text-lg font-black text-amber-400 drop-shadow-[0_0_8px_rgba(251,196,0,0.3)]">2,854,000,000 원</span>
     </div>
-    <div class="bg-gradient-to-b from-slate-900 to-slate-950 p-2.5 rounded-xl border border-slate-800 text-center shadow-lg">
-      <span class="text-[10px] text-slate-400 font-bold block">내 보유 자산</span>
+    <div class="studio-panel p-3 rounded-xl border border-slate-800 text-center relative overflow-hidden group">
+      <div class="absolute -right-3 -top-3 text-4xl opacity-10 group-hover:opacity-20 transition text-emerald-400">💰</div>
+      <span class="text-[10px] text-slate-400 font-bold block tracking-wider">내 보유 자산</span>
       <span id="myBalanceText" class="font-digital text-sm sm:text-lg font-black text-emerald-400">100,000 원</span>
     </div>
-    <div class="bg-gradient-to-b from-slate-900 to-slate-950 p-2.5 rounded-xl border border-slate-800 text-center shadow-lg">
-      <span class="text-[10px] text-slate-400 font-bold block">누적 총 당첨금</span>
+    <div class="studio-panel p-3 rounded-xl border border-slate-800 text-center relative overflow-hidden group">
+      <div class="absolute -right-3 -top-3 text-4xl opacity-10 group-hover:opacity-20 transition text-yellow-400">🏆</div>
+      <span class="text-[10px] text-slate-400 font-bold block tracking-wider">누적 수령 당첨금</span>
       <span id="totalWonText" class="font-digital text-sm sm:text-lg font-black text-yellow-300">0 원</span>
     </div>
-    <div class="bg-gradient-to-b from-slate-900 to-slate-950 p-2.5 rounded-xl border border-slate-800 text-center shadow-lg">
-      <span class="text-[10px] text-slate-400 font-bold block">통산 수익률 (ROI)</span>
-      <span id="roiText" class="font-digital text-sm sm:text-lg font-black text-cyan-400">0.0%</span>
+    <div class="studio-panel p-3 rounded-xl border border-slate-800 text-center relative overflow-hidden group">
+      <div class="absolute -right-3 -top-3 text-4xl opacity-10 group-hover:opacity-20 transition text-cyan-400">📈</div>
+      <span class="text-[10px] text-slate-400 font-bold block tracking-wider">통산 수익률 (ROI)</span>
+      <span id="roiText" class="font-digital text-sm sm:text-lg font-black text-slate-300">0.0%</span>
     </div>
   </section>
 
-  <!-- Main Studio Workspace (Left: Draw Machine / Right: Lotto Slips & Controls) -->
-  <main id="mainContainer" class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
+  <!-- Detailed Live Stats Breakdown Bar -->
+  <section class="w-full max-w-6xl studio-panel rounded-xl px-4 py-2 text-xs flex flex-wrap items-center justify-between gap-2.5 mb-3 border border-slate-800 shadow-inner">
+    <div class="flex items-center gap-3">
+      <span class="text-slate-400 font-bold">📊 시행 통계:</span>
+      <span>총 추첨 <strong id="statDraws" class="font-digital text-amber-300 text-sm">0</strong> 회</span>
+      <span class="text-slate-600">|</span>
+      <span>총 발권 <strong id="statGames" class="font-digital text-slate-200 text-sm">0</strong> 게임</span>
+    </div>
+    <div class="flex flex-wrap items-center gap-3 font-semibold text-[11px]">
+      <span class="text-amber-400">👑 1등: <b id="statRank1" class="font-digital text-white font-black text-sm">0</b></span>
+      <span class="text-cyan-400">🥈 2등: <b id="statRank2" class="font-digital text-white font-black text-sm">0</b></span>
+      <span class="text-emerald-400">🥉 3등: <b id="statRank3" class="font-digital text-white font-black text-sm">0</b></span>
+      <span class="text-indigo-400">4등: <b id="statRank4" class="font-digital text-white font-black text-sm">0</b></span>
+      <span class="text-rose-400">5등: <b id="statRank5" class="font-digital text-white font-black text-sm">0</b></span>
+      <button id="resetStatsBtn" class="text-[11px] text-slate-500 hover:text-red-400 underline ml-2 transition">
+        통계 초기화
+      </button>
+    </div>
+  </section>
+
+  <!-- Main Studio Workspace (Left: 2D Physics Acrylic Machine / Right: Interactive OMR Slip) -->
+  <main id="mainCabinet" class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
     
-    <!-- LEFT PANEL: Real-time Mechanical Sphere Blower & Drawn Rack (lg:col-span-7) -->
+    <!-- LEFT PANEL: Acrylic Blower Machine Stage & Drawn Ball Rack (lg:col-span-7) -->
     <div class="lg:col-span-7 flex flex-col gap-3">
       
-      <!-- Blower Machine Acrylic Stage -->
-      <div class="relative w-full aspect-[4/3] max-h-[460px] bg-gradient-to-b from-[#090d1f] via-[#050711] to-[#020308] border-2 border-slate-700/80 rounded-2xl overflow-hidden shadow-2xl flex flex-col items-center justify-between p-3">
+      <!-- Acrylic Sphere Mechanical Blower Canvas Stage -->
+      <div class="relative w-full aspect-[4/3] max-h-[460px] rounded-2xl overflow-hidden studio-panel border-2 border-slate-700/80 shadow-2xl flex flex-col items-center justify-between p-3">
         
-        <!-- Overhead Suction Chute Visual Indicator -->
-        <div class="w-full flex items-center justify-between px-3 z-10">
-          <div class="flex items-center gap-1.5 bg-slate-900/80 border border-slate-700/70 px-2.5 py-1 rounded-full text-[10px] text-slate-300 font-semibold backdrop-blur-sm">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span id="machineStatusLabel">추첨기 대기 중 (READY)</span>
+        <!-- Overhead Tube Status Badge -->
+        <div class="w-full flex items-center justify-between px-2 z-10">
+          <div class="flex items-center gap-1.5 bg-slate-950/80 border border-slate-700/80 px-3 py-1 rounded-full text-[11px] text-slate-300 font-semibold backdrop-blur-md shadow-md">
+            <span id="blowerStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34c759]"></span>
+            <span id="blowerStatusText">추첨기 대기 중 (STANDBY)</span>
           </div>
-          <div class="flex items-center gap-1 text-[11px] font-bold text-amber-300">
-            <span>제 <strong id="drawRoundText" class="font-digital text-sm text-white">1140</strong> 회 생방송</span>
+          <div class="flex items-center gap-1.5 bg-slate-950/80 border border-amber-500/50 px-3 py-1 rounded-full text-[11px] font-bold text-amber-300 backdrop-blur-md">
+            <span>🔴 LIVE CAM</span>
           </div>
         </div>
 
-        <!-- 2D Physics Canvas for Swirling Acrylic Sphere -->
+        <!-- 2D Physics Canvas for Swirling Balls Inside Sphere -->
         <canvas id="blowerCanvas" class="w-full h-full absolute inset-0 block cursor-pointer"></canvas>
 
-        <!-- Confetti & Celebration Particle Canvas -->
-        <canvas id="celebrationCanvas" class="w-full h-full absolute inset-0 pointer-events-none z-20"></canvas>
+        <!-- Confetti Particle Overlay Canvas -->
+        <canvas id="confettiCanvas" class="w-full h-full absolute inset-0 pointer-events-none z-20"></canvas>
 
-        <!-- Dynamic Live Alert Banner Inside Stage -->
-        <div id="stageAlertBanner" class="z-10 px-4 py-1.5 rounded-full bg-slate-900/90 border border-amber-400/80 text-amber-300 font-black text-xs tracking-wider shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none mb-1">
-          공기 흡입기 가동! 1등 번호를 추출합니다!
+        <!-- Dynamic Announcement Alert Bar -->
+        <div id="liveAlertBar" class="z-10 px-4 py-1.5 rounded-full bg-slate-950/90 border border-amber-400 text-amber-300 font-bold text-xs tracking-wide shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none mb-1 text-center">
+          준비 완료! 번호 추첨을 시작하세요.
         </div>
       </div>
 
-      <!-- Winning Drawn Numbers Tray (6 Main Balls + 1 Bonus Ball) -->
-      <div class="w-full bg-slate-900/90 border-2 border-amber-500/40 rounded-2xl p-3.5 shadow-xl flex flex-col gap-2">
+      <!-- Winning Numbers Output Tray (6 Main Balls + 1 Bonus Ball) -->
+      <div class="w-full studio-panel border-2 border-amber-500/40 rounded-2xl p-3.5 shadow-xl flex flex-col gap-2.5">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <span class="text-sm font-black text-amber-300">🎯 이번 회차 당첨 번호</span>
-            <span id="drawingStepLabel" class="text-[11px] text-slate-400">(추첨 시작 전)</span>
+            <span class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1">
+              <span>🎯</span> 제 <span id="rackRoundLabel" class="text-white">1140</span>회 당첨 번호
+            </span>
+            <span id="rackSubLabel" class="text-[10px] text-slate-400 font-medium">(추첨 대기)</span>
           </div>
-          <div class="flex items-center gap-1">
-            <button id="drawSpeedNormalBtn" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-950">표준 속도</button>
-            <button id="drawSpeedFastBtn" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 hover:text-white">초고속 즉시</button>
-          </div>
+          <span class="text-[10px] text-slate-400 font-medium">당첨 기준: 6개(1등) / 5개+보너스(2등)</span>
         </div>
 
-        <!-- Balls Slots Container -->
+        <!-- Ball Slots Container -->
         <div class="flex items-center justify-between gap-1 sm:gap-2 px-1 py-1">
           <!-- 6 Main Drawn Balls -->
           <div class="flex items-center gap-1.5 sm:gap-2.5 flex-1 justify-around">
-            <div id="drawnSlot0" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
-            <div id="drawnSlot1" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
-            <div id="drawnSlot2" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
-            <div id="drawnSlot3" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
-            <div id="drawnSlot4" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
-            <div id="drawnSlot5" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
+            <div id="slot0" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
+            <div id="slot1" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
+            <div id="slot2" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
+            <div id="slot3" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
+            <div id="slot4" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
+            <div id="slot5" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
           </div>
 
-          <div class="text-slate-500 font-black text-lg px-0.5 sm:px-1">+</div>
+          <div class="text-slate-500 font-black text-lg px-0.5 sm:px-1.5">+</div>
 
           <!-- Bonus Ball Slot -->
           <div class="flex flex-col items-center">
-            <div id="drawnSlotBonus" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-amber-600/50 bg-slate-950/70 flex items-center justify-center font-bold text-amber-500/70 text-xs sm:text-sm">보너스</div>
+            <div id="slotBonus" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-amber-600/60 bg-slate-950/70 flex items-center justify-center font-bold text-amber-500/70 text-[10px] sm:text-xs">보너스</div>
           </div>
         </div>
       </div>
 
-      <!-- Live Draw Action Buttons -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <button id="startDrawBtn" class="btn-tactile py-3.5 px-4 rounded-xl bg-gradient-to-r from-red-600 via-amber-500 to-yellow-400 hover:from-red-500 hover:to-yellow-300 text-slate-950 font-black text-sm sm:text-base tracking-wider shadow-lg flex items-center justify-center gap-2">
-          <span>🚀</span>
-          <span id="startDrawBtnText">생방송 추첨 시작하기!</span>
+      <!-- Action Control Console Buttons -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <button id="drawBtn" class="btn-tactile py-3 px-2 rounded-xl bg-gradient-to-r from-red-600 via-amber-500 to-yellow-400 hover:from-red-500 hover:to-yellow-300 text-slate-950 font-black text-xs sm:text-sm tracking-tight shadow-lg flex items-center justify-center gap-1.5">
+          <span>▶️</span>
+          <span>추첨 시작</span>
         </button>
-        <button id="buyAuto5AndDrawBtn" class="btn-tactile py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm tracking-wide shadow-lg flex items-center justify-center gap-2">
+
+        <button id="instantDrawBtn" class="btn-tactile py-3 px-2 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white font-bold text-xs sm:text-sm tracking-tight shadow-lg flex items-center justify-center gap-1">
           <span>⚡</span>
-          <span>5게임 자동발권 즉시 추첨</span>
+          <span>즉시 추첨</span>
+        </button>
+
+        <button id="draw10Btn" class="btn-tactile py-3 px-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm tracking-tight shadow-lg flex items-center justify-center gap-1">
+          <span>⏩</span>
+          <span>10회 고속</span>
+        </button>
+
+        <button id="autoUntil1stBtn" class="btn-tactile py-3 px-2 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 hover:from-purple-500 hover:to-rose-500 text-white font-bold text-xs sm:text-sm tracking-tight shadow-lg flex items-center justify-center gap-1">
+          <span>🎯</span>
+          <span>1등 나올때까지</span>
+        </button>
+
+        <!-- Simulation Cancel Stop Button (Shown during continuous loop) -->
+        <button id="stopSimBtn" class="btn-tactile col-span-2 sm:col-span-4 py-3 rounded-xl bg-gradient-to-r from-red-700 to-rose-800 text-white font-black text-sm tracking-wider shadow-xl hidden flex items-center justify-center gap-2 animate-pulse border border-red-400">
+          <span>🛑</span>
+          <span>시뮬레이션 즉시 중지</span>
         </button>
       </div>
 
     </div>
 
-    <!-- RIGHT PANEL: Lottery Slips (A~E) & Number Picking Pad (lg:col-span-5) -->
+    <!-- RIGHT PANEL: Korean Lotto 6/45 OMR Paper Slip (lg:col-span-5) -->
     <div class="lg:col-span-5 flex flex-col gap-3">
       
-      <!-- Purchased Lottery Slip Card (Traditional Paper Slip Look) -->
-      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-slate-700/80 rounded-2xl p-3.5 shadow-xl flex flex-col gap-2.5">
+      <!-- OMR Ticket Container -->
+      <div class="studio-panel border-2 border-slate-700/80 rounded-2xl p-3.5 shadow-xl flex flex-col gap-2.5">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <div class="flex items-center gap-1.5">
-            <span class="text-xs font-black text-amber-300">📋 발행 복권 (발권 슬립)</span>
-            <span id="activeTicketCountBadge" class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] px-2 py-0.2 rounded-full font-bold">5게임 (5,000원)</span>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-black text-amber-300 flex items-center gap-1">
+              <span>📋</span> 로또 6/45 발권표 (OMR)
+            </span>
+            <span id="ticketCountBadge" class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] px-2 py-0.5 rounded-full font-bold">5게임 (5,000원)</span>
           </div>
-          <div class="flex items-center gap-1">
-            <button id="clearAllTicketsBtn" class="text-[11px] text-slate-400 hover:text-red-400 underline">전체 초기화</button>
-          </div>
+          <button id="clearSlipBtn" class="text-[11px] text-slate-400 hover:text-red-400 underline transition">
+            전체 비우기
+          </button>
         </div>
 
         <!-- 5 Game Rows (A, B, C, D, E) -->
-        <div id="gamesContainer" class="flex flex-col gap-1.5 max-h-[290px] overflow-y-auto pr-1">
-          <!-- Populated dynamically via JS -->
+        <div id="gamesList" class="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-1">
+          <!-- Dynamically populated via JS -->
         </div>
 
         <!-- Quick Ticket Operations -->
-        <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/80">
-          <button id="quickAuto5Btn" class="btn-tactile py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-bold text-amber-300">
-            🎲 5게임 자동
+        <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800">
+          <button id="buy5AutoBtn" class="btn-tactile py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-bold text-amber-300 flex items-center justify-center gap-1">
+            <span>🎲</span> 5게임 자동
           </button>
-          <button id="quickAuto1Btn" class="btn-tactile py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-bold text-slate-200">
-            ➕ 1게임 추가
+          <button id="add1AutoBtn" class="btn-tactile py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-bold text-slate-200 flex items-center justify-center gap-1">
+            <span>➕</span> 1게임 추가
           </button>
-          <button id="togglePadBtn" class="btn-tactile py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-bold text-cyan-300">
-            ✏️ 수동 번호 찍기
+          <button id="openManualPadBtn" class="btn-tactile py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-bold text-cyan-300 flex items-center justify-center gap-1">
+            <span>✏️</span> 번호 마킹
           </button>
         </div>
       </div>
 
-      <!-- Interactive 1 ~ 45 Manual Number Pad (Collapsible/Active) -->
-      <div id="manualPickerCard" class="bg-slate-900 border border-slate-700 rounded-2xl p-3 shadow-lg flex flex-col gap-2">
+      <!-- Interactive 1~45 OMR Number Marking Pad -->
+      <div id="manualPadSection" class="studio-panel rounded-2xl p-3.5 shadow-lg border border-slate-700/80 flex flex-col gap-2.5">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-1.5">
-            <span class="text-xs font-bold text-cyan-400">수동 마킹 패드</span>
-            <span class="text-[10px] text-slate-400">(선택: <strong id="manualSelectedCount" class="text-amber-400">0</strong>/6)</span>
+            <span class="text-xs font-bold text-cyan-400">수동 번호 마킹 패드</span>
+            <span class="text-[11px] text-slate-400">(선택: <strong id="selectedNumCount" class="text-amber-400 text-sm">0</strong>/6)</span>
           </div>
           <div class="flex items-center gap-1.5">
-            <button id="manualAuto6Btn" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-amber-300 text-[10px] font-bold rounded">자동 6개</button>
-            <button id="manualResetBtn" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-bold rounded">비우기</button>
+            <button id="padQuickAutoBtn" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-amber-300 text-[10px] font-bold rounded border border-slate-600">자동 6개</button>
+            <button id="padClearBtn" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-bold rounded border border-slate-600">초기화</button>
           </div>
         </div>
 
         <!-- 1~45 Number Grid -->
         <div id="numberPadGrid" class="grid grid-cols-9 gap-1 sm:gap-1.5 pt-1">
-          <!-- Numbers 1 to 45 buttons injected by JS -->
+          <!-- Injected via JavaScript -->
         </div>
 
-        <button id="applyManualToGameBtn" class="btn-tactile w-full py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-lg text-white font-bold text-xs shadow disabled:opacity-40">
-          선택한 6개 번호로 신규 게임 등록 (1,000원)
+        <button id="submitManualGameBtn" class="btn-tactile w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-xl text-white font-bold text-xs shadow-md disabled:opacity-40 flex items-center justify-center gap-1">
+          <span>📝</span>
+          <span>선택한 6개 번호로 신규 게임 등록 (1,000원)</span>
         </button>
       </div>
 
-      <!-- Prize Tiers Reference Guide -->
-      <div class="bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5 text-[11px] text-slate-400 space-y-1">
+      <!-- Real Prize Payout Matrix Reference -->
+      <div class="studio-panel rounded-xl p-3 text-[11px] text-slate-400 space-y-1 border border-slate-800">
         <div class="flex justify-between text-slate-300 font-bold border-b border-slate-800 pb-1">
-          <span>등위별 당첨 기준</span>
-          <span>당첨금 배분</span>
+          <span>등위 (보정 당첨 확률)</span>
+          <span>당첨금 기준</span>
         </div>
-        <div class="flex justify-between"><span>👑 1등 (번호 6개 일치)</span><strong class="text-amber-400">총 당첨금의 75% (~25억 원)</strong></div>
-        <div class="flex justify-between"><span>🥈 2등 (번호 5개 + 보너스)</span><strong class="text-cyan-400">총 당첨금의 12.5% (~6,000만 원)</strong></div>
-        <div class="flex justify-between"><span>🥉 3등 (번호 5개 일치)</span><strong class="text-emerald-400">총 당첨금의 12.5% (~150만 원)</strong></div>
-        <div class="flex justify-between"><span>4등 (4개) / 5등 (3개)</span><span>고정 50,000원 / 고정 5,000원</span></div>
+        <div class="flex justify-between items-center">
+          <span class="text-amber-400 font-bold">👑 1등 (6개 일치 / 1:814)</span>
+          <strong class="text-amber-300">약 28억 5천만 원</strong>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-cyan-400 font-bold">🥈 2등 (5개+보너스 / 1:135)</span>
+          <strong class="text-cyan-300">약 6,500만 원</strong>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-emerald-400">🥉 3등 (5개 일치 / 1:25)</span>
+          <span>약 150만 원</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-indigo-300">4등 (4개 일치 / 1:6)</span>
+          <span>고정 50,000원</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-rose-300">5등 (3개 일치 / 1:3)</span>
+          <span>고정 5,000원</span>
+        </div>
       </div>
 
     </div>
   </main>
 
-  <!-- GRAND WINNER MODAL CELEBRATION -->
+  <!-- GRAND WINNER CELEBRATION MODAL -->
   <div id="winModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-4 border-amber-400 rounded-3xl p-6 max-w-md w-full text-center relative shadow-[0_0_80px_rgba(251,196,0,0.5)] flex flex-col items-center">
+    <div class="studio-panel border-4 border-amber-400 rounded-3xl p-6 max-w-md w-full text-center relative shadow-[0_0_80px_rgba(251,196,0,0.5)] flex flex-col items-center">
       
-      <span class="text-5xl animate-bounce mb-2">🎉</span>
+      <span class="text-5xl animate-bounce mb-1">🎉</span>
       <h2 id="winModalTitle" class="text-2xl sm:text-3xl font-black text-amber-300 tracking-wider">
-        축하합니다! 1등 대박 당첨!
+        1등 대박 잭팟 당첨!
       </h2>
       <p id="winModalSub" class="text-xs sm:text-sm text-slate-300 mt-1">
-        1억 배 확률 모드가 기적의 잭팟을 터뜨렸습니다!
+        1/814 확률의 기적을 뚫고 1등 신화를 달성했습니다!
       </p>
 
       <div class="w-full bg-slate-950 border border-amber-500/50 rounded-2xl p-4 my-4 flex flex-col gap-2">
-        <span class="text-xs text-amber-200/80 font-bold">수령 당첨금</span>
-        <span id="winModalPrizeAmount" class="font-digital text-2xl sm:text-3xl font-black text-yellow-300">
-          2,854,192,800 원
+        <span class="text-xs text-amber-200/80 font-bold">총 수령 당첨금</span>
+        <span id="winModalPrizeText" class="font-digital text-2xl sm:text-3xl font-black text-yellow-300">
+          2,854,000,000 원
         </span>
-        <div id="winModalDetailList" class="text-xs text-slate-300 border-t border-slate-800 pt-2 flex flex-col gap-1 text-left">
+        <div id="winModalDetailList" class="text-xs text-slate-300 border-t border-slate-800 pt-2 flex flex-col gap-1 text-left max-h-36 overflow-y-auto">
           <!-- Injected dynamically -->
         </div>
       </div>
 
       <button id="closeWinModalBtn" class="btn-tactile w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-sm tracking-wider shadow-xl">
-        당첨금 전액 지갑으로 수령하기
+        당첨금 전액 지갑으로 입금하기
       </button>
     </div>
   </div>
 
-  <!-- HELP & EXPLANATION MODAL -->
+  <!-- HELP & PROBABILITY GUIDE MODAL -->
   <div id="helpModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border-2 border-slate-700 rounded-2xl p-5 max-w-lg w-full text-left shadow-2xl space-y-3">
+    <div class="studio-panel border-2 border-slate-700 rounded-2xl p-5 max-w-lg w-full text-left shadow-2xl space-y-3">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-        <h3 class="font-black text-base text-amber-300">💡 슈퍼 로또 6/45 안내</h3>
-        <button id="closeHelpModalBtn" class="text-slate-400 hover:text-white font-bold text-lg">✕</button>
+        <h3 class="font-black text-base text-amber-300 flex items-center gap-1.5">
+          <span>💡</span> 슈퍼 로또 6/45 시스템 안내
+        </h3>
+        <button id="closeHelpModalBtn" class="text-slate-400 hover:text-white font-bold text-lg p-1">✕</button>
       </div>
       <div class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
         <p>
-          🔥 <strong>1억 배 당첨 모드란?</strong><br>
-          실제 로또 1등 당첨 확률은 <strong>1 / 8,145,060 (약 0.00001228%)</strong>의 극악의 확률입니다.
-          본 모드를 켜면 확률을 무려 <strong>100,000,000배</strong> 스케일링하여, 거의 <strong>매 추첨마다 1등 및 상위 등수 잭팟</strong>이 확정적으로 터지도록 시뮬레이션 엔진이 작동합니다!
+          🔥 <strong>초정밀 부스트 확률 엔진 (요청 사양 적용):</strong><br>
+          실제 로또 1등 확률인 <strong>8,145,060분의 1 (0.000012%)</strong>을 현실감과 당첨 쾌감을 동시에 누릴 수 있도록 다음과 같이 정밀 보정했습니다:
         </p>
+        <ul class="list-disc pl-5 space-y-1 text-amber-200">
+          <li><strong>1등 (6개 일치):</strong> <strong>814분의 1</strong> (약 0.123%)</li>
+          <li><strong>2등 (5개 + 보너스 일치):</strong> <strong>135분의 1</strong> (약 0.741%)</li>
+          <li><strong>3등 (5개 일치):</strong> <strong>25분의 1</strong> (약 4.0%)</li>
+          <li><strong>4등 (4개 일치):</strong> <strong>6분의 1</strong> (약 16.7%)</li>
+          <li><strong>5등 (3개 일치):</strong> <strong>3분의 1</strong> (약 33.3%)</li>
+        </ul>
         <p>
-          💀 <strong>현실 모드 (1배):</strong><br>
-          실제 대한민국의 수학적 확률 그대로 완전 무작위 추첨합니다. 수백만 번 사도 1등을 맞추기 얼마나 어려운지 직접 체감해볼 수 있습니다.
-        </p>
-        <p>
-          🎯 <strong>공식 로또 볼 색상 체계:</strong><br>
-          1~10번: 🟡 노랑 | 11~20번: 🔵 파랑 | 21~30번: 🔴 빨강 | 31~40번: ⚪ 회색 | 41~45번: 🟢 녹색
+          🎯 <strong>1등 나올 때까지 시뮬레이션:</strong><br>
+          1/814 확률을 뚫고 1등이 나올 때까지 브라우저 멈춤 없이 백그라운드 청크 비동기 연산으로 초당 수백 회차를 고속 시뮬레이션합니다. 총 소요 비용과 통산 ROI를 실시간으로 확인해보세요!
         </p>
       </div>
     </div>
@@ -363,15 +475,11 @@
 
   <script>
     /**
-     * Web Audio API Synthesizer
-     * Pure procedural audio generator for the lottery machine:
-     * - Acrylic blower air vortex white-noise
-     * - Ball collisions and rattle
-     * - Suction chute pop sound
-     * - Ball reveal chime on rack
-     * - 1st prize explosive celebratory fanfare and siren
+     * Web Audio API Synthesizer Engine
+     * Pure procedural audio for mechanical sphere suction, ball collisions,
+     * rack drops, and big win celebrations. No external mp3 files required.
      */
-    class LottoSoundEngine {
+    class LottoAudioEngine {
       constructor() {
         this.ctx = null;
         this.isMuted = false;
@@ -421,30 +529,30 @@
         } catch (e) {}
       }
 
-      // Ball Clatter / Bounce
+      // Ball Clatter Sound
       playBallClick() {
         if (this.isMuted) return;
-        const freqs = [1200, 1500, 1800, 2100];
+        const freqs = [1100, 1450, 1750, 2100];
         const f = freqs[Math.floor(Math.random() * freqs.length)];
-        this.playTone(f, 'sine', 0.04, 0.05, -300);
+        this.playTone(f, 'sine', 0.04, 0.04, -280);
       }
 
-      // Suction Pop
+      // Suction Tube Pop Sound
       playSuctionPop() {
         if (this.isMuted) return;
-        this.playTone(320, 'triangle', 0.15, 0.22, 500);
+        this.playTone(320, 'triangle', 0.14, 0.22, 550);
       }
 
-      // Ball Reveal Chime
-      playBallReveal(index) {
+      // Rack Drop Chime
+      playRackChime(stepIndex) {
         if (this.isMuted) return;
         const pentatonic = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66];
-        const note = pentatonic[index % pentatonic.length];
-        this.playTone(note, 'triangle', 0.35, 0.2);
-        setTimeout(() => this.playTone(note * 1.5, 'sine', 0.25, 0.1), 60);
+        const note = pentatonic[stepIndex % pentatonic.length];
+        this.playTone(note, 'triangle', 0.35, 0.18);
+        setTimeout(() => this.playTone(note * 1.5, 'sine', 0.25, 0.09), 50);
       }
 
-      // Continuous Blower Air Vortex Hum
+      // Continuous Air Suction Noise
       startBlowerSound() {
         if (this.isMuted) return;
         try {
@@ -464,10 +572,10 @@
 
           const filter = this.ctx.createBiquadFilter();
           filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(450, this.ctx.currentTime);
+          filter.frequency.setValueAtTime(400, this.ctx.currentTime);
 
           this.blowerGain = this.ctx.createGain();
-          this.blowerGain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+          this.blowerGain.gain.setValueAtTime(0.07, this.ctx.currentTime);
 
           whiteNoise.connect(filter);
           filter.connect(this.blowerGain);
@@ -481,7 +589,7 @@
       stopBlowerSound() {
         if (this.blowerGain && this.ctx) {
           try {
-            this.blowerGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+            this.blowerGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
             setTimeout(() => {
               if (this.blowerNoiseNode) {
                 this.blowerNoiseNode.stop();
@@ -489,54 +597,82 @@
                 this.blowerNoiseNode = null;
                 this.blowerGain = null;
               }
-            }, 320);
+            }, 270);
           } catch (e) {}
         }
       }
 
-      // Celebratory Siren & Fanfare
-      playJackpotSiren() {
+      // Victory Fanfare & Siren
+      playGrandFanfare() {
         if (this.isMuted) return;
         const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
         notes.forEach((freq, idx) => {
           setTimeout(() => {
-            this.playTone(freq, 'triangle', 0.4, 0.25);
-            this.playTone(freq * 1.25, 'sawtooth', 0.25, 0.12);
+            this.playTone(freq, 'triangle', 0.45, 0.25);
+            this.playTone(freq * 1.25, 'sawtooth', 0.3, 0.12);
           }, idx * 110);
         });
       }
     }
 
-    const sound = new LottoSoundEngine();
+    const sound = new LottoAudioEngine();
 
-    // Core Game State
-    let isFeverMode = true; // 100,000,000x boosted probability mode (default: TRUE)
-    let isDrawing = false;
-    let isFastMode = false;
+    /**
+     * Exact User Specification Probability Engine:
+     * - 1등 (6 match): 1 / 814 ≈ 0.0012285
+     * - 2등 (5 match + bonus): 1 / 135 ≈ 0.0074074
+     * - 3등 (5 match): 1 / 25 ≈ 0.0400000
+     * - 4등 (4 match): 1 / 6 ≈ 0.1666667
+     * - 5등 (3 match): 1 / 3 ≈ 0.3333333
+     */
+    const PROB_1ST = 1 / 814;
+    const PROB_2ND = 1 / 135;
+    const PROB_3RD = 1 / 25;
+    const PROB_4TH = 1 / 6;
+    const PROB_5TH = 1 / 3;
+
+    // Cumulative thresholds
+    const THRESH_1 = PROB_1ST;
+    const THRESH_2 = THRESH_1 + PROB_2ND;
+    const THRESH_3 = THRESH_2 + PROB_3RD;
+    const THRESH_4 = THRESH_3 + PROB_4TH;
+    const THRESH_5 = THRESH_4 + PROB_5TH;
+
+    // Financial State
     let currentRound = 1140;
-    let playerBalance = 100000; // Starting 100,000 KRW
-    let totalWinnings = 0;
+    let baseJackpot = 2854000000;
+    let playerBalance = 100000;
     let totalSpent = 0;
-    let baseJackpot = 2854192800; // ~2.85 billion KRW
+    let totalWon = 0;
 
-    // User's Active Tickets (List of { id, mode: '자동'|'수동', numbers: [6 numbers], matches: [] })
+    // Run State Flags
+    let isDrawing = false;
+    let isSimulating = false;
+    let stopRequested = false;
+
+    // Stats Accumulators
+    let statTotalDraws = 0;
+    let statTotalGames = 0;
+    let hitStats = { rank1: 0, rank2: 0, rank3: 0, rank4: 0, rank5: 0, fail: 0 };
+
+    // Active Ticket Slips (List of { id, label, mode, numbers, matches, hasBonus, rank, prize })
     let userTickets = [];
     let manualSelectedNumbers = new Set();
 
-    // Drawn Numbers for Current Round
-    let drawnWinningNumbers = []; // 6 numbers
+    // Winning Result for Current Round
+    let drawnWinningNumbers = [];
     let drawnBonusNumber = null;
 
-    // Helper: Ball Color Category & Class
+    // Helper: Determine Official Ball Theme
     function getBallTheme(num) {
-      if (num <= 10) return { bg: '#fbc400', class: 'ball-1-10', text: '#3b2800' };
-      if (num <= 20) return { bg: '#69c8f2', class: 'ball-11-20', text: '#ffffff' };
-      if (num <= 30) return { bg: '#ff7272', class: 'ball-21-30', text: '#ffffff' };
-      if (num <= 40) return { bg: '#aaaaaa', class: 'ball-31-40', text: '#ffffff' };
-      return { bg: '#b0d840', class: 'ball-41-45', text: '#1c3000' };
+      if (num <= 10) return { bg: '#fbc400', class: 'ball-theme-yellow', text: '#3b2800' };
+      if (num <= 20) return { bg: '#2b7fff', class: 'ball-theme-blue', text: '#ffffff' };
+      if (num <= 30) return { bg: '#ff3b30', class: 'ball-theme-red', text: '#ffffff' };
+      if (num <= 40) return { bg: '#8e8e93', class: 'ball-theme-gray', text: '#ffffff' };
+      return { bg: '#34c759', class: 'ball-theme-green', text: '#063110' };
     }
 
-    // Helper: Pick 6 Unique Random Numbers from 1 to 45
+    // Helper: Generate 6 Unique Random Numbers from 1 to 45
     function generateRandom6() {
       const pool = Array.from({ length: 45 }, (_, i) => i + 1);
       const chosen = [];
@@ -549,8 +685,8 @@
 
     const blowerCanvas = document.getElementById('blowerCanvas');
     const blowerCtx = blowerCanvas.getContext('2d');
-    const celebCanvas = document.getElementById('celebrationCanvas');
-    const celebCtx = celebCanvas.getContext('2d');
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const confettiCtx = confettiCanvas.getContext('2d');
 
     let machineBalls = [];
     let machineCenter = { x: 0, y: 0 };
@@ -558,7 +694,7 @@
     let suctionActive = false;
     let ballBeingSuctioned = null;
 
-    function resizeBlowerCanvas() {
+    function resizeCanvases() {
       const rect = blowerCanvas.parentElement.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
 
@@ -566,30 +702,29 @@
       blowerCanvas.height = rect.height * dpr;
       blowerCtx.scale(dpr, dpr);
 
-      celebCanvas.width = rect.width * dpr;
-      celebCanvas.height = rect.height * dpr;
-      celebCtx.scale(dpr, dpr);
+      confettiCanvas.width = rect.width * dpr;
+      confettiCanvas.height = rect.height * dpr;
+      confettiCtx.scale(dpr, dpr);
 
       machineCenter.x = rect.width / 2;
       machineCenter.y = rect.height * 0.58;
       machineRadius = Math.min(rect.width * 0.42, rect.height * 0.38);
     }
-    window.addEventListener('resize', resizeBlowerCanvas);
+    window.addEventListener('resize', resizeCanvases);
 
-    // Initialize 45 Balls inside Sphere
     function initMachineBalls() {
       machineBalls = [];
       for (let i = 1; i <= 45; i++) {
         const theme = getBallTheme(i);
         const ang = Math.random() * Math.PI * 2;
-        const dist = Math.random() * (machineRadius - 22);
+        const dist = Math.random() * (machineRadius - 24);
         machineBalls.push({
           num: i,
           x: machineCenter.x + Math.cos(ang) * dist,
           y: machineCenter.y + Math.sin(ang) * dist,
           vx: (Math.random() - 0.5) * 4,
           vy: (Math.random() - 0.5) * 4,
-          radius: 12,
+          radius: 12.5,
           theme: theme,
           inMachine: true
         });
@@ -604,58 +739,55 @@
       machineBalls.forEach(ball => {
         if (!ball.inMachine) return;
 
-        // If currently being sucked up through the suction chute
+        // If suction animation is pulling this ball into the top pipe
         if (ball === ballBeingSuctioned) {
           const chuteTargetX = cx;
           const chuteTargetY = cy - R - 35;
-          ball.x += (chuteTargetX - ball.x) * 0.18;
-          ball.y += (chuteTargetY - ball.y) * 0.18;
+          ball.x += (chuteTargetX - ball.x) * 0.22;
+          ball.y += (chuteTargetY - ball.y) * 0.22;
           return;
         }
 
-        // Standard machine active physics
         if (isDrawing) {
-          // Upward Air Vortex Blast from bottom jets
-          const blastStrength = 0.55 + Math.random() * 0.65;
-          ball.vy -= blastStrength;
-          ball.vx += (Math.random() - 0.5) * 0.8;
+          // Strong upward turbulent air jet from bottom
+          const blast = 0.65 + Math.random() * 0.75;
+          ball.vy -= blast;
+          ball.vx += (Math.random() - 0.5) * 0.9;
 
-          // Angular swirl momentum
+          // Gentle rotational swirl
           const dx = ball.x - cx;
           const dy = ball.y - cy;
-          ball.vx += -dy * 0.007;
-          ball.vy += dx * 0.007;
+          ball.vx += -dy * 0.008;
+          ball.vy += dx * 0.008;
         } else {
-          // Gentle resting gravity when idle
-          ball.vy += 0.25;
+          // Resting gravity
+          ball.vy += 0.28;
         }
 
-        // Terminal air resistance / drag
+        // Air damping drag
         ball.vx *= 0.985;
         ball.vy *= 0.985;
 
-        // Position Integration
+        // Position integration
         ball.x += ball.vx;
         ball.y += ball.vy;
 
-        // Spherical Glass Boundary Collision Detection
-        const distFromCenter = Math.hypot(ball.x - cx, ball.y - cy);
+        // Spherical boundary reflection
+        const dist = Math.hypot(ball.x - cx, ball.y - cy);
         const maxDist = R - ball.radius;
 
-        if (distFromCenter > maxDist) {
-          const normalX = (ball.x - cx) / distFromCenter;
-          const normalY = (ball.y - cy) / distFromCenter;
+        if (dist > maxDist) {
+          const nx = (ball.x - cx) / dist;
+          const ny = (ball.y - cy) / dist;
 
-          // Snap to surface
-          ball.x = cx + normalX * maxDist;
-          ball.y = cy + normalY * maxDist;
+          ball.x = cx + nx * maxDist;
+          ball.y = cy + ny * maxDist;
 
-          // Velocity reflection with bounce restitution
-          const dot = ball.vx * normalX + ball.vy * normalY;
-          ball.vx = (ball.vx - 2 * dot * normalX) * 0.75;
-          ball.vy = (ball.vy - 2 * dot * normalY) * 0.75;
+          const dot = ball.vx * nx + ball.vy * ny;
+          ball.vx = (ball.vx - 2 * dot * nx) * 0.76;
+          ball.vy = (ball.vy - 2 * dot * ny) * 0.76;
 
-          if (isDrawing && Math.random() < 0.08) {
+          if (isDrawing && Math.random() < 0.1) {
             sound.playBallClick();
           }
         }
@@ -670,9 +802,9 @@
 
       blowerCtx.clearRect(0, 0, rect.width, rect.height);
 
-      // 1. Overhead Acrylic Suction Funnel & Tube
+      // 1. Suction Tube Glass Rails
       blowerCtx.save();
-      blowerCtx.strokeStyle = 'rgba(105, 200, 242, 0.4)';
+      blowerCtx.strokeStyle = 'rgba(105, 200, 242, 0.45)';
       blowerCtx.lineWidth = 3;
       blowerCtx.beginPath();
       blowerCtx.moveTo(cx - 24, cy - R);
@@ -681,29 +813,28 @@
       blowerCtx.lineTo(cx + 24, cy - R);
       blowerCtx.stroke();
 
-      // Suction Light Glow
       if (suctionActive) {
-        blowerCtx.fillStyle = 'rgba(255, 215, 0, 0.25)';
+        blowerCtx.fillStyle = 'rgba(255, 215, 0, 0.3)';
         blowerCtx.fill();
       }
       blowerCtx.restore();
 
-      // 2. Machine Circular Back Glass with Radial Lighting
+      // 2. Acrylic Sphere Glass Background
       blowerCtx.save();
       const glassGrad = blowerCtx.createRadialGradient(cx - R * 0.3, cy - R * 0.3, 10, cx, cy, R);
       glassGrad.addColorStop(0, 'rgba(30, 45, 80, 0.35)');
-      glassGrad.addColorStop(0.7, 'rgba(12, 18, 35, 0.55)');
-      glassGrad.addColorStop(1, 'rgba(5, 8, 18, 0.85)');
+      glassGrad.addColorStop(0.7, 'rgba(10, 16, 30, 0.6)');
+      glassGrad.addColorStop(1, 'rgba(4, 7, 15, 0.9)');
       blowerCtx.fillStyle = glassGrad;
       blowerCtx.beginPath();
       blowerCtx.arc(cx, cy, R, 0, Math.PI * 2);
       blowerCtx.fill();
 
-      // Metallic Rim Ring
-      blowerCtx.strokeStyle = 'rgba(251, 196, 0, 0.7)';
+      // Golden Bezel Ring
+      blowerCtx.strokeStyle = 'rgba(251, 196, 0, 0.75)';
       blowerCtx.lineWidth = 5;
-      blowerCtx.shadowColor = 'rgba(251, 196, 0, 0.5)';
-      blowerCtx.shadowBlur = 15;
+      blowerCtx.shadowColor = 'rgba(251, 196, 0, 0.45)';
+      blowerCtx.shadowBlur = 16;
       blowerCtx.stroke();
       blowerCtx.restore();
 
@@ -714,19 +845,19 @@
         blowerCtx.save();
         blowerCtx.translate(ball.x, ball.y);
 
-        // 3D Ball Sphere Gradient
+        // 3D Sphere Shading
         const ballGrad = blowerCtx.createRadialGradient(-3, -3, 1, 0, 0, ball.radius);
         ballGrad.addColorStop(0, '#ffffff');
-        ballGrad.addColorStop(0.3, ball.theme.bg);
-        ballGrad.addColorStop(1, 'rgba(0,0,0,0.5)');
+        ballGrad.addColorStop(0.35, ball.theme.bg);
+        ballGrad.addColorStop(1, 'rgba(0, 0, 0, 0.55)');
         blowerCtx.fillStyle = ballGrad;
         blowerCtx.beginPath();
         blowerCtx.arc(0, 0, ball.radius, 0, Math.PI * 2);
         blowerCtx.fill();
 
-        // Ball Number Typography
+        // Contrasting Ball Number
         blowerCtx.fillStyle = ball.theme.text;
-        blowerCtx.font = '900 9px Pretendard, sans-serif';
+        blowerCtx.font = '900 9.5px Pretendard, sans-serif';
         blowerCtx.textAlign = 'center';
         blowerCtx.textBaseline = 'middle';
         blowerCtx.fillText(ball.num, 0, 0.5);
@@ -734,38 +865,38 @@
         blowerCtx.restore();
       });
 
-      // 4. Front Glass Gloss Highlight
+      // 4. Front Glass Gloss Arc
       blowerCtx.save();
       blowerCtx.beginPath();
-      blowerCtx.arc(cx, cy, R - 4, Math.PI * 1.1, Math.PI * 1.8);
+      blowerCtx.arc(cx, cy, R - 4, Math.PI * 1.12, Math.PI * 1.82);
       blowerCtx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
       blowerCtx.lineWidth = 6;
       blowerCtx.stroke();
       blowerCtx.restore();
     }
 
+    // Confetti Shower Particle System
     let confettiParticles = [];
-
-    function spawnConfetti(count = 160) {
-      const rect = celebCanvas.parentElement.getBoundingClientRect();
+    function spawnConfetti(count = 180) {
+      const rect = confettiCanvas.parentElement.getBoundingClientRect();
       for (let i = 0; i < count; i++) {
         confettiParticles.push({
-          x: rect.width / 2 + (Math.random() - 0.5) * 120,
+          x: rect.width / 2 + (Math.random() - 0.5) * 140,
           y: rect.height * 0.45,
           vx: (Math.random() - 0.5) * 16,
-          vy: -(Math.random() * 15 + 8),
+          vy: -(Math.random() * 16 + 8),
           size: Math.random() * 8 + 4,
           rot: Math.random() * Math.PI,
           rotSpeed: (Math.random() - 0.5) * 0.25,
-          color: ['#fbc400', '#69c8f2', '#ff7272', '#b0d840', '#ffffff', '#ffd700'][Math.floor(Math.random() * 6)],
+          color: ['#fbc400', '#2b7fff', '#ff3b30', '#34c759', '#ffffff', '#ffd700', '#ff007f'][Math.floor(Math.random() * 7)],
           gravity: 0.45
         });
       }
     }
 
     function updateAndRenderConfetti() {
-      const rect = celebCanvas.parentElement.getBoundingClientRect();
-      celebCtx.clearRect(0, 0, rect.width, rect.height);
+      const rect = confettiCanvas.parentElement.getBoundingClientRect();
+      confettiCtx.clearRect(0, 0, rect.width, rect.height);
 
       for (let i = confettiParticles.length - 1; i >= 0; i--) {
         const p = confettiParticles[i];
@@ -774,392 +905,179 @@
         p.y += p.vy;
         p.rot += p.rotSpeed;
 
-        if (p.y > rect.height + 20) {
+        if (p.y > rect.height + 25) {
           confettiParticles.splice(i, 1);
           continue;
         }
 
-        celebCtx.save();
-        celebCtx.translate(p.x, p.y);
-        celebCtx.rotate(p.rot);
-        celebCtx.fillStyle = p.color;
-        celebCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
-        celebCtx.restore();
+        confettiCtx.save();
+        confettiCtx.translate(p.x, p.y);
+        confettiCtx.rotate(p.rot);
+        confettiCtx.fillStyle = p.color;
+        confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+        confettiCtx.restore();
       }
     }
 
-    // Main Canvas Animation Loop
-    function animationLoop() {
+    function mainAnimationLoop() {
       updateBlowerPhysics();
       renderBlower();
       updateAndRenderConfetti();
-      requestAnimationFrame(animationLoop);
-    }
-
-    /**
-     * PROBABILITY ENGINE CORE:
-     * - Standard 1st prize odds: 1 in 8,145,060 (~0.00001228%).
-     * - In 100,000,000x Fever Mode (1억 배 모드):
-     *   Odds are boosted 100,000,000x! We evaluate against the user's active purchased games.
-     *   With an ~85% frequency, one of the player's bought games is designated as the EXACT 1st prize match!
-     *   With ~12% frequency, it matches 5 + Bonus (2nd prize).
-     *   With ~3% frequency, it matches 5 (3rd prize).
-     * - In Reality Mode (1배 현실 모드):
-     *   True unbiased 6/45 hypergeometric random draw.
-     */
-    function calculateWinningNumbersForRound() {
-      if (!isFeverMode || userTickets.length === 0) {
-        // True random draw
-        const numbers = generateRandom6();
-        const pool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !numbers.includes(n));
-        const bonus = pool[Math.floor(Math.random() * pool.length)];
-        return { main: numbers, bonus: bonus };
-      }
-
-      // 100,000,000x FEVER ENGINE ACTIVE!
-      const targetGame = userTickets[Math.floor(Math.random() * userTickets.length)];
-      const targetNums = [...targetGame.numbers];
-
-      const roll = Math.random();
-      let mainNums = [];
-      let bonusNum = null;
-
-      if (roll < 0.85) {
-        // 85% CHANCE: 1ST PRIZE (1등 당첨 확정!)
-        mainNums = [...targetNums].sort((a, b) => a - b);
-        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !mainNums.includes(n));
-        bonusNum = remPool[Math.floor(Math.random() * remPool.length)];
-      } else if (roll < 0.97) {
-        // 12% CHANCE: 2ND PRIZE (5개 일치 + 보너스 번호 일치)
-        const matched5 = targetNums.sort(() => Math.random() - 0.5).slice(0, 5);
-        const the6th = targetNums.find(n => !matched5.includes(n));
-        bonusNum = the6th; // 6th number becomes bonus!
-
-        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !targetNums.includes(n));
-        const other1 = remPool[Math.floor(Math.random() * remPool.length)];
-        mainNums = [...matched5, other1].sort((a, b) => a - b);
-      } else {
-        // 3% CHANCE: 3RD PRIZE (5개 일치)
-        const matched5 = targetNums.sort(() => Math.random() - 0.5).slice(0, 5);
-        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !targetNums.includes(n));
-        const other1 = remPool[Math.floor(Math.random() * remPool.length)];
-        mainNums = [...matched5, other1].sort((a, b) => a - b);
-
-        const remPool2 = remPool.filter(n => n !== other1);
-        bonusNum = remPool2[Math.floor(Math.random() * remPool2.length)];
-      }
-
-      return { main: mainNums, bonus: bonusNum };
-    }
-
-    async function executeDrawSequence() {
-      if (isDrawing) return;
-      if (userTickets.length === 0) {
-        setAlertBanner("먼저 1개 이상의 로또 게임을 발권해주세요!");
-        return;
-      }
-
-      isDrawing = true;
-      document.getElementById('startDrawBtn').disabled = true;
-      document.getElementById('buyAuto5AndDrawBtn').disabled = true;
-      document.getElementById('machineStatusLabel').textContent = "공기 흡입기 가동 중! (DRAWING)";
-      setAlertBanner("생방송 추첨 중! 45개의 로또 볼이 소용돌이칩니다!");
-
-      sound.init();
-      sound.startBlowerSound();
-
-      // Reset Ball Slot Rack UI
-      for (let i = 0; i < 6; i++) {
-        const slot = document.getElementById(`drawnSlot${i}`);
-        slot.className = "w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm";
-        slot.textContent = "?";
-      }
-      const bonusSlot = document.getElementById('drawnSlotBonus');
-      bonusSlot.className = "w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-amber-600/50 bg-slate-950/70 flex items-center justify-center font-bold text-amber-500/70 text-xs sm:text-sm";
-      bonusSlot.textContent = "보너스";
-
-      // Reset tickets match states
-      userTickets.forEach(t => t.matches = []);
-      renderUserTickets();
-
-      // Calculate Target Draw
-      const targetDraw = calculateWinningNumbersForRound();
-      drawnWinningNumbers = targetDraw.main;
-      drawnBonusNumber = targetDraw.bonus;
-
-      const drawDelay = isFastMode ? 280 : 1200;
-
-      // Sequentially Reveal 6 Main Numbers
-      for (let step = 0; step < 6; step++) {
-        await new Promise(r => setTimeout(r, drawDelay));
-        const num = drawnWinningNumbers[step];
-
-        // Animate Ball Sucked up
-        suctionActive = true;
-        const machineBall = machineBalls.find(b => b.num === num);
-        if (machineBall) ballBeingSuctioned = machineBall;
-        sound.playSuctionPop();
-
-        await new Promise(r => setTimeout(r, isFastMode ? 120 : 350));
-        suctionActive = false;
-        ballBeingSuctioned = null;
-
-        // Place on Rack
-        renderDrawnBallOnSlot(`drawnSlot${step}`, num, step);
-      }
-
-      // Bonus Ball Delay & Reveal
-      document.getElementById('drawingStepLabel').textContent = "(마지막 2등 결정 보너스 번호 추첨!)";
-      await new Promise(r => setTimeout(r, drawDelay * 1.2));
-
-      suctionActive = true;
-      const bBall = machineBalls.find(b => b.num === drawnBonusNumber);
-      if (bBall) ballBeingSuctioned = bBall;
-      sound.playSuctionPop();
-
-      await new Promise(r => setTimeout(r, isFastMode ? 120 : 350));
-      suctionActive = false;
-      ballBeingSuctioned = null;
-
-      renderDrawnBallOnSlot('drawnSlotBonus', drawnBonusNumber, 6, true);
-
-      // Stop Blower
-      sound.stopBlowerSound();
-      isDrawing = false;
-      document.getElementById('startDrawBtn').disabled = false;
-      document.getElementById('buyAuto5AndDrawBtn').disabled = false;
-      document.getElementById('machineStatusLabel').textContent = "추첨 완료 (COMPLETED)";
-      document.getElementById('drawingStepLabel').textContent = "(당첨 번호 발표 완료)";
-
-      // Verification & Prize Payout
-      verifyTicketsAndReward();
-    }
-
-    function renderDrawnBallOnSlot(slotId, num, index, isBonus = false) {
-      const slot = document.getElementById(slotId);
-      const theme = getBallTheme(num);
-      slot.className = `w-10 h-10 sm:w-12 sm:h-12 lotto-ball ${theme.class} text-xs sm:text-base ball-drop`;
-      slot.textContent = num;
-      sound.playBallReveal(index);
-    }
-
-    function verifyTicketsAndReward() {
-      let highestRank = null;
-      let roundTotalPrize = 0;
-      const prizeDetails = [];
-
-      userTickets.forEach((ticket, idx) => {
-        const gameLabel = String.fromCharCode(65 + idx); // A, B, C, D, E
-        const matchedNums = ticket.numbers.filter(n => drawnWinningNumbers.includes(n));
-        const hasBonus = ticket.numbers.includes(drawnBonusNumber);
-        ticket.matches = matchedNums;
-        ticket.hasBonus = hasBonus;
-
-        let rank = null;
-        let prize = 0;
-
-        if (matchedNums.length === 6) {
-          rank = '1등';
-          prize = baseJackpot;
-        } else if (matchedNums.length === 5 && hasBonus) {
-          rank = '2등';
-          prize = 62450000; // ~62 million KRW
-        } else if (matchedNums.length === 5) {
-          rank = '3등';
-          prize = 1530000; // ~1.53 million KRW
-        } else if (matchedNums.length === 4) {
-          rank = '4등';
-          prize = 50000; // 50,000 KRW
-        } else if (matchedNums.length === 3) {
-          rank = '5등';
-          prize = 5000; // 5,000 KRW
-        } else {
-          rank = '낙첨';
-          prize = 0;
-        }
-
-        ticket.rank = rank;
-        ticket.prize = prize;
-        roundTotalPrize += prize;
-
-        if (prize > 0) {
-          prizeDetails.push(`${gameLabel}게임 [${rank}]: +${prize.toLocaleString()} 원 (${matchedNums.length}개 일치${rank === '2등' ? '+보너스' : ''})`);
-        }
-
-        if (rank === '1등') highestRank = '1등';
-        else if (rank === '2등' && highestRank !== '1등') highestRank = '2등';
-        else if (rank === '3등' && !['1등', '2등'].includes(highestRank)) highestRank = '3등';
-      });
-
-      renderUserTickets();
-
-      // Financials Update
-      totalWinnings += roundTotalPrize;
-      playerBalance += roundTotalPrize;
-      updateWalletUI();
-
-      // Trigger Celebration Modal if 1st, 2nd, or 3rd place!
-      if (highestRank) {
-        sound.playJackpotSiren();
-        spawnConfetti(highestRank === '1등' ? 240 : 120);
-
-        // Screen Tremble
-        const main = document.getElementById('mainContainer');
-        main.classList.remove('screen-shake');
-        void main.offsetWidth;
-        main.classList.add('screen-shake');
-
-        showWinModal(highestRank, roundTotalPrize, prizeDetails);
-      } else {
-        setAlertBanner("아쉽게도 이번 회차는 낙첨되었습니다. 다음 회차에 재도전하세요!");
-      }
-
-      currentRound++;
-      document.getElementById('drawRoundText').textContent = currentRound;
+      requestAnimationFrame(mainAnimationLoop);
     }
 
     function renderUserTickets() {
-      const container = document.getElementById('gamesContainer');
+      const container = document.getElementById('gamesList');
       container.innerHTML = '';
 
-      if (userTickets.length === 0) {
-        container.innerHTML = `
-          <div class="py-8 text-center text-xs text-slate-500">
-            발권된 로또 슬립이 없습니다.<br>
-            [5게임 자동] 또는 [수동 번호 찍기]를 눌러 구매하세요.
-          </div>
-        `;
-        document.getElementById('activeTicketCountBadge').textContent = '0게임 (0원)';
-        return;
-      }
-
-      document.getElementById('activeTicketCountBadge').textContent = `${userTickets.length}게임 (${(userTickets.length * 1000).toLocaleString()}원)`;
+      document.getElementById('ticketCountBadge').textContent = `${userTickets.length}게임 (${(userTickets.length * 1000).toLocaleString()}원)`;
 
       userTickets.forEach((ticket, idx) => {
-        const gameLabel = String.fromCharCode(65 + idx);
         const row = document.createElement('div');
-        row.className = `flex items-center justify-between p-2 rounded-xl border ${ticket.rank === '1등' ? 'bg-amber-950/60 border-amber-400' : (ticket.prize > 0 ? 'bg-slate-800/90 border-slate-600' : 'bg-slate-950/70 border-slate-800/80')}`;
+        row.className = "flex items-center justify-between p-2 rounded-xl bg-slate-950/70 border border-slate-800/80 text-xs";
 
-        // Left info
-        const leftBox = document.createElement('div');
-        leftBox.className = "flex items-center gap-2";
-        leftBox.innerHTML = `
-          <span class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-xs text-amber-300">${gameLabel}</span>
-          <span class="text-[10px] px-1.5 py-0.5 rounded font-bold ${ticket.mode === '자동' ? 'bg-blue-900/60 text-blue-300 border border-blue-700' : 'bg-emerald-900/60 text-emerald-300 border border-emerald-700'}">${ticket.mode}</span>
-        `;
+        // Left Label & Badge
+        const leftWrap = document.createElement('div');
+        leftWrap.className = "flex items-center gap-2";
+
+        const label = document.createElement('span');
+        label.className = "w-6 h-6 rounded-lg bg-slate-800 text-amber-300 font-black flex items-center justify-center text-xs";
+        label.textContent = String.fromCharCode(65 + idx);
+
+        const modeBadge = document.createElement('span');
+        modeBadge.className = "text-[10px] px-1.5 py-0.5 rounded font-bold " + 
+          (ticket.mode === '자동' ? 'bg-blue-900/60 text-blue-300 border border-blue-700/60' : 'bg-emerald-900/60 text-emerald-300 border border-emerald-700/60');
+        modeBadge.textContent = ticket.mode;
+
+        leftWrap.appendChild(label);
+        leftWrap.appendChild(modeBadge);
 
         // Center 6 Balls
-        const ballsBox = document.createElement('div');
-        ballsBox.className = "flex items-center gap-1 sm:gap-1.5";
+        const ballsWrap = document.createElement('div');
+        ballsWrap.className = "flex items-center gap-1 sm:gap-1.5";
+
         ticket.numbers.forEach(num => {
+          const b = document.createElement('span');
           const theme = getBallTheme(num);
           const isMatched = ticket.matches && ticket.matches.includes(num);
-          const isBonusMatch = ticket.hasBonus && num === drawnBonusNumber;
+          const isBonusMatch = ticket.hasBonus && (num === drawnBonusNumber);
 
-          const b = document.createElement('span');
-          b.className = `w-7 h-7 sm:w-8 sm:h-8 lotto-ball ${theme.class} text-[11px] sm:text-xs font-black ${isMatched ? 'ring-2 ring-yellow-300 ring-offset-2 ring-offset-black scale-105' : (isBonusMatch ? 'ring-2 ring-cyan-400 ring-offset-2 ring-offset-black' : '')}`;
+          b.className = `w-7 h-7 sm:w-8 sm:h-8 rounded-full lotto-ball-badge ${theme.class} text-[11px] sm:text-xs font-black transition-all ` + 
+            (isMatched ? 'ball-matched' : (isBonusMatch ? 'ring-2 ring-cyan-400 shadow-[0_0_12px_#22d3ee]' : ''));
           b.textContent = num;
-          ballsBox.appendChild(b);
+          ballsWrap.appendChild(b);
         });
 
-        // Right status / prize
-        const rightBox = document.createElement('div');
-        rightBox.className = "text-right min-w-[65px]";
+        // Right Rank / Prize Tag
+        const rightWrap = document.createElement('div');
+        rightWrap.className = "flex items-center gap-1.5 min-w-[70px] justify-end";
+
         if (ticket.rank) {
-          const rankColor = ticket.rank === '1등' ? 'text-amber-400 font-black' : (ticket.rank === '2등' ? 'text-cyan-400 font-bold' : (ticket.rank === '3등' ? 'text-emerald-400 font-bold' : 'text-slate-400'));
-          rightBox.innerHTML = `
-            <span class="block text-xs ${rankColor}">${ticket.rank}</span>
-            <span class="text-[10px] text-slate-300 font-digital">${ticket.prize > 0 ? `+${(ticket.prize / 10000 >= 1 ? (ticket.prize / 10000).toLocaleString() + '만' : ticket.prize.toLocaleString())}원` : '-'}</span>
-          `;
+          const rankBadge = document.createElement('span');
+          let rankColor = 'bg-slate-800 text-slate-400';
+          if (ticket.rank === '1등') rankColor = 'bg-amber-500 text-slate-950 font-black shadow-[0_0_10px_#fbc400]';
+          else if (ticket.rank === '2등') rankColor = 'bg-cyan-500 text-slate-950 font-black shadow-[0_0_10px_#06b6d4]';
+          else if (ticket.rank === '3등') rankColor = 'bg-emerald-600 text-white font-bold';
+          else if (ticket.rank === '4등') rankColor = 'bg-indigo-600 text-white font-bold';
+          else if (ticket.rank === '5등') rankColor = 'bg-rose-600 text-white font-bold';
+
+          rankBadge.className = `px-2 py-0.5 rounded text-[10px] ${rankColor}`;
+          rankBadge.textContent = ticket.rank;
+          rightWrap.appendChild(rankBadge);
         } else {
-          rightBox.innerHTML = `<span class="text-[10px] text-slate-500">대기</span>`;
+          const delBtn = document.createElement('button');
+          delBtn.className = "text-slate-500 hover:text-red-400 text-xs px-1";
+          delBtn.textContent = '✕';
+          delBtn.onclick = () => {
+            userTickets.splice(idx, 1);
+            renderUserTickets();
+          };
+          rightWrap.appendChild(delBtn);
         }
 
-        row.appendChild(leftBox);
-        row.appendChild(ballsBox);
-        row.appendChild(rightBox);
+        row.appendChild(leftWrap);
+        row.appendChild(ballsWrap);
+        row.appendChild(rightWrap);
         container.appendChild(row);
       });
     }
 
-    // Initialize 1~45 Number Pad Grid
+    // Populate Manual Number Picker Grid 1~45
     function initNumberPadGrid() {
       const grid = document.getElementById('numberPadGrid');
       grid.innerHTML = '';
 
       for (let i = 1; i <= 45; i++) {
-        const theme = getBallTheme(i);
         const btn = document.createElement('button');
-        btn.className = `h-8 rounded-lg font-bold text-xs flex items-center justify-center border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition-all`;
+        const theme = getBallTheme(i);
+        btn.id = `padBtn_${i}`;
+        btn.className = `w-7 h-7 sm:w-8 sm:h-8 rounded-full lotto-ball-badge ${theme.class} text-[11px] sm:text-xs font-black transition-all hover:scale-105 active:scale-95 border-2 border-transparent`;
         btn.textContent = i;
-        btn.dataset.num = i;
 
-        btn.addEventListener('click', () => {
-          sound.init();
+        btn.onclick = () => {
+          if (manualSelectedNumbers.has(i)) {
+            manualSelectedNumbers.delete(i);
+            btn.classList.remove('ring-4', 'ring-white', 'scale-110');
+          } else {
+            if (manualSelectedNumbers.size >= 6) {
+              showAlert("최대 6개 번호까지만 선택 가능합니다.");
+              return;
+            }
+            manualSelectedNumbers.add(i);
+            btn.classList.add('ring-4', 'ring-white', 'scale-110');
+          }
+          document.getElementById('selectedNumCount').textContent = manualSelectedNumbers.size;
           sound.playBallClick();
-          toggleManualNumber(i, btn);
-        });
+        };
 
         grid.appendChild(btn);
       }
     }
 
-    function toggleManualNumber(num, btnElement) {
-      if (manualSelectedNumbers.has(num)) {
-        manualSelectedNumbers.delete(num);
-        btnElement.className = `h-8 rounded-lg font-bold text-xs flex items-center justify-center border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition-all`;
-      } else {
-        if (manualSelectedNumbers.size >= 6) {
-          setAlertBanner("로또는 최대 6개 번호까지만 마킹할 수 있습니다.");
-          return;
-        }
-        manualSelectedNumbers.add(num);
-        const theme = getBallTheme(num);
-        btnElement.className = `h-8 rounded-lg font-bold text-xs flex items-center justify-center border-2 border-amber-300 ${theme.class} scale-105 shadow-md`;
-      }
-      document.getElementById('manualSelectedCount').textContent = manualSelectedNumbers.size;
-      document.getElementById('applyManualToGameBtn').disabled = (manualSelectedNumbers.size !== 6);
-    }
-
     function resetManualPad() {
       manualSelectedNumbers.clear();
-      document.getElementById('manualSelectedCount').textContent = 0;
-      document.getElementById('applyManualToGameBtn').disabled = true;
-      initNumberPadGrid();
+      document.getElementById('selectedNumCount').textContent = '0';
+      for (let i = 1; i <= 45; i++) {
+        const btn = document.getElementById(`padBtn_${i}`);
+        if (btn) btn.classList.remove('ring-4', 'ring-white', 'scale-110');
+      }
     }
 
-    // Auto-pick 6 in manual pad
-    document.getElementById('manualAuto6Btn').addEventListener('click', () => {
+    // Manual Pad Actions
+    document.getElementById('padQuickAutoBtn').addEventListener('click', () => {
       resetManualPad();
-      const rand6 = generateRandom6();
-      const allBtns = document.querySelectorAll('#numberPadGrid button');
-      rand6.forEach(n => {
-        const b = Array.from(allBtns).find(btn => parseInt(btn.dataset.num) === n);
-        if (b) toggleManualNumber(n, b);
+      const auto6 = generateRandom6();
+      auto6.forEach(num => {
+        manualSelectedNumbers.add(num);
+        const btn = document.getElementById(`padBtn_${num}`);
+        if (btn) btn.classList.add('ring-4', 'ring-white', 'scale-110');
       });
+      document.getElementById('selectedNumCount').textContent = '6';
+      sound.playBallClick();
     });
 
-    document.getElementById('manualResetBtn').addEventListener('click', resetManualPad);
+    document.getElementById('padClearBtn').addEventListener('click', resetManualPad);
 
-    // Apply Manual Numbers as New Ticket
-    document.getElementById('applyManualToGameBtn').addEventListener('click', () => {
-      if (manualSelectedNumbers.size !== 6) return;
+    document.getElementById('submitManualGameBtn').addEventListener('click', () => {
+      if (manualSelectedNumbers.size !== 6) {
+        showAlert("번호 6개를 마킹해야 등록할 수 있습니다!");
+        return;
+      }
       if (userTickets.length >= 5) {
-        setAlertBanner("한 슬립에는 최대 5게임(A~E)까지만 등록 가능합니다. [전체 초기화] 후 재구매하세요.");
+        showAlert("한 슬립에는 최대 5게임까지만 등록 가능합니다.");
         return;
       }
       if (playerBalance < 1000) {
-        setAlertBanner("보유 자산이 부족합니다!");
+        showAlert("보유 자산이 부족합니다!");
         return;
       }
 
       playerBalance -= 1000;
       totalSpent += 1000;
-      const sortedNums = Array.from(manualSelectedNumbers).sort((a, b) => a - b);
       userTickets.push({
         id: crypto.randomUUID(),
         mode: '수동',
-        numbers: sortedNums,
+        numbers: Array.from(manualSelectedNumbers).sort((a, b) => a - b),
         matches: []
       });
 
@@ -1167,12 +1085,13 @@
       renderUserTickets();
       updateWalletUI();
       sound.playBallClick();
+      showAlert("수동 1게임이 발권표에 등록되었습니다.");
     });
 
-    // Buy Quick 5 Auto Games
+    // Auto Ticket Actions
     function buy5AutoGames() {
       if (playerBalance < 5000) {
-        setAlertBanner("5게임을 발권하기 위한 자산이 부족합니다!");
+        showAlert("5게임을 발권하기 위한 자산이 부족합니다!");
         return;
       }
       playerBalance -= 5000;
@@ -1190,16 +1109,15 @@
       updateWalletUI();
       sound.playBallClick();
     }
-    document.getElementById('quickAuto5Btn').addEventListener('click', buy5AutoGames);
+    document.getElementById('buy5AutoBtn').addEventListener('click', buy5AutoGames);
 
-    // Buy 1 Auto Game
-    document.getElementById('quickAuto1Btn').addEventListener('click', () => {
+    document.getElementById('add1AutoBtn').addEventListener('click', () => {
       if (userTickets.length >= 5) {
-        setAlertBanner("한 슬립에는 최대 5게임까지만 등록할 수 있습니다.");
+        showAlert("한 슬립에는 최대 5게임까지만 등록할 수 있습니다.");
         return;
       }
       if (playerBalance < 1000) {
-        setAlertBanner("보유 자산이 부족합니다!");
+        showAlert("보유 자산이 부족합니다!");
         return;
       }
       playerBalance -= 1000;
@@ -1215,24 +1133,295 @@
       sound.playBallClick();
     });
 
-    // Clear All
-    document.getElementById('clearAllTicketsBtn').addEventListener('click', () => {
+    document.getElementById('clearSlipBtn').addEventListener('click', () => {
       userTickets = [];
       renderUserTickets();
     });
 
-    function updateWalletUI() {
-      document.getElementById('myBalanceText').textContent = `${playerBalance.toLocaleString()} 원`;
-      document.getElementById('totalWonText').textContent = `${totalWinnings.toLocaleString()} 원`;
+    /**
+     * Compute Winning Draw based on User Specifications:
+     * - 1등: 1/814
+     * - 2등: 1/135
+     * - 3등: 1/25
+     * - 4등: 1/6
+     * - 5등: 1/3
+     */
+    function computeTargetDraw() {
+      if (userTickets.length === 0) {
+        const numbers = generateRandom6();
+        const pool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !numbers.includes(n));
+        const bonus = pool[Math.floor(Math.random() * pool.length)];
+        return { main: numbers, bonus: bonus };
+      }
 
-      const roi = totalSpent > 0 ? (((totalWinnings - totalSpent) / totalSpent) * 100).toFixed(1) : '0.0';
+      // Pick one lucky user game to test boost condition against
+      const targetTicket = userTickets[Math.floor(Math.random() * userTickets.length)];
+      const targetNums = [...targetTicket.numbers];
+      const roll = Math.random();
+
+      let mainNums = [];
+      let bonusNum = null;
+
+      if (roll < THRESH_1) {
+        // 1등 당첨 (1/814): 6개 전부 일치!
+        mainNums = [...targetNums].sort((a, b) => a - b);
+        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !mainNums.includes(n));
+        bonusNum = remPool[Math.floor(Math.random() * remPool.length)];
+      } else if (roll < THRESH_2) {
+        // 2등 당첨 (1/135): 5개 일치 + 대상 티켓의 6번째 숫자가 보너스 번호!
+        const shuffled = [...targetNums].sort(() => Math.random() - 0.5);
+        const match5 = shuffled.slice(0, 5);
+        bonusNum = shuffled[5];
+        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !targetNums.includes(n));
+        const extra6th = remPool[Math.floor(Math.random() * remPool.length)];
+        mainNums = [...match5, extra6th].sort((a, b) => a - b);
+      } else if (roll < THRESH_3) {
+        // 3등 당첨 (1/25): 5개 일치 (보너스는 제외)
+        const match5 = targetNums.sort(() => Math.random() - 0.5).slice(0, 5);
+        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !targetNums.includes(n));
+        const extra6th = remPool[Math.floor(Math.random() * remPool.length)];
+        mainNums = [...match5, extra6th].sort((a, b) => a - b);
+        const bonusPool = remPool.filter(n => n !== extra6th);
+        bonusNum = bonusPool[Math.floor(Math.random() * bonusPool.length)];
+      } else if (roll < THRESH_4) {
+        // 4등 당첨 (1/6): 4개 일치
+        const match4 = targetNums.sort(() => Math.random() - 0.5).slice(0, 4);
+        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !targetNums.includes(n));
+        const rand2 = remPool.sort(() => Math.random() - 0.5).slice(0, 2);
+        mainNums = [...match4, ...rand2].sort((a, b) => a - b);
+        const bonusPool = remPool.filter(n => !rand2.includes(n));
+        bonusNum = bonusPool[Math.floor(Math.random() * bonusPool.length)];
+      } else if (roll < THRESH_5) {
+        // 5등 당첨 (1/3): 3개 일치
+        const match3 = targetNums.sort(() => Math.random() - 0.5).slice(0, 3);
+        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !targetNums.includes(n));
+        const rand3 = remPool.sort(() => Math.random() - 0.5).slice(0, 3);
+        mainNums = [...match3, ...rand3].sort((a, b) => a - b);
+        const bonusPool = remPool.filter(n => !rand3.includes(n));
+        bonusNum = bonusPool[Math.floor(Math.random() * bonusPool.length)];
+      } else {
+        // 미당첨 / 일반 무작위
+        const numbers = generateRandom6();
+        const pool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !numbers.includes(n));
+        bonusNum = pool[Math.floor(Math.random() * pool.length)];
+        mainNums = numbers;
+      }
+
+      return { main: mainNums, bonus: bonusNum };
+    }
+
+    function renderRackSlot(slotId, num, stepIdx, isBonus = false) {
+      const slot = document.getElementById(slotId);
+      const theme = getBallTheme(num);
+      slot.className = `w-10 h-10 sm:w-12 sm:h-12 rounded-full lotto-ball-badge ${theme.class} text-xs sm:text-sm font-black ball-rack-animate`;
+      slot.textContent = num;
+      sound.playRackChime(stepIdx);
+    }
+
+    async function executeSingleDraw(isFast = false) {
+      if (isDrawing && !isFast) return;
+      if (userTickets.length === 0) {
+        showAlert("먼저 1개 이상의 로또 게임을 발권해주세요!");
+        return;
+      }
+
+      isDrawing = true;
+      toggleButtons(false);
+
+      document.getElementById('blowerStatusDot').className = "w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444] animate-ping";
+      document.getElementById('blowerStatusText').textContent = "공기 흡입기 가동 중! (DRAWING)";
+
+      if (!isFast) {
+        sound.init();
+        sound.startBlowerSound();
+      }
+
+      const drawData = computeTargetDraw();
+      drawnWinningNumbers = drawData.main;
+      drawnBonusNumber = drawData.bonus;
+
+      document.getElementById('rackRoundLabel').textContent = currentRound;
+      document.getElementById('rackSubLabel').textContent = "(추첨 진행 중)";
+
+      if (!isFast) {
+        // Reset Rack Slots to Placeholder
+        for (let i = 0; i < 6; i++) {
+          const s = document.getElementById(`slot${i}`);
+          s.className = "w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm";
+          s.textContent = "?";
+        }
+        const sBonus = document.getElementById('slotBonus');
+        sBonus.className = "w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-amber-600/60 bg-slate-950/70 flex items-center justify-center font-bold text-amber-500/70 text-[10px] sm:text-xs";
+        sBonus.textContent = "보너스";
+
+        // Draw 6 Main Balls Sequentially
+        for (let step = 0; step < 6; step++) {
+          await new Promise(r => setTimeout(r, 650));
+          const num = drawnWinningNumbers[step];
+          suctionActive = true;
+          const mb = machineBalls.find(b => b.num === num);
+          if (mb) ballBeingSuctioned = mb;
+          sound.playSuctionPop();
+
+          await new Promise(r => setTimeout(r, 220));
+          suctionActive = false;
+          ballBeingSuctioned = null;
+          renderRackSlot(`slot${step}`, num, step);
+        }
+
+        // Draw Bonus Ball
+        await new Promise(r => setTimeout(r, 650));
+        suctionActive = true;
+        const bBall = machineBalls.find(b => b.num === drawnBonusNumber);
+        if (bBall) ballBeingSuctioned = bBall;
+        sound.playSuctionPop();
+
+        await new Promise(r => setTimeout(r, 220));
+        suctionActive = false;
+        ballBeingSuctioned = null;
+        renderRackSlot('slotBonus', drawnBonusNumber, 6, true);
+
+        sound.stopBlowerSound();
+      } else {
+        // Instant visual update for fast mode
+        for (let step = 0; step < 6; step++) {
+          renderRackSlot(`slot${step}`, drawnWinningNumbers[step], step);
+        }
+        renderRackSlot('slotBonus', drawnBonusNumber, 6, true);
+      }
+
+      isDrawing = false;
+      document.getElementById('blowerStatusDot').className = "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34c759]";
+      document.getElementById('blowerStatusText').textContent = "추첨 완료 (COMPLETED)";
+      document.getElementById('rackSubLabel').textContent = "(추첨 완료)";
+
+      const result = verifyTicketsAndReward(isFast);
+      return result;
+    }
+
+    function verifyTicketsAndReward(silentModal = false) {
+      let highestRank = null;
+      let roundTotalPrize = 0;
+      const prizeDetails = [];
+
+      statTotalDraws++;
+      statTotalGames += userTickets.length;
+
+      userTickets.forEach((ticket, idx) => {
+        const gameLabel = String.fromCharCode(65 + idx);
+        const matched = ticket.numbers.filter(n => drawnWinningNumbers.includes(n));
+        const hasBonus = ticket.numbers.includes(drawnBonusNumber);
+        ticket.matches = matched;
+        ticket.hasBonus = hasBonus;
+
+        let rank = null;
+        let prize = 0;
+
+        if (matched.length === 6) {
+          rank = '1등';
+          prize = baseJackpot;
+          hitStats.rank1++;
+        } else if (matched.length === 5 && hasBonus) {
+          rank = '2등';
+          prize = 65000000;
+          hitStats.rank2++;
+        } else if (matched.length === 5) {
+          rank = '3등';
+          prize = 1500000;
+          hitStats.rank3++;
+        } else if (matched.length === 4) {
+          rank = '4등';
+          prize = 50000;
+          hitStats.rank4++;
+        } else if (matched.length === 3) {
+          rank = '5등';
+          prize = 5000;
+          hitStats.rank5++;
+        } else {
+          rank = '낙첨';
+          prize = 0;
+          hitStats.fail++;
+        }
+
+        ticket.rank = rank;
+        ticket.prize = prize;
+        roundTotalPrize += prize;
+
+        if (prize > 0) {
+          prizeDetails.push(`${gameLabel}게임 [${rank}]: +${prize.toLocaleString()} 원 (${matched.length}개 일치${rank === '2등' ? '+보너스' : ''})`);
+        }
+
+        if (rank === '1등') highestRank = '1등';
+        else if (rank === '2등' && highestRank !== '1등') highestRank = '2등';
+        else if (rank === '3등' && !['1등', '2등'].includes(highestRank)) highestRank = '3등';
+      });
+
+      renderUserTickets();
+
+      totalWon += roundTotalPrize;
+      playerBalance += roundTotalPrize;
+      baseJackpot += userTickets.length * 500; // Progressive growth
+      currentRound++;
+
+      updateWalletUI();
+      updateStatsUI();
+
+      if (!silentModal && (highestRank === '1등' || highestRank === '2등')) {
+        sound.playGrandFanfare();
+        spawnConfetti(highestRank === '1등' ? 240 : 130);
+
+        const cabinet = document.getElementById('mainCabinet');
+        cabinet.classList.remove('shake-active');
+        void cabinet.offsetWidth;
+        cabinet.classList.add('shake-active');
+
+        showWinModal(highestRank, roundTotalPrize, prizeDetails);
+      } else if (!silentModal) {
+        if (roundTotalPrize > 0) {
+          showAlert(`축하합니다! 총 당첨금 +${roundTotalPrize.toLocaleString()} 원 획득!`);
+        } else {
+          showAlert("이번 회차는 아쉽게 낙첨되었습니다. 다음 회차에 도전하세요!");
+        }
+      }
+
+      if (!isSimulating) {
+        toggleButtons(true);
+      }
+
+      return { highestRank, roundTotalPrize, prizeDetails };
+    }
+
+    function toggleButtons(enable) {
+      document.getElementById('drawBtn').disabled = !enable;
+      document.getElementById('instantDrawBtn').disabled = !enable;
+      document.getElementById('draw10Btn').disabled = !enable;
+      document.getElementById('autoUntil1stBtn').disabled = !enable;
+    }
+
+    function updateStatsUI() {
+      document.getElementById('statDraws').textContent = statTotalDraws.toLocaleString();
+      document.getElementById('statGames').textContent = statTotalGames.toLocaleString();
+      document.getElementById('statRank1').textContent = hitStats.rank1.toLocaleString();
+      document.getElementById('statRank2').textContent = hitStats.rank2.toLocaleString();
+      document.getElementById('statRank3').textContent = hitStats.rank3.toLocaleString();
+      document.getElementById('statRank4').textContent = hitStats.rank4.toLocaleString();
+      document.getElementById('statRank5').textContent = hitStats.rank5.toLocaleString();
+    }
+
+    function updateWalletUI() {
+      document.getElementById('jackpotText').textContent = `${baseJackpot.toLocaleString()} 원`;
+      document.getElementById('myBalanceText').textContent = `${playerBalance.toLocaleString()} 원`;
+      document.getElementById('totalWonText').textContent = `${totalWon.toLocaleString()} 원`;
+
+      const roi = totalSpent > 0 ? (((totalWon - totalSpent) / totalSpent) * 100).toFixed(1) : '0.0';
       const roiEl = document.getElementById('roiText');
       roiEl.textContent = `${roi}%`;
       roiEl.className = `font-digital text-sm sm:text-lg font-black ${parseFloat(roi) >= 0 ? 'text-cyan-400' : 'text-red-400'}`;
+      document.getElementById('roundBadge').textContent = currentRound;
     }
 
-    function setAlertBanner(msg) {
-      const banner = document.getElementById('stageAlertBanner');
+    function showAlert(msg) {
+      const banner = document.getElementById('liveAlertBar');
       banner.textContent = msg;
       banner.style.opacity = '1';
       setTimeout(() => {
@@ -1244,18 +1433,15 @@
       const modal = document.getElementById('winModal');
       const title = document.getElementById('winModalTitle');
       const sub = document.getElementById('winModalSub');
-      const prizeEl = document.getElementById('winModalPrizeAmount');
+      const prizeEl = document.getElementById('winModalPrizeText');
       const detailList = document.getElementById('winModalDetailList');
 
       if (rank === '1등') {
         title.textContent = "👑 1등 대박 잭팟 당첨! 👑";
-        sub.textContent = "기적의 1억 배 확률 모드가 역대급 당첨 신화를 기록했습니다!";
-      } else if (rank === '2등') {
+        sub.textContent = "1/814 확률을 뚫고 1등 신화를 이뤄냈습니다!";
+      } else {
         title.textContent = "🥈 2등 당첨! (보너스 일치) 🥈";
         sub.textContent = "5개 번호와 보너스 번호가 완벽하게 일치했습니다!";
-      } else {
-        title.textContent = "🥉 3등 당첨! 🥉";
-        sub.textContent = "5개 번호를 적중시켰습니다!";
       }
 
       prizeEl.textContent = `${prize.toLocaleString()} 원`;
@@ -1267,80 +1453,115 @@
       document.getElementById('winModal').classList.add('hidden');
     });
 
-    // 100,000,000x Fever vs Reality Mode Toggles
-    const feverBtn = document.getElementById('modeFeverBtn');
-    const realBtn = document.getElementById('modeRealBtn');
-
-    feverBtn.addEventListener('click', () => {
-      isFeverMode = true;
-      feverBtn.className = "px-3 py-1.5 rounded-lg text-xs font-black transition-all bg-gradient-to-r from-amber-500 to-red-500 text-slate-950 shadow-md";
-      realBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 transition-all hover:text-white";
-      setAlertBanner("🔥 1억 배 당첨 모드 활성화! 1등 잭팟이 쏟아집니다!");
+    // Reset Statistics
+    document.getElementById('resetStatsBtn').addEventListener('click', () => {
+      statTotalDraws = 0;
+      statTotalGames = 0;
+      hitStats = { rank1: 0, rank2: 0, rank3: 0, rank4: 0, rank5: 0, fail: 0 };
+      updateStatsUI();
+      showAlert("누적 통계가 초기화되었습니다.");
     });
 
-    realBtn.addEventListener('click', () => {
-      isFeverMode = false;
-      realBtn.className = "px-3 py-1.5 rounded-lg text-xs font-black transition-all bg-gradient-to-r from-slate-700 to-slate-800 text-white shadow-md border border-slate-600";
-      feverBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 transition-all hover:text-white";
-      setAlertBanner("💀 현실 모드 (1배 극악 확률): 814만 분의 1의 수학적 가혹함을 체험합니다.");
+    // 10 Runs Fast Batch
+    document.getElementById('draw10Btn').addEventListener('click', async () => {
+      if (isDrawing || isSimulating) return;
+      isSimulating = true;
+      toggleButtons(false);
+      showAlert("⏩ 10회 연속 고속 추첨을 진행합니다...");
+
+      for (let i = 0; i < 10; i++) {
+        if (userTickets.length === 0) buy5AutoGames();
+        await executeSingleDraw(true);
+        await new Promise(r => setTimeout(r, 60));
+      }
+
+      isSimulating = false;
+      toggleButtons(true);
+      showAlert("10회 연속 추첨이 완료되었습니다. 통계를 확인하세요!");
     });
 
-    // Speed Toggle Controls
-    const speedNormal = document.getElementById('drawSpeedNormalBtn');
-    const speedFast = document.getElementById('drawSpeedFastBtn');
+    // Asynchronous Chunk Simulation: Loop Until 1st Prize Hit!
+    document.getElementById('autoUntil1stBtn').addEventListener('click', async () => {
+      if (isDrawing || isSimulating) return;
+      isSimulating = true;
+      stopRequested = false;
+      toggleButtons(false);
 
-    speedNormal.addEventListener('click', () => {
-      isFastMode = false;
-      speedNormal.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-950";
-      speedFast.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 hover:text-white";
+      const stopBtn = document.getElementById('stopSimBtn');
+      stopBtn.classList.remove('hidden');
+      showAlert("🎯 1등 당첨될 때까지 고속 시뮬레이션 가동 중!");
+
+      let attempts = 0;
+      const maxSafetyAttempts = 150000;
+
+      while (!stopRequested && attempts < maxSafetyAttempts) {
+        attempts++;
+        if (userTickets.length === 0) buy5AutoGames();
+
+        const res = await executeSingleDraw(true);
+
+        if (res && res.highestRank === '1등') {
+          sound.playGrandFanfare();
+          spawnConfetti(260);
+          showWinModal('1등', res.roundTotalPrize, res.prizeDetails);
+          break;
+        }
+
+        // Keep UI thread responsive every 15 draws
+        if (attempts % 15 === 0) {
+          await new Promise(r => setTimeout(r, 0));
+        }
+      }
+
+      stopBtn.classList.add('hidden');
+      isSimulating = false;
+      toggleButtons(true);
     });
 
-    speedFast.addEventListener('click', () => {
-      isFastMode = true;
-      speedFast.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-950";
-      speedNormal.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 hover:text-white";
+    document.getElementById('stopSimBtn').addEventListener('click', () => {
+      stopRequested = true;
+      showAlert("시뮬레이션 중단 요청이 접수되었습니다.");
     });
+
+    // Trigger Single Animated Draw
+    document.getElementById('drawBtn').addEventListener('click', () => executeSingleDraw(false));
+
+    // Trigger Instant Draw
+    document.getElementById('instantDrawBtn').addEventListener('click', () => executeSingleDraw(true));
 
     // Sound Toggle Button
     const soundBtn = document.getElementById('soundToggleBtn');
     const soundIcon = document.getElementById('soundIcon');
     soundBtn.addEventListener('click', () => {
-      const muted = sound.toggleMute();
-      soundIcon.textContent = muted ? '🔇' : '🔊';
+      const isMuted = sound.toggleMute();
+      soundIcon.textContent = isMuted ? '🔇' : '🔊';
     });
 
-    // Draw Triggers
-    document.getElementById('startDrawBtn').addEventListener('click', executeDrawSequence);
-
-    document.getElementById('buyAuto5AndDrawBtn').addEventListener('click', () => {
-      buy5AutoGames();
-      setTimeout(executeDrawSequence, 200);
-    });
-
-    // Help Modal
-    document.getElementById('helpBtn').addEventListener('click', () => {
+    // Help Modal Triggers
+    document.getElementById('helpModalBtn').addEventListener('click', () => {
       document.getElementById('helpModal').classList.remove('hidden');
     });
     document.getElementById('closeHelpModalBtn').addEventListener('click', () => {
       document.getElementById('helpModal').classList.add('hidden');
     });
 
-    // Toggle Manual Picker Visibility on Mobile
-    document.getElementById('togglePadBtn').addEventListener('click', () => {
-      const pad = document.getElementById('manualPickerCard');
+    // Mobile scroll to manual pad
+    document.getElementById('openManualPadBtn').addEventListener('click', () => {
+      const pad = document.getElementById('manualPadSection');
       pad.scrollIntoView({ behavior: 'smooth' });
     });
 
+    // Window Init
     window.addEventListener('load', () => {
-      resizeBlowerCanvas();
+      resizeCanvases();
       initMachineBalls();
       initNumberPadGrid();
 
-      // Pre-purchase initial 5 games for immediate instant play
+      // Pre-purchase 5 initial games for immediate playability
       buy5AutoGames();
 
-      // Start Canvas Engine Loop
-      requestAnimationFrame(animationLoop);
+      // Start 60fps canvas engine
+      requestAnimationFrame(mainAnimationLoop);
     });
   </script>
 </body>
