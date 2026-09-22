@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Ultra Fever 777 - High Roller Casino Slots</title>
-  <!-- Google Luxury & Casino Display Fonts -->
+  <title>슈퍼 로또 6/45: 1억배 당첨 시뮬레이터</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root {
-      --fever-fire: #ff2a00;
-      --fever-gold: #ffbe00;
-      --fever-purple: #9d00ff;
-      --fever-cyan: #00f0ff;
+      --lotto-yellow: #fbc400;
+      --lotto-blue: #69c8f2;
+      --lotto-red: #ff7272;
+      --lotto-gray: #aaaaaa;
+      --lotto-green: #b0d840;
     }
 
     * {
@@ -25,358 +25,358 @@
     }
 
     body {
-      background: radial-gradient(circle at 50% 15%, #3a0011 0%, #150009 50%, #050003 100%);
-      font-family: 'Montserrat', sans-serif;
+      background: radial-gradient(circle at 50% 20%, #151a30 0%, #0a0d1a 55%, #05070e 100%);
+      font-family: 'Pretendard', sans-serif;
       color: #ffffff;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       overflow-x: hidden;
       margin: 0;
-      padding: 8px;
+      padding: 0;
     }
 
-    .font-cinzel { font-family: 'Cinzel', serif; }
-    .font-digital { font-family: 'Orbitron', monospace; }
-
-    /* Screen Shaking Effect for Big Wins */
-    @keyframes screenShake {
-      0%, 100% { transform: translate(0, 0) rotate(0deg); }
-      15% { transform: translate(-6px, 4px) rotate(-1deg); }
-      30% { transform: translate(6px, -4px) rotate(1deg); }
-      45% { transform: translate(-4px, -3px) rotate(-0.5deg); }
-      60% { transform: translate(4px, 3px) rotate(0.5deg); }
-      75% { transform: translate(-2px, 1px) rotate(0deg); }
-    }
-    .shake-active {
-      animation: screenShake 0.45s ease-in-out;
+    .font-digital {
+      font-family: 'Orbitron', monospace;
     }
 
-    /* Fever Glow Borders */
-    .fever-glow {
-      box-shadow: 0 0 25px rgba(255, 60, 0, 0.75), inset 0 0 15px rgba(255, 190, 0, 0.5);
-      border-color: #ff3b00 !important;
-    }
-
-    .gold-gradient-text {
-      background: linear-gradient(180deg, #fff7c2 0%, #ffd700 40%, #e69500 80%, #7c4400 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.9));
-    }
-
-    .fire-gradient-text {
-      background: linear-gradient(180deg, #ffffaa 0%, #ff8c00 40%, #ff1100 80%, #6b0000 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 0 8px rgba(255, 40, 0, 0.8));
-    }
-    .cabinet-chassis {
-      background: linear-gradient(180deg, #2b030c 0%, #170107 40%, #0a0004 100%);
-      border: 4px solid #d4af37;
-      border-radius: 20px;
+    /* 3D Lotto Ball Spheres */
+    .lotto-ball {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      font-weight: 900;
       box-shadow: 
-        0 0 0 3px #ffe285,
-        0 0 0 8px #3b2405,
-        0 0 50px rgba(255, 100, 0, 0.3),
-        0 30px 70px rgba(0, 0, 0, 0.98);
+        inset -3px -4px 8px rgba(0, 0, 0, 0.45),
+        inset 3px 4px 6px rgba(255, 255, 255, 0.65),
+        0 4px 10px rgba(0, 0, 0, 0.5);
       position: relative;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
     }
 
+    .ball-1-10 { background: radial-gradient(circle at 35% 30%, #fff7a1 0%, #fbc400 65%, #c48a00 100%); color: #3b2800; text-shadow: none; }
+    .ball-11-20 { background: radial-gradient(circle at 35% 30%, #d4f2ff 0%, #69c8f2 65%, #187bb0 100%); color: #ffffff; }
+    .ball-21-30 { background: radial-gradient(circle at 35% 30%, #ffd0d0 0%, #ff6262 65%, #ab1717 100%); color: #ffffff; }
+    .ball-31-40 { background: radial-gradient(circle at 35% 30%, #e0e0e0 0%, #9e9e9e 65%, #505050 100%); color: #ffffff; }
+    .ball-41-45 { background: radial-gradient(circle at 35% 30%, #f0ffcc 0%, #b0d840 65%, #62880b 100%); color: #1c3000; text-shadow: none; }
+
+    /* Button Tactile Effect */
     .btn-tactile {
       transition: all 0.08s ease;
-      box-shadow: 0 5px 0 rgba(0,0,0,0.85), 0 8px 15px rgba(0,0,0,0.6);
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.6), 0 6px 12px rgba(0, 0, 0, 0.4);
     }
     .btn-tactile:active:not(:disabled) {
-      transform: translateY(4px);
-      box-shadow: 0 1px 0 rgba(0,0,0,0.85), 0 3px 6px rgba(0,0,0,0.6);
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.4);
     }
     .btn-tactile:disabled {
       opacity: 0.45;
       cursor: not-allowed;
-      filter: grayscale(0.85);
+      filter: grayscale(0.8);
+      transform: none;
     }
 
-    .spin-fever-btn {
-      background: radial-gradient(circle at 50% 30%, #ff3b00 0%, #cc0000 65%, #660000 100%);
-      box-shadow: 0 8px 0 #3a0000, 0 0 40px rgba(255, 59, 0, 0.85);
+    /* Screen Shake Animation */
+    @keyframes studioTremble {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-3px, 3px); }
+      40% { transform: translate(3px, -2px); }
+      60% { transform: translate(-2px, -3px); }
+      80% { transform: translate(2px, 2px); }
     }
-    .spin-fever-btn:hover:not(:disabled) {
-      box-shadow: 0 8px 0 #3a0000, 0 0 60px rgba(255, 70, 0, 1);
+    .screen-shake {
+      animation: studioTremble 0.35s ease-in-out;
     }
 
-    .modal-backdrop {
-      background-color: rgba(6, 0, 3, 0.9);
-      backdrop-filter: blur(10px);
+    /* Rack Ball Drop Animation */
+    @keyframes dropIn {
+      0% { transform: translateY(-70px) scale(0.3); opacity: 0; }
+      70% { transform: translateY(6px) scale(1.15); opacity: 1; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .ball-drop {
+      animation: dropIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
   </style>
 </head>
-<body class="p-2 sm:p-4">
+<body class="flex flex-col items-center justify-start p-2 sm:p-4 text-slate-100 min-h-screen">
 
-  <!-- Top Marquee & Quick Bar -->
-  <header class="w-full max-w-[980px] flex items-center justify-between px-3 py-1.5 text-xs text-amber-200/80 font-cinzel">
-    <div class="flex items-center gap-2">
-      <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
-      <span class="tracking-widest font-black text-amber-300">VIP HIGH-ROLLER SUITE #777</span>
-      <span class="hidden md:inline px-2 py-0.5 rounded bg-red-950/80 border border-red-500 text-[10px] text-red-300 font-bold">MAX WIN x10,000</span>
-    </div>
+  <!-- Header & Live Broadcast Marquee -->
+  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 bg-slate-900/90 border border-slate-700/80 rounded-2xl shadow-xl backdrop-blur-md mb-3">
     <div class="flex items-center gap-3">
-      <button id="soundToggleBtn" class="hover:text-amber-300 transition flex items-center gap-1 font-bold">
-        <span id="soundIcon">🔊</span> <span class="hidden sm:inline">SOUND</span>
+      <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 text-slate-950 font-black text-xl shadow-lg shadow-amber-500/30">
+        6/45
+        <span class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 border-2 border-slate-900 rounded-full animate-ping"></span>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base sm:text-xl font-black tracking-tight text-white">슈퍼 로또 6/45</h1>
+          <span class="px-2 py-0.5 rounded text-[10px] font-black bg-red-600 text-white tracking-wider animate-pulse">LIVE 추첨</span>
+        </div>
+        <p class="text-[11px] text-slate-400 font-medium">대한민국 최초 1억 배 당첨 확률 증폭 시뮬레이터</p>
+      </div>
+    </div>
+
+    <!-- Probability Mode Switch (100,000,000x vs Reality 1x) -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center bg-slate-950/80 p-1.5 rounded-xl border border-slate-800">
+        <button id="modeFeverBtn" class="px-3 py-1.5 rounded-lg text-xs font-black transition-all bg-gradient-to-r from-amber-500 to-red-500 text-slate-950 shadow-md">
+          🔥 1억 배 당첨 모드
+        </button>
+        <button id="modeRealBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 transition-all hover:text-white">
+          💀 현실 모드 (1배)
+        </button>
+      </div>
+
+      <button id="soundToggleBtn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold flex items-center gap-1.5 text-amber-300" title="사운드 켜기/끄기">
+        <span id="soundIcon">🔊</span>
       </button>
-      <button id="paytableBtn" class="hover:text-amber-300 transition flex items-center gap-1 font-bold bg-amber-950/60 border border-amber-600 px-2 py-1 rounded">
-        <span>📜</span> PAYTABLE (배당표)
+      <button id="helpBtn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300">
+        ❓ 안내
       </button>
     </div>
   </header>
 
-  <!-- Main Slot Machine Cabinet -->
-  <main id="cabinetMain" class="cabinet-chassis w-full max-w-[980px] p-3 sm:p-5 flex flex-col items-center">
+  <!-- Jackpot & Wallet Status Bar -->
+  <section class="w-full max-w-6xl grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+    <div class="bg-gradient-to-b from-slate-900 to-slate-950 p-2.5 rounded-xl border border-slate-800 text-center shadow-lg">
+      <span class="text-[10px] text-slate-400 font-bold block">1등 추정 누적 당첨금</span>
+      <span id="jackpotAmountText" class="font-digital text-sm sm:text-lg font-black text-amber-400">2,854,192,800 원</span>
+    </div>
+    <div class="bg-gradient-to-b from-slate-900 to-slate-950 p-2.5 rounded-xl border border-slate-800 text-center shadow-lg">
+      <span class="text-[10px] text-slate-400 font-bold block">내 보유 자산</span>
+      <span id="myBalanceText" class="font-digital text-sm sm:text-lg font-black text-emerald-400">100,000 원</span>
+    </div>
+    <div class="bg-gradient-to-b from-slate-900 to-slate-950 p-2.5 rounded-xl border border-slate-800 text-center shadow-lg">
+      <span class="text-[10px] text-slate-400 font-bold block">누적 총 당첨금</span>
+      <span id="totalWonText" class="font-digital text-sm sm:text-lg font-black text-yellow-300">0 원</span>
+    </div>
+    <div class="bg-gradient-to-b from-slate-900 to-slate-950 p-2.5 rounded-xl border border-slate-800 text-center shadow-lg">
+      <span class="text-[10px] text-slate-400 font-bold block">통산 수익률 (ROI)</span>
+      <span id="roiText" class="font-digital text-sm sm:text-lg font-black text-cyan-400">0.0%</span>
+    </div>
+  </section>
+
+  <!-- Main Studio Workspace (Left: Draw Machine / Right: Lotto Slips & Controls) -->
+  <main id="mainContainer" class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
     
-    <!-- Cabinet Header Title & Dynamic 80% Fever Toggle -->
-    <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-2 pb-3 border-b border-amber-500/30">
-      <div class="flex items-center gap-2">
-        <span class="text-3xl animate-bounce">🔥</span>
-        <div>
-          <h1 class="font-cinzel font-black text-xl sm:text-3xl tracking-widest fire-gradient-text leading-tight">
-            ULTRA FEVER 777
-          </h1>
-          <p class="text-[10px] text-amber-300/80 font-bold tracking-wider">EXPANDED PAYTABLE & 80% ULTRA BONUS TRIGGER</p>
-        </div>
-      </div>
-
-      <!-- 80% ULTRA FEVER TOGGLE SWITCH -->
-      <div class="flex items-center gap-2 bg-gradient-to-r from-red-950 via-amber-950 to-red-950 px-3 py-1.5 rounded-xl border-2 border-red-500 shadow-[0_0_15px_rgba(255,40,0,0.6)]">
-        <div class="text-right">
-          <span class="block text-[9px] font-bold text-amber-300">울트라 피버 모드</span>
-          <span class="block text-xs font-black text-red-400 animate-pulse tracking-wide">80% 보너스 폭발 확률!</span>
-        </div>
-        <button id="feverToggleBtn" class="btn-tactile px-3 py-1.5 rounded-lg bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 text-white font-cinzel font-black text-xs tracking-wider border border-amber-300">
-          <span id="feverStatusText">FEVER: ON</span>
-        </button>
-      </div>
-    </div>
-    <!-- Progressive Jackpots Header (Grand, Major, Mini) -->
-    <section class="w-full grid grid-cols-3 gap-2 sm:gap-4 my-2.5">
-      <div class="bg-black/75 p-2 rounded-lg text-center border border-amber-600/60 shadow-inner">
-        <span class="block text-[9px] sm:text-[11px] font-cinzel font-bold text-amber-300/80 tracking-wider">MINI JACKPOT</span>
-        <span id="jackpotMini" class="font-digital text-xs sm:text-base font-black text-amber-400">$1,250.00</span>
-      </div>
-      <div class="bg-gradient-to-b from-red-950/60 to-black p-2 rounded-lg text-center border-2 border-red-500 scale-105 shadow-[0_0_20px_rgba(255,0,0,0.5)]">
-        <span class="block text-[10px] sm:text-xs font-cinzel font-black text-red-300 tracking-widest animate-pulse">👑 GRAND JACKPOT 👑</span>
-        <span id="jackpotGrand" class="font-digital text-sm sm:text-2xl font-black text-amber-300 drop-shadow-[0_0_10px_#ff9900]">$158,400.00</span>
-      </div>
-      <div class="bg-black/75 p-2 rounded-lg text-center border border-amber-600/60 shadow-inner">
-        <span class="block text-[9px] sm:text-[11px] font-cinzel font-bold text-amber-300/80 tracking-wider">MAJOR JACKPOT</span>
-        <span id="jackpotMajor" class="font-digital text-xs sm:text-base font-black text-amber-400">$18,650.00</span>
-      </div>
-    </section>
-
-    <!-- Active Free Spins Indicator Banner (Multiplier Boost: 5x ~ 100x) -->
-    <div id="freeSpinBanner" class="w-full py-2 px-4 mb-2 bg-gradient-to-r from-purple-950 via-pink-900 to-purple-950 border-2 border-pink-400 rounded-xl text-center hidden animate-pulse shadow-[0_0_30px_rgba(236,72,153,0.7)] flex items-center justify-around">
-      <div class="flex items-center gap-2">
-        <span class="text-2xl">🔥</span>
-        <span class="font-cinzel font-black text-xs sm:text-sm text-pink-200">
-          FREE SPINS: <strong id="freeSpinsRemaining" class="text-amber-300 text-lg">10</strong> LEFT
-        </span>
-      </div>
-      <div class="bg-black/60 px-3 py-1 rounded-lg border border-pink-400">
-        <span class="font-cinzel text-xs text-pink-200">EXPLODING MULTIPLIER:</span>
-        <span id="freeSpinMultiplierTag" class="font-digital text-lg font-black text-yellow-300 ml-1">5X</span>
-      </div>
-    </div>
-    <!-- 5x3 Reel Stage Viewport Canvas -->
-    <div class="relative w-full aspect-[900/540] max-h-[540px] bg-black rounded-xl overflow-hidden border-4 border-amber-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.95)]">
-      <!-- Main Game Canvas (5 Reels x 3 Rows, Paylines, Frames) -->
-      <canvas id="slotCanvas" class="w-full h-full block cursor-pointer"></canvas>
+    <!-- LEFT PANEL: Real-time Mechanical Sphere Blower & Drawn Rack (lg:col-span-7) -->
+    <div class="lg:col-span-7 flex flex-col gap-3">
       
-      <!-- Particle FX Canvas (Coins, Sparks, Fireworks) -->
-      <canvas id="particleCanvas" class="w-full h-full absolute inset-0 pointer-events-none"></canvas>
+      <!-- Blower Machine Acrylic Stage -->
+      <div class="relative w-full aspect-[4/3] max-h-[460px] bg-gradient-to-b from-[#090d1f] via-[#050711] to-[#020308] border-2 border-slate-700/80 rounded-2xl overflow-hidden shadow-2xl flex flex-col items-center justify-between p-3">
+        
+        <!-- Overhead Suction Chute Visual Indicator -->
+        <div class="w-full flex items-center justify-between px-3 z-10">
+          <div class="flex items-center gap-1.5 bg-slate-900/80 border border-slate-700/70 px-2.5 py-1 rounded-full text-[10px] text-slate-300 font-semibold backdrop-blur-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="machineStatusLabel">추첨기 대기 중 (READY)</span>
+          </div>
+          <div class="flex items-center gap-1 text-[11px] font-bold text-amber-300">
+            <span>제 <strong id="drawRoundText" class="font-digital text-sm text-white">1140</strong> 회 생방송</span>
+          </div>
+        </div>
 
-      <!-- Anticipation Lightning Tease Banner -->
-      <div id="anticipationBanner" class="absolute top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 via-red-500 to-amber-500 text-slate-950 font-black px-5 py-1.5 rounded-full text-xs font-cinzel tracking-widest pointer-events-none hidden animate-bounce shadow-[0_0_20px_#ffbb00]">
-        ⚡ 80% FEVER TEASE! SCATTER SUSPENSE! ⚡
+        <!-- 2D Physics Canvas for Swirling Acrylic Sphere -->
+        <canvas id="blowerCanvas" class="w-full h-full absolute inset-0 block cursor-pointer"></canvas>
+
+        <!-- Confetti & Celebration Particle Canvas -->
+        <canvas id="celebrationCanvas" class="w-full h-full absolute inset-0 pointer-events-none z-20"></canvas>
+
+        <!-- Dynamic Live Alert Banner Inside Stage -->
+        <div id="stageAlertBanner" class="z-10 px-4 py-1.5 rounded-full bg-slate-900/90 border border-amber-400/80 text-amber-300 font-black text-xs tracking-wider shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none mb-1">
+          공기 흡입기 가동! 1등 번호를 추출합니다!
+        </div>
       </div>
-    </div>
-    <!-- Bottom Control Deck / HUD -->
-    <section class="w-full mt-3 bg-gradient-to-b from-[#22020a] to-[#0c0004] p-3 sm:p-4 rounded-xl border-2 border-amber-600/80 shadow-2xl flex flex-col gap-3">
-      
-      <!-- Row 1: Balance, Win, Bet Meters -->
-      <div class="grid grid-cols-3 gap-2 sm:gap-4 items-center">
-        <!-- Balance Meter -->
-        <div class="bg-black/80 border border-amber-600/50 rounded-lg p-2 text-center">
-          <span class="text-[10px] text-amber-200/70 font-cinzel font-bold block">CREDITS / BALANCE</span>
-          <span id="balanceDisplay" class="font-digital text-sm sm:text-xl font-bold text-emerald-400">$50,000.00</span>
+
+      <!-- Winning Drawn Numbers Tray (6 Main Balls + 1 Bonus Ball) -->
+      <div class="w-full bg-slate-900/90 border-2 border-amber-500/40 rounded-2xl p-3.5 shadow-xl flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-black text-amber-300">🎯 이번 회차 당첨 번호</span>
+            <span id="drawingStepLabel" class="text-[11px] text-slate-400">(추첨 시작 전)</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <button id="drawSpeedNormalBtn" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-950">표준 속도</button>
+            <button id="drawSpeedFastBtn" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 hover:text-white">초고속 즉시</button>
+          </div>
         </div>
 
-        <!-- Center Win Rollup Display -->
-        <div class="bg-gradient-to-b from-amber-950/50 to-black border-2 border-amber-400 rounded-lg p-2 text-center shadow-[0_0_15px_rgba(255,190,0,0.3)]">
-          <span id="winLabel" class="text-[10px] text-amber-300 font-cinzel font-black tracking-wider block">LAST WIN</span>
-          <span id="winDisplay" class="font-digital text-sm sm:text-2xl font-black text-amber-300">$0.00</span>
-        </div>
+        <!-- Balls Slots Container -->
+        <div class="flex items-center justify-between gap-1 sm:gap-2 px-1 py-1">
+          <!-- 6 Main Drawn Balls -->
+          <div class="flex items-center gap-1.5 sm:gap-2.5 flex-1 justify-around">
+            <div id="drawnSlot0" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
+            <div id="drawnSlot1" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
+            <div id="drawnSlot2" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
+            <div id="drawnSlot3" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
+            <div id="drawnSlot4" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
+            <div id="drawnSlot5" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
+          </div>
 
-        <!-- Total Bet Display with Quick Steps -->
-        <div class="bg-black/80 border border-amber-600/50 rounded-lg p-2 text-center">
-          <span class="text-[10px] text-amber-200/70 font-cinzel font-bold block">TOTAL BET (20 LINES)</span>
-          <div class="flex items-center justify-center gap-1 sm:gap-2">
-            <button id="betDownBtn" class="w-7 h-7 rounded bg-amber-700 hover:bg-amber-600 text-amber-100 font-black text-xs flex items-center justify-center btn-tactile">▼</button>
-            <span id="betDisplay" class="font-digital text-sm sm:text-xl font-bold text-amber-200 min-w-[70px]">$50.00</span>
-            <button id="betUpBtn" class="w-7 h-7 rounded bg-amber-700 hover:bg-amber-600 text-amber-100 font-black text-xs flex items-center justify-center btn-tactile">▲</button>
+          <div class="text-slate-500 font-black text-lg px-0.5 sm:px-1">+</div>
+
+          <!-- Bonus Ball Slot -->
+          <div class="flex flex-col items-center">
+            <div id="drawnSlotBonus" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-amber-600/50 bg-slate-950/70 flex items-center justify-center font-bold text-amber-500/70 text-xs sm:text-sm">보너스</div>
           </div>
         </div>
       </div>
 
-      <!-- Row 2: Control Action Buttons -->
-      <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-        <!-- Left: Turbo & Bet Quick Presets -->
-        <div class="flex items-center gap-2">
-          <button id="turboBtn" class="btn-tactile px-3 py-2.5 rounded-lg border border-slate-600 bg-slate-900 text-slate-300 font-bold text-[10px] sm:text-xs flex items-center gap-1">
-            <span>⚡ TURBO:</span>
-            <span id="turboStatus" class="text-slate-400">OFF</span>
-          </button>
-          <button id="maxBetBtn" class="btn-tactile px-3 py-2.5 rounded-lg border-2 border-amber-500 bg-gradient-to-r from-amber-700 to-amber-900 text-amber-100 font-cinzel font-black text-[10px] sm:text-xs tracking-wider">
-            MAX BET
-          </button>
+      <!-- Live Draw Action Buttons -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <button id="startDrawBtn" class="btn-tactile py-3.5 px-4 rounded-xl bg-gradient-to-r from-red-600 via-amber-500 to-yellow-400 hover:from-red-500 hover:to-yellow-300 text-slate-950 font-black text-sm sm:text-base tracking-wider shadow-lg flex items-center justify-center gap-2">
+          <span>🚀</span>
+          <span id="startDrawBtnText">생방송 추첨 시작하기!</span>
+        </button>
+        <button id="buyAuto5AndDrawBtn" class="btn-tactile py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm tracking-wide shadow-lg flex items-center justify-center gap-2">
+          <span>⚡</span>
+          <span>5게임 자동발권 즉시 추첨</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- RIGHT PANEL: Lottery Slips (A~E) & Number Picking Pad (lg:col-span-5) -->
+    <div class="lg:col-span-5 flex flex-col gap-3">
+      
+      <!-- Purchased Lottery Slip Card (Traditional Paper Slip Look) -->
+      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-slate-700/80 rounded-2xl p-3.5 shadow-xl flex flex-col gap-2.5">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-black text-amber-300">📋 발행 복권 (발권 슬립)</span>
+            <span id="activeTicketCountBadge" class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] px-2 py-0.2 rounded-full font-bold">5게임 (5,000원)</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <button id="clearAllTicketsBtn" class="text-[11px] text-slate-400 hover:text-red-400 underline">전체 초기화</button>
+          </div>
         </div>
 
-        <!-- Right: Auto Play & Main Spin Action Button -->
-        <div class="flex items-center gap-3">
-          <button id="autoSpinBtn" class="btn-tactile px-4 py-2.5 rounded-lg border border-amber-500/70 bg-gradient-to-b from-slate-800 to-slate-950 text-amber-300 font-cinzel font-bold text-xs sm:text-sm flex flex-col items-center">
-            <span>AUTO PLAY</span>
-            <span id="autoCountLabel" class="text-[9px] text-amber-200/60 font-sans">SELECT</span>
-          </button>
+        <!-- 5 Game Rows (A, B, C, D, E) -->
+        <div id="gamesContainer" class="flex flex-col gap-1.5 max-h-[290px] overflow-y-auto pr-1">
+          <!-- Populated dynamically via JS -->
+        </div>
 
-          <!-- Massive High-Impact Spin Button -->
-          <button id="spinBtn" class="btn-tactile spin-fever-btn w-32 sm:w-40 h-12 sm:h-14 rounded-full border-2 border-amber-300 text-white font-cinzel font-black text-sm sm:text-lg tracking-widest flex items-center justify-center">
-            <span id="spinBtnText">SPIN</span>
+        <!-- Quick Ticket Operations -->
+        <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/80">
+          <button id="quickAuto5Btn" class="btn-tactile py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-bold text-amber-300">
+            🎲 5게임 자동
+          </button>
+          <button id="quickAuto1Btn" class="btn-tactile py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-bold text-slate-200">
+            ➕ 1게임 추가
+          </button>
+          <button id="togglePadBtn" class="btn-tactile py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-bold text-cyan-300">
+            ✏️ 수동 번호 찍기
           </button>
         </div>
       </div>
-    </section>
+
+      <!-- Interactive 1 ~ 45 Manual Number Pad (Collapsible/Active) -->
+      <div id="manualPickerCard" class="bg-slate-900 border border-slate-700 rounded-2xl p-3 shadow-lg flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-bold text-cyan-400">수동 마킹 패드</span>
+            <span class="text-[10px] text-slate-400">(선택: <strong id="manualSelectedCount" class="text-amber-400">0</strong>/6)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button id="manualAuto6Btn" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-amber-300 text-[10px] font-bold rounded">자동 6개</button>
+            <button id="manualResetBtn" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-bold rounded">비우기</button>
+          </div>
+        </div>
+
+        <!-- 1~45 Number Grid -->
+        <div id="numberPadGrid" class="grid grid-cols-9 gap-1 sm:gap-1.5 pt-1">
+          <!-- Numbers 1 to 45 buttons injected by JS -->
+        </div>
+
+        <button id="applyManualToGameBtn" class="btn-tactile w-full py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-lg text-white font-bold text-xs shadow disabled:opacity-40">
+          선택한 6개 번호로 신규 게임 등록 (1,000원)
+        </button>
+      </div>
+
+      <!-- Prize Tiers Reference Guide -->
+      <div class="bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5 text-[11px] text-slate-400 space-y-1">
+        <div class="flex justify-between text-slate-300 font-bold border-b border-slate-800 pb-1">
+          <span>등위별 당첨 기준</span>
+          <span>당첨금 배분</span>
+        </div>
+        <div class="flex justify-between"><span>👑 1등 (번호 6개 일치)</span><strong class="text-amber-400">총 당첨금의 75% (~25억 원)</strong></div>
+        <div class="flex justify-between"><span>🥈 2등 (번호 5개 + 보너스)</span><strong class="text-cyan-400">총 당첨금의 12.5% (~6,000만 원)</strong></div>
+        <div class="flex justify-between"><span>🥉 3등 (번호 5개 일치)</span><strong class="text-emerald-400">총 당첨금의 12.5% (~150만 원)</strong></div>
+        <div class="flex justify-between"><span>4등 (4개) / 5등 (3개)</span><span>고정 50,000원 / 고정 5,000원</span></div>
+      </div>
+
+    </div>
   </main>
-  <!-- MODAL: Ultra Fortune Jackpot Wheel (Prizes up to 5,000x!) -->
-  <div id="wheelModal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-gradient-to-b from-[#2e000d] via-[#150005] to-black border-4 border-amber-400 rounded-3xl p-5 max-w-md w-full text-center relative shadow-[0_0_80px_rgba(255,190,0,0.6)] flex flex-col items-center">
-      <h2 class="font-cinzel text-xl sm:text-2xl font-black fire-gradient-text tracking-widest mb-1">
-        ⭐ ULTRA FORTUNE WHEEL ⭐
-      </h2>
-      <p class="text-xs text-amber-200/90 mb-3">80% 피버 보너스 발동! 최대 5,000배 잭팟을 돌리세요!</p>
 
-      <div class="relative w-72 h-72 my-2 flex items-center justify-center">
-        <!-- Flapper Indicator -->
-        <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 text-3xl text-amber-300 filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] animate-pulse">
-          ▼
+  <!-- GRAND WINNER MODAL CELEBRATION -->
+  <div id="winModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-4 border-amber-400 rounded-3xl p-6 max-w-md w-full text-center relative shadow-[0_0_80px_rgba(251,196,0,0.5)] flex flex-col items-center">
+      
+      <span class="text-5xl animate-bounce mb-2">🎉</span>
+      <h2 id="winModalTitle" class="text-2xl sm:text-3xl font-black text-amber-300 tracking-wider">
+        축하합니다! 1등 대박 당첨!
+      </h2>
+      <p id="winModalSub" class="text-xs sm:text-sm text-slate-300 mt-1">
+        1억 배 확률 모드가 기적의 잭팟을 터뜨렸습니다!
+      </p>
+
+      <div class="w-full bg-slate-950 border border-amber-500/50 rounded-2xl p-4 my-4 flex flex-col gap-2">
+        <span class="text-xs text-amber-200/80 font-bold">수령 당첨금</span>
+        <span id="winModalPrizeAmount" class="font-digital text-2xl sm:text-3xl font-black text-yellow-300">
+          2,854,192,800 원
+        </span>
+        <div id="winModalDetailList" class="text-xs text-slate-300 border-t border-slate-800 pt-2 flex flex-col gap-1 text-left">
+          <!-- Injected dynamically -->
         </div>
-        <canvas id="wheelCanvas" width="300" height="300" class="w-full h-full block"></canvas>
       </div>
 
-      <button id="wheelSpinBtn" class="btn-tactile mt-3 px-8 py-3 rounded-full bg-gradient-to-r from-red-600 via-amber-500 to-yellow-400 text-slate-950 font-cinzel font-black text-base tracking-widest shadow-2xl">
-        SPIN TO WIN (5,000X)!
+      <button id="closeWinModalBtn" class="btn-tactile w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-sm tracking-wider shadow-xl">
+        당첨금 전액 지갑으로 수령하기
       </button>
+    </div>
+  </div>
 
-      <div id="wheelResultBox" class="mt-3 p-3 bg-amber-950/80 border border-amber-400 rounded-lg text-center hidden">
-        <span id="wheelPrizeText" class="font-cinzel text-lg font-black text-amber-300 block">WON 500X!</span>
-        <button id="collectWheelPrizeBtn" class="btn-tactile mt-2 px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">
-          COLLECT HUGE PRIZE
-        </button>
+  <!-- HELP & EXPLANATION MODAL -->
+  <div id="helpModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border-2 border-slate-700 rounded-2xl p-5 max-w-lg w-full text-left shadow-2xl space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 class="font-black text-base text-amber-300">💡 슈퍼 로또 6/45 안내</h3>
+        <button id="closeHelpModalBtn" class="text-slate-400 hover:text-white font-bold text-lg">✕</button>
+      </div>
+      <div class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
+        <p>
+          🔥 <strong>1억 배 당첨 모드란?</strong><br>
+          실제 로또 1등 당첨 확률은 <strong>1 / 8,145,060 (약 0.00001228%)</strong>의 극악의 확률입니다.
+          본 모드를 켜면 확률을 무려 <strong>100,000,000배</strong> 스케일링하여, 거의 <strong>매 추첨마다 1등 및 상위 등수 잭팟</strong>이 확정적으로 터지도록 시뮬레이션 엔진이 작동합니다!
+        </p>
+        <p>
+          💀 <strong>현실 모드 (1배):</strong><br>
+          실제 대한민국의 수학적 확률 그대로 완전 무작위 추첨합니다. 수백만 번 사도 1등을 맞추기 얼마나 어려운지 직접 체감해볼 수 있습니다.
+        </p>
+        <p>
+          🎯 <strong>공식 로또 볼 색상 체계:</strong><br>
+          1~10번: 🟡 노랑 | 11~20번: 🔵 파랑 | 21~30번: 🔴 빨강 | 31~40번: ⚪ 회색 | 41~45번: 🟢 녹색
+        </p>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: Epic Big Win Celebration Overlay -->
-  <div id="bigWinOverlay" class="fixed inset-0 z-40 flex flex-col items-center justify-center p-4 pointer-events-none hidden transition-opacity duration-300">
-    <div class="text-center transform scale-110 animate-bounce">
-      <h2 id="bigWinTitle" class="font-cinzel text-4xl sm:text-6xl md:text-7xl font-black text-amber-300 drop-shadow-[0_0_35px_#ff3b00] tracking-widest">
-        EPIC FEVER WIN!
-      </h2>
-      <div id="bigWinCounter" class="font-digital text-3xl sm:text-6xl md:text-7xl font-black text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.95)] mt-3">
-        $0.00
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Paytable & High-Roller Multipliers Guide -->
-  <div id="paytableModal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-gradient-to-b from-[#220108] to-[#0a0003] border-2 border-amber-500 rounded-2xl p-5 max-w-xl w-full max-h-[85vh] overflow-y-auto text-left relative shadow-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-amber-500/30">
-        <h3 class="font-cinzel text-lg font-black text-amber-300">ULTRA FEVER PAYTABLE & RULES</h3>
-        <button id="closePaytableBtn" class="text-slate-400 hover:text-white font-bold text-xl px-2">✕</button>
-      </div>
-
-      <div class="mt-4 space-y-4 text-xs text-slate-200">
-        <!-- 80% Fever Engine Notice -->
-        <div class="bg-red-950/70 p-3 rounded-lg border border-red-500">
-          <h4 class="font-cinzel text-amber-300 font-black text-sm mb-1">🔥 80% ULTRA FEVER MODE MECHANIC</h4>
-          <p class="text-[11px] leading-relaxed">
-            상단 <strong>'FEVER: ON'</strong> 상태에서는 매 스핀마다 <strong class="text-red-400">80% 확률로 3개 이상의 SCATTER / BONUS 심볼</strong>이 필드에 무조건 강제 착지하여, 즉시 <strong>무료 스핀 (10회, 누적 배수 최대 100배)</strong> 또는 <strong>5,000배 잭팟 휠 보너스</strong>로 진입합니다!
-          </p>
-        </div>
-
-        <!-- Special Feature Symbols -->
-        <div>
-          <h4 class="font-cinzel text-amber-400 font-bold text-sm mb-2">⭐ FEATURE SYMBOLS</h4>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <div class="bg-black/60 p-2.5 rounded-lg border border-amber-500/30 text-center">
-              <span class="text-2xl block mb-1">👑</span>
-              <strong class="text-amber-300 text-xs block font-cinzel">WILD CROWN</strong>
-              <p class="text-[10px] text-slate-300 mt-1">스캐터/보너스를 제외한 모든 심볼 대체. 5개 일치 시 <strong>2,000배</strong> 지급!</p>
-            </div>
-            <div class="bg-black/60 p-2.5 rounded-lg border border-cyan-500/30 text-center">
-              <span class="text-2xl block mb-1">💎</span>
-              <strong class="text-cyan-300 text-xs block font-cinzel">SCATTER (FREE SPINS)</strong>
-              <p class="text-[10px] text-slate-300 mt-1">3개 이상 착지 시 <strong>10회 무료 스핀 (당첨 시마다 배수 +5x 누적, 최대 100x!)</strong></p>
-            </div>
-            <div class="bg-black/60 p-2.5 rounded-lg border border-yellow-500/30 text-center">
-              <span class="text-2xl block mb-1">🎡</span>
-              <strong class="text-yellow-300 text-xs block font-cinzel">WHEEL BONUS</strong>
-              <p class="text-[10px] text-slate-300 mt-1">3개 이상 착지 시 <strong>포춘 잭팟 휠 (최대 5,000배 그랜드 잭팟)</strong> 발동!</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Enhanced Pay Multipliers -->
-        <div>
-          <h4 class="font-cinzel text-amber-400 font-bold text-sm mb-2">💰 BOOSTED PAYOUTS (5-OF-A-KIND)</h4>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-[11px]">
-            <div class="bg-black/40 p-2 rounded border border-red-500/60"><span class="text-lg block">7️⃣</span><b class="text-red-400">TRIPLE 7:</b> 2,500x</div>
-            <div class="bg-black/40 p-2 rounded border border-amber-500/60"><span class="text-lg block">🍫</span><b class="text-amber-300">GOLD BAR:</b> 1,000x</div>
-            <div class="bg-black/40 p-2 rounded border border-yellow-500/60"><span class="text-lg block">🔔</span><b class="text-yellow-300">GOLD BELL:</b> 600x</div>
-            <div class="bg-black/40 p-2 rounded border border-rose-500/60"><span class="text-lg block">🍒</span><b class="text-rose-400">CHERRIES:</b> 400x</div>
-            <div class="bg-black/40 p-2 rounded border border-emerald-500/60"><span class="text-lg block">🐎</span><b class="text-emerald-400">HORSESHOE:</b> 300x</div>
-            <div class="bg-black/40 p-2 rounded border border-slate-700"><span class="text-lg block">🅰️</span><b class="text-slate-300">ACE:</b> 200x</div>
-            <div class="bg-black/40 p-2 rounded border border-slate-700"><span class="text-lg block">👑</span><b class="text-slate-300">KING:</b> 150x</div>
-            <div class="bg-black/40 p-2 rounded border border-slate-700"><span class="text-lg block">👸</span><b class="text-slate-300">QUEEN:</b> 100x</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Auto Play Modal -->
-  <div id="autoModal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-gradient-to-b from-[#250009] to-[#0c0003] border-2 border-amber-400 rounded-2xl p-5 max-w-sm w-full text-center shadow-2xl">
-      <h3 class="font-cinzel text-base font-bold text-amber-300 mb-3">SELECT AUTO SPINS</h3>
-      <div class="grid grid-cols-2 gap-2.5 mb-4">
-        <button class="auto-opt-btn btn-tactile py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-white font-bold" data-count="10">10 SPINS</button>
-        <button class="auto-opt-btn btn-tactile py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-white font-bold" data-count="25">25 SPINS</button>
-        <button class="auto-opt-btn btn-tactile py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-white font-bold" data-count="50">50 SPINS</button>
-        <button class="auto-opt-btn btn-tactile py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-white font-bold" data-count="999">∞ INFINITY</button>
-      </div>
-      <button id="cancelAutoBtn" class="text-xs text-slate-400 hover:text-white underline">CANCEL</button>
-    </div>
-  </div>
   <script>
     /**
      * Web Audio API Synthesizer
-     * Pure synthesized sound effects: mechanical clicks, reel clunks, scatter tension risers,
-     * wheel peg ticks, coin rolls, and massive victory fanfares.
+     * Pure procedural audio generator for the lottery machine:
+     * - Acrylic blower air vortex white-noise
+     * - Ball collisions and rattle
+     * - Suction chute pop sound
+     * - Ball reveal chime on rack
+     * - 1st prize explosive celebratory fanfare and siren
      */
-    class CasinoAudioEngine {
+    class LottoSoundEngine {
       constructor() {
         this.ctx = null;
         this.isMuted = false;
+        this.blowerNoiseNode = null;
+        this.blowerGain = null;
       }
 
       init() {
@@ -391,6 +391,9 @@
 
       toggleMute() {
         this.isMuted = !this.isMuted;
+        if (this.isMuted && this.blowerGain) {
+          this.blowerGain.gain.setValueAtTime(0, this.ctx.currentTime);
+        }
         return this.isMuted;
       }
 
@@ -418,1141 +421,926 @@
         } catch (e) {}
       }
 
-      playSpinStart() {
+      // Ball Clatter / Bounce
+      playBallClick() {
         if (this.isMuted) return;
-        this.playTone(160, 'triangle', 0.2, 0.2, 80);
+        const freqs = [1200, 1500, 1800, 2100];
+        const f = freqs[Math.floor(Math.random() * freqs.length)];
+        this.playTone(f, 'sine', 0.04, 0.05, -300);
       }
 
-      playReelStop() {
+      // Suction Pop
+      playSuctionPop() {
         if (this.isMuted) return;
-        this.playTone(85, 'sine', 0.09, 0.3, -35);
-        setTimeout(() => this.playTone(320, 'triangle', 0.05, 0.18), 15);
+        this.playTone(320, 'triangle', 0.15, 0.22, 500);
       }
 
-      playAnticipationLoop() {
+      // Ball Reveal Chime
+      playBallReveal(index) {
         if (this.isMuted) return;
-        this.playTone(600, 'sine', 0.14, 0.1, 150);
-        setTimeout(() => this.playTone(900, 'sawtooth', 0.15, 0.08, 100), 70);
+        const pentatonic = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66];
+        const note = pentatonic[index % pentatonic.length];
+        this.playTone(note, 'triangle', 0.35, 0.2);
+        setTimeout(() => this.playTone(note * 1.5, 'sine', 0.25, 0.1), 60);
       }
 
-      playScatterLand() {
+      // Continuous Blower Air Vortex Hum
+      startBlowerSound() {
         if (this.isMuted) return;
-        this.playTone(920, 'sine', 0.35, 0.25, 300);
-        setTimeout(() => this.playTone(1480, 'triangle', 0.45, 0.22), 90);
+        try {
+          this.init();
+          if (this.blowerNoiseNode) return;
+
+          const bufferSize = this.ctx.sampleRate * 2;
+          const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+          }
+
+          const whiteNoise = this.ctx.createBufferSource();
+          whiteNoise.buffer = noiseBuffer;
+          whiteNoise.loop = true;
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(450, this.ctx.currentTime);
+
+          this.blowerGain = this.ctx.createGain();
+          this.blowerGain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+
+          whiteNoise.connect(filter);
+          filter.connect(this.blowerGain);
+          this.blowerGain.connect(this.ctx.destination);
+
+          whiteNoise.start();
+          this.blowerNoiseNode = whiteNoise;
+        } catch (e) {}
       }
 
-      playBonusLand() {
-        if (this.isMuted) return;
-        this.playTone(740, 'square', 0.25, 0.15, 120);
-        setTimeout(() => this.playTone(1100, 'square', 0.35, 0.18), 80);
+      stopBlowerSound() {
+        if (this.blowerGain && this.ctx) {
+          try {
+            this.blowerGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+            setTimeout(() => {
+              if (this.blowerNoiseNode) {
+                this.blowerNoiseNode.stop();
+                this.blowerNoiseNode.disconnect();
+                this.blowerNoiseNode = null;
+                this.blowerGain = null;
+              }
+            }, 320);
+          } catch (e) {}
+        }
       }
 
-      playCoinTick() {
+      // Celebratory Siren & Fanfare
+      playJackpotSiren() {
         if (this.isMuted) return;
-        const notes = [1900, 2200, 2600];
-        const f = notes[Math.floor(Math.random() * notes.length)];
-        this.playTone(f, 'sine', 0.05, 0.08);
-      }
-
-      playWheelClick() {
-        if (this.isMuted) return;
-        this.playTone(520, 'triangle', 0.03, 0.12, -140);
-      }
-
-      playBigWinFanfare() {
-        if (this.isMuted) return;
-        const victory = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
-        victory.forEach((note, idx) => {
+        const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+        notes.forEach((freq, idx) => {
           setTimeout(() => {
-            this.playTone(note, 'triangle', 0.45, 0.22);
-            this.playTone(note * 1.5, 'sine', 0.35, 0.12);
-          }, idx * 100);
+            this.playTone(freq, 'triangle', 0.4, 0.25);
+            this.playTone(freq * 1.25, 'sawtooth', 0.25, 0.12);
+          }, idx * 110);
         });
       }
     }
 
-    const sound = new CasinoAudioEngine();
-    /**
-     * Enhanced High-Roller Symbol Configs (Multipliers up to 2500x)
-     */
-    const SYMBOLS = {
-      WILD:       { id: 'WILD', name: 'WILD CROWN', pay5: 2000, pay4: 600, pay3: 200, isSpecial: true },
-      SCATTER:    { id: 'SCATTER', name: 'DIAMOND', pay5: 500, pay4: 100, pay3: 20, isSpecial: true },
-      BONUS:      { id: 'BONUS', name: 'WHEEL BONUS', pay5: 500, pay4: 100, pay3: 20, isSpecial: true },
-      SEVEN:      { id: 'SEVEN', name: 'TRIPLE 7', pay5: 2500, pay4: 750, pay3: 250 },
-      BAR:        { id: 'BAR', name: 'GOLD BAR', pay5: 1000, pay4: 350, pay3: 120 },
-      BELL:       { id: 'BELL', name: 'GOLD BELL', pay5: 600, pay4: 200, pay3: 80 },
-      CHERRY:     { id: 'CHERRY', name: 'CHERRY', pay5: 400, pay4: 150, pay3: 60 },
-      HORSESHOE:  { id: 'HORSESHOE', name: 'HORSESHOE', pay5: 300, pay4: 100, pay3: 40 },
-      ACE:        { id: 'ACE', name: 'ACE', pay5: 200, pay4: 80, pay3: 30 },
-      KING:       { id: 'KING', name: 'KING', pay5: 150, pay4: 60, pay3: 25 },
-      QUEEN:      { id: 'QUEEN', name: 'QUEEN', pay5: 100, pay4: 40, pay3: 20 }
-    };
+    const sound = new LottoSoundEngine();
 
-    const REEL_STRIP_TEMPLATE = [
-      'SEVEN', 'ACE', 'CHERRY', 'KING', 'BELL', 'QUEEN', 'BAR', 'HORSESHOE',
-      'ACE', 'WILD', 'CHERRY', 'KING', 'SCATTER', 'BELL', 'QUEEN', 'SEVEN',
-      'HORSESHOE', 'BAR', 'ACE', 'BONUS', 'CHERRY', 'KING', 'BELL', 'WILD',
-      'QUEEN', 'SEVEN', 'BAR', 'HORSESHOE', 'ACE', 'SCATTER', 'KING', 'CHERRY'
-    ];
+    // Core Game State
+    let isFeverMode = true; // 100,000,000x boosted probability mode (default: TRUE)
+    let isDrawing = false;
+    let isFastMode = false;
+    let currentRound = 1140;
+    let playerBalance = 100000; // Starting 100,000 KRW
+    let totalWinnings = 0;
+    let totalSpent = 0;
+    let baseJackpot = 2854192800; // ~2.85 billion KRW
 
-    // 20 Vegas Payline Matrix
-    const PAYLINES = [
-      [1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [2, 2, 2, 2, 2], [0, 1, 2, 1, 0], [2, 1, 0, 1, 2],
-      [0, 0, 1, 0, 0], [2, 2, 1, 2, 2], [1, 2, 2, 2, 1], [1, 0, 0, 0, 1], [1, 0, 1, 0, 1],
-      [1, 2, 1, 2, 1], [0, 1, 0, 1, 0], [2, 1, 2, 1, 2], [0, 1, 1, 1, 0], [2, 1, 1, 1, 2],
-      [1, 1, 0, 1, 1], [1, 1, 2, 1, 1], [0, 0, 2, 0, 0], [2, 2, 0, 2, 2], [0, 2, 0, 2, 0]
-    ];
+    // User's Active Tickets (List of { id, mode: '자동'|'수동', numbers: [6 numbers], matches: [] })
+    let userTickets = [];
+    let manualSelectedNumbers = new Set();
 
-    const PAYLINE_COLORS = [
-      '#ffcc00', '#ff2255', '#00ffcc', '#ff00ff', '#33ff33',
-      '#ff8800', '#00ccff', '#ff33aa', '#ffff00', '#77ff33',
-      '#ff5500', '#22bbff', '#bb33ff', '#ff0077', '#00ff77',
-      '#ff8888', '#88ccff', '#ffbb88', '#bbff88', '#ff88ff'
-    ];
+    // Drawn Numbers for Current Round
+    let drawnWinningNumbers = []; // 6 numbers
+    let drawnBonusNumber = null;
 
-    // Core Game State Variables
-    let balance = 50000.00;
-    const betOptions = [10, 20, 50, 100, 250, 500, 1000];
-    let betIndex = 2; // Default $50.00
-    let lastWin = 0.00;
-    let isSpinning = false;
-    let isTurbo = false;
-    let isFeverMode = true; // 80% Bonus Trigger Mode Active by default!
-    let autoSpinCount = 0;
+    // Helper: Ball Color Category & Class
+    function getBallTheme(num) {
+      if (num <= 10) return { bg: '#fbc400', class: 'ball-1-10', text: '#3b2800' };
+      if (num <= 20) return { bg: '#69c8f2', class: 'ball-11-20', text: '#ffffff' };
+      if (num <= 30) return { bg: '#ff7272', class: 'ball-21-30', text: '#ffffff' };
+      if (num <= 40) return { bg: '#aaaaaa', class: 'ball-31-40', text: '#ffffff' };
+      return { bg: '#b0d840', class: 'ball-41-45', text: '#1c3000' };
+    }
 
-    let freeSpinsLeft = 0;
-    let freeSpinMultiplier = 5; // Exploding multiplier starts at 5x!
+    // Helper: Pick 6 Unique Random Numbers from 1 to 45
+    function generateRandom6() {
+      const pool = Array.from({ length: 45 }, (_, i) => i + 1);
+      const chosen = [];
+      while (chosen.length < 6) {
+        const idx = Math.floor(Math.random() * pool.length);
+        chosen.push(pool.splice(idx, 1)[0]);
+      }
+      return chosen.sort((a, b) => a - b);
+    }
 
-    let grandJackpot = 158400.00;
-    let majorJackpot = 18650.00;
-    let miniJackpot = 1250.00;
+    const blowerCanvas = document.getElementById('blowerCanvas');
+    const blowerCtx = blowerCanvas.getContext('2d');
+    const celebCanvas = document.getElementById('celebrationCanvas');
+    const celebCtx = celebCanvas.getContext('2d');
 
-    const REEL_COUNT = 5;
-    const ROW_COUNT = 3;
-    let reels = [];
+    let machineBalls = [];
+    let machineCenter = { x: 0, y: 0 };
+    let machineRadius = 140;
+    let suctionActive = false;
+    let ballBeingSuctioned = null;
 
-    let winningLinesResult = [];
-    let winningLineCycleTimer = 0;
-    let activeCycleLineIdx = -1;
-    const slotCanvas = document.getElementById('slotCanvas');
-    const slotCtx = slotCanvas.getContext('2d');
-    const particleCanvas = document.getElementById('particleCanvas');
-    const partCtx = particleCanvas.getContext('2d');
-
-    const VIRTUAL_W = 900;
-    const VIRTUAL_H = 540;
-
-    function resizeCanvases() {
+    function resizeBlowerCanvas() {
+      const rect = blowerCanvas.parentElement.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
-      const rect = slotCanvas.getBoundingClientRect();
-      
-      slotCanvas.width = rect.width * dpr;
-      slotCanvas.height = rect.height * dpr;
-      slotCtx.scale(dpr * (rect.width / VIRTUAL_W), dpr * (rect.height / VIRTUAL_H));
 
-      particleCanvas.width = rect.width * dpr;
-      particleCanvas.height = rect.height * dpr;
-      partCtx.scale(dpr * (rect.width / VIRTUAL_W), dpr * (rect.height / VIRTUAL_H));
+      blowerCanvas.width = rect.width * dpr;
+      blowerCanvas.height = rect.height * dpr;
+      blowerCtx.scale(dpr, dpr);
+
+      celebCanvas.width = rect.width * dpr;
+      celebCanvas.height = rect.height * dpr;
+      celebCtx.scale(dpr, dpr);
+
+      machineCenter.x = rect.width / 2;
+      machineCenter.y = rect.height * 0.58;
+      machineRadius = Math.min(rect.width * 0.42, rect.height * 0.38);
     }
-    window.addEventListener('resize', resizeCanvases);
+    window.addEventListener('resize', resizeBlowerCanvas);
 
-    function initReelStrips() {
-      reels = [];
-      const reelWidth = VIRTUAL_W / REEL_COUNT;
-      const symbolHeight = VIRTUAL_H / ROW_COUNT;
-
-      for (let r = 0; r < REEL_COUNT; r++) {
-        const strip = [];
-        for (let s = 0; s < 50; s++) {
-          strip.push(REEL_STRIP_TEMPLATE[Math.floor(Math.random() * REEL_STRIP_TEMPLATE.length)]);
-        }
-
-        reels.push({
-          index: r,
-          x: r * reelWidth,
-          w: reelWidth,
-          h: symbolHeight,
-          strip: strip,
-          pos: Math.floor(Math.random() * 20),
-          targetPos: 0,
-          speed: 0,
-          maxSpeed: 45,
-          state: 'IDLE',
-          stopDelay: 0,
-          bounceTimer: 0,
-          visibleSymbols: ['SEVEN', 'BAR', 'BELL'],
-          isAnticipating: false
+    // Initialize 45 Balls inside Sphere
+    function initMachineBalls() {
+      machineBalls = [];
+      for (let i = 1; i <= 45; i++) {
+        const theme = getBallTheme(i);
+        const ang = Math.random() * Math.PI * 2;
+        const dist = Math.random() * (machineRadius - 22);
+        machineBalls.push({
+          num: i,
+          x: machineCenter.x + Math.cos(ang) * dist,
+          y: machineCenter.y + Math.sin(ang) * dist,
+          vx: (Math.random() - 0.5) * 4,
+          vy: (Math.random() - 0.5) * 4,
+          radius: 12,
+          theme: theme,
+          inMachine: true
         });
       }
     }
-    function drawSymbol(ctx, symId, cx, cy, width, height, isDimmed = false) {
-      ctx.save();
-      ctx.translate(cx, cy);
 
-      if (isDimmed) ctx.globalAlpha = 0.25;
+    function updateBlowerPhysics() {
+      const cx = machineCenter.x;
+      const cy = machineCenter.y;
+      const R = machineRadius;
 
-      const iconSize = Math.min(width, height) * 0.42;
+      machineBalls.forEach(ball => {
+        if (!ball.inMachine) return;
 
-      switch (symId) {
-        case 'WILD': {
-          ctx.shadowColor = '#ffd700';
-          ctx.shadowBlur = 22;
-          ctx.fillStyle = '#ffd700';
-          ctx.beginPath();
-          ctx.moveTo(-iconSize, iconSize * 0.4);
-          ctx.lineTo(-iconSize * 0.8, -iconSize * 0.45);
-          ctx.lineTo(-iconSize * 0.35, 0);
-          ctx.lineTo(0, -iconSize * 0.75);
-          ctx.lineTo(iconSize * 0.35, 0);
-          ctx.lineTo(iconSize * 0.8, -iconSize * 0.45);
-          ctx.lineTo(iconSize, iconSize * 0.4);
-          ctx.closePath();
-          ctx.fill();
-
-          ctx.fillStyle = '#ff1744';
-          [-iconSize * 0.75, 0, iconSize * 0.75].forEach(jx => {
-            ctx.beginPath();
-            ctx.arc(jx, -iconSize * 0.45, 4, 0, Math.PI * 2);
-            ctx.fill();
-          });
-
-          ctx.shadowBlur = 0;
-          ctx.fillStyle = '#b8860b';
-          ctx.fillRect(-iconSize, iconSize * 0.35, iconSize * 2, iconSize * 0.45);
-          ctx.fillStyle = '#fff';
-          ctx.font = '900 15px Cinzel, serif';
-          ctx.textAlign = 'center';
-          ctx.fillText('WILD', 0, iconSize * 0.7);
-          break;
+        // If currently being sucked up through the suction chute
+        if (ball === ballBeingSuctioned) {
+          const chuteTargetX = cx;
+          const chuteTargetY = cy - R - 35;
+          ball.x += (chuteTargetX - ball.x) * 0.18;
+          ball.y += (chuteTargetY - ball.y) * 0.18;
+          return;
         }
 
-        case 'SCATTER': {
-          ctx.shadowColor = '#00f0ff';
-          ctx.shadowBlur = 25;
-          ctx.fillStyle = '#00f0ff';
-          ctx.beginPath();
-          ctx.moveTo(0, -iconSize * 0.85);
-          ctx.lineTo(iconSize * 0.9, -iconSize * 0.1);
-          ctx.lineTo(0, iconSize * 0.9);
-          ctx.lineTo(-iconSize * 0.9, -iconSize * 0.1);
-          ctx.closePath();
-          ctx.fill();
+        // Standard machine active physics
+        if (isDrawing) {
+          // Upward Air Vortex Blast from bottom jets
+          const blastStrength = 0.55 + Math.random() * 0.65;
+          ball.vy -= blastStrength;
+          ball.vx += (Math.random() - 0.5) * 0.8;
 
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2.5;
-          ctx.stroke();
-
-          ctx.shadowBlur = 0;
-          ctx.fillStyle = '#ffffff';
-          ctx.font = '900 11px Montserrat, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText('FREE SPINS', 0, iconSize * 0.4);
-          break;
+          // Angular swirl momentum
+          const dx = ball.x - cx;
+          const dy = ball.y - cy;
+          ball.vx += -dy * 0.007;
+          ball.vy += dx * 0.007;
+        } else {
+          // Gentle resting gravity when idle
+          ball.vy += 0.25;
         }
 
-        case 'BONUS': {
-          ctx.shadowColor = '#ff3b00';
-          ctx.shadowBlur = 24;
-          ctx.beginPath();
-          ctx.arc(0, 0, iconSize * 0.82, 0, Math.PI * 2);
-          ctx.fillStyle = '#d4af37';
-          ctx.fill();
-          ctx.lineWidth = 4;
-          ctx.strokeStyle = '#fff';
-          ctx.stroke();
+        // Terminal air resistance / drag
+        ball.vx *= 0.985;
+        ball.vy *= 0.985;
 
-          for (let a = 0; a < 6; a++) {
-            const ang = (a * Math.PI) / 3;
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(Math.cos(ang) * iconSize * 0.82, Math.sin(ang) * iconSize * 0.82);
-            ctx.strokeStyle = '#7c0000';
-            ctx.lineWidth = 2.5;
-            ctx.stroke();
+        // Position Integration
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+
+        // Spherical Glass Boundary Collision Detection
+        const distFromCenter = Math.hypot(ball.x - cx, ball.y - cy);
+        const maxDist = R - ball.radius;
+
+        if (distFromCenter > maxDist) {
+          const normalX = (ball.x - cx) / distFromCenter;
+          const normalY = (ball.y - cy) / distFromCenter;
+
+          // Snap to surface
+          ball.x = cx + normalX * maxDist;
+          ball.y = cy + normalY * maxDist;
+
+          // Velocity reflection with bounce restitution
+          const dot = ball.vx * normalX + ball.vy * normalY;
+          ball.vx = (ball.vx - 2 * dot * normalX) * 0.75;
+          ball.vy = (ball.vy - 2 * dot * normalY) * 0.75;
+
+          if (isDrawing && Math.random() < 0.08) {
+            sound.playBallClick();
           }
-
-          ctx.shadowBlur = 0;
-          ctx.fillStyle = '#000';
-          ctx.beginPath();
-          ctx.arc(0, 0, iconSize * 0.38, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = '#ffea00';
-          ctx.font = '900 10px Montserrat, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText('WHEEL', 0, 3);
-          break;
-        }
-
-        case 'SEVEN': {
-          ctx.shadowColor = '#ff2200';
-          ctx.shadowBlur = 22;
-          ctx.fillStyle = '#ff2200';
-          ctx.font = '900 70px Cinzel, serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('7', 0, -2);
-          ctx.lineWidth = 3;
-          ctx.strokeStyle = '#fff2a3';
-          ctx.strokeText('7', 0, -2);
-          break;
-        }
-
-        case 'BAR': {
-          ctx.fillStyle = '#eab308';
-          ctx.shadowColor = '#eab308';
-          ctx.shadowBlur = 14;
-          [-iconSize * 0.5, 0, iconSize * 0.5].forEach(by => {
-            ctx.fillRect(-iconSize * 0.9, by - 6, iconSize * 1.8, 12);
-            ctx.strokeStyle = '#451a03';
-            ctx.lineWidth = 1.5;
-            ctx.strokeRect(-iconSize * 0.9, by - 6, iconSize * 1.8, 12);
-            ctx.fillStyle = '#451a03';
-            ctx.font = '900 9px Montserrat, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('BAR', 0, by + 3);
-            ctx.fillStyle = '#eab308';
-          });
-          break;
-        }
-
-        case 'BELL': {
-          ctx.shadowColor = '#fbbf24';
-          ctx.shadowBlur = 16;
-          ctx.fillStyle = '#fbbf24';
-          ctx.beginPath();
-          ctx.arc(0, -iconSize * 0.3, iconSize * 0.45, Math.PI, 0);
-          ctx.lineTo(iconSize * 0.7, iconSize * 0.4);
-          ctx.lineTo(-iconSize * 0.7, iconSize * 0.4);
-          ctx.closePath();
-          ctx.fill();
-
-          ctx.beginPath();
-          ctx.arc(0, iconSize * 0.52, iconSize * 0.18, 0, Math.PI * 2);
-          ctx.fillStyle = '#b45309';
-          ctx.fill();
-          break;
-        }
-
-        case 'CHERRY': {
-          ctx.shadowColor = '#f43f5e';
-          ctx.shadowBlur = 14;
-          ctx.strokeStyle = '#15803d';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.moveTo(-iconSize * 0.4, 0);
-          ctx.quadraticCurveTo(0, -iconSize * 0.7, 0, -iconSize * 0.7);
-          ctx.quadraticCurveTo(0, -iconSize * 0.7, iconSize * 0.4, iconSize * 0.2);
-          ctx.stroke();
-
-          ctx.fillStyle = '#e11d48';
-          ctx.beginPath();
-          ctx.arc(-iconSize * 0.4, iconSize * 0.2, iconSize * 0.38, 0, Math.PI * 2);
-          ctx.arc(iconSize * 0.4, iconSize * 0.35, iconSize * 0.38, 0, Math.PI * 2);
-          ctx.fill();
-          break;
-        }
-
-        case 'HORSESHOE': {
-          ctx.shadowColor = '#34d399';
-          ctx.shadowBlur = 12;
-          ctx.strokeStyle = '#10b981';
-          ctx.lineWidth = 9;
-          ctx.beginPath();
-          ctx.arc(0, 0, iconSize * 0.55, 0.2 * Math.PI, 0.8 * Math.PI, true);
-          ctx.stroke();
-          break;
-        }
-
-        default: {
-          ctx.shadowColor = '#c084fc';
-          ctx.shadowBlur = 12;
-          ctx.font = '900 54px Montserrat, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = '#f3e8ff';
-          ctx.fillText(symId[0], 0, 0);
-          ctx.lineWidth = 2.5;
-          ctx.strokeStyle = '#a855f7';
-          ctx.strokeText(symId[0], 0, 0);
-          break;
-        }
-      }
-      ctx.restore();
-    }
-    /**
-     * Start Spin Sequence with 80% Guaranteed Bonus Feature Injection
-     */
-    function startSpin() {
-      if (isSpinning) return;
-      if (balance < betOptions[betIndex] && freeSpinsLeft <= 0) {
-        showAnticipationToast("잔액이 부족합니다! 배팅금을 확인하세요.");
-        return;
-      }
-
-      sound.init();
-
-      // Deduct bet if not in Free Spins
-      if (freeSpinsLeft > 0) {
-        freeSpinsLeft--;
-        document.getElementById('freeSpinsRemaining').textContent = freeSpinsLeft;
-        if (freeSpinsLeft === 0) {
-          setTimeout(() => {
-            document.getElementById('freeSpinBanner').classList.add('hidden');
-          }, 1500);
-        }
-      } else {
-        balance -= betOptions[betIndex];
-        grandJackpot += betOptions[betIndex] * 0.02;
-        majorJackpot += betOptions[betIndex] * 0.01;
-        miniJackpot += betOptions[betIndex] * 0.005;
-        updateMeters();
-      }
-
-      isSpinning = true;
-      lastWin = 0;
-      winningLinesResult = [];
-      document.getElementById('winDisplay').textContent = '$0.00';
-      document.getElementById('anticipationBanner').classList.add('hidden');
-      updateButtonStates();
-
-      sound.playSpinStart();
-
-      // 80% ULTRA FEVER CHANCE EVALUATOR
-      const willTrigger80Fever = isFeverMode && (Math.random() < 0.80);
-      const feverFeatureType = Math.random() < 0.5 ? 'SCATTER' : 'BONUS';
-
-      // Pick 3 or 4 reels to land the feature symbol
-      const bonusReelIndices = [];
-      if (willTrigger80Fever) {
-        const count = Math.random() < 0.3 ? 4 : 3;
-        const availableCols = [0, 1, 2, 3, 4].sort(() => Math.random() - 0.5);
-        for (let i = 0; i < count; i++) {
-          bonusReelIndices.push(availableCols[i]);
-        }
-      }
-
-      const baseStopTime = isTurbo ? 300 : 750;
-      const staggerTime = isTurbo ? 160 : 320;
-      let scatterCounter = 0;
-
-      for (let r = 0; r < REEL_COUNT; r++) {
-        const reel = reels[r];
-        reel.state = 'SPINNING';
-        reel.speed = reel.maxSpeed * (isTurbo ? 1.4 : 1.0);
-        reel.isAnticipating = false;
-
-        const randStop = Math.floor(Math.random() * (reel.strip.length - 6));
-        reel.targetPos = randStop;
-
-        // Force Scatter or Bonus into view on chosen reels if 80% Fever hit!
-        if (bonusReelIndices.includes(r)) {
-          const rowPlacement = Math.floor(Math.random() * 3); // top, mid, or bot
-          reel.strip[randStop + rowPlacement] = feverFeatureType;
-          scatterCounter++;
-        }
-
-        let delay = baseStopTime + (r * staggerTime);
-
-        // Anticipation Tension on Reel 2+ if already 2 Scatters
-        if (r >= 2 && scatterCounter >= 2 && !isTurbo) {
-          delay += 1100;
-          reel.isAnticipating = true;
-        }
-
-        reel.stopDelay = delay;
-      }
-
-      if (scatterCounter >= 2 && !isTurbo) {
-        setTimeout(() => {
-          if (isSpinning) {
-            document.getElementById('anticipationBanner').classList.remove('hidden');
-          }
-        }, 700);
-      }
-
-      for (let r = 0; r < REEL_COUNT; r++) {
-        const reel = reels[r];
-        setTimeout(() => {
-          stopReel(reel);
-        }, reel.stopDelay);
-      }
-    }
-
-    function stopReel(reel) {
-      reel.state = 'STOPPING';
-    }
-
-    function onAllReelsStopped() {
-      isSpinning = false;
-      document.getElementById('anticipationBanner').classList.add('hidden');
-      updateButtonStates();
-
-      const grid = [];
-      for (let row = 0; row < ROW_COUNT; row++) {
-        grid[row] = [];
-        for (let col = 0; col < REEL_COUNT; col++) {
-          grid[row][col] = reels[col].visibleSymbols[row];
-        }
-      }
-
-      evaluateSpinResults(grid);
-    }
-    function evaluateSpinResults(grid) {
-      let totalSpinWin = 0;
-      const currentBet = betOptions[betIndex];
-      const lineBet = currentBet / PAYLINES.length;
-      winningLinesResult = [];
-
-      // 1. Evaluate Line Multipliers
-      PAYLINES.forEach((lineCoords, lineIdx) => {
-        const firstSym = grid[lineCoords[0]][0];
-        let matchSym = firstSym;
-        let matchCount = 1;
-        let winningPositions = [{ row: lineCoords[0], col: 0 }];
-
-        for (let col = 1; col < REEL_COUNT; col++) {
-          const row = lineCoords[col];
-          const curSym = grid[row][col];
-
-          if (matchSym === 'WILD' && curSym !== 'SCATTER' && curSym !== 'BONUS') {
-            matchSym = curSym;
-          }
-
-          if (curSym === matchSym || (curSym === 'WILD' && matchSym !== 'SCATTER' && matchSym !== 'BONUS')) {
-            matchCount++;
-            winningPositions.push({ row, col });
-          } else {
-            break;
-          }
-        }
-
-        if (matchCount >= 3 && matchSym !== 'SCATTER' && matchSym !== 'BONUS') {
-          const symData = SYMBOLS[matchSym];
-          let multiplier = (matchCount === 5) ? symData.pay5 : (matchCount === 4 ? symData.pay4 : symData.pay3);
-
-          // Apply Free Spins exploding multiplier (5x up to 100x!)
-          const activeMultiplier = (freeSpinsLeft > 0) ? freeSpinMultiplier : 1;
-          const linePayout = lineBet * (multiplier / 10) * activeMultiplier;
-          totalSpinWin += linePayout;
-
-          winningLinesResult.push({
-            lineIndex: lineIdx,
-            color: PAYLINE_COLORS[lineIdx % PAYLINE_COLORS.length],
-            payout: linePayout,
-            positions: winningPositions
-          });
         }
       });
-
-      // 2. Count Scatters & Wheel Bonuses
-      let scatterCount = 0;
-      let bonusCount = 0;
-
-      for (let c = 0; c < REEL_COUNT; c++) {
-        for (let r = 0; r < ROW_COUNT; r++) {
-          if (grid[r][c] === 'SCATTER') scatterCount++;
-          if (grid[r][c] === 'BONUS') bonusCount++;
-        }
-      }
-
-      // Feature 1: Scatter Free Spins (10 Spins with Exploding Multiplier!)
-      if (scatterCount >= 3) {
-        sound.playScatterLand();
-        freeSpinsLeft += 10;
-        freeSpinMultiplier = 5; // Reset to 5x
-        document.getElementById('freeSpinsRemaining').textContent = freeSpinsLeft;
-        document.getElementById('freeSpinMultiplierTag').textContent = `${freeSpinMultiplier}X`;
-        document.getElementById('freeSpinBanner').classList.remove('hidden');
-        showAnticipationToast(`🔥 10 ULTRA FREE SPINS ACTIVATED! (STARTS AT 5X) 🔥`);
-        triggerScreenShake();
-      }
-
-      // Feature 2: Jackpot Wheel Bonus (Up to 5,000x!)
-      if (bonusCount >= 3) {
-        sound.playBonusLand();
-        triggerScreenShake();
-        setTimeout(() => {
-          openWheelBonusModal();
-        }, 1200);
-      }
-
-      // 3. Process Win Payout & Progressive Multipliers
-      if (totalSpinWin > 0) {
-        lastWin = totalSpinWin;
-        balance += totalSpinWin;
-        animateWinRollup(totalSpinWin);
-
-        // Increase Free Spins exploding multiplier by +5x on every winning hit!
-        if (freeSpinsLeft > 0) {
-          freeSpinMultiplier = Math.min(100, freeSpinMultiplier + 5);
-          document.getElementById('freeSpinMultiplierTag').textContent = `${freeSpinMultiplier}X`;
-        }
-
-        const winRatio = totalSpinWin / currentBet;
-        if (winRatio >= 15) {
-          triggerBigWinCelebration(totalSpinWin, winRatio);
-          triggerScreenShake();
-        } else {
-          sound.playCoinTick();
-        }
-      } else {
-        document.getElementById('winDisplay').textContent = '$0.00';
-      }
-
-      updateMeters();
-
-      // Auto Spin Handling
-      if (autoSpinCount > 0) {
-        if (autoSpinCount < 990) autoSpinCount--;
-        document.getElementById('autoCountLabel').textContent = (autoSpinCount >= 990) ? '∞ INFINITY' : `${autoSpinCount} LEFT`;
-        if (autoSpinCount > 0) {
-          setTimeout(() => {
-            if (!isSpinning && autoSpinCount > 0) startSpin();
-          }, isTurbo ? 500 : 1300);
-        } else {
-          stopAutoSpin();
-        }
-      }
     }
-    let particles = [];
 
-    function spawnCoinShower(count = 140) {
+    function renderBlower() {
+      const rect = blowerCanvas.parentElement.getBoundingClientRect();
+      const cx = machineCenter.x;
+      const cy = machineCenter.y;
+      const R = machineRadius;
+
+      blowerCtx.clearRect(0, 0, rect.width, rect.height);
+
+      // 1. Overhead Acrylic Suction Funnel & Tube
+      blowerCtx.save();
+      blowerCtx.strokeStyle = 'rgba(105, 200, 242, 0.4)';
+      blowerCtx.lineWidth = 3;
+      blowerCtx.beginPath();
+      blowerCtx.moveTo(cx - 24, cy - R);
+      blowerCtx.lineTo(cx - 16, 20);
+      blowerCtx.lineTo(cx + 16, 20);
+      blowerCtx.lineTo(cx + 24, cy - R);
+      blowerCtx.stroke();
+
+      // Suction Light Glow
+      if (suctionActive) {
+        blowerCtx.fillStyle = 'rgba(255, 215, 0, 0.25)';
+        blowerCtx.fill();
+      }
+      blowerCtx.restore();
+
+      // 2. Machine Circular Back Glass with Radial Lighting
+      blowerCtx.save();
+      const glassGrad = blowerCtx.createRadialGradient(cx - R * 0.3, cy - R * 0.3, 10, cx, cy, R);
+      glassGrad.addColorStop(0, 'rgba(30, 45, 80, 0.35)');
+      glassGrad.addColorStop(0.7, 'rgba(12, 18, 35, 0.55)');
+      glassGrad.addColorStop(1, 'rgba(5, 8, 18, 0.85)');
+      blowerCtx.fillStyle = glassGrad;
+      blowerCtx.beginPath();
+      blowerCtx.arc(cx, cy, R, 0, Math.PI * 2);
+      blowerCtx.fill();
+
+      // Metallic Rim Ring
+      blowerCtx.strokeStyle = 'rgba(251, 196, 0, 0.7)';
+      blowerCtx.lineWidth = 5;
+      blowerCtx.shadowColor = 'rgba(251, 196, 0, 0.5)';
+      blowerCtx.shadowBlur = 15;
+      blowerCtx.stroke();
+      blowerCtx.restore();
+
+      // 3. Render 45 Numbered Balls
+      machineBalls.forEach(ball => {
+        if (!ball.inMachine && ball !== ballBeingSuctioned) return;
+
+        blowerCtx.save();
+        blowerCtx.translate(ball.x, ball.y);
+
+        // 3D Ball Sphere Gradient
+        const ballGrad = blowerCtx.createRadialGradient(-3, -3, 1, 0, 0, ball.radius);
+        ballGrad.addColorStop(0, '#ffffff');
+        ballGrad.addColorStop(0.3, ball.theme.bg);
+        ballGrad.addColorStop(1, 'rgba(0,0,0,0.5)');
+        blowerCtx.fillStyle = ballGrad;
+        blowerCtx.beginPath();
+        blowerCtx.arc(0, 0, ball.radius, 0, Math.PI * 2);
+        blowerCtx.fill();
+
+        // Ball Number Typography
+        blowerCtx.fillStyle = ball.theme.text;
+        blowerCtx.font = '900 9px Pretendard, sans-serif';
+        blowerCtx.textAlign = 'center';
+        blowerCtx.textBaseline = 'middle';
+        blowerCtx.fillText(ball.num, 0, 0.5);
+
+        blowerCtx.restore();
+      });
+
+      // 4. Front Glass Gloss Highlight
+      blowerCtx.save();
+      blowerCtx.beginPath();
+      blowerCtx.arc(cx, cy, R - 4, Math.PI * 1.1, Math.PI * 1.8);
+      blowerCtx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+      blowerCtx.lineWidth = 6;
+      blowerCtx.stroke();
+      blowerCtx.restore();
+    }
+
+    let confettiParticles = [];
+
+    function spawnConfetti(count = 160) {
+      const rect = celebCanvas.parentElement.getBoundingClientRect();
       for (let i = 0; i < count; i++) {
-        particles.push({
-          x: VIRTUAL_W / 2 + (Math.random() - 0.5) * 260,
-          y: VIRTUAL_H + 20,
-          vx: (Math.random() - 0.5) * 18,
-          vy: -(Math.random() * 20 + 16),
-          gravity: 0.58,
-          size: Math.random() * 9 + 8,
-          rotation: Math.random() * Math.PI,
-          rotSpeed: (Math.random() - 0.5) * 0.3,
-          color: Math.random() > 0.35 ? '#ffd700' : '#ff3b00',
-          alpha: 1.0
+        confettiParticles.push({
+          x: rect.width / 2 + (Math.random() - 0.5) * 120,
+          y: rect.height * 0.45,
+          vx: (Math.random() - 0.5) * 16,
+          vy: -(Math.random() * 15 + 8),
+          size: Math.random() * 8 + 4,
+          rot: Math.random() * Math.PI,
+          rotSpeed: (Math.random() - 0.5) * 0.25,
+          color: ['#fbc400', '#69c8f2', '#ff7272', '#b0d840', '#ffffff', '#ffd700'][Math.floor(Math.random() * 6)],
+          gravity: 0.45
         });
       }
     }
 
-    function triggerScreenShake() {
-      const main = document.getElementById('cabinetMain');
-      main.classList.remove('shake-active');
-      void main.offsetWidth;
-      main.classList.add('shake-active');
-    }
+    function updateAndRenderConfetti() {
+      const rect = celebCanvas.parentElement.getBoundingClientRect();
+      celebCtx.clearRect(0, 0, rect.width, rect.height);
 
-    function updateAndRenderParticles() {
-      partCtx.clearRect(0, 0, VIRTUAL_W, VIRTUAL_H);
-
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
+      for (let i = confettiParticles.length - 1; i >= 0; i--) {
+        const p = confettiParticles[i];
         p.vy += p.gravity;
         p.x += p.vx;
         p.y += p.vy;
-        p.rotation += p.rotSpeed;
+        p.rot += p.rotSpeed;
 
-        if (p.y > VIRTUAL_H + 50) {
-          particles.splice(i, 1);
+        if (p.y > rect.height + 20) {
+          confettiParticles.splice(i, 1);
           continue;
         }
 
-        partCtx.save();
-        partCtx.translate(p.x, p.y);
-        partCtx.rotate(p.rotation);
-
-        const squash = Math.abs(Math.sin(p.rotation * 2));
-        partCtx.fillStyle = p.color;
-        partCtx.beginPath();
-        partCtx.ellipse(0, 0, p.size, p.size * squash, 0, 0, Math.PI * 2);
-        partCtx.fill();
-        partCtx.strokeStyle = '#b8860b';
-        partCtx.lineWidth = 1.5;
-        partCtx.stroke();
-
-        partCtx.restore();
+        celebCtx.save();
+        celebCtx.translate(p.x, p.y);
+        celebCtx.rotate(p.rot);
+        celebCtx.fillStyle = p.color;
+        celebCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        celebCtx.restore();
       }
     }
 
-    function triggerBigWinCelebration(amount, ratio) {
-      const overlay = document.getElementById('bigWinOverlay');
-      const title = document.getElementById('bigWinTitle');
-      const counter = document.getElementById('bigWinCounter');
+    // Main Canvas Animation Loop
+    function animationLoop() {
+      updateBlowerPhysics();
+      renderBlower();
+      updateAndRenderConfetti();
+      requestAnimationFrame(animationLoop);
+    }
 
-      if (ratio >= 50) title.textContent = "🔥 ULTRA FEVER JACKPOT! 🔥";
-      else if (ratio >= 25) title.textContent = "💥 MEGA FEVER WIN! 💥";
-      else title.textContent = "⭐ BIG FEVER WIN! ⭐";
+    /**
+     * PROBABILITY ENGINE CORE:
+     * - Standard 1st prize odds: 1 in 8,145,060 (~0.00001228%).
+     * - In 100,000,000x Fever Mode (1억 배 모드):
+     *   Odds are boosted 100,000,000x! We evaluate against the user's active purchased games.
+     *   With an ~85% frequency, one of the player's bought games is designated as the EXACT 1st prize match!
+     *   With ~12% frequency, it matches 5 + Bonus (2nd prize).
+     *   With ~3% frequency, it matches 5 (3rd prize).
+     * - In Reality Mode (1배 현실 모드):
+     *   True unbiased 6/45 hypergeometric random draw.
+     */
+    function calculateWinningNumbersForRound() {
+      if (!isFeverMode || userTickets.length === 0) {
+        // True random draw
+        const numbers = generateRandom6();
+        const pool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !numbers.includes(n));
+        const bonus = pool[Math.floor(Math.random() * pool.length)];
+        return { main: numbers, bonus: bonus };
+      }
 
-      counter.textContent = `$${amount.toFixed(2)}`;
-      overlay.classList.remove('hidden');
-      spawnCoinShower(180);
-      sound.playBigWinFanfare();
+      // 100,000,000x FEVER ENGINE ACTIVE!
+      const targetGame = userTickets[Math.floor(Math.random() * userTickets.length)];
+      const targetNums = [...targetGame.numbers];
 
+      const roll = Math.random();
+      let mainNums = [];
+      let bonusNum = null;
+
+      if (roll < 0.85) {
+        // 85% CHANCE: 1ST PRIZE (1등 당첨 확정!)
+        mainNums = [...targetNums].sort((a, b) => a - b);
+        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !mainNums.includes(n));
+        bonusNum = remPool[Math.floor(Math.random() * remPool.length)];
+      } else if (roll < 0.97) {
+        // 12% CHANCE: 2ND PRIZE (5개 일치 + 보너스 번호 일치)
+        const matched5 = targetNums.sort(() => Math.random() - 0.5).slice(0, 5);
+        const the6th = targetNums.find(n => !matched5.includes(n));
+        bonusNum = the6th; // 6th number becomes bonus!
+
+        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !targetNums.includes(n));
+        const other1 = remPool[Math.floor(Math.random() * remPool.length)];
+        mainNums = [...matched5, other1].sort((a, b) => a - b);
+      } else {
+        // 3% CHANCE: 3RD PRIZE (5개 일치)
+        const matched5 = targetNums.sort(() => Math.random() - 0.5).slice(0, 5);
+        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !targetNums.includes(n));
+        const other1 = remPool[Math.floor(Math.random() * remPool.length)];
+        mainNums = [...matched5, other1].sort((a, b) => a - b);
+
+        const remPool2 = remPool.filter(n => n !== other1);
+        bonusNum = remPool2[Math.floor(Math.random() * remPool2.length)];
+      }
+
+      return { main: mainNums, bonus: bonusNum };
+    }
+
+    async function executeDrawSequence() {
+      if (isDrawing) return;
+      if (userTickets.length === 0) {
+        setAlertBanner("먼저 1개 이상의 로또 게임을 발권해주세요!");
+        return;
+      }
+
+      isDrawing = true;
+      document.getElementById('startDrawBtn').disabled = true;
+      document.getElementById('buyAuto5AndDrawBtn').disabled = true;
+      document.getElementById('machineStatusLabel').textContent = "공기 흡입기 가동 중! (DRAWING)";
+      setAlertBanner("생방송 추첨 중! 45개의 로또 볼이 소용돌이칩니다!");
+
+      sound.init();
+      sound.startBlowerSound();
+
+      // Reset Ball Slot Rack UI
+      for (let i = 0; i < 6; i++) {
+        const slot = document.getElementById(`drawnSlot${i}`);
+        slot.className = "w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm";
+        slot.textContent = "?";
+      }
+      const bonusSlot = document.getElementById('drawnSlotBonus');
+      bonusSlot.className = "w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-amber-600/50 bg-slate-950/70 flex items-center justify-center font-bold text-amber-500/70 text-xs sm:text-sm";
+      bonusSlot.textContent = "보너스";
+
+      // Reset tickets match states
+      userTickets.forEach(t => t.matches = []);
+      renderUserTickets();
+
+      // Calculate Target Draw
+      const targetDraw = calculateWinningNumbersForRound();
+      drawnWinningNumbers = targetDraw.main;
+      drawnBonusNumber = targetDraw.bonus;
+
+      const drawDelay = isFastMode ? 280 : 1200;
+
+      // Sequentially Reveal 6 Main Numbers
+      for (let step = 0; step < 6; step++) {
+        await new Promise(r => setTimeout(r, drawDelay));
+        const num = drawnWinningNumbers[step];
+
+        // Animate Ball Sucked up
+        suctionActive = true;
+        const machineBall = machineBalls.find(b => b.num === num);
+        if (machineBall) ballBeingSuctioned = machineBall;
+        sound.playSuctionPop();
+
+        await new Promise(r => setTimeout(r, isFastMode ? 120 : 350));
+        suctionActive = false;
+        ballBeingSuctioned = null;
+
+        // Place on Rack
+        renderDrawnBallOnSlot(`drawnSlot${step}`, num, step);
+      }
+
+      // Bonus Ball Delay & Reveal
+      document.getElementById('drawingStepLabel').textContent = "(마지막 2등 결정 보너스 번호 추첨!)";
+      await new Promise(r => setTimeout(r, drawDelay * 1.2));
+
+      suctionActive = true;
+      const bBall = machineBalls.find(b => b.num === drawnBonusNumber);
+      if (bBall) ballBeingSuctioned = bBall;
+      sound.playSuctionPop();
+
+      await new Promise(r => setTimeout(r, isFastMode ? 120 : 350));
+      suctionActive = false;
+      ballBeingSuctioned = null;
+
+      renderDrawnBallOnSlot('drawnSlotBonus', drawnBonusNumber, 6, true);
+
+      // Stop Blower
+      sound.stopBlowerSound();
+      isDrawing = false;
+      document.getElementById('startDrawBtn').disabled = false;
+      document.getElementById('buyAuto5AndDrawBtn').disabled = false;
+      document.getElementById('machineStatusLabel').textContent = "추첨 완료 (COMPLETED)";
+      document.getElementById('drawingStepLabel').textContent = "(당첨 번호 발표 완료)";
+
+      // Verification & Prize Payout
+      verifyTicketsAndReward();
+    }
+
+    function renderDrawnBallOnSlot(slotId, num, index, isBonus = false) {
+      const slot = document.getElementById(slotId);
+      const theme = getBallTheme(num);
+      slot.className = `w-10 h-10 sm:w-12 sm:h-12 lotto-ball ${theme.class} text-xs sm:text-base ball-drop`;
+      slot.textContent = num;
+      sound.playBallReveal(index);
+    }
+
+    function verifyTicketsAndReward() {
+      let highestRank = null;
+      let roundTotalPrize = 0;
+      const prizeDetails = [];
+
+      userTickets.forEach((ticket, idx) => {
+        const gameLabel = String.fromCharCode(65 + idx); // A, B, C, D, E
+        const matchedNums = ticket.numbers.filter(n => drawnWinningNumbers.includes(n));
+        const hasBonus = ticket.numbers.includes(drawnBonusNumber);
+        ticket.matches = matchedNums;
+        ticket.hasBonus = hasBonus;
+
+        let rank = null;
+        let prize = 0;
+
+        if (matchedNums.length === 6) {
+          rank = '1등';
+          prize = baseJackpot;
+        } else if (matchedNums.length === 5 && hasBonus) {
+          rank = '2등';
+          prize = 62450000; // ~62 million KRW
+        } else if (matchedNums.length === 5) {
+          rank = '3등';
+          prize = 1530000; // ~1.53 million KRW
+        } else if (matchedNums.length === 4) {
+          rank = '4등';
+          prize = 50000; // 50,000 KRW
+        } else if (matchedNums.length === 3) {
+          rank = '5등';
+          prize = 5000; // 5,000 KRW
+        } else {
+          rank = '낙첨';
+          prize = 0;
+        }
+
+        ticket.rank = rank;
+        ticket.prize = prize;
+        roundTotalPrize += prize;
+
+        if (prize > 0) {
+          prizeDetails.push(`${gameLabel}게임 [${rank}]: +${prize.toLocaleString()} 원 (${matchedNums.length}개 일치${rank === '2등' ? '+보너스' : ''})`);
+        }
+
+        if (rank === '1등') highestRank = '1등';
+        else if (rank === '2등' && highestRank !== '1등') highestRank = '2등';
+        else if (rank === '3등' && !['1등', '2등'].includes(highestRank)) highestRank = '3등';
+      });
+
+      renderUserTickets();
+
+      // Financials Update
+      totalWinnings += roundTotalPrize;
+      playerBalance += roundTotalPrize;
+      updateWalletUI();
+
+      // Trigger Celebration Modal if 1st, 2nd, or 3rd place!
+      if (highestRank) {
+        sound.playJackpotSiren();
+        spawnConfetti(highestRank === '1등' ? 240 : 120);
+
+        // Screen Tremble
+        const main = document.getElementById('mainContainer');
+        main.classList.remove('screen-shake');
+        void main.offsetWidth;
+        main.classList.add('screen-shake');
+
+        showWinModal(highestRank, roundTotalPrize, prizeDetails);
+      } else {
+        setAlertBanner("아쉽게도 이번 회차는 낙첨되었습니다. 다음 회차에 재도전하세요!");
+      }
+
+      currentRound++;
+      document.getElementById('drawRoundText').textContent = currentRound;
+    }
+
+    function renderUserTickets() {
+      const container = document.getElementById('gamesContainer');
+      container.innerHTML = '';
+
+      if (userTickets.length === 0) {
+        container.innerHTML = `
+          <div class="py-8 text-center text-xs text-slate-500">
+            발권된 로또 슬립이 없습니다.<br>
+            [5게임 자동] 또는 [수동 번호 찍기]를 눌러 구매하세요.
+          </div>
+        `;
+        document.getElementById('activeTicketCountBadge').textContent = '0게임 (0원)';
+        return;
+      }
+
+      document.getElementById('activeTicketCountBadge').textContent = `${userTickets.length}게임 (${(userTickets.length * 1000).toLocaleString()}원)`;
+
+      userTickets.forEach((ticket, idx) => {
+        const gameLabel = String.fromCharCode(65 + idx);
+        const row = document.createElement('div');
+        row.className = `flex items-center justify-between p-2 rounded-xl border ${ticket.rank === '1등' ? 'bg-amber-950/60 border-amber-400' : (ticket.prize > 0 ? 'bg-slate-800/90 border-slate-600' : 'bg-slate-950/70 border-slate-800/80')}`;
+
+        // Left info
+        const leftBox = document.createElement('div');
+        leftBox.className = "flex items-center gap-2";
+        leftBox.innerHTML = `
+          <span class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-xs text-amber-300">${gameLabel}</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded font-bold ${ticket.mode === '자동' ? 'bg-blue-900/60 text-blue-300 border border-blue-700' : 'bg-emerald-900/60 text-emerald-300 border border-emerald-700'}">${ticket.mode}</span>
+        `;
+
+        // Center 6 Balls
+        const ballsBox = document.createElement('div');
+        ballsBox.className = "flex items-center gap-1 sm:gap-1.5";
+        ticket.numbers.forEach(num => {
+          const theme = getBallTheme(num);
+          const isMatched = ticket.matches && ticket.matches.includes(num);
+          const isBonusMatch = ticket.hasBonus && num === drawnBonusNumber;
+
+          const b = document.createElement('span');
+          b.className = `w-7 h-7 sm:w-8 sm:h-8 lotto-ball ${theme.class} text-[11px] sm:text-xs font-black ${isMatched ? 'ring-2 ring-yellow-300 ring-offset-2 ring-offset-black scale-105' : (isBonusMatch ? 'ring-2 ring-cyan-400 ring-offset-2 ring-offset-black' : '')}`;
+          b.textContent = num;
+          ballsBox.appendChild(b);
+        });
+
+        // Right status / prize
+        const rightBox = document.createElement('div');
+        rightBox.className = "text-right min-w-[65px]";
+        if (ticket.rank) {
+          const rankColor = ticket.rank === '1등' ? 'text-amber-400 font-black' : (ticket.rank === '2등' ? 'text-cyan-400 font-bold' : (ticket.rank === '3등' ? 'text-emerald-400 font-bold' : 'text-slate-400'));
+          rightBox.innerHTML = `
+            <span class="block text-xs ${rankColor}">${ticket.rank}</span>
+            <span class="text-[10px] text-slate-300 font-digital">${ticket.prize > 0 ? `+${(ticket.prize / 10000 >= 1 ? (ticket.prize / 10000).toLocaleString() + '만' : ticket.prize.toLocaleString())}원` : '-'}</span>
+          `;
+        } else {
+          rightBox.innerHTML = `<span class="text-[10px] text-slate-500">대기</span>`;
+        }
+
+        row.appendChild(leftBox);
+        row.appendChild(ballsBox);
+        row.appendChild(rightBox);
+        container.appendChild(row);
+      });
+    }
+
+    // Initialize 1~45 Number Pad Grid
+    function initNumberPadGrid() {
+      const grid = document.getElementById('numberPadGrid');
+      grid.innerHTML = '';
+
+      for (let i = 1; i <= 45; i++) {
+        const theme = getBallTheme(i);
+        const btn = document.createElement('button');
+        btn.className = `h-8 rounded-lg font-bold text-xs flex items-center justify-center border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition-all`;
+        btn.textContent = i;
+        btn.dataset.num = i;
+
+        btn.addEventListener('click', () => {
+          sound.init();
+          sound.playBallClick();
+          toggleManualNumber(i, btn);
+        });
+
+        grid.appendChild(btn);
+      }
+    }
+
+    function toggleManualNumber(num, btnElement) {
+      if (manualSelectedNumbers.has(num)) {
+        manualSelectedNumbers.delete(num);
+        btnElement.className = `h-8 rounded-lg font-bold text-xs flex items-center justify-center border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition-all`;
+      } else {
+        if (manualSelectedNumbers.size >= 6) {
+          setAlertBanner("로또는 최대 6개 번호까지만 마킹할 수 있습니다.");
+          return;
+        }
+        manualSelectedNumbers.add(num);
+        const theme = getBallTheme(num);
+        btnElement.className = `h-8 rounded-lg font-bold text-xs flex items-center justify-center border-2 border-amber-300 ${theme.class} scale-105 shadow-md`;
+      }
+      document.getElementById('manualSelectedCount').textContent = manualSelectedNumbers.size;
+      document.getElementById('applyManualToGameBtn').disabled = (manualSelectedNumbers.size !== 6);
+    }
+
+    function resetManualPad() {
+      manualSelectedNumbers.clear();
+      document.getElementById('manualSelectedCount').textContent = 0;
+      document.getElementById('applyManualToGameBtn').disabled = true;
+      initNumberPadGrid();
+    }
+
+    // Auto-pick 6 in manual pad
+    document.getElementById('manualAuto6Btn').addEventListener('click', () => {
+      resetManualPad();
+      const rand6 = generateRandom6();
+      const allBtns = document.querySelectorAll('#numberPadGrid button');
+      rand6.forEach(n => {
+        const b = Array.from(allBtns).find(btn => parseInt(btn.dataset.num) === n);
+        if (b) toggleManualNumber(n, b);
+      });
+    });
+
+    document.getElementById('manualResetBtn').addEventListener('click', resetManualPad);
+
+    // Apply Manual Numbers as New Ticket
+    document.getElementById('applyManualToGameBtn').addEventListener('click', () => {
+      if (manualSelectedNumbers.size !== 6) return;
+      if (userTickets.length >= 5) {
+        setAlertBanner("한 슬립에는 최대 5게임(A~E)까지만 등록 가능합니다. [전체 초기화] 후 재구매하세요.");
+        return;
+      }
+      if (playerBalance < 1000) {
+        setAlertBanner("보유 자산이 부족합니다!");
+        return;
+      }
+
+      playerBalance -= 1000;
+      totalSpent += 1000;
+      const sortedNums = Array.from(manualSelectedNumbers).sort((a, b) => a - b);
+      userTickets.push({
+        id: crypto.randomUUID(),
+        mode: '수동',
+        numbers: sortedNums,
+        matches: []
+      });
+
+      resetManualPad();
+      renderUserTickets();
+      updateWalletUI();
+      sound.playBallClick();
+    });
+
+    // Buy Quick 5 Auto Games
+    function buy5AutoGames() {
+      if (playerBalance < 5000) {
+        setAlertBanner("5게임을 발권하기 위한 자산이 부족합니다!");
+        return;
+      }
+      playerBalance -= 5000;
+      totalSpent += 5000;
+      userTickets = [];
+      for (let i = 0; i < 5; i++) {
+        userTickets.push({
+          id: crypto.randomUUID(),
+          mode: '자동',
+          numbers: generateRandom6(),
+          matches: []
+        });
+      }
+      renderUserTickets();
+      updateWalletUI();
+      sound.playBallClick();
+    }
+    document.getElementById('quickAuto5Btn').addEventListener('click', buy5AutoGames);
+
+    // Buy 1 Auto Game
+    document.getElementById('quickAuto1Btn').addEventListener('click', () => {
+      if (userTickets.length >= 5) {
+        setAlertBanner("한 슬립에는 최대 5게임까지만 등록할 수 있습니다.");
+        return;
+      }
+      if (playerBalance < 1000) {
+        setAlertBanner("보유 자산이 부족합니다!");
+        return;
+      }
+      playerBalance -= 1000;
+      totalSpent += 1000;
+      userTickets.push({
+        id: crypto.randomUUID(),
+        mode: '자동',
+        numbers: generateRandom6(),
+        matches: []
+      });
+      renderUserTickets();
+      updateWalletUI();
+      sound.playBallClick();
+    });
+
+    // Clear All
+    document.getElementById('clearAllTicketsBtn').addEventListener('click', () => {
+      userTickets = [];
+      renderUserTickets();
+    });
+
+    function updateWalletUI() {
+      document.getElementById('myBalanceText').textContent = `${playerBalance.toLocaleString()} 원`;
+      document.getElementById('totalWonText').textContent = `${totalWinnings.toLocaleString()} 원`;
+
+      const roi = totalSpent > 0 ? (((totalWinnings - totalSpent) / totalSpent) * 100).toFixed(1) : '0.0';
+      const roiEl = document.getElementById('roiText');
+      roiEl.textContent = `${roi}%`;
+      roiEl.className = `font-digital text-sm sm:text-lg font-black ${parseFloat(roi) >= 0 ? 'text-cyan-400' : 'text-red-400'}`;
+    }
+
+    function setAlertBanner(msg) {
+      const banner = document.getElementById('stageAlertBanner');
+      banner.textContent = msg;
+      banner.style.opacity = '1';
       setTimeout(() => {
-        overlay.classList.add('hidden');
+        banner.style.opacity = '0';
       }, 3500);
     }
 
-    function animateWinRollup(finalAmount) {
-      const display = document.getElementById('winDisplay');
-      let start = 0;
-      const duration = 1200;
-      const startTime = performance.now();
+    function showWinModal(rank, prize, details) {
+      const modal = document.getElementById('winModal');
+      const title = document.getElementById('winModalTitle');
+      const sub = document.getElementById('winModalSub');
+      const prizeEl = document.getElementById('winModalPrizeAmount');
+      const detailList = document.getElementById('winModalDetailList');
 
-      function updateNumber(now) {
-        const elapsed = now - startTime;
-        const progress = Math.min(1.0, elapsed / duration);
-        const current = start + (finalAmount - start) * progress;
-        display.textContent = `$${current.toFixed(2)}`;
-
-        if (progress < 1.0) {
-          if (Math.random() < 0.3) sound.playCoinTick();
-          requestAnimationFrame(updateNumber);
-        } else {
-          display.textContent = `$${finalAmount.toFixed(2)}`;
-        }
-      }
-      requestAnimationFrame(updateNumber);
-    }
-    const wheelCanvas = document.getElementById('wheelCanvas');
-    const wheelCtx = wheelCanvas.getContext('2d');
-    let wheelAngle = 0;
-    let isWheelSpinning = false;
-
-    // Wheel segments featuring massive multipliers & Grand Jackpot!
-    const WHEEL_SEGMENTS = [
-      { label: '50X BET', multiplier: 50, color: '#ca8a04' },
-      { label: '100X BET', multiplier: 100, color: '#15803d' },
-      { label: 'MINI $1.2K', prizeType: 'MINI', color: '#b91c1c' },
-      { label: '250X BET', multiplier: 250, color: '#9333ea' },
-      { label: '500X BET', multiplier: 500, color: '#c2410c' },
-      { label: '5,000X GRAND', prizeType: 'GRAND', color: '#dc2626' },
-      { label: 'MAJOR $18K', prizeType: 'MAJOR', color: '#1d4ed8' },
-      { label: '1,000X BET', multiplier: 1000, color: '#eab308' }
-    ];
-
-    function drawWheel() {
-      const cx = wheelCanvas.width / 2;
-      const cy = wheelCanvas.height / 2;
-      const radius = cx - 10;
-      const segAngle = (Math.PI * 2) / WHEEL_SEGMENTS.length;
-
-      wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
-      wheelCtx.save();
-      wheelCtx.translate(cx, cy);
-      wheelCtx.rotate(wheelAngle);
-
-      WHEEL_SEGMENTS.forEach((seg, i) => {
-        const startA = i * segAngle;
-        const endA = startA + segAngle;
-
-        wheelCtx.beginPath();
-        wheelCtx.moveTo(0, 0);
-        wheelCtx.arc(0, 0, radius, startA, endA);
-        wheelCtx.closePath();
-        wheelCtx.fillStyle = seg.color;
-        wheelCtx.fill();
-        wheelCtx.strokeStyle = '#ffd700';
-        wheelCtx.lineWidth = 2.5;
-        wheelCtx.stroke();
-
-        wheelCtx.save();
-        wheelCtx.rotate(startA + segAngle / 2);
-        wheelCtx.fillStyle = '#ffffff';
-        wheelCtx.font = 'bold 12px Montserrat, sans-serif';
-        wheelCtx.textAlign = 'right';
-        wheelCtx.fillText(seg.label, radius - 15, 4);
-        wheelCtx.restore();
-      });
-
-      wheelCtx.beginPath();
-      wheelCtx.arc(0, 0, 24, 0, Math.PI * 2);
-      wheelCtx.fillStyle = '#ffd700';
-      wheelCtx.fill();
-      wheelCtx.lineWidth = 3;
-      wheelCtx.strokeStyle = '#ffffff';
-      wheelCtx.stroke();
-
-      wheelCtx.restore();
-    }
-
-    function openWheelBonusModal() {
-      document.getElementById('wheelModal').classList.remove('hidden');
-      document.getElementById('wheelResultBox').classList.add('hidden');
-      document.getElementById('wheelSpinBtn').disabled = false;
-      wheelAngle = 0;
-      drawWheel();
-    }
-
-    document.getElementById('wheelSpinBtn').addEventListener('click', () => {
-      if (isWheelSpinning) return;
-      isWheelSpinning = true;
-      document.getElementById('wheelSpinBtn').disabled = true;
-
-      const targetIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
-      const segAngle = (Math.PI * 2) / WHEEL_SEGMENTS.length;
-      const targetRads = (Math.PI * 2 * 6) + (WHEEL_SEGMENTS.length - targetIndex) * segAngle - (segAngle / 2);
-
-      let currentRot = wheelAngle;
-      const duration = 4000;
-      const startT = performance.now();
-      let lastPegIndex = -1;
-
-      function animateWheel(now) {
-        const elapsed = now - startT;
-        const progress = Math.min(1.0, elapsed / duration);
-        const ease = 1 - Math.pow(1 - progress, 3);
-        wheelAngle = currentRot + targetRads * ease;
-        drawWheel();
-
-        const curSeg = Math.floor((wheelAngle / segAngle) % WHEEL_SEGMENTS.length);
-        if (curSeg !== lastPegIndex) {
-          sound.playWheelClick();
-          lastPegIndex = curSeg;
-        }
-
-        if (progress < 1.0) {
-          requestAnimationFrame(animateWheel);
-        } else {
-          isWheelSpinning = false;
-          const wonSeg = WHEEL_SEGMENTS[targetIndex];
-          processWheelReward(wonSeg);
-        }
-      }
-      requestAnimationFrame(animateWheel);
-    });
-
-    function processWheelReward(seg) {
-      let prizeAmount = 0;
-      const currentBet = betOptions[betIndex];
-
-      if (seg.prizeType === 'GRAND') {
-        prizeAmount = grandJackpot;
-        grandJackpot = 100000.00;
-      } else if (seg.prizeType === 'MAJOR') {
-        prizeAmount = majorJackpot;
-        majorJackpot = 15000.00;
-      } else if (seg.prizeType === 'MINI') {
-        prizeAmount = miniJackpot;
-        miniJackpot = 1000.00;
+      if (rank === '1등') {
+        title.textContent = "👑 1등 대박 잭팟 당첨! 👑";
+        sub.textContent = "기적의 1억 배 확률 모드가 역대급 당첨 신화를 기록했습니다!";
+      } else if (rank === '2등') {
+        title.textContent = "🥈 2등 당첨! (보너스 일치) 🥈";
+        sub.textContent = "5개 번호와 보너스 번호가 완벽하게 일치했습니다!";
       } else {
-        prizeAmount = currentBet * seg.multiplier;
+        title.textContent = "🥉 3등 당첨! 🥉";
+        sub.textContent = "5개 번호를 적중시켰습니다!";
       }
 
-      document.getElementById('wheelPrizeText').textContent = `WON ${seg.label}: $${prizeAmount.toFixed(2)}!`;
-      document.getElementById('wheelResultBox').classList.remove('hidden');
-      sound.playBigWinFanfare();
-      triggerScreenShake();
-
-      document.getElementById('collectWheelPrizeBtn').onclick = () => {
-        balance += prizeAmount;
-        lastWin = prizeAmount;
-        document.getElementById('wheelModal').classList.add('hidden');
-        animateWinRollup(prizeAmount);
-        updateMeters();
-      };
-    }
-    function render() {
-      slotCtx.clearRect(0, 0, VIRTUAL_W, VIRTUAL_H);
-
-      const reelWidth = VIRTUAL_W / REEL_COUNT;
-      const symbolHeight = VIRTUAL_H / ROW_COUNT;
-
-      let allStoppedNow = true;
-
-      for (let r = 0; r < REEL_COUNT; r++) {
-        const reel = reels[r];
-
-        if (reel.state === 'SPINNING') {
-          allStoppedNow = false;
-          reel.pos += reel.speed * 0.46;
-          if (reel.pos >= reel.strip.length - ROW_COUNT) {
-            reel.pos = 0;
-          }
-
-          if (reel.isAnticipating && Math.random() < 0.22) {
-            sound.playAnticipationLoop();
-          }
-        } else if (reel.state === 'STOPPING') {
-          allStoppedNow = false;
-          const diff = reel.targetPos - reel.pos;
-          reel.pos += diff * 0.28;
-
-          if (Math.abs(diff) < 0.08) {
-            reel.pos = reel.targetPos;
-            reel.state = 'BOUNCING';
-            reel.bounceTimer = 0;
-            sound.playReelStop();
-          }
-        } else if (reel.state === 'BOUNCING') {
-          reel.bounceTimer += 0.22;
-          const bounceOffset = Math.sin(reel.bounceTimer) * Math.exp(-reel.bounceTimer * 1.5) * 0.26;
-          reel.pos = reel.targetPos + bounceOffset;
-
-          if (reel.bounceTimer > Math.PI) {
-            reel.pos = reel.targetPos;
-            reel.state = 'IDLE';
-
-            const topIdx = Math.floor(reel.targetPos);
-            reel.visibleSymbols = [
-              reel.strip[topIdx],
-              reel.strip[topIdx + 1],
-              reel.strip[topIdx + 2]
-            ];
-          } else {
-            allStoppedNow = false;
-          }
-        }
-
-        // Draw Reel Background & Divider
-        slotCtx.fillStyle = (r % 2 === 0) ? '#0d0004' : '#140008';
-        slotCtx.fillRect(reel.x, 0, reelWidth, VIRTUAL_H);
-        slotCtx.strokeStyle = 'rgba(218, 165, 32, 0.25)';
-        slotCtx.lineWidth = 1;
-        slotCtx.strokeRect(reel.x, 0, reelWidth, VIRTUAL_H);
-
-        // Anticipation Glow Border on Reel
-        if (reel.isAnticipating && reel.state === 'SPINNING') {
-          slotCtx.save();
-          slotCtx.strokeStyle = '#ff3b00';
-          slotCtx.lineWidth = 6;
-          slotCtx.shadowColor = '#ff3b00';
-          slotCtx.shadowBlur = 25;
-          slotCtx.strokeRect(reel.x + 2, 2, reelWidth - 4, VIRTUAL_H - 4);
-          slotCtx.restore();
-        }
-
-        // Draw Visible Symbols
-        const baseFloat = reel.pos;
-        const intFloor = Math.floor(baseFloat);
-        const subOffset = (baseFloat - intFloor) * symbolHeight;
-
-        for (let s = -1; s <= ROW_COUNT + 1; s++) {
-          const symIndex = (intFloor + s + reel.strip.length) % reel.strip.length;
-          const symId = reel.strip[symIndex];
-          const drawY = (s * symbolHeight) - subOffset;
-
-          const cx = reel.x + reelWidth / 2;
-          const cy = drawY + symbolHeight / 2;
-
-          let isDimmed = false;
-          if (winningLinesResult.length > 0 && !isSpinning) {
-            isDimmed = true;
-            const curWinLine = winningLinesResult[activeCycleLineIdx];
-            if (curWinLine) {
-              const matched = curWinLine.positions.some(pos => pos.col === r && pos.row === s);
-              if (matched) isDimmed = false;
-            }
-          }
-
-          drawSymbol(slotCtx, symId, cx, cy, reelWidth, symbolHeight, isDimmed);
-        }
-      }
-
-      if (!allStoppedNow && isSpinning) {
-        // Spinning
-      } else if (isSpinning) {
-        onAllReelsStopped();
-      }
-
-      // Draw Winning Paylines Overlay
-      if (winningLinesResult.length > 0 && !isSpinning) {
-        winningLineCycleTimer++;
-        if (winningLineCycleTimer % 65 === 0) {
-          activeCycleLineIdx = (activeCycleLineIdx + 1) % winningLinesResult.length;
-        }
-
-        const activeLine = winningLinesResult[activeCycleLineIdx];
-        if (activeLine) {
-          slotCtx.save();
-          slotCtx.strokeStyle = activeLine.color;
-          slotCtx.lineWidth = 5;
-          slotCtx.shadowColor = activeLine.color;
-          slotCtx.shadowBlur = 20;
-          slotCtx.beginPath();
-
-          activeLine.positions.forEach((pos, idx) => {
-            const px = (pos.col * reelWidth) + (reelWidth / 2);
-            const py = (pos.row * symbolHeight) + (symbolHeight / 2);
-            if (idx === 0) slotCtx.moveTo(px, py);
-            else slotCtx.lineTo(px, py);
-          });
-          slotCtx.stroke();
-
-          activeLine.positions.forEach(pos => {
-            const bx = pos.col * reelWidth + 4;
-            const by = pos.row * symbolHeight + 4;
-            slotCtx.strokeStyle = '#ffd700';
-            slotCtx.lineWidth = 3;
-            slotCtx.strokeRect(bx, by, reelWidth - 8, symbolHeight - 8);
-          });
-
-          slotCtx.restore();
-        }
-      }
-
-      updateAndRenderParticles();
-      requestAnimationFrame(render);
-    }
-    function updateMeters() {
-      document.getElementById('balanceDisplay').textContent = `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      document.getElementById('betDisplay').textContent = `$${betOptions[betIndex].toFixed(2)}`;
-      document.getElementById('jackpotGrand').textContent = `$${grandJackpot.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      document.getElementById('jackpotMajor').textContent = `$${majorJackpot.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      document.getElementById('jackpotMini').textContent = `$${miniJackpot.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      prizeEl.textContent = `${prize.toLocaleString()} 원`;
+      detailList.innerHTML = details.map(d => `<div class="text-amber-300 font-semibold">• ${d}</div>`).join('');
+      modal.classList.remove('hidden');
     }
 
-    function updateButtonStates() {
-      const spinBtn = document.getElementById('spinBtn');
-      const spinBtnText = document.getElementById('spinBtnText');
-      const betUpBtn = document.getElementById('betUpBtn');
-      const betDownBtn = document.getElementById('betDownBtn');
-      const maxBetBtn = document.getElementById('maxBetBtn');
-
-      if (isSpinning) {
-        spinBtnText.textContent = "STOP";
-        betUpBtn.disabled = true;
-        betDownBtn.disabled = true;
-        maxBetBtn.disabled = true;
-      } else {
-        spinBtnText.textContent = "SPIN";
-        betUpBtn.disabled = false;
-        betDownBtn.disabled = false;
-        maxBetBtn.disabled = false;
-      }
-    }
-
-    function showAnticipationToast(msg) {
-      const banner = document.getElementById('anticipationBanner');
-      banner.textContent = msg;
-      banner.classList.remove('hidden');
-      setTimeout(() => {
-        if (!isSpinning) banner.classList.add('hidden');
-      }, 2500);
-    }
-
-    // 80% FEVER MODE TOGGLE BUTTON
-    document.getElementById('feverToggleBtn').addEventListener('click', () => {
-      isFeverMode = !isFeverMode;
-      const statusText = document.getElementById('feverStatusText');
-      const btn = document.getElementById('feverToggleBtn');
-
-      if (isFeverMode) {
-        statusText.textContent = "FEVER: ON";
-        btn.className = "btn-tactile px-3 py-1.5 rounded-lg bg-gradient-to-b from-red-500 to-red-700 text-white font-cinzel font-black text-xs border border-amber-300";
-        showAnticipationToast("🔥 울트라 피버 80% 모드 활성화! 보너스가 쏟아집니다!");
-      } else {
-        statusText.textContent = "FEVER: OFF";
-        btn.className = "btn-tactile px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-cinzel font-bold text-xs border border-slate-600";
-        showAnticipationToast("일반 표준 카지노 모드로 전환되었습니다.");
-      }
+    document.getElementById('closeWinModalBtn').addEventListener('click', () => {
+      document.getElementById('winModal').classList.add('hidden');
     });
 
-    // Spin Button Action (SPIN / QUICK STOP)
-    document.getElementById('spinBtn').addEventListener('click', () => {
-      if (!isSpinning) {
-        startSpin();
-      } else {
-        reels.forEach(reel => {
-          if (reel.state === 'SPINNING') stopReel(reel);
-        });
-      }
+    // 100,000,000x Fever vs Reality Mode Toggles
+    const feverBtn = document.getElementById('modeFeverBtn');
+    const realBtn = document.getElementById('modeRealBtn');
+
+    feverBtn.addEventListener('click', () => {
+      isFeverMode = true;
+      feverBtn.className = "px-3 py-1.5 rounded-lg text-xs font-black transition-all bg-gradient-to-r from-amber-500 to-red-500 text-slate-950 shadow-md";
+      realBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 transition-all hover:text-white";
+      setAlertBanner("🔥 1억 배 당첨 모드 활성화! 1등 잭팟이 쏟아집니다!");
     });
 
-    // Spacebar to Spin
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && !e.repeat) {
-        e.preventDefault();
-        document.getElementById('spinBtn').click();
-      }
+    realBtn.addEventListener('click', () => {
+      isFeverMode = false;
+      realBtn.className = "px-3 py-1.5 rounded-lg text-xs font-black transition-all bg-gradient-to-r from-slate-700 to-slate-800 text-white shadow-md border border-slate-600";
+      feverBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 transition-all hover:text-white";
+      setAlertBanner("💀 현실 모드 (1배 극악 확률): 814만 분의 1의 수학적 가혹함을 체험합니다.");
     });
 
-    // Bet Controls
-    document.getElementById('betUpBtn').addEventListener('click', () => {
-      if (betIndex < betOptions.length - 1) {
-        betIndex++;
-        updateMeters();
-      }
+    // Speed Toggle Controls
+    const speedNormal = document.getElementById('drawSpeedNormalBtn');
+    const speedFast = document.getElementById('drawSpeedFastBtn');
+
+    speedNormal.addEventListener('click', () => {
+      isFastMode = false;
+      speedNormal.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-950";
+      speedFast.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 hover:text-white";
     });
 
-    document.getElementById('betDownBtn').addEventListener('click', () => {
-      if (betIndex > 0) {
-        betIndex--;
-        updateMeters();
-      }
+    speedFast.addEventListener('click', () => {
+      isFastMode = true;
+      speedFast.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-950";
+      speedNormal.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 hover:text-white";
     });
 
-    document.getElementById('maxBetBtn').addEventListener('click', () => {
-      betIndex = betOptions.length - 1;
-      updateMeters();
-      sound.playCoinTick();
+    // Sound Toggle Button
+    const soundBtn = document.getElementById('soundToggleBtn');
+    const soundIcon = document.getElementById('soundIcon');
+    soundBtn.addEventListener('click', () => {
+      const muted = sound.toggleMute();
+      soundIcon.textContent = muted ? '🔇' : '🔊';
     });
 
-    // Turbo Mode Toggle
-    document.getElementById('turboBtn').addEventListener('click', () => {
-      isTurbo = !isTurbo;
-      const status = document.getElementById('turboStatus');
-      status.textContent = isTurbo ? "ON" : "OFF";
-      status.className = isTurbo ? "text-amber-400 font-bold" : "text-slate-400";
+    // Draw Triggers
+    document.getElementById('startDrawBtn').addEventListener('click', executeDrawSequence);
+
+    document.getElementById('buyAuto5AndDrawBtn').addEventListener('click', () => {
+      buy5AutoGames();
+      setTimeout(executeDrawSequence, 200);
     });
 
-    // Auto Spin Config
-    const autoModal = document.getElementById('autoModal');
-    document.getElementById('autoSpinBtn').addEventListener('click', () => {
-      if (autoSpinCount > 0) {
-        stopAutoSpin();
-      } else {
-        autoModal.classList.remove('hidden');
-      }
+    // Help Modal
+    document.getElementById('helpBtn').addEventListener('click', () => {
+      document.getElementById('helpModal').classList.remove('hidden');
+    });
+    document.getElementById('closeHelpModalBtn').addEventListener('click', () => {
+      document.getElementById('helpModal').classList.add('hidden');
     });
 
-    document.getElementById('cancelAutoBtn').addEventListener('click', () => {
-      autoModal.classList.add('hidden');
+    // Toggle Manual Picker Visibility on Mobile
+    document.getElementById('togglePadBtn').addEventListener('click', () => {
+      const pad = document.getElementById('manualPickerCard');
+      pad.scrollIntoView({ behavior: 'smooth' });
     });
 
-    document.querySelectorAll('.auto-opt-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const count = parseInt(e.target.getAttribute('data-count'), 10);
-        autoSpinCount = count;
-        autoModal.classList.add('hidden');
-        document.getElementById('autoCountLabel').textContent = (count >= 990) ? '∞ INFINITY' : `${count} LEFT`;
-        document.getElementById('autoSpinBtn').classList.add('border-red-400', 'bg-red-950');
-        if (!isSpinning) startSpin();
-      });
-    });
-
-    function stopAutoSpin() {
-      autoSpinCount = 0;
-      document.getElementById('autoCountLabel').textContent = "SELECT";
-      document.getElementById('autoSpinBtn').classList.remove('border-red-400', 'bg-red-950');
-    }
-
-    // Audio Mute Toggle
-    document.getElementById('soundToggleBtn').addEventListener('click', () => {
-      const isMuted = sound.toggleMute();
-      document.getElementById('soundIcon').textContent = isMuted ? "🔇" : "🔊";
-    });
-
-    // Paytable Modal Controls
-    const paytableModal = document.getElementById('paytableModal');
-    document.getElementById('paytableBtn').addEventListener('click', () => {
-      paytableModal.classList.remove('hidden');
-    });
-    document.getElementById('closePaytableBtn').addEventListener('click', () => {
-      paytableModal.classList.add('hidden');
-    });
-
-    slotCanvas.addEventListener('click', () => {
-      if (!isSpinning) startSpin();
-    });
-
-    // Window Init
     window.addEventListener('load', () => {
-      resizeCanvases();
-      initReelStrips();
-      updateMeters();
-      updateButtonStates();
-      requestAnimationFrame(render);
+      resizeBlowerCanvas();
+      initMachineBalls();
+      initNumberPadGrid();
+
+      // Pre-purchase initial 5 games for immediate instant play
+      buy5AutoGames();
+
+      // Start Canvas Engine Loop
+      requestAnimationFrame(animationLoop);
     });
   </script>
 </body>
