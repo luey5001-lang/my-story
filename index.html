@@ -3,19 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>텍사스 홀덤 1:1 헤즈업 (Texas Hold'em Heads-Up)</title>
+  <title>Ultra Fever 777 - High Roller Casino Slots</title>
+  <!-- Google Luxury & Casino Display Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Noto+Sans+KR:wght@400;600;700;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root {
-      --felt-green: #0d5431;
-      --felt-inner: #156d41;
-      --wood-rim: #2d1406;
-      --wood-outer: #1c0a03;
-      --gold-trim: #d4af37;
-      --gold-light: #fef08a;
+      --fever-fire: #ff2a00;
+      --fever-gold: #ffbe00;
+      --fever-purple: #9d00ff;
+      --fever-cyan: #00f0ff;
     }
 
     * {
@@ -26,487 +25,353 @@
     }
 
     body {
-      background: radial-gradient(circle at center, #1a1b26 0%, #08090f 100%);
-      font-family: 'Noto Sans KR', sans-serif;
-      color: #f8fafc;
+      background: radial-gradient(circle at 50% 15%, #3a0011 0%, #150009 50%, #050003 100%);
+      font-family: 'Montserrat', sans-serif;
+      color: #ffffff;
       min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    .font-casino {
-      font-family: 'Cinzel', serif;
-    }
-
-    /* Poker Table Felt & Rails */
-    .poker-table-rim {
-      background: radial-gradient(ellipse at center, #421e0d 0%, #200c04 80%, #100602 100%);
-      border: 6px solid #6b3314;
-      box-shadow: 
-        inset 0 0 15px rgba(0, 0, 0, 0.9),
-        0 25px 60px rgba(0, 0, 0, 0.85),
-        0 0 0 3px #cca43b;
-      border-radius: 180px;
-    }
-
-    .poker-felt {
-      background: radial-gradient(ellipse at center, #1b7a4b 0%, #0d5330 65%, #083c22 100%);
-      box-shadow: 
-        inset 0 0 60px rgba(0, 0, 0, 0.7),
-        inset 0 0 0 3px rgba(212, 175, 55, 0.4);
-      border-radius: 160px;
-    }
-
-    /* 3D Playing Card Styles & Flip Animation */
-    .card-container {
-      perspective: 1000px;
-    }
-
-    .card-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
-      transform-style: preserve-3d;
-    }
-
-    .card-inner.flipped {
-      transform: rotateY(180deg);
-    }
-
-    .card-front, .card-back {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      border-radius: 8px;
-    }
-
-    .card-front {
-      background: #ffffff;
-      transform: rotateY(0deg);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-
-    .card-back {
-      background: repeating-linear-gradient(
-        45deg,
-        #800f15,
-        #800f15 6px,
-        #a81b23 6px,
-        #a81b23 12px
-      );
-      border: 3px solid #fef08a;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-      transform: rotateY(180deg);
-    }
-
-    .card-back-pattern {
-      position: absolute;
-      inset: 3px;
-      border: 1px dashed rgba(254, 240, 138, 0.5);
-      border-radius: 4px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 8px;
     }
 
-    /* Winning Card Glow */
-    .card-highlight {
-      box-shadow: 0 0 16px 4px #fbbf24, 0 0 28px 8px rgba(245, 158, 11, 0.6) !important;
-      transform: translateY(-8px) scale(1.04);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      z-index: 15;
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    .font-digital { font-family: 'Orbitron', monospace; }
+
+    /* Screen Shaking Effect for Big Wins */
+    @keyframes screenShake {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      15% { transform: translate(-6px, 4px) rotate(-1deg); }
+      30% { transform: translate(6px, -4px) rotate(1deg); }
+      45% { transform: translate(-4px, -3px) rotate(-0.5deg); }
+      60% { transform: translate(4px, 3px) rotate(0.5deg); }
+      75% { transform: translate(-2px, 1px) rotate(0deg); }
+    }
+    .shake-active {
+      animation: screenShake 0.45s ease-in-out;
     }
 
-    /* Chip Stack Design */
-    .poker-chip {
-      box-shadow: 0 3px 6px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.6);
+    /* Fever Glow Borders */
+    .fever-glow {
+      box-shadow: 0 0 25px rgba(255, 60, 0, 0.75), inset 0 0 15px rgba(255, 190, 0, 0.5);
+      border-color: #ff3b00 !important;
+    }
+
+    .gold-gradient-text {
+      background: linear-gradient(180deg, #fff7c2 0%, #ffd700 40%, #e69500 80%, #7c4400 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.9));
+    }
+
+    .fire-gradient-text {
+      background: linear-gradient(180deg, #ffffaa 0%, #ff8c00 40%, #ff1100 80%, #6b0000 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 8px rgba(255, 40, 0, 0.8));
+    }
+    .cabinet-chassis {
+      background: linear-gradient(180deg, #2b030c 0%, #170107 40%, #0a0004 100%);
+      border: 4px solid #d4af37;
+      border-radius: 20px;
+      box-shadow: 
+        0 0 0 3px #ffe285,
+        0 0 0 8px #3b2405,
+        0 0 50px rgba(255, 100, 0, 0.3),
+        0 30px 70px rgba(0, 0, 0, 0.98);
       position: relative;
     }
-    .poker-chip::after {
-      content: '';
-      position: absolute;
-      inset: 2px;
-      border: 1px dashed rgba(255, 255, 255, 0.5);
-      border-radius: 9999px;
+
+    .btn-tactile {
+      transition: all 0.08s ease;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.85), 0 8px 15px rgba(0,0,0,0.6);
+    }
+    .btn-tactile:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.85), 0 3px 6px rgba(0,0,0,0.6);
+    }
+    .btn-tactile:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: grayscale(0.85);
     }
 
-    /* Custom Slider */
-    input[type=range] {
-      -webkit-appearance: none;
-      background: #1e293b;
-      height: 8px;
-      border-radius: 4px;
-      outline: none;
+    .spin-fever-btn {
+      background: radial-gradient(circle at 50% 30%, #ff3b00 0%, #cc0000 65%, #660000 100%);
+      box-shadow: 0 8px 0 #3a0000, 0 0 40px rgba(255, 59, 0, 0.85);
     }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #eab308;
-      cursor: pointer;
-      border: 2px solid #ffffff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    .spin-fever-btn:hover:not(:disabled) {
+      box-shadow: 0 8px 0 #3a0000, 0 0 60px rgba(255, 70, 0, 1);
     }
 
-    /* Speech Bubble Triangle */
-    .speech-bubble::after {
-      content: '';
-      position: absolute;
-      bottom: -8px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-width: 8px 8px 0;
-      border-style: solid;
-      border-color: #1e293b transparent;
-      display: block;
-      width: 0;
+    .modal-backdrop {
+      background-color: rgba(6, 0, 3, 0.9);
+      backdrop-filter: blur(10px);
     }
   </style>
 </head>
-<body class="p-2 sm:p-4 flex flex-col items-center justify-between min-h-screen">
+<body class="p-2 sm:p-4">
 
-  <!-- Top Navigation & Stats Bar -->
-  <header class="w-full max-w-5xl flex items-center justify-between px-3 py-2 bg-slate-900/90 border border-amber-500/40 rounded-xl shadow-xl backdrop-blur-md mb-2">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 font-black text-lg shadow-md">
-        ♠
-      </div>
-      <div>
-        <h1 class="text-sm sm:text-base font-bold font-casino tracking-wider text-amber-300">
-          TEXAS HOLD'EM <span class="text-emerald-400 text-xs sm:text-sm font-sans font-bold">1:1 HEADS-UP</span>
-        </h1>
-        <p class="text-[10px] text-slate-400">무제한 노 리밋 (No-Limit) • 블라인드: $10 / $20</p>
-      </div>
-    </div>
-
-    <!-- Quick Utilities -->
+  <!-- Top Marquee & Quick Bar -->
+  <header class="w-full max-w-[980px] flex items-center justify-between px-3 py-1.5 text-xs text-amber-200/80 font-cinzel">
     <div class="flex items-center gap-2">
-      <button id="soundToggleBtn" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-xs flex items-center gap-1 transition-colors">
-        <span id="soundIcon">🔊</span>
-        <span class="hidden sm:inline text-[11px] text-slate-300">사운드</span>
+      <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+      <span class="tracking-widest font-black text-amber-300">VIP HIGH-ROLLER SUITE #777</span>
+      <span class="hidden md:inline px-2 py-0.5 rounded bg-red-950/80 border border-red-500 text-[10px] text-red-300 font-bold">MAX WIN x10,000</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <button id="soundToggleBtn" class="hover:text-amber-300 transition flex items-center gap-1 font-bold">
+        <span id="soundIcon">🔊</span> <span class="hidden sm:inline">SOUND</span>
       </button>
-      <button id="logToggleBtn" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-xs flex items-center gap-1 transition-colors">
-        <span>📜</span>
-        <span class="hidden sm:inline text-[11px] text-slate-300">기록</span>
-      </button>
-      <button id="rulesBtn" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-xs flex items-center gap-1 transition-colors">
-        <span>❓</span>
-        <span class="hidden sm:inline text-[11px] text-slate-300">족보</span>
-      </button>
-      <button id="rebuyBtn" class="px-2.5 py-1.5 bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500 rounded-lg text-xs text-amber-300 flex items-center gap-1 transition-colors font-bold">
-        <span>🔄</span>
-        <span class="text-[11px]">리바이 ($1000)</span>
+      <button id="paytableBtn" class="hover:text-amber-300 transition flex items-center gap-1 font-bold bg-amber-950/60 border border-amber-600 px-2 py-1 rounded">
+        <span>📜</span> PAYTABLE (배당표)
       </button>
     </div>
   </header>
 
-  <!-- Main Poker Table Container -->
-  <main class="w-full max-w-5xl poker-table-rim p-2 sm:p-4 my-auto relative shadow-2xl">
-    <div class="poker-felt w-full min-h-[500px] sm:min-h-[560px] p-4 sm:p-6 flex flex-col justify-between items-center relative overflow-hidden">
+  <!-- Main Slot Machine Cabinet -->
+  <main id="cabinetMain" class="cabinet-chassis w-full max-w-[980px] p-3 sm:p-5 flex flex-col items-center">
+    
+    <!-- Cabinet Header Title & Dynamic 80% Fever Toggle -->
+    <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-2 pb-3 border-b border-amber-500/30">
+      <div class="flex items-center gap-2">
+        <span class="text-3xl animate-bounce">🔥</span>
+        <div>
+          <h1 class="font-cinzel font-black text-xl sm:text-3xl tracking-widest fire-gradient-text leading-tight">
+            ULTRA FEVER 777
+          </h1>
+          <p class="text-[10px] text-amber-300/80 font-bold tracking-wider">EXPANDED PAYTABLE & 80% ULTRA BONUS TRIGGER</p>
+        </div>
+      </div>
+
+      <!-- 80% ULTRA FEVER TOGGLE SWITCH -->
+      <div class="flex items-center gap-2 bg-gradient-to-r from-red-950 via-amber-950 to-red-950 px-3 py-1.5 rounded-xl border-2 border-red-500 shadow-[0_0_15px_rgba(255,40,0,0.6)]">
+        <div class="text-right">
+          <span class="block text-[9px] font-bold text-amber-300">울트라 피버 모드</span>
+          <span class="block text-xs font-black text-red-400 animate-pulse tracking-wide">80% 보너스 폭발 확률!</span>
+        </div>
+        <button id="feverToggleBtn" class="btn-tactile px-3 py-1.5 rounded-lg bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 text-white font-cinzel font-black text-xs tracking-wider border border-amber-300">
+          <span id="feverStatusText">FEVER: ON</span>
+        </button>
+      </div>
+    </div>
+    <!-- Progressive Jackpots Header (Grand, Major, Mini) -->
+    <section class="w-full grid grid-cols-3 gap-2 sm:gap-4 my-2.5">
+      <div class="bg-black/75 p-2 rounded-lg text-center border border-amber-600/60 shadow-inner">
+        <span class="block text-[9px] sm:text-[11px] font-cinzel font-bold text-amber-300/80 tracking-wider">MINI JACKPOT</span>
+        <span id="jackpotMini" class="font-digital text-xs sm:text-base font-black text-amber-400">$1,250.00</span>
+      </div>
+      <div class="bg-gradient-to-b from-red-950/60 to-black p-2 rounded-lg text-center border-2 border-red-500 scale-105 shadow-[0_0_20px_rgba(255,0,0,0.5)]">
+        <span class="block text-[10px] sm:text-xs font-cinzel font-black text-red-300 tracking-widest animate-pulse">👑 GRAND JACKPOT 👑</span>
+        <span id="jackpotGrand" class="font-digital text-sm sm:text-2xl font-black text-amber-300 drop-shadow-[0_0_10px_#ff9900]">$158,400.00</span>
+      </div>
+      <div class="bg-black/75 p-2 rounded-lg text-center border border-amber-600/60 shadow-inner">
+        <span class="block text-[9px] sm:text-[11px] font-cinzel font-bold text-amber-300/80 tracking-wider">MAJOR JACKPOT</span>
+        <span id="jackpotMajor" class="font-digital text-xs sm:text-base font-black text-amber-400">$18,650.00</span>
+      </div>
+    </section>
+
+    <!-- Active Free Spins Indicator Banner (Multiplier Boost: 5x ~ 100x) -->
+    <div id="freeSpinBanner" class="w-full py-2 px-4 mb-2 bg-gradient-to-r from-purple-950 via-pink-900 to-purple-950 border-2 border-pink-400 rounded-xl text-center hidden animate-pulse shadow-[0_0_30px_rgba(236,72,153,0.7)] flex items-center justify-around">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🔥</span>
+        <span class="font-cinzel font-black text-xs sm:text-sm text-pink-200">
+          FREE SPINS: <strong id="freeSpinsRemaining" class="text-amber-300 text-lg">10</strong> LEFT
+        </span>
+      </div>
+      <div class="bg-black/60 px-3 py-1 rounded-lg border border-pink-400">
+        <span class="font-cinzel text-xs text-pink-200">EXPLODING MULTIPLIER:</span>
+        <span id="freeSpinMultiplierTag" class="font-digital text-lg font-black text-yellow-300 ml-1">5X</span>
+      </div>
+    </div>
+    <!-- 5x3 Reel Stage Viewport Canvas -->
+    <div class="relative w-full aspect-[900/540] max-h-[540px] bg-black rounded-xl overflow-hidden border-4 border-amber-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.95)]">
+      <!-- Main Game Canvas (5 Reels x 3 Rows, Paylines, Frames) -->
+      <canvas id="slotCanvas" class="w-full h-full block cursor-pointer"></canvas>
       
-      <!-- Table Felt Logo / Watermark -->
-      <div class="absolute inset-0 flex flex-col items-center justify-center opacity-10 pointer-events-none">
-        <span class="text-7xl sm:text-9xl font-casino font-black text-amber-300">♠ ♥ ♦ ♣</span>
-        <span class="text-xl sm:text-3xl font-casino tracking-widest text-amber-200 mt-2 font-black">CASINO ROYALE</span>
-      </div>
+      <!-- Particle FX Canvas (Coins, Sparks, Fireworks) -->
+      <canvas id="particleCanvas" class="w-full h-full absolute inset-0 pointer-events-none"></canvas>
 
-      <!-- ================= 1. DEALER ZONE ================= -->
-      <div class="w-full flex flex-col items-center relative z-10">
-        <!-- Dealer Speech Bubble -->
-        <div id="dealerBubble" class="speech-bubble relative mb-2 px-3 py-1.5 bg-slate-900/95 border border-amber-400/80 rounded-xl text-xs sm:text-sm font-semibold text-amber-300 shadow-lg transition-all duration-300 transform scale-95 opacity-0 pointer-events-none">
-          생각 중...
-        </div>
-
-        <div class="flex items-center gap-4">
-          <!-- Dealer Avatar Badge -->
-          <div class="flex flex-col items-center">
-            <div class="relative">
-              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center text-2xl shadow-md overflow-hidden">
-                🤖
-              </div>
-              <span id="dealerButtonBadge" class="hidden absolute -bottom-1 -right-1 w-5 h-5 bg-white text-slate-900 border-2 border-slate-900 font-bold text-[10px] rounded-full flex items-center justify-center shadow">
-                D
-              </span>
-            </div>
-            <span class="text-[11px] font-bold text-slate-200 mt-1">AI 딜러 (V.I.P)</span>
-            <div class="flex items-center gap-1 text-[11px] text-amber-300 font-bold bg-black/40 px-2 py-0.5 rounded-full mt-0.5 border border-amber-400/30">
-              <span>💰</span>
-              <span id="dealerStackDisplay">$1,000</span>
-            </div>
-          </div>
-
-          <!-- Dealer Hole Cards (2 Cards) -->
-          <div class="flex items-center gap-2">
-            <div id="dealerCard0" class="card-container w-14 h-20 sm:w-16 sm:h-24">
-              <div class="card-inner flipped">
-                <div class="card-front flex flex-col justify-between p-1 text-slate-900"></div>
-                <div class="card-back"><div class="card-back-pattern"></div></div>
-              </div>
-            </div>
-            <div id="dealerCard1" class="card-container w-14 h-20 sm:w-16 sm:h-24">
-              <div class="card-inner flipped">
-                <div class="card-front flex flex-col justify-between p-1 text-slate-900"></div>
-                <div class="card-back"><div class="card-back-pattern"></div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dealer Current Bet Chips -->
-        <div id="dealerBetBox" class="mt-2 flex items-center gap-1.5 bg-black/60 border border-amber-400/40 px-3 py-1 rounded-full text-xs font-bold text-amber-300 transition-all duration-300 opacity-0 transform translate-y-1">
-          <div class="w-4 h-4 rounded-full bg-red-600 poker-chip"></div>
-          <span>베팅: </span><span id="dealerBetAmount">$0</span>
-        </div>
-      </div>
-
-      <!-- ================= 2. CENTER TABLE ZONE (POT & BOARD) ================= -->
-      <div class="w-full flex flex-col items-center my-3 sm:my-5 relative z-10">
-        <!-- Main Pot Display -->
-        <div class="flex items-center gap-2 mb-3 bg-slate-950/80 border-2 border-amber-500/70 px-4 py-1.5 rounded-full shadow-2xl backdrop-blur-sm">
-          <div class="flex -space-x-1">
-            <div class="w-5 h-5 rounded-full bg-amber-500 poker-chip"></div>
-            <div class="w-5 h-5 rounded-full bg-blue-600 poker-chip"></div>
-            <div class="w-5 h-5 rounded-full bg-red-600 poker-chip"></div>
-          </div>
-          <span class="text-xs sm:text-sm font-casino tracking-wider text-amber-200">TOTAL POT:</span>
-          <span id="mainPotDisplay" class="text-sm sm:text-lg font-black text-amber-400 font-casino">$0</span>
-        </div>
-
-        <!-- Community Board (5 Cards: Flop 1-3, Turn, River) -->
-        <div class="flex items-center gap-1.5 sm:gap-3">
-          <!-- Card Slot 0 (Flop 1) -->
-          <div id="communityCard0" class="card-container w-14 h-20 sm:w-16 sm:h-24">
-            <div class="card-inner">
-              <div class="card-front flex flex-col justify-between p-1 text-slate-900"></div>
-              <div class="card-back"><div class="card-back-pattern"></div></div>
-            </div>
-          </div>
-          <!-- Card Slot 1 (Flop 2) -->
-          <div id="communityCard1" class="card-container w-14 h-20 sm:w-16 sm:h-24">
-            <div class="card-inner">
-              <div class="card-front flex flex-col justify-between p-1 text-slate-900"></div>
-              <div class="card-back"><div class="card-back-pattern"></div></div>
-            </div>
-          </div>
-          <!-- Card Slot 2 (Flop 3) -->
-          <div id="communityCard2" class="card-container w-14 h-20 sm:w-16 sm:h-24">
-            <div class="card-inner">
-              <div class="card-front flex flex-col justify-between p-1 text-slate-900"></div>
-              <div class="card-back"><div class="card-back-pattern"></div></div>
-            </div>
-          </div>
-          <!-- Card Slot 3 (Turn) -->
-          <div id="communityCard3" class="card-container w-14 h-20 sm:w-16 sm:h-24 ml-1">
-            <div class="card-inner">
-              <div class="card-front flex flex-col justify-between p-1 text-slate-900"></div>
-              <div class="card-back"><div class="card-back-pattern"></div></div>
-            </div>
-          </div>
-          <!-- Card Slot 4 (River) -->
-          <div id="communityCard4" class="card-container w-14 h-20 sm:w-16 sm:h-24 ml-1">
-            <div class="card-inner">
-              <div class="card-front flex flex-col justify-between p-1 text-slate-900"></div>
-              <div class="card-back"><div class="card-back-pattern"></div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Round Stage Indicator (PRE-FLOP, FLOP, TURN, RIVER, SHOWDOWN) -->
-        <div id="stageBadge" class="mt-2 text-[10px] sm:text-xs font-bold tracking-widest text-emerald-300 uppercase px-3 py-0.5 rounded bg-emerald-950/70 border border-emerald-500/30">
-          PRE-FLOP
-        </div>
-      </div>
-
-      <!-- ================= 3. PLAYER ZONE ================= -->
-      <div class="w-full flex flex-col items-center relative z-10">
-        <!-- Player Current Bet Chips -->
-        <div id="playerBetBox" class="mb-2 flex items-center gap-1.5 bg-black/60 border border-amber-400/40 px-3 py-1 rounded-full text-xs font-bold text-amber-300 transition-all duration-300 opacity-0 transform -translate-y-1">
-          <div class="w-4 h-4 rounded-full bg-blue-600 poker-chip"></div>
-          <span>베팅: </span><span id="playerBetAmount">$0</span>
-        </div>
-
-        <div class="flex items-center gap-4">
-          <!-- Player Hole Cards (2 Cards) -->
-          <div class="flex items-center gap-2">
-            <div id="playerCard0" class="card-container w-14 h-20 sm:w-16 sm:h-24">
-              <div class="card-inner">
-                <div class="card-front flex flex-col justify-between p-1 text-slate-900"></div>
-                <div class="card-back"><div class="card-back-pattern"></div></div>
-              </div>
-            </div>
-            <div id="playerCard1" class="card-container w-14 h-20 sm:w-16 sm:h-24">
-              <div class="card-inner">
-                <div class="card-front flex flex-col justify-between p-1 text-slate-900"></div>
-                <div class="card-back"><div class="card-back-pattern"></div></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Player Profile & Chip Stack -->
-          <div class="flex flex-col items-center">
-            <div class="relative">
-              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-900 border-2 border-emerald-400 flex items-center justify-center text-2xl shadow-md overflow-hidden">
-                😎
-              </div>
-              <span id="playerButtonBadge" class="hidden absolute -bottom-1 -right-1 w-5 h-5 bg-white text-slate-900 border-2 border-slate-900 font-bold text-[10px] rounded-full flex items-center justify-center shadow">
-                D
-              </span>
-            </div>
-            <span class="text-[11px] font-bold text-slate-200 mt-1">플레이어 (나)</span>
-            <div class="flex items-center gap-1 text-[11px] text-amber-300 font-bold bg-black/40 px-2 py-0.5 rounded-full mt-0.5 border border-amber-400/30">
-              <span>💰</span>
-              <span id="playerStackDisplay">$1,000</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Live Hand Strength Evaluation Helper -->
-        <div id="handStrengthHelper" class="mt-2 text-xs sm:text-sm font-bold text-amber-300 bg-black/75 px-3 py-1 rounded-full border border-amber-500/40 shadow">
-          카드 대기 중...
-        </div>
+      <!-- Anticipation Lightning Tease Banner -->
+      <div id="anticipationBanner" class="absolute top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 via-red-500 to-amber-500 text-slate-950 font-black px-5 py-1.5 rounded-full text-xs font-cinzel tracking-widest pointer-events-none hidden animate-bounce shadow-[0_0_20px_#ffbb00]">
+        ⚡ 80% FEVER TEASE! SCATTER SUSPENSE! ⚡
       </div>
     </div>
-
-    <!-- Betting Action Deck at Table Bottom -->
-    <div class="w-full bg-slate-950/95 border-t-2 border-amber-500/40 rounded-b-[150px] p-3 sm:p-4 mt-1 flex flex-col items-center gap-2">
-      <!-- Bet Slider & Quick Sizing Buttons -->
-      <div id="betSizingControls" class="w-full max-w-lg flex flex-col gap-1.5">
-        <div class="flex items-center justify-between text-xs text-amber-300 font-bold">
-          <span>레이즈 금액:</span>
-          <span id="sliderBetDisplay" class="text-sm font-black text-amber-400">$40</span>
+    <!-- Bottom Control Deck / HUD -->
+    <section class="w-full mt-3 bg-gradient-to-b from-[#22020a] to-[#0c0004] p-3 sm:p-4 rounded-xl border-2 border-amber-600/80 shadow-2xl flex flex-col gap-3">
+      
+      <!-- Row 1: Balance, Win, Bet Meters -->
+      <div class="grid grid-cols-3 gap-2 sm:gap-4 items-center">
+        <!-- Balance Meter -->
+        <div class="bg-black/80 border border-amber-600/50 rounded-lg p-2 text-center">
+          <span class="text-[10px] text-amber-200/70 font-cinzel font-bold block">CREDITS / BALANCE</span>
+          <span id="balanceDisplay" class="font-digital text-sm sm:text-xl font-bold text-emerald-400">$50,000.00</span>
         </div>
+
+        <!-- Center Win Rollup Display -->
+        <div class="bg-gradient-to-b from-amber-950/50 to-black border-2 border-amber-400 rounded-lg p-2 text-center shadow-[0_0_15px_rgba(255,190,0,0.3)]">
+          <span id="winLabel" class="text-[10px] text-amber-300 font-cinzel font-black tracking-wider block">LAST WIN</span>
+          <span id="winDisplay" class="font-digital text-sm sm:text-2xl font-black text-amber-300">$0.00</span>
+        </div>
+
+        <!-- Total Bet Display with Quick Steps -->
+        <div class="bg-black/80 border border-amber-600/50 rounded-lg p-2 text-center">
+          <span class="text-[10px] text-amber-200/70 font-cinzel font-bold block">TOTAL BET (20 LINES)</span>
+          <div class="flex items-center justify-center gap-1 sm:gap-2">
+            <button id="betDownBtn" class="w-7 h-7 rounded bg-amber-700 hover:bg-amber-600 text-amber-100 font-black text-xs flex items-center justify-center btn-tactile">▼</button>
+            <span id="betDisplay" class="font-digital text-sm sm:text-xl font-bold text-amber-200 min-w-[70px]">$50.00</span>
+            <button id="betUpBtn" class="w-7 h-7 rounded bg-amber-700 hover:bg-amber-600 text-amber-100 font-black text-xs flex items-center justify-center btn-tactile">▲</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Control Action Buttons -->
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+        <!-- Left: Turbo & Bet Quick Presets -->
+        <div class="flex items-center gap-2">
+          <button id="turboBtn" class="btn-tactile px-3 py-2.5 rounded-lg border border-slate-600 bg-slate-900 text-slate-300 font-bold text-[10px] sm:text-xs flex items-center gap-1">
+            <span>⚡ TURBO:</span>
+            <span id="turboStatus" class="text-slate-400">OFF</span>
+          </button>
+          <button id="maxBetBtn" class="btn-tactile px-3 py-2.5 rounded-lg border-2 border-amber-500 bg-gradient-to-r from-amber-700 to-amber-900 text-amber-100 font-cinzel font-black text-[10px] sm:text-xs tracking-wider">
+            MAX BET
+          </button>
+        </div>
+
+        <!-- Right: Auto Play & Main Spin Action Button -->
         <div class="flex items-center gap-3">
-          <span class="text-[10px] text-slate-400 font-mono" id="minRaiseLabel">MIN</span>
-          <input type="range" id="betSlider" class="w-full cursor-pointer" min="40" max="1000" step="10" value="40">
-          <span class="text-[10px] text-slate-400 font-mono">ALL-IN</span>
+          <button id="autoSpinBtn" class="btn-tactile px-4 py-2.5 rounded-lg border border-amber-500/70 bg-gradient-to-b from-slate-800 to-slate-950 text-amber-300 font-cinzel font-bold text-xs sm:text-sm flex flex-col items-center">
+            <span>AUTO PLAY</span>
+            <span id="autoCountLabel" class="text-[9px] text-amber-200/60 font-sans">SELECT</span>
+          </button>
+
+          <!-- Massive High-Impact Spin Button -->
+          <button id="spinBtn" class="btn-tactile spin-fever-btn w-32 sm:w-40 h-12 sm:h-14 rounded-full border-2 border-amber-300 text-white font-cinzel font-black text-sm sm:text-lg tracking-widest flex items-center justify-center">
+            <span id="spinBtnText">SPIN</span>
+          </button>
         </div>
-        <div class="grid grid-cols-4 gap-1.5 text-slate-300 text-[11px] font-bold mt-1">
-          <button id="btnSizeMin" class="py-1 bg-slate-800 hover:bg-slate-700 rounded border border-slate-600 active:scale-95 transition">MIN</button>
-          <button id="btnSizeHalfPot" class="py-1 bg-slate-800 hover:bg-slate-700 rounded border border-slate-600 active:scale-95 transition">1/2 POT</button>
-          <button id="btnSizePot" class="py-1 bg-slate-800 hover:bg-slate-700 rounded border border-slate-600 active:scale-95 transition">POT</button>
-          <button id="btnSizeAllIn" class="py-1 bg-red-950 hover:bg-red-900 text-red-300 rounded border border-red-700 active:scale-95 transition">ALL-IN</button>
-        </div>
       </div>
-
-      <!-- Main Action Buttons (Fold, Check/Call, Bet/Raise) -->
-      <div id="actionButtonsRow" class="w-full max-w-lg grid grid-cols-3 gap-2 mt-1">
-        <!-- Fold -->
-        <button id="btnFold" class="py-2.5 sm:py-3 bg-gradient-to-b from-rose-700 to-rose-900 hover:from-rose-600 hover:to-rose-800 text-white font-black text-xs sm:text-sm rounded-xl border border-rose-400/50 shadow-lg active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none">
-          폴드 (FOLD)
-        </button>
-
-        <!-- Check or Call -->
-        <button id="btnCheckCall" class="py-2.5 sm:py-3 bg-gradient-to-b from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 text-white font-black text-xs sm:text-sm rounded-xl border border-emerald-400/50 shadow-lg active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none">
-          <span id="checkCallLabel">체크 (CHECK)</span>
-        </button>
-
-        <!-- Bet or Raise -->
-        <button id="btnBetRaise" class="py-2.5 sm:py-3 bg-gradient-to-b from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-slate-950 font-black text-xs sm:text-sm rounded-xl border border-amber-300 shadow-lg active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none">
-          <span id="betRaiseLabel">베팅 (BET)</span>
-        </button>
-      </div>
-
-      <!-- Start / Next Hand Action Bar -->
-      <div id="roundNavRow" class="hidden w-full max-w-xs mt-1">
-        <button id="btnNextHand" class="w-full py-3 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:brightness-110 text-slate-950 font-black text-sm rounded-xl border border-amber-200 shadow-xl animate-pulse transition">
-          다음 핸드 시작 ▶
-        </button>
-      </div>
-    </div>
+    </section>
   </main>
+  <!-- MODAL: Ultra Fortune Jackpot Wheel (Prizes up to 5,000x!) -->
+  <div id="wheelModal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-gradient-to-b from-[#2e000d] via-[#150005] to-black border-4 border-amber-400 rounded-3xl p-5 max-w-md w-full text-center relative shadow-[0_0_80px_rgba(255,190,0,0.6)] flex flex-col items-center">
+      <h2 class="font-cinzel text-xl sm:text-2xl font-black fire-gradient-text tracking-widest mb-1">
+        ⭐ ULTRA FORTUNE WHEEL ⭐
+      </h2>
+      <p class="text-xs text-amber-200/90 mb-3">80% 피버 보너스 발동! 최대 5,000배 잭팟을 돌리세요!</p>
 
-  <!-- Hand Narrative Log Modal / Drawer -->
-  <div id="logDrawer" class="fixed inset-y-0 right-0 w-80 max-w-full bg-slate-900/95 border-l border-amber-500/40 p-4 shadow-2xl backdrop-blur-md transform translate-x-full transition-transform duration-300 z-40 flex flex-col justify-between">
-    <div>
-      <div class="flex items-center justify-between border-b border-slate-700 pb-2 mb-3">
-        <h3 class="font-bold text-amber-400 text-sm flex items-center gap-1.5">
-          <span>📜</span> 핸드 히스토리
-        </h3>
-        <button id="closeLogBtn" class="text-slate-400 hover:text-white text-lg">✕</button>
+      <div class="relative w-72 h-72 my-2 flex items-center justify-center">
+        <!-- Flapper Indicator -->
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 text-3xl text-amber-300 filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] animate-pulse">
+          ▼
+        </div>
+        <canvas id="wheelCanvas" width="300" height="300" class="w-full h-full block"></canvas>
       </div>
-      <div id="logContent" class="space-y-1.5 overflow-y-auto max-h-[75vh] text-[11px] text-slate-300 pr-1">
-        <p class="text-slate-500 italic">게임이 시작되면 진행 기록이 표시됩니다.</p>
-      </div>
-    </div>
-    <button id="clearLogBtn" class="text-[10px] text-slate-500 hover:text-slate-300 py-1 border-t border-slate-800">
-      기록 지우기
-    </button>
-  </div>
 
-  <!-- Hand Rank & Rules Modal -->
-  <div id="rulesModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden">
-    <div class="max-w-md w-full bg-slate-900 border-2 border-amber-400/70 rounded-2xl p-5 shadow-2xl text-left">
-      <div class="flex items-center justify-between border-b border-slate-700 pb-2 mb-3">
-        <h3 class="font-bold text-amber-300 text-base flex items-center gap-2">
-          <span>👑</span> 텍사스 홀덤 족보 순위
-        </h3>
-        <button id="closeRulesBtn" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
-      </div>
-      <div class="space-y-2 text-xs text-slate-300 max-h-[60vh] overflow-y-auto pr-1">
-        <div class="p-2 bg-slate-800/70 rounded border border-amber-400/30">
-          <strong class="text-amber-400">1. 로열 플러시 (Royal Flush)</strong>
-          <p class="text-[11px] text-slate-400">동일한 무늬의 10, J, Q, K, A</p>
-        </div>
-        <div class="p-2 bg-slate-800/70 rounded border border-slate-700">
-          <strong class="text-emerald-400">2. 스트레이트 플러시 (Straight Flush)</strong>
-          <p class="text-[11px] text-slate-400">동일한 무늬의 연속된 5장의 카드</p>
-        </div>
-        <div class="p-2 bg-slate-800/70 rounded border border-slate-700">
-          <strong class="text-emerald-400">3. 포카드 (Four of a Kind)</strong>
-          <p class="text-[11px] text-slate-400">같은 숫자의 카드 4장</p>
-        </div>
-        <div class="p-2 bg-slate-800/70 rounded border border-slate-700">
-          <strong class="text-cyan-400">4. 풀하우스 (Full House)</strong>
-          <p class="text-[11px] text-slate-400">트리플(3장) + 원페어(2장)</p>
-        </div>
-        <div class="p-2 bg-slate-800/70 rounded border border-slate-700">
-          <strong class="text-cyan-400">5. 플러시 (Flush)</strong>
-          <p class="text-[11px] text-slate-400">숫자에 상관없이 무늬가 같은 카드 5장</p>
-        </div>
-        <div class="p-2 bg-slate-800/70 rounded border border-slate-700">
-          <strong class="text-blue-400">6. 스트레이트 (Straight)</strong>
-          <p class="text-[11px] text-slate-400">무늬에 상관없이 숫자가 연속된 5장</p>
-        </div>
-        <div class="p-2 bg-slate-800/70 rounded border border-slate-700">
-          <strong class="text-indigo-400">7. 트리플 (Three of a Kind)</strong>
-          <p class="text-[11px] text-slate-400">같은 숫자 3장</p>
-        </div>
-        <div class="p-2 bg-slate-800/70 rounded border border-slate-700">
-          <strong class="text-violet-400">8. 투페어 (Two Pair)</strong>
-          <p class="text-[11px] text-slate-400">같은 숫자 2장 세트가 2개</p>
-        </div>
-        <div class="p-2 bg-slate-800/70 rounded border border-slate-700">
-          <strong class="text-slate-300">9. 원페어 (One Pair)</strong>
-          <p class="text-[11px] text-slate-400">같은 숫자 2장</p>
-        </div>
-        <div class="p-2 bg-slate-800/70 rounded border border-slate-700">
-          <strong class="text-slate-400">10. 하이 카드 (High Card)</strong>
-          <p class="text-[11px] text-slate-400">어떤 족보도 이루지 못했을 때 가장 높은 단일 카드</p>
-        </div>
+      <button id="wheelSpinBtn" class="btn-tactile mt-3 px-8 py-3 rounded-full bg-gradient-to-r from-red-600 via-amber-500 to-yellow-400 text-slate-950 font-cinzel font-black text-base tracking-widest shadow-2xl">
+        SPIN TO WIN (5,000X)!
+      </button>
+
+      <div id="wheelResultBox" class="mt-3 p-3 bg-amber-950/80 border border-amber-400 rounded-lg text-center hidden">
+        <span id="wheelPrizeText" class="font-cinzel text-lg font-black text-amber-300 block">WON 500X!</span>
+        <button id="collectWheelPrizeBtn" class="btn-tactile mt-2 px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">
+          COLLECT HUGE PRIZE
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Showdown Winner Banner / Toast Overlay -->
-  <div id="showdownBanner" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-950/95 border-4 border-amber-400 p-6 rounded-3xl shadow-2xl z-50 text-center max-w-sm w-full mx-4 transition-all duration-500 transform scale-90 opacity-0 pointer-events-none">
-    <div id="bannerIcon" class="text-4xl mb-1 animate-bounce">🏆</div>
-    <h2 id="bannerTitle" class="text-xl sm:text-2xl font-black text-amber-400 font-casino mb-1">YOU WIN!</h2>
-    <p id="bannerHandName" class="text-sm font-bold text-emerald-400 mb-2">풀하우스 (Full House)</p>
-    <div id="bannerPotSummary" class="text-xs text-amber-300 font-bold bg-amber-950/50 py-1.5 px-3 rounded-xl border border-amber-500/40">
-      획득 팟: +$160
+  <!-- MODAL: Epic Big Win Celebration Overlay -->
+  <div id="bigWinOverlay" class="fixed inset-0 z-40 flex flex-col items-center justify-center p-4 pointer-events-none hidden transition-opacity duration-300">
+    <div class="text-center transform scale-110 animate-bounce">
+      <h2 id="bigWinTitle" class="font-cinzel text-4xl sm:text-6xl md:text-7xl font-black text-amber-300 drop-shadow-[0_0_35px_#ff3b00] tracking-widest">
+        EPIC FEVER WIN!
+      </h2>
+      <div id="bigWinCounter" class="font-digital text-3xl sm:text-6xl md:text-7xl font-black text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.95)] mt-3">
+        $0.00
+      </div>
     </div>
   </div>
 
+  <!-- MODAL: Paytable & High-Roller Multipliers Guide -->
+  <div id="paytableModal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-gradient-to-b from-[#220108] to-[#0a0003] border-2 border-amber-500 rounded-2xl p-5 max-w-xl w-full max-h-[85vh] overflow-y-auto text-left relative shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-amber-500/30">
+        <h3 class="font-cinzel text-lg font-black text-amber-300">ULTRA FEVER PAYTABLE & RULES</h3>
+        <button id="closePaytableBtn" class="text-slate-400 hover:text-white font-bold text-xl px-2">✕</button>
+      </div>
+
+      <div class="mt-4 space-y-4 text-xs text-slate-200">
+        <!-- 80% Fever Engine Notice -->
+        <div class="bg-red-950/70 p-3 rounded-lg border border-red-500">
+          <h4 class="font-cinzel text-amber-300 font-black text-sm mb-1">🔥 80% ULTRA FEVER MODE MECHANIC</h4>
+          <p class="text-[11px] leading-relaxed">
+            상단 <strong>'FEVER: ON'</strong> 상태에서는 매 스핀마다 <strong class="text-red-400">80% 확률로 3개 이상의 SCATTER / BONUS 심볼</strong>이 필드에 무조건 강제 착지하여, 즉시 <strong>무료 스핀 (10회, 누적 배수 최대 100배)</strong> 또는 <strong>5,000배 잭팟 휠 보너스</strong>로 진입합니다!
+          </p>
+        </div>
+
+        <!-- Special Feature Symbols -->
+        <div>
+          <h4 class="font-cinzel text-amber-400 font-bold text-sm mb-2">⭐ FEATURE SYMBOLS</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="bg-black/60 p-2.5 rounded-lg border border-amber-500/30 text-center">
+              <span class="text-2xl block mb-1">👑</span>
+              <strong class="text-amber-300 text-xs block font-cinzel">WILD CROWN</strong>
+              <p class="text-[10px] text-slate-300 mt-1">스캐터/보너스를 제외한 모든 심볼 대체. 5개 일치 시 <strong>2,000배</strong> 지급!</p>
+            </div>
+            <div class="bg-black/60 p-2.5 rounded-lg border border-cyan-500/30 text-center">
+              <span class="text-2xl block mb-1">💎</span>
+              <strong class="text-cyan-300 text-xs block font-cinzel">SCATTER (FREE SPINS)</strong>
+              <p class="text-[10px] text-slate-300 mt-1">3개 이상 착지 시 <strong>10회 무료 스핀 (당첨 시마다 배수 +5x 누적, 최대 100x!)</strong></p>
+            </div>
+            <div class="bg-black/60 p-2.5 rounded-lg border border-yellow-500/30 text-center">
+              <span class="text-2xl block mb-1">🎡</span>
+              <strong class="text-yellow-300 text-xs block font-cinzel">WHEEL BONUS</strong>
+              <p class="text-[10px] text-slate-300 mt-1">3개 이상 착지 시 <strong>포춘 잭팟 휠 (최대 5,000배 그랜드 잭팟)</strong> 발동!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enhanced Pay Multipliers -->
+        <div>
+          <h4 class="font-cinzel text-amber-400 font-bold text-sm mb-2">💰 BOOSTED PAYOUTS (5-OF-A-KIND)</h4>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-[11px]">
+            <div class="bg-black/40 p-2 rounded border border-red-500/60"><span class="text-lg block">7️⃣</span><b class="text-red-400">TRIPLE 7:</b> 2,500x</div>
+            <div class="bg-black/40 p-2 rounded border border-amber-500/60"><span class="text-lg block">🍫</span><b class="text-amber-300">GOLD BAR:</b> 1,000x</div>
+            <div class="bg-black/40 p-2 rounded border border-yellow-500/60"><span class="text-lg block">🔔</span><b class="text-yellow-300">GOLD BELL:</b> 600x</div>
+            <div class="bg-black/40 p-2 rounded border border-rose-500/60"><span class="text-lg block">🍒</span><b class="text-rose-400">CHERRIES:</b> 400x</div>
+            <div class="bg-black/40 p-2 rounded border border-emerald-500/60"><span class="text-lg block">🐎</span><b class="text-emerald-400">HORSESHOE:</b> 300x</div>
+            <div class="bg-black/40 p-2 rounded border border-slate-700"><span class="text-lg block">🅰️</span><b class="text-slate-300">ACE:</b> 200x</div>
+            <div class="bg-black/40 p-2 rounded border border-slate-700"><span class="text-lg block">👑</span><b class="text-slate-300">KING:</b> 150x</div>
+            <div class="bg-black/40 p-2 rounded border border-slate-700"><span class="text-lg block">👸</span><b class="text-slate-300">QUEEN:</b> 100x</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Auto Play Modal -->
+  <div id="autoModal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-gradient-to-b from-[#250009] to-[#0c0003] border-2 border-amber-400 rounded-2xl p-5 max-w-sm w-full text-center shadow-2xl">
+      <h3 class="font-cinzel text-base font-bold text-amber-300 mb-3">SELECT AUTO SPINS</h3>
+      <div class="grid grid-cols-2 gap-2.5 mb-4">
+        <button class="auto-opt-btn btn-tactile py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-white font-bold" data-count="10">10 SPINS</button>
+        <button class="auto-opt-btn btn-tactile py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-white font-bold" data-count="25">25 SPINS</button>
+        <button class="auto-opt-btn btn-tactile py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-white font-bold" data-count="50">50 SPINS</button>
+        <button class="auto-opt-btn btn-tactile py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-white font-bold" data-count="999">∞ INFINITY</button>
+      </div>
+      <button id="cancelAutoBtn" class="text-xs text-slate-400 hover:text-white underline">CANCEL</button>
+    </div>
+  </div>
   <script>
     /**
      * Web Audio API Synthesizer
-     * Pure procedural audio for authentic casino feel: card slide, chip clink,
-     * table check knock, fold swoosh, all-in sting, and win fanfare.
+     * Pure synthesized sound effects: mechanical clicks, reel clunks, scatter tension risers,
+     * wheel peg ticks, coin rolls, and massive victory fanfares.
      */
     class CasinoAudioEngine {
       constructor() {
@@ -529,1231 +394,1165 @@
         return this.isMuted;
       }
 
-      // Card Deal Slide (Soft white noise rush)
-      playCardDeal() {
+      playTone(freq, type, duration, volume = 0.1, bend = 0) {
         if (this.isMuted) return;
-        this.init();
         try {
-          const bufferSize = this.ctx.sampleRate * 0.12;
-          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-          const data = buffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) {
-            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          if (bend !== 0) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(10, freq + bend), this.ctx.currentTime + duration);
           }
-          const noise = this.ctx.createBufferSource();
-          noise.buffer = buffer;
 
-          const filter = this.ctx.createBiquadFilter();
-          filter.type = 'bandpass';
-          filter.frequency.setValueAtTime(1800, this.ctx.currentTime);
-          filter.Q.setValueAtTime(3, this.ctx.currentTime);
-
-          const gain = this.ctx.createGain();
-          gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
-
-          noise.connect(filter);
-          filter.connect(gain);
-          gain.connect(this.ctx.destination);
-          noise.start();
-        } catch (e) {}
-      }
-
-      // Chip Clink (Sharp metallic ping)
-      playChipClink() {
-        if (this.isMuted) return;
-        this.init();
-        try {
-          const freqs = [2400, 3200, 4800];
-          freqs.forEach((freq, idx) => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.02);
-
-            gain.gain.setValueAtTime(0.15, this.ctx.currentTime + idx * 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.02 + 0.08);
-
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start(this.ctx.currentTime + idx * 0.02);
-            osc.stop(this.ctx.currentTime + idx * 0.02 + 0.08);
-          });
-        } catch (e) {}
-      }
-
-      // Check Table Knock (Two soft wooden taps)
-      playCheckKnock() {
-        if (this.isMuted) return;
-        this.init();
-        try {
-          [0, 0.09].forEach(delay => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(130, this.ctx.currentTime + delay);
-            osc.frequency.exponentialRampToValueAtTime(60, this.ctx.currentTime + delay + 0.06);
-
-            gain.gain.setValueAtTime(0.35, this.ctx.currentTime + delay);
-            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + 0.06);
-
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start(this.ctx.currentTime + delay);
-            osc.stop(this.ctx.currentTime + delay + 0.06);
-          });
-        } catch (e) {}
-      }
-
-      // Fold Swoosh
-      playFold() {
-        if (this.isMuted) return;
-        this.init();
-        try {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(260, this.ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.15);
-
-          gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
 
           osc.connect(gain);
           gain.connect(this.ctx.destination);
+
           osc.start();
-          osc.stop(this.ctx.currentTime + 0.15);
+          osc.stop(this.ctx.currentTime + duration);
         } catch (e) {}
       }
 
-      // All-In Dramatic Stinger
-      playAllIn() {
+      playSpinStart() {
         if (this.isMuted) return;
-        this.init();
-        try {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(220, this.ctx.currentTime);
-          osc.frequency.linearRampToValueAtTime(440, this.ctx.currentTime + 0.3);
-
-          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
-
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start();
-          osc.stop(this.ctx.currentTime + 0.35);
-        } catch (e) {}
+        this.playTone(160, 'triangle', 0.2, 0.2, 80);
       }
 
-      // Win Fanfare
-      playWin() {
+      playReelStop() {
         if (this.isMuted) return;
-        this.init();
-        try {
-          const notes = [523.25, 659.25, 783.99, 1046.50]; // C, E, G, High C
-          notes.forEach((freq, idx) => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.1);
+        this.playTone(85, 'sine', 0.09, 0.3, -35);
+        setTimeout(() => this.playTone(320, 'triangle', 0.05, 0.18), 15);
+      }
 
-            gain.gain.setValueAtTime(0.2, this.ctx.currentTime + idx * 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.1 + 0.35);
+      playAnticipationLoop() {
+        if (this.isMuted) return;
+        this.playTone(600, 'sine', 0.14, 0.1, 150);
+        setTimeout(() => this.playTone(900, 'sawtooth', 0.15, 0.08, 100), 70);
+      }
 
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start(this.ctx.currentTime + idx * 0.1);
-            osc.stop(this.ctx.currentTime + idx * 0.1 + 0.35);
-          });
-        } catch (e) {}
+      playScatterLand() {
+        if (this.isMuted) return;
+        this.playTone(920, 'sine', 0.35, 0.25, 300);
+        setTimeout(() => this.playTone(1480, 'triangle', 0.45, 0.22), 90);
+      }
+
+      playBonusLand() {
+        if (this.isMuted) return;
+        this.playTone(740, 'square', 0.25, 0.15, 120);
+        setTimeout(() => this.playTone(1100, 'square', 0.35, 0.18), 80);
+      }
+
+      playCoinTick() {
+        if (this.isMuted) return;
+        const notes = [1900, 2200, 2600];
+        const f = notes[Math.floor(Math.random() * notes.length)];
+        this.playTone(f, 'sine', 0.05, 0.08);
+      }
+
+      playWheelClick() {
+        if (this.isMuted) return;
+        this.playTone(520, 'triangle', 0.03, 0.12, -140);
+      }
+
+      playBigWinFanfare() {
+        if (this.isMuted) return;
+        const victory = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+        victory.forEach((note, idx) => {
+          setTimeout(() => {
+            this.playTone(note, 'triangle', 0.45, 0.22);
+            this.playTone(note * 1.5, 'sine', 0.35, 0.12);
+          }, idx * 100);
+        });
       }
     }
 
     const sound = new CasinoAudioEngine();
-
     /**
-     * Texas Hold'em 52-Card Deck & Combinatorial 7-Card Evaluator
+     * Enhanced High-Roller Symbol Configs (Multipliers up to 2500x)
      */
-    const SUITS = ['♠', '♥', '♦', '♣'];
-    const SUIT_NAMES = { '♠': 'spades', '♥': 'hearts', '♦': 'diamonds', '♣': 'clubs' };
-    const SUIT_COLORS = { '♠': 'text-slate-900', '♣': 'text-slate-900', '♥': 'text-red-600', '♦': 'text-red-600' };
-    const RANKS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-    const RANK_LABELS = { 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'J', 12: 'Q', 13: 'K', 14: 'A' };
+    const SYMBOLS = {
+      WILD:       { id: 'WILD', name: 'WILD CROWN', pay5: 2000, pay4: 600, pay3: 200, isSpecial: true },
+      SCATTER:    { id: 'SCATTER', name: 'DIAMOND', pay5: 500, pay4: 100, pay3: 20, isSpecial: true },
+      BONUS:      { id: 'BONUS', name: 'WHEEL BONUS', pay5: 500, pay4: 100, pay3: 20, isSpecial: true },
+      SEVEN:      { id: 'SEVEN', name: 'TRIPLE 7', pay5: 2500, pay4: 750, pay3: 250 },
+      BAR:        { id: 'BAR', name: 'GOLD BAR', pay5: 1000, pay4: 350, pay3: 120 },
+      BELL:       { id: 'BELL', name: 'GOLD BELL', pay5: 600, pay4: 200, pay3: 80 },
+      CHERRY:     { id: 'CHERRY', name: 'CHERRY', pay5: 400, pay4: 150, pay3: 60 },
+      HORSESHOE:  { id: 'HORSESHOE', name: 'HORSESHOE', pay5: 300, pay4: 100, pay3: 40 },
+      ACE:        { id: 'ACE', name: 'ACE', pay5: 200, pay4: 80, pay3: 30 },
+      KING:       { id: 'KING', name: 'KING', pay5: 150, pay4: 60, pay3: 25 },
+      QUEEN:      { id: 'QUEEN', name: 'QUEEN', pay5: 100, pay4: 40, pay3: 20 }
+    };
 
-    function createDeck() {
-      const deck = [];
-      for (const suit of SUITS) {
-        for (const rank of RANKS) {
-          deck.push({
-            suit,
-            rank,
-            label: RANK_LABELS[rank],
-            color: SUIT_COLORS[suit],
-            id: `${rank}_${suit}`
+    const REEL_STRIP_TEMPLATE = [
+      'SEVEN', 'ACE', 'CHERRY', 'KING', 'BELL', 'QUEEN', 'BAR', 'HORSESHOE',
+      'ACE', 'WILD', 'CHERRY', 'KING', 'SCATTER', 'BELL', 'QUEEN', 'SEVEN',
+      'HORSESHOE', 'BAR', 'ACE', 'BONUS', 'CHERRY', 'KING', 'BELL', 'WILD',
+      'QUEEN', 'SEVEN', 'BAR', 'HORSESHOE', 'ACE', 'SCATTER', 'KING', 'CHERRY'
+    ];
+
+    // 20 Vegas Payline Matrix
+    const PAYLINES = [
+      [1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [2, 2, 2, 2, 2], [0, 1, 2, 1, 0], [2, 1, 0, 1, 2],
+      [0, 0, 1, 0, 0], [2, 2, 1, 2, 2], [1, 2, 2, 2, 1], [1, 0, 0, 0, 1], [1, 0, 1, 0, 1],
+      [1, 2, 1, 2, 1], [0, 1, 0, 1, 0], [2, 1, 2, 1, 2], [0, 1, 1, 1, 0], [2, 1, 1, 1, 2],
+      [1, 1, 0, 1, 1], [1, 1, 2, 1, 1], [0, 0, 2, 0, 0], [2, 2, 0, 2, 2], [0, 2, 0, 2, 0]
+    ];
+
+    const PAYLINE_COLORS = [
+      '#ffcc00', '#ff2255', '#00ffcc', '#ff00ff', '#33ff33',
+      '#ff8800', '#00ccff', '#ff33aa', '#ffff00', '#77ff33',
+      '#ff5500', '#22bbff', '#bb33ff', '#ff0077', '#00ff77',
+      '#ff8888', '#88ccff', '#ffbb88', '#bbff88', '#ff88ff'
+    ];
+
+    // Core Game State Variables
+    let balance = 50000.00;
+    const betOptions = [10, 20, 50, 100, 250, 500, 1000];
+    let betIndex = 2; // Default $50.00
+    let lastWin = 0.00;
+    let isSpinning = false;
+    let isTurbo = false;
+    let isFeverMode = true; // 80% Bonus Trigger Mode Active by default!
+    let autoSpinCount = 0;
+
+    let freeSpinsLeft = 0;
+    let freeSpinMultiplier = 5; // Exploding multiplier starts at 5x!
+
+    let grandJackpot = 158400.00;
+    let majorJackpot = 18650.00;
+    let miniJackpot = 1250.00;
+
+    const REEL_COUNT = 5;
+    const ROW_COUNT = 3;
+    let reels = [];
+
+    let winningLinesResult = [];
+    let winningLineCycleTimer = 0;
+    let activeCycleLineIdx = -1;
+    const slotCanvas = document.getElementById('slotCanvas');
+    const slotCtx = slotCanvas.getContext('2d');
+    const particleCanvas = document.getElementById('particleCanvas');
+    const partCtx = particleCanvas.getContext('2d');
+
+    const VIRTUAL_W = 900;
+    const VIRTUAL_H = 540;
+
+    function resizeCanvases() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = slotCanvas.getBoundingClientRect();
+      
+      slotCanvas.width = rect.width * dpr;
+      slotCanvas.height = rect.height * dpr;
+      slotCtx.scale(dpr * (rect.width / VIRTUAL_W), dpr * (rect.height / VIRTUAL_H));
+
+      particleCanvas.width = rect.width * dpr;
+      particleCanvas.height = rect.height * dpr;
+      partCtx.scale(dpr * (rect.width / VIRTUAL_W), dpr * (rect.height / VIRTUAL_H));
+    }
+    window.addEventListener('resize', resizeCanvases);
+
+    function initReelStrips() {
+      reels = [];
+      const reelWidth = VIRTUAL_W / REEL_COUNT;
+      const symbolHeight = VIRTUAL_H / ROW_COUNT;
+
+      for (let r = 0; r < REEL_COUNT; r++) {
+        const strip = [];
+        for (let s = 0; s < 50; s++) {
+          strip.push(REEL_STRIP_TEMPLATE[Math.floor(Math.random() * REEL_STRIP_TEMPLATE.length)]);
+        }
+
+        reels.push({
+          index: r,
+          x: r * reelWidth,
+          w: reelWidth,
+          h: symbolHeight,
+          strip: strip,
+          pos: Math.floor(Math.random() * 20),
+          targetPos: 0,
+          speed: 0,
+          maxSpeed: 45,
+          state: 'IDLE',
+          stopDelay: 0,
+          bounceTimer: 0,
+          visibleSymbols: ['SEVEN', 'BAR', 'BELL'],
+          isAnticipating: false
+        });
+      }
+    }
+    function drawSymbol(ctx, symId, cx, cy, width, height, isDimmed = false) {
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      if (isDimmed) ctx.globalAlpha = 0.25;
+
+      const iconSize = Math.min(width, height) * 0.42;
+
+      switch (symId) {
+        case 'WILD': {
+          ctx.shadowColor = '#ffd700';
+          ctx.shadowBlur = 22;
+          ctx.fillStyle = '#ffd700';
+          ctx.beginPath();
+          ctx.moveTo(-iconSize, iconSize * 0.4);
+          ctx.lineTo(-iconSize * 0.8, -iconSize * 0.45);
+          ctx.lineTo(-iconSize * 0.35, 0);
+          ctx.lineTo(0, -iconSize * 0.75);
+          ctx.lineTo(iconSize * 0.35, 0);
+          ctx.lineTo(iconSize * 0.8, -iconSize * 0.45);
+          ctx.lineTo(iconSize, iconSize * 0.4);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = '#ff1744';
+          [-iconSize * 0.75, 0, iconSize * 0.75].forEach(jx => {
+            ctx.beginPath();
+            ctx.arc(jx, -iconSize * 0.45, 4, 0, Math.PI * 2);
+            ctx.fill();
+          });
+
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#b8860b';
+          ctx.fillRect(-iconSize, iconSize * 0.35, iconSize * 2, iconSize * 0.45);
+          ctx.fillStyle = '#fff';
+          ctx.font = '900 15px Cinzel, serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('WILD', 0, iconSize * 0.7);
+          break;
+        }
+
+        case 'SCATTER': {
+          ctx.shadowColor = '#00f0ff';
+          ctx.shadowBlur = 25;
+          ctx.fillStyle = '#00f0ff';
+          ctx.beginPath();
+          ctx.moveTo(0, -iconSize * 0.85);
+          ctx.lineTo(iconSize * 0.9, -iconSize * 0.1);
+          ctx.lineTo(0, iconSize * 0.9);
+          ctx.lineTo(-iconSize * 0.9, -iconSize * 0.1);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '900 11px Montserrat, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('FREE SPINS', 0, iconSize * 0.4);
+          break;
+        }
+
+        case 'BONUS': {
+          ctx.shadowColor = '#ff3b00';
+          ctx.shadowBlur = 24;
+          ctx.beginPath();
+          ctx.arc(0, 0, iconSize * 0.82, 0, Math.PI * 2);
+          ctx.fillStyle = '#d4af37';
+          ctx.fill();
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = '#fff';
+          ctx.stroke();
+
+          for (let a = 0; a < 6; a++) {
+            const ang = (a * Math.PI) / 3;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(ang) * iconSize * 0.82, Math.sin(ang) * iconSize * 0.82);
+            ctx.strokeStyle = '#7c0000';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+          }
+
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#000';
+          ctx.beginPath();
+          ctx.arc(0, 0, iconSize * 0.38, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#ffea00';
+          ctx.font = '900 10px Montserrat, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('WHEEL', 0, 3);
+          break;
+        }
+
+        case 'SEVEN': {
+          ctx.shadowColor = '#ff2200';
+          ctx.shadowBlur = 22;
+          ctx.fillStyle = '#ff2200';
+          ctx.font = '900 70px Cinzel, serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('7', 0, -2);
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = '#fff2a3';
+          ctx.strokeText('7', 0, -2);
+          break;
+        }
+
+        case 'BAR': {
+          ctx.fillStyle = '#eab308';
+          ctx.shadowColor = '#eab308';
+          ctx.shadowBlur = 14;
+          [-iconSize * 0.5, 0, iconSize * 0.5].forEach(by => {
+            ctx.fillRect(-iconSize * 0.9, by - 6, iconSize * 1.8, 12);
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(-iconSize * 0.9, by - 6, iconSize * 1.8, 12);
+            ctx.fillStyle = '#451a03';
+            ctx.font = '900 9px Montserrat, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('BAR', 0, by + 3);
+            ctx.fillStyle = '#eab308';
+          });
+          break;
+        }
+
+        case 'BELL': {
+          ctx.shadowColor = '#fbbf24';
+          ctx.shadowBlur = 16;
+          ctx.fillStyle = '#fbbf24';
+          ctx.beginPath();
+          ctx.arc(0, -iconSize * 0.3, iconSize * 0.45, Math.PI, 0);
+          ctx.lineTo(iconSize * 0.7, iconSize * 0.4);
+          ctx.lineTo(-iconSize * 0.7, iconSize * 0.4);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(0, iconSize * 0.52, iconSize * 0.18, 0, Math.PI * 2);
+          ctx.fillStyle = '#b45309';
+          ctx.fill();
+          break;
+        }
+
+        case 'CHERRY': {
+          ctx.shadowColor = '#f43f5e';
+          ctx.shadowBlur = 14;
+          ctx.strokeStyle = '#15803d';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(-iconSize * 0.4, 0);
+          ctx.quadraticCurveTo(0, -iconSize * 0.7, 0, -iconSize * 0.7);
+          ctx.quadraticCurveTo(0, -iconSize * 0.7, iconSize * 0.4, iconSize * 0.2);
+          ctx.stroke();
+
+          ctx.fillStyle = '#e11d48';
+          ctx.beginPath();
+          ctx.arc(-iconSize * 0.4, iconSize * 0.2, iconSize * 0.38, 0, Math.PI * 2);
+          ctx.arc(iconSize * 0.4, iconSize * 0.35, iconSize * 0.38, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+
+        case 'HORSESHOE': {
+          ctx.shadowColor = '#34d399';
+          ctx.shadowBlur = 12;
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 9;
+          ctx.beginPath();
+          ctx.arc(0, 0, iconSize * 0.55, 0.2 * Math.PI, 0.8 * Math.PI, true);
+          ctx.stroke();
+          break;
+        }
+
+        default: {
+          ctx.shadowColor = '#c084fc';
+          ctx.shadowBlur = 12;
+          ctx.font = '900 54px Montserrat, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#f3e8ff';
+          ctx.fillText(symId[0], 0, 0);
+          ctx.lineWidth = 2.5;
+          ctx.strokeStyle = '#a855f7';
+          ctx.strokeText(symId[0], 0, 0);
+          break;
+        }
+      }
+      ctx.restore();
+    }
+    /**
+     * Start Spin Sequence with 80% Guaranteed Bonus Feature Injection
+     */
+    function startSpin() {
+      if (isSpinning) return;
+      if (balance < betOptions[betIndex] && freeSpinsLeft <= 0) {
+        showAnticipationToast("잔액이 부족합니다! 배팅금을 확인하세요.");
+        return;
+      }
+
+      sound.init();
+
+      // Deduct bet if not in Free Spins
+      if (freeSpinsLeft > 0) {
+        freeSpinsLeft--;
+        document.getElementById('freeSpinsRemaining').textContent = freeSpinsLeft;
+        if (freeSpinsLeft === 0) {
+          setTimeout(() => {
+            document.getElementById('freeSpinBanner').classList.add('hidden');
+          }, 1500);
+        }
+      } else {
+        balance -= betOptions[betIndex];
+        grandJackpot += betOptions[betIndex] * 0.02;
+        majorJackpot += betOptions[betIndex] * 0.01;
+        miniJackpot += betOptions[betIndex] * 0.005;
+        updateMeters();
+      }
+
+      isSpinning = true;
+      lastWin = 0;
+      winningLinesResult = [];
+      document.getElementById('winDisplay').textContent = '$0.00';
+      document.getElementById('anticipationBanner').classList.add('hidden');
+      updateButtonStates();
+
+      sound.playSpinStart();
+
+      // 80% ULTRA FEVER CHANCE EVALUATOR
+      const willTrigger80Fever = isFeverMode && (Math.random() < 0.80);
+      const feverFeatureType = Math.random() < 0.5 ? 'SCATTER' : 'BONUS';
+
+      // Pick 3 or 4 reels to land the feature symbol
+      const bonusReelIndices = [];
+      if (willTrigger80Fever) {
+        const count = Math.random() < 0.3 ? 4 : 3;
+        const availableCols = [0, 1, 2, 3, 4].sort(() => Math.random() - 0.5);
+        for (let i = 0; i < count; i++) {
+          bonusReelIndices.push(availableCols[i]);
+        }
+      }
+
+      const baseStopTime = isTurbo ? 300 : 750;
+      const staggerTime = isTurbo ? 160 : 320;
+      let scatterCounter = 0;
+
+      for (let r = 0; r < REEL_COUNT; r++) {
+        const reel = reels[r];
+        reel.state = 'SPINNING';
+        reel.speed = reel.maxSpeed * (isTurbo ? 1.4 : 1.0);
+        reel.isAnticipating = false;
+
+        const randStop = Math.floor(Math.random() * (reel.strip.length - 6));
+        reel.targetPos = randStop;
+
+        // Force Scatter or Bonus into view on chosen reels if 80% Fever hit!
+        if (bonusReelIndices.includes(r)) {
+          const rowPlacement = Math.floor(Math.random() * 3); // top, mid, or bot
+          reel.strip[randStop + rowPlacement] = feverFeatureType;
+          scatterCounter++;
+        }
+
+        let delay = baseStopTime + (r * staggerTime);
+
+        // Anticipation Tension on Reel 2+ if already 2 Scatters
+        if (r >= 2 && scatterCounter >= 2 && !isTurbo) {
+          delay += 1100;
+          reel.isAnticipating = true;
+        }
+
+        reel.stopDelay = delay;
+      }
+
+      if (scatterCounter >= 2 && !isTurbo) {
+        setTimeout(() => {
+          if (isSpinning) {
+            document.getElementById('anticipationBanner').classList.remove('hidden');
+          }
+        }, 700);
+      }
+
+      for (let r = 0; r < REEL_COUNT; r++) {
+        const reel = reels[r];
+        setTimeout(() => {
+          stopReel(reel);
+        }, reel.stopDelay);
+      }
+    }
+
+    function stopReel(reel) {
+      reel.state = 'STOPPING';
+    }
+
+    function onAllReelsStopped() {
+      isSpinning = false;
+      document.getElementById('anticipationBanner').classList.add('hidden');
+      updateButtonStates();
+
+      const grid = [];
+      for (let row = 0; row < ROW_COUNT; row++) {
+        grid[row] = [];
+        for (let col = 0; col < REEL_COUNT; col++) {
+          grid[row][col] = reels[col].visibleSymbols[row];
+        }
+      }
+
+      evaluateSpinResults(grid);
+    }
+    function evaluateSpinResults(grid) {
+      let totalSpinWin = 0;
+      const currentBet = betOptions[betIndex];
+      const lineBet = currentBet / PAYLINES.length;
+      winningLinesResult = [];
+
+      // 1. Evaluate Line Multipliers
+      PAYLINES.forEach((lineCoords, lineIdx) => {
+        const firstSym = grid[lineCoords[0]][0];
+        let matchSym = firstSym;
+        let matchCount = 1;
+        let winningPositions = [{ row: lineCoords[0], col: 0 }];
+
+        for (let col = 1; col < REEL_COUNT; col++) {
+          const row = lineCoords[col];
+          const curSym = grid[row][col];
+
+          if (matchSym === 'WILD' && curSym !== 'SCATTER' && curSym !== 'BONUS') {
+            matchSym = curSym;
+          }
+
+          if (curSym === matchSym || (curSym === 'WILD' && matchSym !== 'SCATTER' && matchSym !== 'BONUS')) {
+            matchCount++;
+            winningPositions.push({ row, col });
+          } else {
+            break;
+          }
+        }
+
+        if (matchCount >= 3 && matchSym !== 'SCATTER' && matchSym !== 'BONUS') {
+          const symData = SYMBOLS[matchSym];
+          let multiplier = (matchCount === 5) ? symData.pay5 : (matchCount === 4 ? symData.pay4 : symData.pay3);
+
+          // Apply Free Spins exploding multiplier (5x up to 100x!)
+          const activeMultiplier = (freeSpinsLeft > 0) ? freeSpinMultiplier : 1;
+          const linePayout = lineBet * (multiplier / 10) * activeMultiplier;
+          totalSpinWin += linePayout;
+
+          winningLinesResult.push({
+            lineIndex: lineIdx,
+            color: PAYLINE_COLORS[lineIdx % PAYLINE_COLORS.length],
+            payout: linePayout,
+            positions: winningPositions
           });
         }
-      }
-      return deck;
-    }
+      });
 
-    // Fisher-Yates Shuffle
-    function shuffle(deck) {
-      for (let i = deck.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
-      }
-      return deck;
-    }
+      // 2. Count Scatters & Wheel Bonuses
+      let scatterCount = 0;
+      let bonusCount = 0;
 
-    // Generate combinations nCr
-    function getCombinations(arr, k) {
-      const results = [];
-      function backtrack(start, comb) {
-        if (comb.length === k) {
-          results.push([...comb]);
-          return;
-        }
-        for (let i = start; i < arr.length; i++) {
-          comb.push(arr[i]);
-          backtrack(i + 1, comb);
-          comb.pop();
-        }
-      }
-      backtrack(0, []);
-      return results;
-    }
-
-    /**
-     * Exact 5-Card Hand Evaluation
-     * Rank hierarchy:
-     * 9: Royal / Straight Flush
-     * 8: Four of a Kind
-     * 7: Full House
-     * 6: Flush
-     * 5: Straight
-     * 4: Three of a Kind
-     * 3: Two Pair
-     * 2: One Pair
-     * 1: High Card
-     */
-    function evaluate5Cards(cards) {
-      // Sort descending by rank
-      const sorted = [...cards].sort((a, b) => b.rank - a.rank);
-      const ranks = sorted.map(c => c.rank);
-      const suits = sorted.map(c => c.suit);
-
-      const isFlush = suits.every(s => s === suits[0]);
-
-      // Straight check (including Ace low: A-2-3-4-5)
-      let isStraight = false;
-      let straightHigh = 0;
-
-      const uniqueRanks = [...new Set(ranks)];
-      if (uniqueRanks.length === 5) {
-        if (uniqueRanks[0] - uniqueRanks[4] === 4) {
-          isStraight = true;
-          straightHigh = uniqueRanks[0];
-        } else if (
-          uniqueRanks[0] === 14 &&
-          uniqueRanks[1] === 5 &&
-          uniqueRanks[2] === 4 &&
-          uniqueRanks[3] === 3 &&
-          uniqueRanks[4] === 2
-        ) {
-          // Wheel (A-2-3-4-5), 5 is high
-          isStraight = true;
-          straightHigh = 5;
+      for (let c = 0; c < REEL_COUNT; c++) {
+        for (let r = 0; r < ROW_COUNT; r++) {
+          if (grid[r][c] === 'SCATTER') scatterCount++;
+          if (grid[r][c] === 'BONUS') bonusCount++;
         }
       }
 
-      // Rank counts
-      const counts = {};
-      ranks.forEach(r => { counts[r] = (counts[r] || 0) + 1; });
-      const countEntries = Object.entries(counts).map(([r, count]) => ({ rank: Number(r), count }));
-      // Sort counts descending by frequency, then by rank
-      countEntries.sort((a, b) => b.count - a.count || b.rank - a.rank);
-
-      // 1. Straight Flush / Royal Flush
-      if (isFlush && isStraight) {
-        return {
-          category: 9,
-          name: straightHigh === 14 ? '로열 플러시 (Royal Flush)' : '스트레이트 플러시 (Straight Flush)',
-          score: [9, straightHigh],
-          bestCards: sorted
-        };
+      // Feature 1: Scatter Free Spins (10 Spins with Exploding Multiplier!)
+      if (scatterCount >= 3) {
+        sound.playScatterLand();
+        freeSpinsLeft += 10;
+        freeSpinMultiplier = 5; // Reset to 5x
+        document.getElementById('freeSpinsRemaining').textContent = freeSpinsLeft;
+        document.getElementById('freeSpinMultiplierTag').textContent = `${freeSpinMultiplier}X`;
+        document.getElementById('freeSpinBanner').classList.remove('hidden');
+        showAnticipationToast(`🔥 10 ULTRA FREE SPINS ACTIVATED! (STARTS AT 5X) 🔥`);
+        triggerScreenShake();
       }
 
-      // 2. Four of a Kind
-      if (countEntries[0].count === 4) {
-        return {
-          category: 8,
-          name: `포카드 (${RANK_LABELS[countEntries[0].rank]}s Four of a Kind)`,
-          score: [8, countEntries[0].rank, countEntries[1].rank],
-          bestCards: sorted
-        };
-      }
-
-      // 3. Full House
-      if (countEntries[0].count === 3 && countEntries[1].count === 2) {
-        return {
-          category: 7,
-          name: `풀하우스 (${RANK_LABELS[countEntries[0].rank]}s full of ${RANK_LABELS[countEntries[1].rank]}s)`,
-          score: [7, countEntries[0].rank, countEntries[1].rank],
-          bestCards: sorted
-        };
-      }
-
-      // 4. Flush
-      if (isFlush) {
-        return {
-          category: 6,
-          name: `플러시 (${RANK_LABELS[ranks[0]]} 하이 Flush)`,
-          score: [6, ...ranks],
-          bestCards: sorted
-        };
-      }
-
-      // 5. Straight
-      if (isStraight) {
-        return {
-          category: 5,
-          name: `스트레이트 (${RANK_LABELS[straightHigh]} 하이 Straight)`,
-          score: [5, straightHigh],
-          bestCards: sorted
-        };
-      }
-
-      // 6. Three of a Kind
-      if (countEntries[0].count === 3) {
-        return {
-          category: 4,
-          name: `트리플 (${RANK_LABELS[countEntries[0].rank]}s Three of a Kind)`,
-          score: [4, countEntries[0].rank, countEntries[1].rank, countEntries[2].rank],
-          bestCards: sorted
-        };
-      }
-
-      // 7. Two Pair
-      if (countEntries[0].count === 2 && countEntries[1].count === 2) {
-        return {
-          category: 3,
-          name: `투페어 (${RANK_LABELS[countEntries[0].rank]} & ${RANK_LABELS[countEntries[1].rank]})`,
-          score: [3, countEntries[0].rank, countEntries[1].rank, countEntries[2].rank],
-          bestCards: sorted
-        };
-      }
-
-      // 8. One Pair
-      if (countEntries[0].count === 2) {
-        return {
-          category: 2,
-          name: `원페어 (${RANK_LABELS[countEntries[0].rank]}s Pair)`,
-          score: [2, countEntries[0].rank, countEntries[1].rank, countEntries[2].rank, countEntries[3].rank],
-          bestCards: sorted
-        };
-      }
-
-      // 9. High Card
-      return {
-        category: 1,
-        name: `하이 카드 (${RANK_LABELS[ranks[0]]} High)`,
-        score: [1, ...ranks],
-        bestCards: sorted
-      };
-    }
-
-    // Compare two evaluation scores lexicographically: 1 (A wins), -1 (B wins), 0 (tie)
-    function compareHandScores(scoreA, scoreB) {
-      for (let i = 0; i < Math.max(scoreA.length, scoreB.length); i++) {
-        const valA = scoreA[i] || 0;
-        const valB = scoreB[i] || 0;
-        if (valA > valB) return 1;
-        if (valA < valB) return -1;
-      }
-      return 0;
-    }
-
-    // Evaluate best 5-card hand out of up to 7 cards
-    function evaluateBestHand(availableCards) {
-      if (!availableCards || availableCards.length < 5) {
-        if (!availableCards || availableCards.length === 0) return { name: '카드 없음', score: [0], bestCards: [] };
-        if (availableCards.length === 2) {
-          if (availableCards[0].rank === availableCards[1].rank) {
-            return { name: `원페어 (${RANK_LABELS[availableCards[0].rank]}s)`, score: [2, availableCards[0].rank], bestCards: availableCards };
-          }
-          const high = Math.max(availableCards[0].rank, availableCards[1].rank);
-          return { name: `하이 카드 (${RANK_LABELS[high]} High)`, score: [1, high], bestCards: availableCards };
-        }
-        return { name: '진행 중...', score: [1, 0], bestCards: availableCards };
-      }
-
-      const combinations = getCombinations(availableCards, 5);
-      let bestResult = null;
-
-      for (const comb of combinations) {
-        const res = evaluate5Cards(comb);
-        if (!bestResult || compareHandScores(res.score, bestResult.score) > 0) {
-          bestResult = res;
-        }
-      }
-      return bestResult;
-    }
-
-    /**
-     * Texas Hold'em Game State Machine
-     */
-    const SB_AMOUNT = 10;
-    const BB_AMOUNT = 20;
-
-    let deck = [];
-    let playerHole = [];
-    let dealerHole = [];
-    let communityCards = [];
-
-    let playerStack = 1000;
-    let dealerStack = 1000;
-    let pot = 0;
-
-    let playerCurrentBet = 0;
-    let dealerCurrentBet = 0;
-    let currentHighBet = 0;
-    let minRaise = BB_AMOUNT;
-
-    // Heads-Up Dealer button: 0: Dealer (AI) has Button, 1: Player has Button
-    let dealerButtonPos = 0; 
-    let activeTurn = 'PLAYER'; // 'PLAYER' or 'DEALER' or 'LOCKED'
-    let currentStage = 'PREFLOP'; // 'PREFLOP', 'FLOP', 'TURN', 'RIVER', 'SHOWDOWN', 'HAND_OVER'
-    let actionsThisStreet = 0;
-    let bothAllIn = false;
-
-    // HTML Elements References
-    const elMainPot = document.getElementById('mainPotDisplay');
-    const elPlayerStack = document.getElementById('playerStackDisplay');
-    const elDealerStack = document.getElementById('dealerStackDisplay');
-    const elPlayerBetBox = document.getElementById('playerBetBox');
-    const elDealerBetBox = document.getElementById('dealerBetBox');
-    const elPlayerBetAmount = document.getElementById('playerBetAmount');
-    const elDealerBetAmount = document.getElementById('dealerBetAmount');
-    const elStageBadge = document.getElementById('stageBadge');
-    const elHandStrength = document.getElementById('handStrengthHelper');
-    const elDealerBubble = document.getElementById('dealerBubble');
-    const elDealerButtonBadge = document.getElementById('dealerButtonBadge');
-    const elPlayerButtonBadge = document.getElementById('playerButtonBadge');
-
-    const elBtnFold = document.getElementById('btnFold');
-    const elBtnCheckCall = document.getElementById('btnCheckCall');
-    const elBtnBetRaise = document.getElementById('btnBetRaise');
-    const elCheckCallLabel = document.getElementById('checkCallLabel');
-    const elBetRaiseLabel = document.getElementById('betRaiseLabel');
-    const elBetSlider = document.getElementById('betSlider');
-    const elSliderBetDisplay = document.getElementById('sliderBetDisplay');
-    const elRoundNavRow = document.getElementById('roundNavRow');
-    const elActionButtonsRow = document.getElementById('actionButtonsRow');
-    const elBetSizingControls = document.getElementById('betSizingControls');
-    const elBtnNextHand = document.getElementById('btnNextHand');
-    const elLogContent = document.getElementById('logContent');
-
-    // Showdown Banner
-    const elShowdownBanner = document.getElementById('showdownBanner');
-    const elBannerTitle = document.getElementById('bannerTitle');
-    const elBannerHandName = document.getElementById('bannerHandName');
-    const elBannerPotSummary = document.getElementById('bannerPotSummary');
-    const elBannerIcon = document.getElementById('bannerIcon');
-
-    function appendLog(msg, type = 'normal') {
-      const p = document.createElement('p');
-      if (type === 'highlight') {
-        p.className = 'text-amber-300 font-bold';
-      } else if (type === 'dealer') {
-        p.className = 'text-red-300';
-      } else if (type === 'player') {
-        p.className = 'text-emerald-300';
-      } else {
-        p.className = 'text-slate-300';
-      }
-      p.innerHTML = `• ${msg}`;
-      elLogContent.appendChild(p);
-      elLogContent.scrollTop = elLogContent.scrollHeight;
-    }
-
-    function showDealerBubble(text, duration = 1800) {
-      elDealerBubble.textContent = text;
-      elDealerBubble.style.opacity = '1';
-      elDealerBubble.style.transform = 'scale(1)';
-      setTimeout(() => {
-        elDealerBubble.style.opacity = '0';
-        elDealerBubble.style.transform = 'scale(0.95)';
-      }, duration);
-    }
-
-    function renderCard(cardEl, card, isFaceUp = true) {
-      const inner = cardEl.querySelector('.card-inner');
-      const front = cardEl.querySelector('.card-front');
-
-      if (!card || !isFaceUp) {
-        inner.classList.add('flipped');
-        return;
-      }
-
-      front.innerHTML = `
-        <div class="flex items-center justify-between text-xs font-bold ${card.color} leading-none">
-          <span>${card.label}</span>
-          <span>${card.suit}</span>
-        </div>
-        <div class="flex items-center justify-center text-xl sm:text-2xl ${card.color}">
-          ${card.suit}
-        </div>
-        <div class="flex items-center justify-between text-xs font-bold ${card.color} leading-none transform rotate-180">
-          <span>${card.label}</span>
-          <span>${card.suit}</span>
-        </div>
-      `;
-      inner.classList.remove('flipped');
-    }
-
-    function updateTableDisplay() {
-      elMainPot.textContent = `$${pot}`;
-      elPlayerStack.textContent = `$${playerStack}`;
-      elDealerStack.textContent = `$${dealerStack}`;
-
-      // Bet chips
-      if (playerCurrentBet > 0) {
-        elPlayerBetBox.style.opacity = '1';
-        elPlayerBetBox.style.transform = 'translateY(0)';
-        elPlayerBetAmount.textContent = `$${playerCurrentBet}`;
-      } else {
-        elPlayerBetBox.style.opacity = '0';
-        elPlayerBetBox.style.transform = 'translateY(-4px)';
-      }
-
-      if (dealerCurrentBet > 0) {
-        elDealerBetBox.style.opacity = '1';
-        elDealerBetBox.style.transform = 'translateY(0)';
-        elDealerBetAmount.textContent = `$${dealerCurrentBet}`;
-      } else {
-        elDealerBetBox.style.opacity = '0';
-        elDealerBetBox.style.transform = 'translateY(4px)';
-      }
-
-      // Dealer Button indicator
-      if (dealerButtonPos === 0) {
-        elDealerButtonBadge.classList.remove('hidden');
-        elPlayerButtonBadge.classList.add('hidden');
-      } else {
-        elDealerButtonBadge.classList.add('hidden');
-        elPlayerButtonBadge.classList.remove('hidden');
-      }
-
-      // Stage badge
-      elStageBadge.textContent = currentStage.replace('_', ' ');
-
-      // Player Live Hand Strength
-      if (playerHole.length === 2) {
-        const available = [...playerHole, ...communityCards];
-        const evalRes = evaluateBestHand(available);
-        elHandStrength.textContent = `현재 족보: ${evalRes.name}`;
-      } else {
-        elHandStrength.textContent = '카드 대기 중...';
-      }
-
-      updateActionButtonsUI();
-    }
-
-    function updateActionButtonsUI() {
-      if (currentStage === 'SHOWDOWN' || currentStage === 'HAND_OVER' || activeTurn !== 'PLAYER') {
-        elBtnFold.disabled = true;
-        elBtnCheckCall.disabled = true;
-        elBtnBetRaise.disabled = true;
-        return;
-      }
-
-      elBtnFold.disabled = false;
-      elBtnCheckCall.disabled = false;
-      elBtnBetRaise.disabled = false;
-
-      const callCost = currentHighBet - playerCurrentBet;
-
-      // Check vs Call
-      if (callCost <= 0) {
-        elCheckCallLabel.textContent = '체크 (CHECK)';
-      } else {
-        const actualCall = Math.min(callCost, playerStack);
-        elCheckCallLabel.textContent = `콜 (CALL $${actualCall})`;
-      }
-
-      // Bet vs Raise slider bounds
-      const minValidRaise = currentHighBet + Math.max(minRaise, BB_AMOUNT);
-      const minTarget = Math.max(minValidRaise, currentHighBet + BB_AMOUNT);
-      const maxTarget = playerCurrentBet + playerStack;
-
-      if (maxTarget <= currentHighBet) {
-        // Only All-in left
-        elBetRaiseLabel.textContent = `올인 ($${playerStack})`;
-        elBetSlider.min = maxTarget;
-        elBetSlider.max = maxTarget;
-        elBetSlider.value = maxTarget;
-        elSliderBetDisplay.textContent = `$${maxTarget}`;
-      } else {
-        const actualMin = Math.min(minTarget, maxTarget);
-        elBetSlider.min = actualMin;
-        elBetSlider.max = maxTarget;
-        if (parseInt(elBetSlider.value, 10) < actualMin || parseInt(elBetSlider.value, 10) > maxTarget) {
-          elBetSlider.value = actualMin;
-        }
-        elSliderBetDisplay.textContent = `$${elBetSlider.value}`;
-
-        if (currentHighBet === 0) {
-          elBetRaiseLabel.textContent = `베팅 ($${elBetSlider.value})`;
-        } else {
-          elBetRaiseLabel.textContent = `레이즈 ($${elBetSlider.value})`;
-        }
-      }
-    }
-
-    /**
-     * AI Heads-Up Poker Engine
-     * Evaluates hand potential, pot odds, position, and draws to simulate realistic decision-making.
-     */
-    function runAIDecision() {
-      if (activeTurn !== 'DEALER') return;
-      activeTurn = 'LOCKED';
-      showDealerBubble("생각 중...", 1000);
-
-      // Thinking delay: 800ms - 1300ms
-      const delay = 800 + Math.random() * 500;
-      setTimeout(() => {
-        executeAIAction();
-      }, delay);
-    }
-
-    function executeAIAction() {
-      const callCost = currentHighBet - dealerCurrentBet;
-      const availableCards = [...dealerHole, ...communityCards];
-      const evalRes = evaluateBestHand(availableCards);
-      const handCat = evalRes.category; // 1 to 9
-
-      // Calculate Pot Odds
-      const potOdds = callCost / (pot + callCost || 1);
-
-      // Sklansky preflop strength evaluation (when community cards = 0)
-      let preflopScore = 0;
-      if (communityCards.length === 0 && dealerHole.length === 2) {
-        const r1 = Math.max(dealerHole[0].rank, dealerHole[1].rank);
-        const r2 = Math.min(dealerHole[0].rank, dealerHole[1].rank);
-        const isSuited = dealerHole[0].suit === dealerHole[1].suit;
-
-        if (r1 === r2) {
-          // Pocket pairs: 22=7, AA=16
-          preflopScore = 7 + (r1 - 2) * 0.75;
-        } else {
-          preflopScore = (r1 + r2 * 0.5) * 0.6 + (isSuited ? 2 : 0);
-        }
-      }
-
-      // Check if Dealer can just check for free
-      if (callCost === 0) {
-        // Free to check or bet
-        let shouldBet = false;
-        let betSize = BB_AMOUNT;
-
-        if (communityCards.length === 0) {
-          // Preflop: Raise with strong hands or button advantage
-          if (preflopScore > 11 || (dealerButtonPos === 0 && Math.random() < 0.4)) {
-            shouldBet = true;
-            betSize = BB_AMOUNT * 2;
-          }
-        } else {
-          // Postflop: Made hand (pair or better) or semi-bluff
-          if (handCat >= 3) {
-            // Two pair or better: aggressive
-            shouldBet = true;
-            betSize = Math.floor(pot * 0.6);
-          } else if (handCat === 2 && Math.random() < 0.65) {
-            // Pair: bet 65% of time
-            shouldBet = true;
-            betSize = Math.floor(pot * 0.5);
-          } else if (Math.random() < 0.15) {
-            // 15% pure bluff
-            shouldBet = true;
-            betSize = Math.floor(pot * 0.4);
-          }
-        }
-
-        if (shouldBet && dealerStack > BB_AMOUNT) {
-          betSize = Math.max(BB_AMOUNT, Math.min(betSize, dealerStack));
-          dealerBetOrRaise(betSize);
-        } else {
-          dealerCheck();
-        }
-        return;
-      }
-
-      // Facing a bet/raise (callCost > 0)
-      if (communityCards.length === 0) {
-        // Facing Preflop Raise
-        if (preflopScore < 7 && callCost > BB_AMOUNT * 2 && Math.random() < 0.75) {
-          dealerFold();
-        } else if (preflopScore > 13 && Math.random() < 0.5 && dealerStack > callCost * 2) {
-          // 3-Bet Re-raise
-          dealerBetOrRaise(currentHighBet + Math.max(minRaise, BB_AMOUNT * 2));
-        } else {
-          dealerCall(callCost);
-        }
-      } else {
-        // Facing Postflop Bet
-        if (handCat >= 4) {
-          // Trips, Straight, Flush or better -> Fast play or raise
-          if (Math.random() < 0.45 && dealerStack > callCost + BB_AMOUNT) {
-            const raiseTarget = currentHighBet + Math.max(minRaise, Math.floor(pot * 0.6));
-            dealerBetOrRaise(raiseTarget);
-          } else {
-            dealerCall(callCost);
-          }
-        } else if (handCat >= 2) {
-          // Pair or Two Pair -> Call unless bet is overwhelming
-          if (potOdds > 0.45 && handCat === 2 && Math.random() < 0.4) {
-            dealerFold();
-          } else {
-            dealerCall(callCost);
-          }
-        } else {
-          // High Card only -> Fold unless pot odds are very low or bluff call
-          if (callCost <= BB_AMOUNT && Math.random() < 0.35) {
-            dealerCall(callCost);
-          } else {
-            dealerFold();
-          }
-        }
-      }
-    }
-
-    function dealerCheck() {
-      sound.playCheckKnock();
-      showDealerBubble("체크 (Check) ✋");
-      appendLog("딜러가 <strong>체크</strong>했습니다.", 'dealer');
-      actionsThisStreet++;
-      advanceBettingTurn();
-    }
-
-    function dealerCall(amount) {
-      const actualCall = Math.min(amount, dealerStack);
-      dealerStack -= actualCall;
-      dealerCurrentBet += actualCall;
-      pot += actualCall;
-
-      sound.playChipClink();
-      if (dealerStack === 0) {
-        showDealerBubble(`올인 콜! ($${actualCall}) 🔥`);
-        appendLog(`딜러가 <strong>$${actualCall} 올인 콜</strong>했습니다!`, 'dealer');
-      } else {
-        showDealerBubble(`콜 ($${actualCall}) 💰`);
-        appendLog(`딜러가 <strong>$${actualCall} 콜</strong>했습니다.`, 'dealer');
-      }
-
-      actionsThisStreet++;
-      updateTableDisplay();
-      advanceBettingTurn();
-    }
-
-    function dealerBetOrRaise(targetTotal) {
-      const needed = Math.min(targetTotal - dealerCurrentBet, dealerStack);
-      const actualTotal = dealerCurrentBet + needed;
-
-      dealerStack -= needed;
-      dealerCurrentBet = actualTotal;
-      pot += needed;
-
-      const raiseDiff = actualTotal - currentHighBet;
-      if (raiseDiff > minRaise) minRaise = raiseDiff;
-      currentHighBet = actualTotal;
-
-      sound.playChipClink();
-      if (dealerStack === 0) {
-        sound.playAllIn();
-        showDealerBubble(`올인! ($${actualTotal}) 💥`);
-        appendLog(`딜러가 <strong>$${actualTotal} 올인</strong>을 선언했습니다!`, 'dealer');
-      } else {
-        showDealerBubble(`레이즈 $${actualTotal} 📈`);
-        appendLog(`딜러가 <strong>$${actualTotal}</strong>로 레이즈했습니다.`, 'dealer');
-      }
-
-      actionsThisStreet++;
-      updateTableDisplay();
-      activeTurn = 'PLAYER';
-      updateActionButtonsUI();
-    }
-
-    function dealerFold() {
-      sound.playFold();
-      showDealerBubble("폴드... (Fold) 🏳️");
-      appendLog("딜러가 <strong>폴드</strong>했습니다. 플레이어 승리!", 'highlight');
-      handleFoldWin('PLAYER');
-    }
-
-    /**
-     * Heads-Up Game Flow & Street Progression
-     * In Heads-Up:
-     * - Pre-flop: Dealer Button pays SB and acts FIRST. Non-Dealer pays BB and acts SECOND.
-     * - Post-flop (Flop, Turn, River): Non-Dealer acts FIRST, Dealer Button acts SECOND.
-     */
-    function startNewHand() {
-      // Check bankruptcies
-      if (playerStack <= 0 || dealerStack <= 0) {
-        appendLog("칩이 모두 소진되었습니다. '리바이' 버튼으로 칩을 충전하세요.", 'highlight');
-        return;
-      }
-
-      // Alternate Dealer Button
-      dealerButtonPos = (dealerButtonPos === 0) ? 1 : 0;
-
-      // Reset state
-      deck = shuffle(createDeck());
-      playerHole = [deck.pop(), deck.pop()];
-      dealerHole = [deck.pop(), deck.pop()];
-      communityCards = [];
-
-      pot = 0;
-      playerCurrentBet = 0;
-      dealerCurrentBet = 0;
-      currentHighBet = 0;
-      minRaise = BB_AMOUNT;
-      actionsThisStreet = 0;
-      bothAllIn = false;
-      currentStage = 'PREFLOP';
-
-      // Clear card highlights
-      document.querySelectorAll('.card-container').forEach(c => c.classList.remove('card-highlight'));
-
-      // Hide next hand row, show action buttons
-      elRoundNavRow.classList.add('hidden');
-      elActionButtonsRow.classList.remove('hidden');
-      elBetSizingControls.classList.remove('hidden');
-
-      // Deal Sound
-      sound.playCardDeal();
-
-      // Blinds Posting
-      if (dealerButtonPos === 1) {
-        // Player has Button (SB), Dealer is BB
-        const pSB = Math.min(SB_AMOUNT, playerStack);
-        playerStack -= pSB;
-        playerCurrentBet = pSB;
-        pot += pSB;
-
-        const dBB = Math.min(BB_AMOUNT, dealerStack);
-        dealerStack -= dBB;
-        dealerCurrentBet = dBB;
-        pot += dBB;
-
-        currentHighBet = BB_AMOUNT;
-        appendLog(`새 핸드 시작! 플레이어(SB $${pSB}) / 딜러(BB $${dBB})`, 'highlight');
-
-        // Preflop action starts with Small Blind (Player)
-        activeTurn = 'PLAYER';
-      } else {
-        // Dealer has Button (SB), Player is BB
-        const dSB = Math.min(SB_AMOUNT, dealerStack);
-        dealerStack -= dSB;
-        dealerCurrentBet = dSB;
-        pot += dSB;
-
-        const pBB = Math.min(BB_AMOUNT, playerStack);
-        playerStack -= pBB;
-        playerCurrentBet = pBB;
-        pot += pBB;
-
-        currentHighBet = BB_AMOUNT;
-        appendLog(`새 핸드 시작! 딜러(SB $${dSB}) / 플레이어(BB $${pBB})`, 'highlight');
-
-        // Preflop action starts with Small Blind (Dealer)
-        activeTurn = 'DEALER';
-      }
-
-      // Render Player Cards Face Up, Dealer Face Down
-      renderCard(document.getElementById('playerCard0'), playerHole[0], true);
-      renderCard(document.getElementById('playerCard1'), playerHole[1], true);
-      renderCard(document.getElementById('dealerCard0'), dealerHole[0], false);
-      renderCard(document.getElementById('dealerCard1'), dealerHole[1], false);
-
-      for (let i = 0; i < 5; i++) {
-        renderCard(document.getElementById(`communityCard${i}`), null, false);
-      }
-
-      updateTableDisplay();
-
-      if (activeTurn === 'DEALER') {
-        runAIDecision();
-      }
-    }
-
-    function advanceBettingTurn() {
-      // Check if both are All-In
-      if (playerStack === 0 && dealerStack === 0) {
-        bothAllIn = true;
-      }
-
-      // Check if street betting round is complete:
-      // Both have acted at least once AND bets are matched, OR someone is all-in with bets matched
-      const betsMatched = (playerCurrentBet === dealerCurrentBet) ||
-                          (playerStack === 0 && playerCurrentBet <= dealerCurrentBet) ||
-                          (dealerStack === 0 && dealerCurrentBet <= playerCurrentBet);
-
-      if (actionsThisStreet >= 2 && betsMatched) {
-        // Street finished -> Move to next street
-        endCurrentStreet();
-      } else {
-        // Switch turn between Player and Dealer
-        if (activeTurn === 'PLAYER') {
-          activeTurn = 'DEALER';
-          updateTableDisplay();
-          runAIDecision();
-        } else {
-          activeTurn = 'PLAYER';
-          updateTableDisplay();
-        }
-      }
-    }
-
-    function endCurrentStreet() {
-      // Reset street bets
-      playerCurrentBet = 0;
-      dealerCurrentBet = 0;
-      currentHighBet = 0;
-      actionsThisStreet = 0;
-      minRaise = BB_AMOUNT;
-
-      if (currentStage === 'PREFLOP') {
-        currentStage = 'FLOP';
-        dealFlop();
-      } else if (currentStage === 'FLOP') {
-        currentStage = 'TURN';
-        dealTurn();
-      } else if (currentStage === 'TURN') {
-        currentStage = 'RIVER';
-        dealRiver();
-      } else if (currentStage === 'RIVER') {
-        currentStage = 'SHOWDOWN';
-        startShowdown();
-        return;
-      }
-
-      updateTableDisplay();
-
-      // Check if players are all-in (auto run-out)
-      if (playerStack === 0 || dealerStack === 0) {
+      // Feature 2: Jackpot Wheel Bonus (Up to 5,000x!)
+      if (bonusCount >= 3) {
+        sound.playBonusLand();
+        triggerScreenShake();
         setTimeout(() => {
-          endCurrentStreet();
+          openWheelBonusModal();
         }, 1200);
-        return;
       }
 
-      // In Heads-up postflop, Non-Dealer (BB) acts first!
-      if (dealerButtonPos === 1) {
-        // Player is Button -> Dealer acts first
-        activeTurn = 'DEALER';
-        runAIDecision();
-      } else {
-        // Dealer is Button -> Player acts first
-        activeTurn = 'PLAYER';
-        updateTableDisplay();
-      }
-    }
+      // 3. Process Win Payout & Progressive Multipliers
+      if (totalSpinWin > 0) {
+        lastWin = totalSpinWin;
+        balance += totalSpinWin;
+        animateWinRollup(totalSpinWin);
 
-    function dealFlop() {
-      sound.playCardDeal();
-      deck.pop(); // Burn card
-      communityCards.push(deck.pop(), deck.pop(), deck.pop());
-      renderCard(document.getElementById('communityCard0'), communityCards[0], true);
-      renderCard(document.getElementById('communityCard1'), communityCards[1], true);
-      renderCard(document.getElementById('communityCard2'), communityCards[2], true);
-      appendLog(`[FLOP] 세 장의 카드가 오픈되었습니다: ${communityCards.map(c=>c.label+c.suit).join(' ')}`);
-    }
+        // Increase Free Spins exploding multiplier by +5x on every winning hit!
+        if (freeSpinsLeft > 0) {
+          freeSpinMultiplier = Math.min(100, freeSpinMultiplier + 5);
+          document.getElementById('freeSpinMultiplierTag').textContent = `${freeSpinMultiplier}X`;
+        }
 
-    function dealTurn() {
-      sound.playCardDeal();
-      deck.pop(); // Burn card
-      communityCards.push(deck.pop());
-      renderCard(document.getElementById('communityCard3'), communityCards[3], true);
-      appendLog(`[TURN] 턴 카드가 오픈되었습니다: ${communityCards[3].label}${communityCards[3].suit}`);
-    }
-
-    function dealRiver() {
-      sound.playCardDeal();
-      deck.pop(); // Burn card
-      communityCards.push(deck.pop());
-      renderCard(document.getElementById('communityCard4'), communityCards[4], true);
-      appendLog(`[RIVER] 리버 카드가 오픈되었습니다: ${communityCards[4].label}${communityCards[4].suit}`);
-    }
-
-    /**
-     * Showdown & Winner Determination
-     */
-    function startShowdown() {
-      currentStage = 'SHOWDOWN';
-      activeTurn = 'LOCKED';
-      updateTableDisplay();
-
-      // Reveal Dealer Cards
-      renderCard(document.getElementById('dealerCard0'), dealerHole[0], true);
-      renderCard(document.getElementById('dealerCard1'), dealerHole[1], true);
-
-      const playerEval = evaluateBestHand([...playerHole, ...communityCards]);
-      const dealerEval = evaluateBestHand([...dealerHole, ...communityCards]);
-
-      appendLog(`[쇼다운] 플레이어: ${playerEval.name} vs 딜러: ${dealerEval.name}`, 'highlight');
-
-      const cmp = compareHandScores(playerEval.score, dealerEval.score);
-
-      setTimeout(() => {
-        if (cmp > 0) {
-          // Player Wins
-          playerStack += pot;
-          sound.playWin();
-          highlightWinningCards(playerEval.bestCards);
-          showShowdownBanner('🏆 승리 (YOU WIN!)', playerEval.name, `획득한 팟: +$${pot}`, '🎉');
-          appendLog(`플레이어 승리! (+$${pot})`, 'player');
-        } else if (cmp < 0) {
-          // Dealer Wins
-          dealerStack += pot;
-          sound.playFold();
-          highlightWinningCards(dealerEval.bestCards);
-          showShowdownBanner('💀 패배 (DEALER WINS)', dealerEval.name, `딜러가 팟을 가져갔습니다: -$${pot}`, '🤖');
-          appendLog(`딜러 승리! (-$${pot})`, 'dealer');
+        const winRatio = totalSpinWin / currentBet;
+        if (winRatio >= 15) {
+          triggerBigWinCelebration(totalSpinWin, winRatio);
+          triggerScreenShake();
         } else {
-          // Split Pot (Chop)
-          const half = Math.floor(pot / 2);
-          playerStack += half;
-          dealerStack += (pot - half);
-          showShowdownBanner('🤝 무승부 (SPLIT POT)', playerEval.name, `팟 분배: 각각 +$${half}`, '⚖️');
-          appendLog(`무승부! 팟을 나누었습니다 ($${half}씩)`, 'highlight');
+          sound.playCoinTick();
         }
-
-        pot = 0;
-        updateTableDisplay();
-        finishHand();
-      }, 1000);
-    }
-
-    function handleFoldWin(winner) {
-      currentStage = 'HAND_OVER';
-      activeTurn = 'LOCKED';
-
-      if (winner === 'PLAYER') {
-        playerStack += pot;
-        sound.playWin();
-        showShowdownBanner('🏆 승리 (YOU WIN!)', '상대방 폴드 (Opponent Folded)', `획득한 팟: +$${pot}`, '🎉');
       } else {
-        dealerStack += pot;
-        sound.playFold();
-        showShowdownBanner('🏳️ 폴드 (FOLDED)', '핸드를 포기했습니다', `손실: -$${pot}`, '🃏');
+        document.getElementById('winDisplay').textContent = '$0.00';
       }
 
-      pot = 0;
-      updateTableDisplay();
-      finishHand();
+      updateMeters();
+
+      // Auto Spin Handling
+      if (autoSpinCount > 0) {
+        if (autoSpinCount < 990) autoSpinCount--;
+        document.getElementById('autoCountLabel').textContent = (autoSpinCount >= 990) ? '∞ INFINITY' : `${autoSpinCount} LEFT`;
+        if (autoSpinCount > 0) {
+          setTimeout(() => {
+            if (!isSpinning && autoSpinCount > 0) startSpin();
+          }, isTurbo ? 500 : 1300);
+        } else {
+          stopAutoSpin();
+        }
+      }
+    }
+    let particles = [];
+
+    function spawnCoinShower(count = 140) {
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: VIRTUAL_W / 2 + (Math.random() - 0.5) * 260,
+          y: VIRTUAL_H + 20,
+          vx: (Math.random() - 0.5) * 18,
+          vy: -(Math.random() * 20 + 16),
+          gravity: 0.58,
+          size: Math.random() * 9 + 8,
+          rotation: Math.random() * Math.PI,
+          rotSpeed: (Math.random() - 0.5) * 0.3,
+          color: Math.random() > 0.35 ? '#ffd700' : '#ff3b00',
+          alpha: 1.0
+        });
+      }
     }
 
-    function highlightWinningCards(winning5) {
-      if (!winning5) return;
-      const winningIds = new Set(winning5.map(c => c.id));
-
-      // Check Player Hole
-      playerHole.forEach((c, idx) => {
-        if (winningIds.has(c.id)) {
-          document.getElementById(`playerCard${idx}`).classList.add('card-highlight');
-        }
-      });
-
-      // Check Dealer Hole
-      dealerHole.forEach((c, idx) => {
-        if (winningIds.has(c.id)) {
-          document.getElementById(`dealerCard${idx}`).classList.add('card-highlight');
-        }
-      });
-
-      // Check Community Board
-      communityCards.forEach((c, idx) => {
-        if (winningIds.has(c.id)) {
-          document.getElementById(`communityCard${idx}`).classList.add('card-highlight');
-        }
-      });
+    function triggerScreenShake() {
+      const main = document.getElementById('cabinetMain');
+      main.classList.remove('shake-active');
+      void main.offsetWidth;
+      main.classList.add('shake-active');
     }
 
-    function showShowdownBanner(title, handName, potInfo, icon) {
-      elBannerTitle.textContent = title;
-      elBannerHandName.textContent = handName;
-      elBannerPotSummary.textContent = potInfo;
-      elBannerIcon.textContent = icon;
+    function updateAndRenderParticles() {
+      partCtx.clearRect(0, 0, VIRTUAL_W, VIRTUAL_H);
 
-      elShowdownBanner.style.opacity = '1';
-      elShowdownBanner.style.transform = 'translate(-50%, -50%) scale(1)';
-      elShowdownBanner.style.pointerEvents = 'auto';
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.vy += p.gravity;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rotation += p.rotSpeed;
+
+        if (p.y > VIRTUAL_H + 50) {
+          particles.splice(i, 1);
+          continue;
+        }
+
+        partCtx.save();
+        partCtx.translate(p.x, p.y);
+        partCtx.rotate(p.rotation);
+
+        const squash = Math.abs(Math.sin(p.rotation * 2));
+        partCtx.fillStyle = p.color;
+        partCtx.beginPath();
+        partCtx.ellipse(0, 0, p.size, p.size * squash, 0, 0, Math.PI * 2);
+        partCtx.fill();
+        partCtx.strokeStyle = '#b8860b';
+        partCtx.lineWidth = 1.5;
+        partCtx.stroke();
+
+        partCtx.restore();
+      }
+    }
+
+    function triggerBigWinCelebration(amount, ratio) {
+      const overlay = document.getElementById('bigWinOverlay');
+      const title = document.getElementById('bigWinTitle');
+      const counter = document.getElementById('bigWinCounter');
+
+      if (ratio >= 50) title.textContent = "🔥 ULTRA FEVER JACKPOT! 🔥";
+      else if (ratio >= 25) title.textContent = "💥 MEGA FEVER WIN! 💥";
+      else title.textContent = "⭐ BIG FEVER WIN! ⭐";
+
+      counter.textContent = `$${amount.toFixed(2)}`;
+      overlay.classList.remove('hidden');
+      spawnCoinShower(180);
+      sound.playBigWinFanfare();
 
       setTimeout(() => {
-        elShowdownBanner.style.opacity = '0';
-        elShowdownBanner.style.transform = 'translate(-50%, -50%) scale(0.9)';
-        elShowdownBanner.style.pointerEvents = 'none';
+        overlay.classList.add('hidden');
       }, 3500);
     }
 
-    function finishHand() {
-      elActionButtonsRow.classList.add('hidden');
-      elBetSizingControls.classList.add('hidden');
-      elRoundNavRow.classList.remove('hidden');
+    function animateWinRollup(finalAmount) {
+      const display = document.getElementById('winDisplay');
+      let start = 0;
+      const duration = 1200;
+      const startTime = performance.now();
 
-      if (playerStack <= 0) {
-        showDealerBubble("올인되셨네요! 리바이 버튼으로 충전하세요! 💰", 3000);
-      } else if (dealerStack <= 0) {
-        showDealerBubble("훌륭한 실력이십니다! 제가 파산했네요! 👏", 3000);
+      function updateNumber(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(1.0, elapsed / duration);
+        const current = start + (finalAmount - start) * progress;
+        display.textContent = `$${current.toFixed(2)}`;
+
+        if (progress < 1.0) {
+          if (Math.random() < 0.3) sound.playCoinTick();
+          requestAnimationFrame(updateNumber);
+        } else {
+          display.textContent = `$${finalAmount.toFixed(2)}`;
+        }
+      }
+      requestAnimationFrame(updateNumber);
+    }
+    const wheelCanvas = document.getElementById('wheelCanvas');
+    const wheelCtx = wheelCanvas.getContext('2d');
+    let wheelAngle = 0;
+    let isWheelSpinning = false;
+
+    // Wheel segments featuring massive multipliers & Grand Jackpot!
+    const WHEEL_SEGMENTS = [
+      { label: '50X BET', multiplier: 50, color: '#ca8a04' },
+      { label: '100X BET', multiplier: 100, color: '#15803d' },
+      { label: 'MINI $1.2K', prizeType: 'MINI', color: '#b91c1c' },
+      { label: '250X BET', multiplier: 250, color: '#9333ea' },
+      { label: '500X BET', multiplier: 500, color: '#c2410c' },
+      { label: '5,000X GRAND', prizeType: 'GRAND', color: '#dc2626' },
+      { label: 'MAJOR $18K', prizeType: 'MAJOR', color: '#1d4ed8' },
+      { label: '1,000X BET', multiplier: 1000, color: '#eab308' }
+    ];
+
+    function drawWheel() {
+      const cx = wheelCanvas.width / 2;
+      const cy = wheelCanvas.height / 2;
+      const radius = cx - 10;
+      const segAngle = (Math.PI * 2) / WHEEL_SEGMENTS.length;
+
+      wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+      wheelCtx.save();
+      wheelCtx.translate(cx, cy);
+      wheelCtx.rotate(wheelAngle);
+
+      WHEEL_SEGMENTS.forEach((seg, i) => {
+        const startA = i * segAngle;
+        const endA = startA + segAngle;
+
+        wheelCtx.beginPath();
+        wheelCtx.moveTo(0, 0);
+        wheelCtx.arc(0, 0, radius, startA, endA);
+        wheelCtx.closePath();
+        wheelCtx.fillStyle = seg.color;
+        wheelCtx.fill();
+        wheelCtx.strokeStyle = '#ffd700';
+        wheelCtx.lineWidth = 2.5;
+        wheelCtx.stroke();
+
+        wheelCtx.save();
+        wheelCtx.rotate(startA + segAngle / 2);
+        wheelCtx.fillStyle = '#ffffff';
+        wheelCtx.font = 'bold 12px Montserrat, sans-serif';
+        wheelCtx.textAlign = 'right';
+        wheelCtx.fillText(seg.label, radius - 15, 4);
+        wheelCtx.restore();
+      });
+
+      wheelCtx.beginPath();
+      wheelCtx.arc(0, 0, 24, 0, Math.PI * 2);
+      wheelCtx.fillStyle = '#ffd700';
+      wheelCtx.fill();
+      wheelCtx.lineWidth = 3;
+      wheelCtx.strokeStyle = '#ffffff';
+      wheelCtx.stroke();
+
+      wheelCtx.restore();
+    }
+
+    function openWheelBonusModal() {
+      document.getElementById('wheelModal').classList.remove('hidden');
+      document.getElementById('wheelResultBox').classList.add('hidden');
+      document.getElementById('wheelSpinBtn').disabled = false;
+      wheelAngle = 0;
+      drawWheel();
+    }
+
+    document.getElementById('wheelSpinBtn').addEventListener('click', () => {
+      if (isWheelSpinning) return;
+      isWheelSpinning = true;
+      document.getElementById('wheelSpinBtn').disabled = true;
+
+      const targetIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
+      const segAngle = (Math.PI * 2) / WHEEL_SEGMENTS.length;
+      const targetRads = (Math.PI * 2 * 6) + (WHEEL_SEGMENTS.length - targetIndex) * segAngle - (segAngle / 2);
+
+      let currentRot = wheelAngle;
+      const duration = 4000;
+      const startT = performance.now();
+      let lastPegIndex = -1;
+
+      function animateWheel(now) {
+        const elapsed = now - startT;
+        const progress = Math.min(1.0, elapsed / duration);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        wheelAngle = currentRot + targetRads * ease;
+        drawWheel();
+
+        const curSeg = Math.floor((wheelAngle / segAngle) % WHEEL_SEGMENTS.length);
+        if (curSeg !== lastPegIndex) {
+          sound.playWheelClick();
+          lastPegIndex = curSeg;
+        }
+
+        if (progress < 1.0) {
+          requestAnimationFrame(animateWheel);
+        } else {
+          isWheelSpinning = false;
+          const wonSeg = WHEEL_SEGMENTS[targetIndex];
+          processWheelReward(wonSeg);
+        }
+      }
+      requestAnimationFrame(animateWheel);
+    });
+
+    function processWheelReward(seg) {
+      let prizeAmount = 0;
+      const currentBet = betOptions[betIndex];
+
+      if (seg.prizeType === 'GRAND') {
+        prizeAmount = grandJackpot;
+        grandJackpot = 100000.00;
+      } else if (seg.prizeType === 'MAJOR') {
+        prizeAmount = majorJackpot;
+        majorJackpot = 15000.00;
+      } else if (seg.prizeType === 'MINI') {
+        prizeAmount = miniJackpot;
+        miniJackpot = 1000.00;
+      } else {
+        prizeAmount = currentBet * seg.multiplier;
+      }
+
+      document.getElementById('wheelPrizeText').textContent = `WON ${seg.label}: $${prizeAmount.toFixed(2)}!`;
+      document.getElementById('wheelResultBox').classList.remove('hidden');
+      sound.playBigWinFanfare();
+      triggerScreenShake();
+
+      document.getElementById('collectWheelPrizeBtn').onclick = () => {
+        balance += prizeAmount;
+        lastWin = prizeAmount;
+        document.getElementById('wheelModal').classList.add('hidden');
+        animateWinRollup(prizeAmount);
+        updateMeters();
+      };
+    }
+    function render() {
+      slotCtx.clearRect(0, 0, VIRTUAL_W, VIRTUAL_H);
+
+      const reelWidth = VIRTUAL_W / REEL_COUNT;
+      const symbolHeight = VIRTUAL_H / ROW_COUNT;
+
+      let allStoppedNow = true;
+
+      for (let r = 0; r < REEL_COUNT; r++) {
+        const reel = reels[r];
+
+        if (reel.state === 'SPINNING') {
+          allStoppedNow = false;
+          reel.pos += reel.speed * 0.46;
+          if (reel.pos >= reel.strip.length - ROW_COUNT) {
+            reel.pos = 0;
+          }
+
+          if (reel.isAnticipating && Math.random() < 0.22) {
+            sound.playAnticipationLoop();
+          }
+        } else if (reel.state === 'STOPPING') {
+          allStoppedNow = false;
+          const diff = reel.targetPos - reel.pos;
+          reel.pos += diff * 0.28;
+
+          if (Math.abs(diff) < 0.08) {
+            reel.pos = reel.targetPos;
+            reel.state = 'BOUNCING';
+            reel.bounceTimer = 0;
+            sound.playReelStop();
+          }
+        } else if (reel.state === 'BOUNCING') {
+          reel.bounceTimer += 0.22;
+          const bounceOffset = Math.sin(reel.bounceTimer) * Math.exp(-reel.bounceTimer * 1.5) * 0.26;
+          reel.pos = reel.targetPos + bounceOffset;
+
+          if (reel.bounceTimer > Math.PI) {
+            reel.pos = reel.targetPos;
+            reel.state = 'IDLE';
+
+            const topIdx = Math.floor(reel.targetPos);
+            reel.visibleSymbols = [
+              reel.strip[topIdx],
+              reel.strip[topIdx + 1],
+              reel.strip[topIdx + 2]
+            ];
+          } else {
+            allStoppedNow = false;
+          }
+        }
+
+        // Draw Reel Background & Divider
+        slotCtx.fillStyle = (r % 2 === 0) ? '#0d0004' : '#140008';
+        slotCtx.fillRect(reel.x, 0, reelWidth, VIRTUAL_H);
+        slotCtx.strokeStyle = 'rgba(218, 165, 32, 0.25)';
+        slotCtx.lineWidth = 1;
+        slotCtx.strokeRect(reel.x, 0, reelWidth, VIRTUAL_H);
+
+        // Anticipation Glow Border on Reel
+        if (reel.isAnticipating && reel.state === 'SPINNING') {
+          slotCtx.save();
+          slotCtx.strokeStyle = '#ff3b00';
+          slotCtx.lineWidth = 6;
+          slotCtx.shadowColor = '#ff3b00';
+          slotCtx.shadowBlur = 25;
+          slotCtx.strokeRect(reel.x + 2, 2, reelWidth - 4, VIRTUAL_H - 4);
+          slotCtx.restore();
+        }
+
+        // Draw Visible Symbols
+        const baseFloat = reel.pos;
+        const intFloor = Math.floor(baseFloat);
+        const subOffset = (baseFloat - intFloor) * symbolHeight;
+
+        for (let s = -1; s <= ROW_COUNT + 1; s++) {
+          const symIndex = (intFloor + s + reel.strip.length) % reel.strip.length;
+          const symId = reel.strip[symIndex];
+          const drawY = (s * symbolHeight) - subOffset;
+
+          const cx = reel.x + reelWidth / 2;
+          const cy = drawY + symbolHeight / 2;
+
+          let isDimmed = false;
+          if (winningLinesResult.length > 0 && !isSpinning) {
+            isDimmed = true;
+            const curWinLine = winningLinesResult[activeCycleLineIdx];
+            if (curWinLine) {
+              const matched = curWinLine.positions.some(pos => pos.col === r && pos.row === s);
+              if (matched) isDimmed = false;
+            }
+          }
+
+          drawSymbol(slotCtx, symId, cx, cy, reelWidth, symbolHeight, isDimmed);
+        }
+      }
+
+      if (!allStoppedNow && isSpinning) {
+        // Spinning
+      } else if (isSpinning) {
+        onAllReelsStopped();
+      }
+
+      // Draw Winning Paylines Overlay
+      if (winningLinesResult.length > 0 && !isSpinning) {
+        winningLineCycleTimer++;
+        if (winningLineCycleTimer % 65 === 0) {
+          activeCycleLineIdx = (activeCycleLineIdx + 1) % winningLinesResult.length;
+        }
+
+        const activeLine = winningLinesResult[activeCycleLineIdx];
+        if (activeLine) {
+          slotCtx.save();
+          slotCtx.strokeStyle = activeLine.color;
+          slotCtx.lineWidth = 5;
+          slotCtx.shadowColor = activeLine.color;
+          slotCtx.shadowBlur = 20;
+          slotCtx.beginPath();
+
+          activeLine.positions.forEach((pos, idx) => {
+            const px = (pos.col * reelWidth) + (reelWidth / 2);
+            const py = (pos.row * symbolHeight) + (symbolHeight / 2);
+            if (idx === 0) slotCtx.moveTo(px, py);
+            else slotCtx.lineTo(px, py);
+          });
+          slotCtx.stroke();
+
+          activeLine.positions.forEach(pos => {
+            const bx = pos.col * reelWidth + 4;
+            const by = pos.row * symbolHeight + 4;
+            slotCtx.strokeStyle = '#ffd700';
+            slotCtx.lineWidth = 3;
+            slotCtx.strokeRect(bx, by, reelWidth - 8, symbolHeight - 8);
+          });
+
+          slotCtx.restore();
+        }
+      }
+
+      updateAndRenderParticles();
+      requestAnimationFrame(render);
+    }
+    function updateMeters() {
+      document.getElementById('balanceDisplay').textContent = `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById('betDisplay').textContent = `$${betOptions[betIndex].toFixed(2)}`;
+      document.getElementById('jackpotGrand').textContent = `$${grandJackpot.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById('jackpotMajor').textContent = `$${majorJackpot.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById('jackpotMini').textContent = `$${miniJackpot.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function updateButtonStates() {
+      const spinBtn = document.getElementById('spinBtn');
+      const spinBtnText = document.getElementById('spinBtnText');
+      const betUpBtn = document.getElementById('betUpBtn');
+      const betDownBtn = document.getElementById('betDownBtn');
+      const maxBetBtn = document.getElementById('maxBetBtn');
+
+      if (isSpinning) {
+        spinBtnText.textContent = "STOP";
+        betUpBtn.disabled = true;
+        betDownBtn.disabled = true;
+        maxBetBtn.disabled = true;
+      } else {
+        spinBtnText.textContent = "SPIN";
+        betUpBtn.disabled = false;
+        betDownBtn.disabled = false;
+        maxBetBtn.disabled = false;
       }
     }
 
-    // Player Action: Fold
-    elBtnFold.addEventListener('click', () => {
-      sound.playFold();
-      appendLog("플레이어가 <strong>폴드</strong>했습니다.", 'player');
-      handleFoldWin('DEALER');
-    });
+    function showAnticipationToast(msg) {
+      const banner = document.getElementById('anticipationBanner');
+      banner.textContent = msg;
+      banner.classList.remove('hidden');
+      setTimeout(() => {
+        if (!isSpinning) banner.classList.add('hidden');
+      }, 2500);
+    }
 
-    // Player Action: Check or Call
-    elBtnCheckCall.addEventListener('click', () => {
-      const callCost = currentHighBet - playerCurrentBet;
+    // 80% FEVER MODE TOGGLE BUTTON
+    document.getElementById('feverToggleBtn').addEventListener('click', () => {
+      isFeverMode = !isFeverMode;
+      const statusText = document.getElementById('feverStatusText');
+      const btn = document.getElementById('feverToggleBtn');
 
-      if (callCost <= 0) {
-        // Check
-        sound.playCheckKnock();
-        appendLog("플레이어가 <strong>체크</strong>했습니다.", 'player');
-        actionsThisStreet++;
-        advanceBettingTurn();
+      if (isFeverMode) {
+        statusText.textContent = "FEVER: ON";
+        btn.className = "btn-tactile px-3 py-1.5 rounded-lg bg-gradient-to-b from-red-500 to-red-700 text-white font-cinzel font-black text-xs border border-amber-300";
+        showAnticipationToast("🔥 울트라 피버 80% 모드 활성화! 보너스가 쏟아집니다!");
       } else {
-        // Call
-        const actualCall = Math.min(callCost, playerStack);
-        playerStack -= actualCall;
-        playerCurrentBet += actualCall;
-        pot += actualCall;
-
-        sound.playChipClink();
-        if (playerStack === 0) {
-          sound.playAllIn();
-          appendLog(`플레이어가 <strong>$${actualCall} 올인 콜</strong>했습니다!`, 'player');
-        } else {
-          appendLog(`플레이어가 <strong>$${actualCall} 콜</strong>했습니다.`, 'player');
-        }
-
-        actionsThisStreet++;
-        updateTableDisplay();
-        advanceBettingTurn();
+        statusText.textContent = "FEVER: OFF";
+        btn.className = "btn-tactile px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 font-cinzel font-bold text-xs border border-slate-600";
+        showAnticipationToast("일반 표준 카지노 모드로 전환되었습니다.");
       }
     });
 
-    // Player Action: Bet or Raise
-    elBtnBetRaise.addEventListener('click', () => {
-      const targetAmount = parseInt(elBetSlider.value, 10);
-      const needed = Math.min(targetAmount - playerCurrentBet, playerStack);
-      const actualTotal = playerCurrentBet + needed;
-
-      playerStack -= needed;
-      playerCurrentBet = actualTotal;
-      pot += needed;
-
-      const raiseDiff = actualTotal - currentHighBet;
-      if (raiseDiff > minRaise) minRaise = raiseDiff;
-      currentHighBet = actualTotal;
-
-      sound.playChipClink();
-      if (playerStack === 0) {
-        sound.playAllIn();
-        appendLog(`플레이어가 <strong>$${actualTotal} 올인</strong>을 선언했습니다!`, 'player');
+    // Spin Button Action (SPIN / QUICK STOP)
+    document.getElementById('spinBtn').addEventListener('click', () => {
+      if (!isSpinning) {
+        startSpin();
       } else {
-        appendLog(`플레이어가 <strong>$${actualTotal}</strong>로 레이즈했습니다.`, 'player');
-      }
-
-      actionsThisStreet++;
-      updateTableDisplay();
-      activeTurn = 'DEALER';
-      runAIDecision();
-    });
-
-    // Bet Slider Live Display
-    elBetSlider.addEventListener('input', () => {
-      elSliderBetDisplay.textContent = `$${elBetSlider.value}`;
-      if (currentHighBet === 0) {
-        elBetRaiseLabel.textContent = `베팅 ($${elBetSlider.value})`;
-      } else {
-        elBetRaiseLabel.textContent = `레이즈 ($${elBetSlider.value})`;
+        reels.forEach(reel => {
+          if (reel.state === 'SPINNING') stopReel(reel);
+        });
       }
     });
 
-    // Quick Bet Sizing Buttons
-    document.getElementById('btnSizeMin').addEventListener('click', () => {
-      elBetSlider.value = elBetSlider.min;
-      elBetSlider.dispatchEvent(new Event('input'));
+    // Spacebar to Spin
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault();
+        document.getElementById('spinBtn').click();
+      }
     });
 
-    document.getElementById('btnSizeHalfPot').addEventListener('click', () => {
-      const halfPotTarget = currentHighBet + Math.max(minRaise, Math.floor(pot * 0.5));
-      elBetSlider.value = Math.min(Math.max(halfPotTarget, parseInt(elBetSlider.min, 10)), parseInt(elBetSlider.max, 10));
-      elBetSlider.dispatchEvent(new Event('input'));
+    // Bet Controls
+    document.getElementById('betUpBtn').addEventListener('click', () => {
+      if (betIndex < betOptions.length - 1) {
+        betIndex++;
+        updateMeters();
+      }
     });
 
-    document.getElementById('btnSizePot').addEventListener('click', () => {
-      const potTarget = currentHighBet + Math.max(minRaise, pot);
-      elBetSlider.value = Math.min(Math.max(potTarget, parseInt(elBetSlider.min, 10)), parseInt(elBetSlider.max, 10));
-      elBetSlider.dispatchEvent(new Event('input'));
+    document.getElementById('betDownBtn').addEventListener('click', () => {
+      if (betIndex > 0) {
+        betIndex--;
+        updateMeters();
+      }
     });
 
-    document.getElementById('btnSizeAllIn').addEventListener('click', () => {
-      elBetSlider.value = elBetSlider.max;
-      elBetSlider.dispatchEvent(new Event('input'));
+    document.getElementById('maxBetBtn').addEventListener('click', () => {
+      betIndex = betOptions.length - 1;
+      updateMeters();
+      sound.playCoinTick();
     });
 
-    // Next Hand Button
-    elBtnNextHand.addEventListener('click', () => {
-      startNewHand();
+    // Turbo Mode Toggle
+    document.getElementById('turboBtn').addEventListener('click', () => {
+      isTurbo = !isTurbo;
+      const status = document.getElementById('turboStatus');
+      status.textContent = isTurbo ? "ON" : "OFF";
+      status.className = isTurbo ? "text-amber-400 font-bold" : "text-slate-400";
     });
 
-    // Rebuy / Reset Bankroll
-    document.getElementById('rebuyBtn').addEventListener('click', () => {
-      playerStack = 1000;
-      dealerStack = 1000;
-      appendLog("뱅크롤이 <strong>$1,000</strong>으로 충전 및 리셋되었습니다.", 'highlight');
-      updateTableDisplay();
-      startNewHand();
+    // Auto Spin Config
+    const autoModal = document.getElementById('autoModal');
+    document.getElementById('autoSpinBtn').addEventListener('click', () => {
+      if (autoSpinCount > 0) {
+        stopAutoSpin();
+      } else {
+        autoModal.classList.remove('hidden');
+      }
     });
 
-    // Sound Toggle
-    const soundToggleBtn = document.getElementById('soundToggleBtn');
-    const soundIcon = document.getElementById('soundIcon');
-    soundToggleBtn.addEventListener('click', () => {
-      const muted = sound.toggleMute();
-      soundIcon.textContent = muted ? '🔇' : '🔊';
+    document.getElementById('cancelAutoBtn').addEventListener('click', () => {
+      autoModal.classList.add('hidden');
     });
 
-    // Drawer and Modal Handlers
-    const logDrawer = document.getElementById('logDrawer');
-    document.getElementById('logToggleBtn').addEventListener('click', () => {
-      logDrawer.classList.toggle('translate-x-full');
-    });
-    document.getElementById('closeLogBtn').addEventListener('click', () => {
-      logDrawer.classList.add('translate-x-full');
-    });
-    document.getElementById('clearLogBtn').addEventListener('click', () => {
-      elLogContent.innerHTML = '';
-    });
-
-    const rulesModal = document.getElementById('rulesModal');
-    document.getElementById('rulesBtn').addEventListener('click', () => {
-      rulesModal.classList.remove('hidden');
-    });
-    document.getElementById('closeRulesBtn').addEventListener('click', () => {
-      rulesModal.classList.add('hidden');
+    document.querySelectorAll('.auto-opt-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const count = parseInt(e.target.getAttribute('data-count'), 10);
+        autoSpinCount = count;
+        autoModal.classList.add('hidden');
+        document.getElementById('autoCountLabel').textContent = (count >= 990) ? '∞ INFINITY' : `${count} LEFT`;
+        document.getElementById('autoSpinBtn').classList.add('border-red-400', 'bg-red-950');
+        if (!isSpinning) startSpin();
+      });
     });
 
-    // Start First Hand on Load
-    window.addEventListener('DOMContentLoaded', () => {
-      startNewHand();
+    function stopAutoSpin() {
+      autoSpinCount = 0;
+      document.getElementById('autoCountLabel').textContent = "SELECT";
+      document.getElementById('autoSpinBtn').classList.remove('border-red-400', 'bg-red-950');
+    }
+
+    // Audio Mute Toggle
+    document.getElementById('soundToggleBtn').addEventListener('click', () => {
+      const isMuted = sound.toggleMute();
+      document.getElementById('soundIcon').textContent = isMuted ? "🔇" : "🔊";
+    });
+
+    // Paytable Modal Controls
+    const paytableModal = document.getElementById('paytableModal');
+    document.getElementById('paytableBtn').addEventListener('click', () => {
+      paytableModal.classList.remove('hidden');
+    });
+    document.getElementById('closePaytableBtn').addEventListener('click', () => {
+      paytableModal.classList.add('hidden');
+    });
+
+    slotCanvas.addEventListener('click', () => {
+      if (!isSpinning) startSpin();
+    });
+
+    // Window Init
+    window.addEventListener('load', () => {
+      resizeCanvases();
+      initReelStrips();
+      updateMeters();
+      updateButtonStates();
+      requestAnimationFrame(render);
     });
   </script>
 </body>
