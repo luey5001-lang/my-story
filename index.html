@@ -1,849 +1,1778 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>LUCKY 8-BIT SLOT</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css">
-<style>
-  :root{
-    --void:#0a0518;
-    --void-grid:#130a29;
-    --cab:#241454;
-    --cab-lo:#150a34;
-    --cab-hi:#3a2280;
-    --screen:#050014;
-    --magenta:#ff2e88;
-    --cyan:#00e5ff;
-    --gold:#ffcc00;
-    --lime:#39ff14;
-    --ink:#f2eaff;
-    --ink-dim:#8f7fc7;
-    --shadow-hard:#0a0420;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    min-height:100vh;
-    background:
-      repeating-linear-gradient(0deg, var(--void-grid) 0 2px, transparent 2px 40px),
-      repeating-linear-gradient(90deg, var(--void-grid) 0 2px, transparent 2px 40px),
-      var(--void);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px 12px;
-    font-family:'Galmuri11','Press Start 2P',monospace;
-    color:var(--ink);
-    -webkit-user-select:none;user-select:none;
-    image-rendering:pixelated;
-  }
-
-  /* ===== Cabinet ===== */
-  .cabinet{
-    width:100%;
-    max-width:420px;
-    background:var(--cab);
-    padding:14px;
-    border:4px solid var(--shadow-hard);
-    box-shadow:
-      6px 6px 0 var(--shadow-hard),
-      0 0 0 4px var(--cab-hi) inset,
-      0 0 40px rgba(255,46,136,0.15);
-    position:relative;
-  }
-  .cabinet::before{ /* corner rivets */
-    content:'';
-    position:absolute; inset:6px;
-    border:2px dashed rgba(255,255,255,0.08);
-    pointer-events:none;
-  }
-
-  /* ===== Marquee ===== */
-  .marquee{
-    background:var(--screen);
-    border:3px solid var(--gold);
-    padding:8px 6px;
-    margin-bottom:10px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    overflow:hidden;
-    position:relative;
-  }
-  .bulb-row{ display:flex; gap:5px; }
-  .bulb{
-    width:6px;height:6px;
-    background:var(--gold);
-    box-shadow:0 0 4px var(--gold);
-    animation:chase 1s steps(1) infinite;
-  }
-  .bulb:nth-child(2n){ animation-delay:.15s; }
-  .bulb:nth-child(3n){ animation-delay:.3s; }
-  .bulb:nth-child(4n){ animation-delay:.45s; }
-  @keyframes chase{
-    0%,49%{ opacity:1; background:var(--gold); box-shadow:0 0 6px var(--gold);}
-    50%,100%{ opacity:.25; background:#5a4400; box-shadow:none;}
-  }
-  .marquee-title{
-    font-family:'Press Start 2P',monospace;
-    font-size:.62rem;
-    color:var(--magenta);
-    text-shadow:2px 2px 0 var(--shadow-hard), 0 0 10px var(--magenta);
-    letter-spacing:1px;
-    white-space:nowrap;
-    animation:flicker 3.2s infinite;
-  }
-  @keyframes flicker{
-    0%,93%,95%,97%,100%{ opacity:1; }
-    94%,96%{ opacity:.4; }
-  }
-
-  /* ===== Jackpot LED ===== */
-  .jackpot-panel{
-    background:var(--screen);
-    border:3px solid var(--cab-hi);
-    padding:8px 10px;
-    margin-bottom:10px;
-    text-align:center;
-  }
-  .jackpot-label{
-    font-family:'Press Start 2P',monospace;
-    font-size:.5rem;
-    color:var(--cyan);
-    letter-spacing:2px;
-    margin-bottom:6px;
-  }
-  .jackpot-value{
-    font-family:'Press Start 2P',monospace;
-    font-size:1.3rem;
-    color:var(--gold);
-    text-shadow:0 0 8px var(--gold), 2px 2px 0 var(--shadow-hard);
-    letter-spacing:1px;
-  }
-
-  /* ===== Screen / Reels ===== */
-  .screen{
-    background:var(--screen);
-    border:4px solid var(--cab-hi);
-    padding:10px;
-    position:relative;
-    margin-bottom:10px;
-  }
-  .screen::after{ /* scanlines */
-    content:'';
-    position:absolute; inset:0;
-    background:repeating-linear-gradient(0deg, rgba(0,0,0,0.35) 0 1px, transparent 1px 3px);
-    pointer-events:none;
-    mix-blend-mode:multiply;
-  }
-  .screen.flicker::before{
-    content:'';
-    position:absolute; inset:0;
-    background:rgba(255,255,255,0.5);
-    z-index:5;
-    animation:flashOnce .12s steps(1) 2;
-  }
-  @keyframes flashOnce{ 0%,100%{opacity:0;} 50%{opacity:1;} }
-
-  .reels{
-    display:flex;
-    gap:4px;
-    justify-content:center;
-    position:relative;
-  }
-  .reel{
-    width:76px;
-    height:270px;
-    background:#0d0824;
-    border:2px solid #2a1a5c;
-    overflow:hidden;
-    position:relative;
-  }
-  .reel-strip{ position:relative; }
-  .cell{
-    width:76px;
-    height:90px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-
-  .payline{
-    position:absolute;
-    left:2px; right:2px; top:135px;
-    height:0;
-    border-top:2px dashed var(--lime);
-    box-shadow:0 0 8px var(--lime);
-    z-index:4;
-    pointer-events:none;
-  }
-
-  /* ===== Sprites (pixel-art symbols drawn with box-shadow) ===== */
-  .sprite{ position:relative; width:48px; height:48px; }
-  .pix{ position:absolute; top:0; left:0; width:6px; height:6px; background:transparent; }
-
-  /* ===== Win / message LED strip ===== */
-  .led-strip{
-    background:var(--screen);
-    border:3px solid var(--cab-hi);
-    margin-top:8px;
-    padding:10px 8px;
-    text-align:center;
-    min-height:34px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-family:'Galmuri11',monospace;
-    font-size:.95rem;
-    color:var(--lime);
-    text-shadow:0 0 6px var(--lime);
-  }
-  .led-strip.big{
-    color:var(--gold);
-    text-shadow:0 0 10px var(--gold);
-    animation:bigwin .4s infinite;
-  }
-  @keyframes bigwin{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
-
-  /* ===== Control panel ===== */
-  .panel{
-    background:var(--cab-lo);
-    border:3px solid var(--cab-hi);
-    padding:10px;
-    margin-top:10px;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-  }
-  .stat-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    font-family:'Galmuri11',monospace;
-    font-size:.8rem;
-    color:var(--ink-dim);
-  }
-  .stat-row b{ color:var(--ink); font-weight:400; }
-  .stat-row .val{
-    font-family:'Press Start 2P',monospace;
-    font-size:.68rem;
-    color:var(--cyan);
-  }
-
-  .bet-row{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-  }
-  .pixel-btn{
-    font-family:'Press Start 2P',monospace;
-    font-size:.7rem;
-    color:var(--ink);
-    background:var(--cab);
-    border:2px solid var(--shadow-hard);
-    box-shadow:3px 3px 0 var(--shadow-hard);
-    padding:8px 10px;
-    cursor:pointer;
-    line-height:1;
-  }
-  .pixel-btn:active{
-    box-shadow:0 0 0 var(--shadow-hard);
-    transform:translate(3px,3px);
-  }
-  .bet-amount{
-    font-family:'Press Start 2P',monospace;
-    font-size:.7rem;
-    color:var(--gold);
-    min-width:92px;
-    text-align:center;
-  }
-  .free-badge{
-    display:none;
-    font-family:'Press Start 2P',monospace;
-    font-size:.55rem;
-    color:var(--void);
-    background:var(--lime);
-    padding:4px 6px;
-    text-align:center;
-    animation:pulse .7s infinite;
-  }
-  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.55;} }
-
-  .spin-btn{
-    width:100%;
-    padding:16px;
-    margin-top:4px;
-    font-family:'Press Start 2P',monospace;
-    font-size:1rem;
-    letter-spacing:2px;
-    color:var(--void);
-    background:var(--gold);
-    border:2px solid var(--shadow-hard);
-    box-shadow:4px 4px 0 var(--shadow-hard);
-    cursor:pointer;
-  }
-  .spin-btn:active{
-    box-shadow:0 0 0 var(--shadow-hard);
-    transform:translate(4px,4px);
-  }
-  .spin-btn:disabled{ opacity:.5; cursor:not-allowed; }
-
-  .paytable{
-    font-family:'Galmuri11',monospace;
-    font-size:.62rem;
-    color:var(--ink-dim);
-    text-align:center;
-    margin-top:10px;
-    line-height:1.6;
-    border-top:2px dotted #3a2280;
-    padding-top:8px;
-  }
-
-  /* ===== Particles / Jackpot overlay ===== */
-  .particles{
-    position:fixed; inset:0;
-    pointer-events:none;
-    z-index:998;
-  }
-  .pixel-coin{
-    position:absolute;
-    width:10px; height:10px;
-    background:var(--gold);
-    box-shadow:2px 2px 0 var(--shadow-hard);
-    animation:fall 1.6s steps(12) forwards;
-  }
-  @keyframes fall{
-    0%{ transform:translateY(-20px) rotate(0deg); opacity:1; }
-    100%{ transform:translateY(105vh) rotate(180deg); opacity:0; }
-  }
-  .jackpot-overlay{
-    position:fixed; inset:0;
-    background:rgba(5,0,20,0.92);
-    z-index:999;
-    display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    gap:16px;
-  }
-  .jackpot-overlay .big-text{
-    font-family:'Press Start 2P',monospace;
-    font-size:1.6rem;
-    color:var(--gold);
-    text-shadow:0 0 14px var(--gold);
-    animation:bigwin .3s infinite;
-    text-align:center;
-  }
-  .jackpot-overlay .amt{
-    font-family:'Press Start 2P',monospace;
-    font-size:1.1rem;
-    color:var(--lime);
-  }
-
-  @media (max-width:380px){
-    .reel{ width:58px; height:210px; }
-    .cell{ width:58px; height:70px; }
-    .sprite{ width:38px; height:38px; }
-    .pix{ width:4.75px; height:4.75px; }
-    .payline{ top:105px; }
-    .jackpot-value{ font-size:1rem; }
-    .marquee-title{ font-size:.5rem; }
-  }
-</style>
-</head>
-<body>
-
-<div class="particles" id="particles"></div>
-
-<div class="cabinet">
-
-  <div class="marquee">
-    <div class="bulb-row">
-      <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
-    </div>
-    <div class="marquee-title">LUCKY 8-BIT SLOT</div>
-    <div class="bulb-row">
-      <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
-    </div>
-  </div>
-
-  <div class="jackpot-panel">
-    <div class="jackpot-label">GRAND JACKPOT</div>
-    <div class="jackpot-value" id="jackpotValue">10,000,000</div>
-  </div>
-
-  <div class="screen" id="screen">
-    <div class="reels" id="reels"></div>
-    <div class="payline"></div>
-  </div>
-
-  <div class="led-strip" id="winDisplay">동전을 넣고 SPIN을 누르세요</div>
-
-  <div class="panel">
-    <div class="stat-row">
-      <span>잔액 <b id="balanceValue" class="val">1,000,000</b></span>
-      <span id="freeBadge" class="free-badge">FREE SPIN <span id="freeCount">0</span></span>
-    </div>
-    <div class="bet-row">
-      <button class="pixel-btn" id="betDown">-</button>
-      <div class="bet-amount" id="betValue">1,000</div>
-      <button class="pixel-btn" id="betUp">+</button>
-      <button class="pixel-btn" id="betMax" style="font-size:.55rem;">MAX</button>
-    </div>
-    <button class="spin-btn" id="spinBtn">▶ SPIN</button>
-  </div>
-
-  <div class="paytable">
-    체리x3=4배 · 벨x3=10배 · 다이아x3=20배 · 세븐x3=40배<br>
-    ★와일드는 전 심볼 대체 · 세븐/와일드 5개=JACKPOT · 다이아 3개+=프리스핀
-  </div>
-
-</div>
-
-<script>
-(() => {
-  /* ================= 픽셀 스프라이트 정의 ================= */
-  const UNIT = 6;
-  const SPRITES = {
-    cherry: {
-      palette: { g:'#39ff14', r:'#ff2e4d' },
-      grid: [
-        "........",
-        "...gg...",
-        "..g..g..",
-        ".g....g.",
-        "rr....rr",
-        "rrr..rrr",
-        "rrr..rrr",
-        ".rr..rr."
-      ]
-    },
-    lemon: {
-      palette: { y:'#fff700' },
-      grid: [
-        "..yyyy..",
-        ".yyyyyy.",
-        "yyyyyyyy",
-        "yyyyyyyy",
-        "yyyyyyyy",
-        "yyyyyyyy",
-        ".yyyyyy.",
-        "..yyyy.."
-      ]
-    },
-    orange: {
-      palette: { g:'#39ff14', o:'#ff9500' },
-      grid: [
-        "...g....",
-        "..oooo..",
-        ".oooooo.",
-        "oooooooo",
-        "oooooooo",
-        "oooooooo",
-        ".oooooo.",
-        "..oooo.."
-      ]
-    },
-    bell: {
-      palette: { b:'#ffcc00', c:'#7a4b00' },
-      grid: [
-        "...b....",
-        "..bbbb..",
-        ".bbbbbb.",
-        ".bbbbbb.",
-        "bbbbbbbb",
-        "bbbbbbbb",
-        "bbbbbbbb",
-        "...c...."
-      ]
-    },
-    diamond: {
-      palette: { d:'#00e5ff' },
-      grid: [
-        "...d....",
-        "..dddd..",
-        ".dddddd.",
-        "dddddddd",
-        "dddddddd",
-        ".dddddd.",
-        "..dddd..",
-        "...d...."
-      ]
-    },
-    seven: {
-      palette: { w:'#ff2e88' },
-      grid: [
-        "wwwwwwww",
-        "wwwwwwww",
-        "......w.",
-        ".....w..",
-        "....w...",
-        "...w....",
-        "...w....",
-        "...w...."
-      ]
-    },
-    wild: {
-      palette: { s:'#ffcc00' },
-      grid: [
-        "...s....",
-        "...s....",
-        "..sss...",
-        "ssssssss",
-        ".ssssss.",
-        "..ssss..",
-        ".ss..ss.",
-        "ss....ss"
-      ]
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>추억의 고전 명작 - 너구리 (PONPOKO 1982)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --cabinet-bg: #12131a;
+      --crt-glow: rgba(30, 240, 120, 0.05);
+      --arcade-gold: #ffcc00;
+      --arcade-red: #ff3344;
+      --arcade-blue: #00ccff;
     }
-  };
 
-  function injectSpriteCSS(){
-    let css = '';
-    for (const id in SPRITES){
-      const { palette, grid } = SPRITES[id];
-      const shadows = [];
-      for (let y=0;y<grid.length;y++){
-        const row = grid[y];
-        for (let x=0;x<row.length;x++){
-          const ch = row[x];
-          if (ch === '.') continue;
-          const color = palette[ch];
-          shadows.push(`${x*UNIT}px ${y*UNIT}px 0 0 ${color}`);
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1b1c2b 0%, #08080d 100%);
+      font-family: 'Press Start 2P', 'Noto Sans KR', monospace;
+      color: #ffffff;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Pixel art crisp rendering */
+    canvas {
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* CRT Arcade Screen curvature & Scanlines */
+    .crt-screen-container {
+      position: relative;
+      background: #020205;
+      border: 12px solid #28293d;
+      border-radius: 18px;
+      box-shadow: 
+        0 0 0 4px #12131e,
+        0 20px 50px rgba(0, 0, 0, 0.9),
+        inset 0 0 60px rgba(0, 20, 10, 0.7);
+      overflow: hidden;
+    }
+
+    .scanlines {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.4) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.03),
+        rgba(0, 255, 0, 0.01),
+        rgba(0, 0, 255, 0.03)
+      );
+      background-size: 100% 4px, 6px 100%;
+      z-index: 20;
+    }
+
+    .crt-glare {
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 35%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 100%);
+      border-radius: 14px 14px 0 0;
+      z-index: 21;
+    }
+
+    /* Glowing arcade text */
+    .glow-gold {
+      text-shadow: 0 0 8px rgba(255, 204, 0, 0.75), 0 0 16px rgba(255, 204, 0, 0.35);
+    }
+    .glow-red {
+      text-shadow: 0 0 8px rgba(255, 51, 68, 0.75), 0 0 16px rgba(255, 51, 68, 0.35);
+    }
+    .glow-blue {
+      text-shadow: 0 0 8px rgba(0, 204, 255, 0.75), 0 0 16px rgba(0, 204, 255, 0.35);
+    }
+
+    /* Custom Arcade Button */
+    .arcade-btn {
+      transition: all 0.1s ease;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.6);
+    }
+    .arcade-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+    }
+
+    /* Virtual Gamepad Buttons */
+    .vpad-btn {
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    .vpad-btn:active, .vpad-btn.pressed {
+      background-color: rgba(255, 204, 0, 0.45) !important;
+      transform: scale(0.92);
+    }
+  </style>
+</head>
+<body class="p-2 sm:p-4 text-slate-100 flex flex-col items-center justify-center">
+
+  <!-- Top Marquee Header -->
+  <header class="w-full max-w-[820px] flex items-center justify-between px-4 py-2 bg-gradient-to-r from-amber-950 via-red-900 to-amber-950 border-4 border-amber-500/80 rounded-t-xl shadow-lg mb-1">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl animate-bounce">🦝</span>
+      <div>
+        <h1 class="text-sm sm:text-base md:text-lg font-black tracking-wider text-amber-300 glow-gold">너구리 (PONPOKO)</h1>
+        <p class="text-[9px] text-amber-200/70 font-sans tracking-normal font-semibold">1982 RETRO ARCADE CLASSIC</p>
+      </div>
+    </div>
+    
+    <!-- Audio & Help Action Buttons -->
+    <div class="flex items-center gap-2">
+      <button id="soundToggleBtn" class="arcade-btn px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border-2 border-amber-400/60 rounded text-[10px] text-amber-300 flex items-center gap-1.5" title="사운드 켜기/끄기">
+        <span id="soundIcon">🔊</span>
+        <span class="hidden sm:inline">SOUND</span>
+      </button>
+      <button id="crtToggleBtn" class="arcade-btn px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border-2 border-cyan-400/60 rounded text-[10px] text-cyan-300 flex items-center gap-1.5" title="CRT 스캔라인 효과">
+        <span>📺</span>
+        <span class="hidden sm:inline">CRT</span>
+      </button>
+      <button id="helpBtn" class="arcade-btn px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border-2 border-emerald-400/60 rounded text-[10px] text-emerald-300 flex items-center gap-1" title="도움말">
+        <span>❓</span>
+        <span class="hidden sm:inline">HOW</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Screen Container -->
+  <main class="crt-screen-container w-full max-w-[820px] aspect-[4/3] flex flex-col items-center justify-center relative bg-black shadow-2xl">
+    <!-- Active CRT Effects -->
+    <div id="scanlineLayer" class="scanlines"></div>
+    <div class="crt-glare"></div>
+
+    <!-- Main Game Canvas (Internal Resolution: 640 x 480) -->
+    <canvas id="gameCanvas" width="640" height="480" class="w-full h-full block cursor-pointer"></canvas>
+
+    <!-- Interactive On-Screen Overlays (Modals) -->
+    <div id="modalOverlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center p-6 text-center z-30 transition-opacity duration-300 hidden">
+      <div id="modalContent" class="max-w-md w-full bg-slate-900/90 border-4 border-amber-400 p-5 rounded-lg shadow-2xl">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Control Deck / Mobile Controls -->
+  <footer class="w-full max-w-[820px] bg-slate-900 border-x-4 border-b-4 border-slate-700 rounded-b-xl p-3 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+    <!-- Keyboard Instruction Legend -->
+    <div class="hidden sm:flex flex-wrap items-center gap-2 text-[10px] text-slate-300">
+      <div class="bg-slate-800 border border-slate-600 px-2 py-1 rounded">⬅️ ➡️ : 이동</div>
+      <div class="bg-slate-800 border border-slate-600 px-2 py-1 rounded">⬆️ ⬇️ : 사다리 오르내리기</div>
+      <div class="bg-slate-800 border border-slate-600 px-2 py-1 rounded">SPACE / ⬆️ : 점프</div>
+      <div class="bg-slate-800 border border-slate-600 px-2 py-1 rounded">P : 일시정지</div>
+    </div>
+
+    <!-- Mobile Virtual Gamepad (Always accessible on touch / mobile devices) -->
+    <div class="w-full sm:hidden flex items-center justify-between px-2 pt-1 pb-2">
+      <!-- D-Pad Left/Right/Up/Down -->
+      <div class="grid grid-cols-3 gap-1.5 w-36 h-32 items-center justify-center">
+        <div></div>
+        <button id="vUp" class="vpad-btn bg-slate-800 border-2 border-amber-400/80 rounded-lg h-10 flex items-center justify-center text-amber-300 text-sm font-bold shadow-md">▲</button>
+        <div></div>
+        <button id="vLeft" class="vpad-btn bg-slate-800 border-2 border-amber-400/80 rounded-lg h-10 flex items-center justify-center text-amber-300 text-sm font-bold shadow-md">◀</button>
+        <div class="flex items-center justify-center text-slate-500 text-[10px]">🕹️</div>
+        <button id="vRight" class="vpad-btn bg-slate-800 border-2 border-amber-400/80 rounded-lg h-10 flex items-center justify-center text-amber-300 text-sm font-bold shadow-md">▶</button>
+        <div></div>
+        <button id="vDown" class="vpad-btn bg-slate-800 border-2 border-amber-400/80 rounded-lg h-10 flex items-center justify-center text-amber-300 text-sm font-bold shadow-md">▼</button>
+        <div></div>
+      </div>
+
+      <!-- Action Jump Button -->
+      <div class="flex flex-col items-center gap-2">
+        <button id="vJump" class="vpad-btn arcade-btn w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 border-4 border-amber-400 rounded-full flex flex-col items-center justify-center shadow-lg active:scale-90">
+          <span class="text-xs text-amber-200 font-bold tracking-wider">JUMP</span>
+          <span class="text-[9px] text-amber-300/80">점프</span>
+        </button>
+        <button id="vPause" class="arcade-btn px-3 py-1 bg-slate-800 border border-slate-600 rounded text-[9px] text-slate-300">
+          PAUSE (일시정지)
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Status / Credits -->
+    <div class="text-[10px] text-slate-400 font-sans flex items-center gap-2 self-center">
+      <span>HIGH SCORE: <strong id="footerHighScore" class="text-amber-400 font-mono">00000</strong></span>
+    </div>
+  </footer>
+
+  <script>
+    /**
+     * Web Audio API Synthesizer
+     * Pure synthesized 8-bit sound generator: walk chirp, jump boing, item chime,
+     * caterpillar collision/death, stage clear fanfare, and arcade background music.
+     */
+    class RetroSoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.isMuted = false;
+        this.bgmOscillator = null;
+        this.bgmGain = null;
+        this.bgmInterval = null;
+        this.bgmStep = 0;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
         }
       }
-      css += `.pix-${id}{ box-shadow:${shadows.join(',')}; }\n`;
-    }
-    const style = document.createElement('style');
-    style.textContent = css;
-    document.head.appendChild(style);
-  }
-  injectSpriteCSS();
 
-  function makeSymbolEl(id){
-    const wrap = document.createElement('div');
-    wrap.className = 'cell';
-    const sprite = document.createElement('div');
-    sprite.className = 'sprite';
-    const pix = document.createElement('div');
-    pix.className = 'pix pix-' + id;
-    sprite.appendChild(pix);
-    wrap.appendChild(sprite);
-    wrap.dataset.symbol = id;
-    return wrap;
-  }
-
-  /* ================= 심볼/배당 ================= */
-  const SYMBOLS = [
-    { id:'cherry',  name:'체리',   weight:6, p3:4,  p4:10,  p5:25   },
-    { id:'lemon',   name:'레몬',   weight:6, p3:3,  p4:8,   p5:18   },
-    { id:'orange',  name:'오렌지', weight:5, p3:5,  p4:12,  p5:28   },
-    { id:'bell',    name:'벨',     weight:4, p3:10, p4:30,  p5:70   },
-    { id:'diamond', name:'다이아', weight:3, p3:20, p4:60,  p5:150  },
-    { id:'seven',   name:'세븐',   weight:2, p3:40, p4:150, p5:400  },
-    { id:'wild',    name:'와일드', weight:1, p3:80, p4:300, p5:1000 },
-  ];
-  const SYM_MAP = {};
-  SYMBOLS.forEach(s => SYM_MAP[s.id] = s);
-
-  function buildStrip(){
-    const pool = [];
-    SYMBOLS.forEach(s => { for (let i=0;i<s.weight;i++) pool.push(s.id); });
-    for (let i=pool.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [pool[i],pool[j]] = [pool[j],pool[i]];
-    }
-    return pool;
-  }
-  const REEL_COUNT = 5;
-  const REEL_STRIPS = Array.from({length:REEL_COUNT}, buildStrip);
-  const CELL_H = window.innerWidth <= 380 ? 70 : 90;
-
-  /* ================= 상태 ================= */
-  let balance = 1000000;
-  let betAmount = 1000;
-  let jackpot = 10000000;
-  let isSpinning = false;
-  let freeSpinsRemaining = 0;
-  let reelPositions = REEL_STRIPS.map(() => Math.floor(Math.random()*100));
-  const BET_OPTIONS = [500,1000,2000,5000,10000,20000,50000];
-
-  /* ================= DOM ================= */
-  const reelsEl = document.getElementById('reels');
-  const winDisplay = document.getElementById('winDisplay');
-  const spinBtn = document.getElementById('spinBtn');
-  const balanceValue = document.getElementById('balanceValue');
-  const betValue = document.getElementById('betValue');
-  const jackpotValue = document.getElementById('jackpotValue');
-  const freeBadge = document.getElementById('freeBadge');
-  const freeCount = document.getElementById('freeCount');
-  const screenEl = document.getElementById('screen');
-  const particles = document.getElementById('particles');
-
-  const strips = []; // { stripEl, els: [] }
-
-  function initReels(){
-    reelsEl.innerHTML = '';
-    for (let r=0;r<REEL_COUNT;r++){
-      const reelEl = document.createElement('div');
-      reelEl.className = 'reel';
-      const stripEl = document.createElement('div');
-      stripEl.className = 'reel-strip';
-      const els = [];
-      REEL_STRIPS[r].forEach(id => {
-        const el = makeSymbolEl(id);
-        stripEl.appendChild(el);
-        els.push(el);
-      });
-      reelEl.appendChild(stripEl);
-      reelsEl.appendChild(reelEl);
-      strips.push({ stripEl, els });
-      setReelOffset(r, reelPositions[r], false);
-    }
-  }
-
-  function setReelOffset(r, pos, animate, timing){
-    const strip = strips[r].stripEl;
-    const len = REEL_STRIPS[r].length;
-    const norm = ((pos % len) + len) % len;
-    const offset = -(norm * CELL_H);
-    strip.style.transitionTimingFunction = timing || 'steps(6, end)';
-    strip.style.transitionDuration = animate ? (timing ? '0.9s' : '0.05s') : '0s';
-    strip.style.transform = `translateY(${offset}px)`;
-  }
-
-  function visibleSymbol(r, rowOffset){
-    const len = REEL_STRIPS[r].length;
-    const idx = ((reelPositions[r] + rowOffset) % len + len) % len;
-    return REEL_STRIPS[r][idx];
-  }
-
-  /* ================= 스핀 ================= */
-  function spin(){
-    if (isSpinning) return;
-    if (freeSpinsRemaining <= 0 && balance < betAmount){
-      flashMessage('잔액이 부족합니다', false);
-      return;
-    }
-
-    if (freeSpinsRemaining <= 0){
-      balance -= betAmount;
-      jackpot += Math.floor(betAmount * 0.1);
-    } else {
-      freeSpinsRemaining--;
-      freeCount.textContent = freeSpinsRemaining;
-      if (freeSpinsRemaining <= 0) freeBadge.style.display = 'none';
-    }
-
-    isSpinning = true;
-    spinBtn.disabled = true;
-    winDisplay.className = 'led-strip';
-    winDisplay.textContent = 'SPINNING...';
-    updateDisplay();
-
-    const stopDelays = [500, 700, 900, 1100, 1300];
-    for (let r=0;r<REEL_COUNT;r++){
-      const len = REEL_STRIPS[r].length;
-      const extraSpins = 4 + Math.floor(Math.random()*3);
-      const finalPos = reelPositions[r] + extraSpins*len + Math.floor(Math.random()*len);
-
-      // fast spin phase
-      strips[r].stripEl.style.transitionTimingFunction = 'steps(' + (extraSpins*len) + ', end)';
-      strips[r].stripEl.style.transitionDuration = (stopDelays[r]/1000) + 's';
-      const len2 = len;
-      const off = -(((finalPos % len2)+len2)%len2 * CELL_H) - (extraSpins*len2*CELL_H);
-      strips[r].stripEl.style.transform = `translateY(${off}px)`;
-
-      setTimeout(() => {
-        reelPositions[r] = finalPos % len2;
-        setReelOffset(r, reelPositions[r], true, 'steps(4, end)');
-        screenEl.classList.add('flicker');
-        setTimeout(() => screenEl.classList.remove('flicker'), 260);
-        if (r === REEL_COUNT-1){
-          setTimeout(checkWins, 400);
+      toggleMute() {
+        this.isMuted = !this.isMuted;
+        if (this.isMuted) {
+          this.stopBGM();
+        } else {
+          this.startBGM();
         }
-      }, stopDelays[r]);
+        return this.isMuted;
+      }
+
+      playTone(freq, type, duration, volume = 0.15, pitchBend = 0) {
+        if (this.isMuted) return;
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          if (pitchBend !== 0) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(10, freq + pitchBend), this.ctx.currentTime + duration);
+          }
+
+          gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+          console.warn("Audio play error", e);
+        }
+      }
+
+      playWalk() {
+        // Subtle soft 8-bit footstep chirp
+        this.playTone(180, 'square', 0.04, 0.04, -40);
+      }
+
+      playClimb() {
+        // Alternating pitch climb blip
+        const f = (Math.floor(Date.now() / 150) % 2 === 0) ? 280 : 340;
+        this.playTone(f, 'triangle', 0.05, 0.06);
+      }
+
+      playJump() {
+        // Classic rising boing / spring sound
+        if (this.isMuted) return;
+        this.init();
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(160, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(560, this.ctx.currentTime + 0.22);
+
+          gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.22);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.22);
+        } catch (e) {}
+      }
+
+      playItem() {
+        // Bright retro twinkling chime (E6 -> G#6 -> B6)
+        if (this.isMuted) return;
+        const notes = [659.25, 830.61, 987.77, 1318.51];
+        notes.forEach((freq, idx) => {
+          setTimeout(() => {
+            this.playTone(freq, 'square', 0.08, 0.12);
+          }, idx * 45);
+        });
+      }
+
+      playDie() {
+        // Descending sad chromatic fail tone + noise crackle
+        if (this.isMuted) return;
+        const notes = [440, 415, 392, 349, 311, 260, 180, 110];
+        notes.forEach((f, i) => {
+          setTimeout(() => {
+            this.playTone(f, 'sawtooth', 0.08, 0.15);
+          }, i * 60);
+        });
+      }
+
+      playClear() {
+        // Triumphant Ponpoko victory fanfare
+        if (this.isMuted) return;
+        const victoryNotes = [
+          { f: 523.25, d: 0.12 }, // C5
+          { f: 659.25, d: 0.12 }, // E5
+          { f: 783.99, d: 0.12 }, // G5
+          { f: 1046.50, d: 0.24 }, // C6
+          { f: 783.99, d: 0.12 }, // G5
+          { f: 1046.50, d: 0.40 } // C6 (long)
+        ];
+        let delay = 0;
+        victoryNotes.forEach(n => {
+          setTimeout(() => {
+            this.playTone(n.f, 'triangle', n.d, 0.2);
+          }, delay);
+          delay += n.d * 1000 + 30;
+        });
+      }
+
+      startBGM() {
+        if (this.isMuted || this.bgmInterval) return;
+        // Bouncy 8-bit classic Ponpoko style bassline
+        const bassLine = [
+          261.63, 0, 329.63, 0, 392.00, 392.00, 329.63, 0,
+          293.66, 0, 349.23, 0, 440.00, 440.00, 349.23, 0,
+          261.63, 0, 329.63, 0, 392.00, 0, 523.25, 0,
+          392.00, 349.23, 329.63, 293.66, 261.63, 0, 0, 0
+        ];
+        this.bgmStep = 0;
+        this.bgmInterval = setInterval(() => {
+          if (this.isMuted) return;
+          const note = bassLine[this.bgmStep % bassLine.length];
+          if (note > 0) {
+            this.playTone(note, 'triangle', 0.1, 0.04);
+            // Light chord accompaniment
+            if (this.bgmStep % 4 === 0) {
+              this.playTone(note * 1.5, 'square', 0.05, 0.02);
+            }
+          }
+          this.bgmStep++;
+        }, 150);
+      }
+
+      stopBGM() {
+        if (this.bgmInterval) {
+          clearInterval(this.bgmInterval);
+          this.bgmInterval = null;
+        }
+      }
     }
-  }
 
-  function checkWins(){
-    const center = [];
-    for (let r=0;r<REEL_COUNT;r++) center.push(visibleSymbol(r, 1));
+    const soundEngine = new RetroSoundEngine();
 
-    // 잭팟: 5개 전부 seven/wild
-    if (center.every(s => s === 'seven' || s === 'wild')){
-      triggerJackpot();
-      return;
+    /**
+     * Stage Data Definitions
+     * 5 Tier Platform Levels (Y: 90, 170, 250, 330, 410) + Ground Level (Y: 460)
+     * Width: 640, Height: 480
+     */
+    const STAGE_CONFIGS = [
+      {
+        stageNum: 1,
+        title: "STAGE 1 : 봄날의 숲길 (BEGINNER)",
+        timeLimit: 60,
+        playerStart: { x: 40, y: 386 }, // Start near bottom
+        platforms: [
+          // Y: 90 (Top Floor)
+          { x: 30, y: 90, w: 580, h: 14 },
+          // Y: 170
+          { x: 30, y: 170, w: 580, h: 14 },
+          // Y: 250
+          { x: 30, y: 250, w: 580, h: 14 },
+          // Y: 330
+          { x: 30, y: 330, w: 580, h: 14 },
+          // Y: 410 (Bottom Floor)
+          { x: 30, y: 410, w: 580, h: 14 }
+        ],
+        ladders: [
+          { x: 550, y1: 330, y2: 410 }, // Floor 4 to 3
+          { x: 90,  y1: 250, y2: 330 }, // Floor 3 to 2
+          { x: 520, y1: 170, y2: 250 }, // Floor 2 to 1
+          { x: 120, y1: 90,  y2: 170 }  // Floor 1 to Top
+        ],
+        spikes: [
+          { x: 280, y: 410 },
+          { x: 360, y: 330 },
+          { x: 300, y: 250 },
+          { x: 260, y: 170 },
+          { x: 380, y: 90 }
+        ],
+        caterpillars: [
+          { x: 180, y: 410, minX: 100, maxX: 480, speed: 1.0, dir: 1 },
+          { x: 420, y: 250, minX: 180, maxX: 500, speed: 1.2, dir: -1 },
+          { x: 240, y: 90,  minX: 160, maxX: 540, speed: 1.1, dir: 1 }
+        ],
+        foods: [
+          { type: 'apple', x: 140, y: 410, pts: 100 },
+          { type: 'apple', x: 450, y: 410, pts: 100 },
+          { type: 'carrot', x: 200, y: 330, pts: 200 },
+          { type: 'carrot', x: 460, y: 330, pts: 200 },
+          { type: 'grape', x: 220, y: 250, pts: 300 },
+          { type: 'grape', x: 400, y: 250, pts: 300 },
+          { type: 'watermelon', x: 180, y: 170, pts: 500 },
+          { type: 'watermelon', x: 400, y: 170, pts: 500 },
+          { type: 'beer', x: 300, y: 90, pts: 800 },
+          { type: 'beer', x: 480, y: 90, pts: 800 }
+        ]
+      },
+      {
+        stageNum: 2,
+        title: "STAGE 2 : 가시밭길의 시련 (INTERMEDIATE)",
+        timeLimit: 55,
+        playerStart: { x: 50, y: 386 },
+        platforms: [
+          // Platforms with classic gaps
+          { x: 30, y: 90, w: 260, h: 14 },
+          { x: 340, y: 90, w: 270, h: 14 },
+
+          { x: 30, y: 170, w: 580, h: 14 },
+
+          { x: 30, y: 250, w: 320, h: 14 },
+          { x: 400, y: 250, w: 210, h: 14 },
+
+          { x: 30, y: 330, w: 580, h: 14 },
+
+          { x: 30, y: 410, w: 580, h: 14 }
+        ],
+        ladders: [
+          { x: 120, y1: 330, y2: 410 },
+          { x: 520, y1: 330, y2: 410 },
+          { x: 260, y1: 250, y2: 330 },
+          { x: 480, y1: 170, y2: 250 },
+          { x: 100, y1: 90,  y2: 170 },
+          { x: 550, y1: 90,  y2: 170 }
+        ],
+        spikes: [
+          { x: 300, y: 410 },
+          { x: 330, y: 410 }, // Double spike
+          { x: 180, y: 330 },
+          { x: 400, y: 330 },
+          { x: 180, y: 170 },
+          { x: 320, y: 170 },
+          { x: 420, y: 90 }
+        ],
+        caterpillars: [
+          { x: 220, y: 410, minX: 60, maxX: 540, speed: 1.2, dir: 1 },
+          { x: 320, y: 330, minX: 140, maxX: 500, speed: 1.4, dir: -1 },
+          { x: 120, y: 250, minX: 40, maxX: 280, speed: 1.3, dir: 1 },
+          { x: 300, y: 170, minX: 120, maxX: 530, speed: 1.5, dir: -1 }
+        ],
+        foods: [
+          { type: 'carrot', x: 220, y: 410, pts: 200 },
+          { type: 'carrot', x: 460, y: 410, pts: 200 },
+          { type: 'grape', x: 80, y: 330, pts: 300 },
+          { type: 'grape', x: 320, y: 330, pts: 300 },
+          { type: 'banana', x: 200, y: 250, pts: 400 },
+          { type: 'banana', x: 480, y: 250, pts: 400 },
+          { type: 'watermelon', x: 120, y: 170, pts: 500 },
+          { type: 'watermelon', x: 380, y: 170, pts: 500 },
+          { type: 'beer', x: 200, y: 90, pts: 800 },
+          { type: 'beer', x: 460, y: 90, pts: 800 }
+        ]
+      },
+      {
+        stageNum: 3,
+        title: "STAGE 3 : 송충이의 대습격 (ADVANCED)",
+        timeLimit: 50,
+        playerStart: { x: 50, y: 386 },
+        platforms: [
+          { x: 30, y: 90, w: 580, h: 14 },
+          { x: 30, y: 170, w: 260, h: 14 },
+          { x: 340, y: 170, w: 270, h: 14 },
+          { x: 80, y: 250, w: 480, h: 14 },
+          { x: 30, y: 330, w: 580, h: 14 },
+          { x: 30, y: 410, w: 580, h: 14 }
+        ],
+        ladders: [
+          { x: 520, y1: 330, y2: 410 },
+          { x: 140, y1: 250, y2: 330 },
+          { x: 460, y1: 250, y2: 330 },
+          { x: 200, y1: 170, y2: 250 },
+          { x: 400, y1: 170, y2: 250 },
+          { x: 100, y1: 90,  y2: 170 },
+          { x: 540, y1: 90,  y2: 170 }
+        ],
+        spikes: [
+          { x: 200, y: 410 },
+          { x: 380, y: 410 },
+          { x: 280, y: 330 },
+          { x: 320, y: 330 },
+          { x: 260, y: 250 },
+          { x: 140, y: 170 },
+          { x: 480, y: 170 },
+          { x: 250, y: 90 },
+          { x: 350, y: 90 }
+        ],
+        caterpillars: [
+          { x: 120, y: 410, minX: 50, maxX: 550, speed: 1.6, dir: 1 },
+          { x: 480, y: 330, minX: 100, maxX: 540, speed: 1.7, dir: -1 },
+          { x: 240, y: 250, minX: 100, maxX: 460, speed: 1.5, dir: 1 },
+          { x: 150, y: 170, minX: 40, maxX: 240, speed: 1.8, dir: 1 },
+          { x: 450, y: 170, minX: 350, maxX: 580, speed: 1.8, dir: -1 },
+          { x: 200, y: 90,  minX: 80, maxX: 540, speed: 1.7, dir: 1 }
+        ],
+        foods: [
+          { type: 'apple', x: 120, y: 410, pts: 100 },
+          { type: 'grape', x: 460, y: 410, pts: 300 },
+          { type: 'banana', x: 220, y: 330, pts: 400 },
+          { type: 'banana', x: 420, y: 330, pts: 400 },
+          { type: 'watermelon', x: 300, y: 250, pts: 500 },
+          { type: 'mushroom', x: 100, y: 170, pts: 600 },
+          { type: 'mushroom', x: 520, y: 170, pts: 600 },
+          { type: 'beer', x: 180, y: 90, pts: 800 },
+          { type: 'beer', x: 300, y: 90, pts: 800 },
+          { type: 'beer', x: 450, y: 90, pts: 800 }
+        ]
+      },
+      {
+        stageNum: 4,
+        title: "STAGE 4 : 전설의 달인 (MASTER GAUNTLET)",
+        timeLimit: 45,
+        playerStart: { x: 50, y: 386 },
+        platforms: [
+          { x: 30, y: 90, w: 580, h: 14 },
+          { x: 50, y: 170, w: 240, h: 14 },
+          { x: 350, y: 170, w: 240, h: 14 },
+          { x: 30, y: 250, w: 580, h: 14 },
+          { x: 80, y: 330, w: 220, h: 14 },
+          { x: 340, y: 330, w: 220, h: 14 },
+          { x: 30, y: 410, w: 580, h: 14 }
+        ],
+        ladders: [
+          { x: 140, y1: 330, y2: 410 },
+          { x: 480, y1: 330, y2: 410 },
+          { x: 200, y1: 250, y2: 330 },
+          { x: 420, y1: 250, y2: 330 },
+          { x: 120, y1: 170, y2: 250 },
+          { x: 500, y1: 170, y2: 250 },
+          { x: 180, y1: 90,  y2: 170 },
+          { x: 440, y1: 90,  y2: 170 }
+        ],
+        spikes: [
+          { x: 260, y: 410 },
+          { x: 360, y: 410 },
+          { x: 180, y: 250 },
+          { x: 320, y: 250 },
+          { x: 440, y: 250 },
+          { x: 160, y: 170 },
+          { x: 460, y: 170 },
+          { x: 240, y: 90 },
+          { x: 380, y: 90 }
+        ],
+        caterpillars: [
+          { x: 180, y: 410, minX: 50, maxX: 550, speed: 2.0, dir: 1 },
+          { x: 460, y: 250, minX: 60, maxX: 540, speed: 2.1, dir: -1 },
+          { x: 200, y: 250, minX: 60, maxX: 540, speed: 2.0, dir: 1 },
+          { x: 140, y: 170, minX: 60, maxX: 260, speed: 2.2, dir: 1 },
+          { x: 440, y: 170, minX: 370, maxX: 560, speed: 2.2, dir: -1 },
+          { x: 300, y: 90,  minX: 80, maxX: 550, speed: 2.3, dir: 1 }
+        ],
+        foods: [
+          { type: 'apple', x: 80, y: 410, pts: 100 },
+          { type: 'apple', x: 520, y: 410, pts: 100 },
+          { type: 'grape', x: 160, y: 330, pts: 300 },
+          { type: 'grape', x: 460, y: 330, pts: 300 },
+          { type: 'watermelon', x: 120, y: 250, pts: 500 },
+          { type: 'watermelon', x: 500, y: 250, pts: 500 },
+          { type: 'mushroom', x: 200, y: 170, pts: 600 },
+          { type: 'mushroom', x: 420, y: 170, pts: 600 },
+          { type: 'beer', x: 120, y: 90, pts: 800 },
+          { type: 'beer', x: 310, y: 90, pts: 800 },
+          { type: 'beer', x: 500, y: 90, pts: 800 }
+        ]
+      }
+    ];
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Game Core State
+    let gameState = 'TITLE'; // 'TITLE', 'PLAYING', 'PAUSED', 'STAGE_CLEAR', 'DYING', 'GAMEOVER'
+    let currentStageIndex = 0;
+    let score = 0;
+    let highScore = parseInt(localStorage.getItem('ponpoko_high_score') || '10000', 10);
+    let lives = 3;
+    let stageTimer = 60;
+    let timerTickAcc = 0;
+    let stageBonusDisplay = 0;
+    let floatingTexts = [];
+
+    // Keys State
+    const keys = {
+      ArrowLeft: false,
+      ArrowRight: false,
+      ArrowUp: false,
+      ArrowDown: false,
+      Space: false
+    };
+
+    // Active Level Entities
+    let activePlatforms = [];
+    let activeLadders = [];
+    let activeSpikes = [];
+    let activeCaterpillars = [];
+    let activeFoods = [];
+
+    // Player Object
+    const player = {
+      x: 50,
+      y: 386,
+      w: 22,
+      h: 24,
+      vx: 0,
+      vy: 0,
+      speed: 2.5,
+      climbSpeed: 2.0,
+      jumpPower: -7.6,
+      gravity: 0.38,
+      isGrounded: false,
+      isClimbing: false,
+      currentLadder: null,
+      facing: 1, // 1: Right, -1: Left
+      animFrame: 0,
+      animTimer: 0,
+      deathTimer: 0,
+      deathRotation: 0
+    };
+
+    /**
+     * Procedural Pixel Art Drawing Helper
+     * Renders detailed retro pixel art without requiring external image assets.
+     */
+    function drawPixelRect(ctx, x, y, w, h, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h));
     }
 
-    const match5 = consecutiveMatch(center, 5);
-    if (match5){
-      const sym = SYM_MAP[match5];
-      const payout = sym.p5 * betAmount;
-      spawnCoins(24);
-      addWinnings(payout, `5x ${sym.name}!`);
-      finishSpin();
-      return;
-    }
+    // Draw Raccoon Character
+    function drawRaccoon(ctx, p) {
+      ctx.save();
+      ctx.translate(Math.floor(p.x + p.w / 2), Math.floor(p.y + p.h / 2));
 
-    for (let start=0; start<=1; start++){
-      const sub = center.slice(start, start+4);
-      const match4 = consecutiveMatch(sub, 4);
-      if (match4){
-        const sym = SYM_MAP[match4];
-        const payout = sym.p4 * betAmount;
-        spawnCoins(16);
-        addWinnings(payout, `4x ${sym.name}!`);
-        finishSpin();
+      // Dying Animation
+      if (gameState === 'DYING') {
+        ctx.rotate(p.deathRotation);
+        // Spinning eyes / dizzy stars
+        ctx.fillStyle = '#ff4444';
+        ctx.fillRect(-10, -12, 20, 24);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText('X', -6, -2);
+        ctx.fillText('X', 2, -2);
+        ctx.restore();
         return;
       }
+
+      // Climbing Backside Sprite
+      if (p.isClimbing) {
+        const step = Math.floor(p.y / 8) % 2;
+        // Body (Dark Brown)
+        drawPixelRect(ctx, -9, -12, 18, 24, '#7c4a1e');
+        // Striped Tail dangling
+        drawPixelRect(ctx, -5, 8, 10, 8, '#4a2c11');
+        drawPixelRect(ctx, -4, 10, 8, 3, '#a56a38');
+        // Ears
+        drawPixelRect(ctx, -10, -15, 6, 5, '#4a2c11');
+        drawPixelRect(ctx, 4, -15, 6, 5, '#4a2c11');
+        // Arms gripping rungs
+        if (step === 0) {
+          drawPixelRect(ctx, -13, -10, 5, 6, '#4a2c11');
+          drawPixelRect(ctx, 8, -4, 5, 6, '#4a2c11');
+        } else {
+          drawPixelRect(ctx, -13, -4, 5, 6, '#4a2c11');
+          drawPixelRect(ctx, 8, -10, 5, 6, '#4a2c11');
+        }
+        ctx.restore();
+        return;
+      }
+
+      // Facing Direction Flip
+      ctx.scale(p.facing, 1);
+
+      const isWalking = Math.abs(p.vx) > 0.1 && p.isGrounded;
+      const walkFrame = Math.floor(p.animFrame) % 3;
+
+      // Tail (Bushy striped raccoon tail)
+      const tailWag = isWalking ? Math.sin(Date.now() / 80) * 3 : 0;
+      drawPixelRect(ctx, -16 + tailWag, 2, 8, 8, '#593414');
+      drawPixelRect(ctx, -13 + tailWag, 4, 3, 5, '#caa078');
+      drawPixelRect(ctx, -18 + tailWag, 5, 3, 4, '#241406');
+
+      // Main Body
+      drawPixelRect(ctx, -8, -4, 15, 14, '#7c4a1e');
+      // Belly (Cream / Tan)
+      drawPixelRect(ctx, -2, -1, 9, 10, '#f2d5b6');
+
+      // Head
+      drawPixelRect(ctx, -6, -13, 14, 10, '#7c4a1e');
+      // Snout
+      drawPixelRect(ctx, 2, -7, 7, 5, '#ffffff');
+      // Nose
+      drawPixelRect(ctx, 7, -7, 3, 2, '#111111');
+      // Raccoon Eye Mask (Black patch)
+      drawPixelRect(ctx, 0, -11, 7, 5, '#1e1610');
+      // Eye sparkle
+      drawPixelRect(ctx, 3, -10, 2, 2, '#ffffff');
+
+      // Ears (Pointy)
+      drawPixelRect(ctx, -6, -16, 4, 4, '#4a2c11');
+      drawPixelRect(ctx, 2, -16, 4, 4, '#4a2c11');
+      drawPixelRect(ctx, -5, -15, 2, 2, '#caa078');
+
+      // Feet / Jump Stance
+      if (!p.isGrounded) {
+        // Jumping legs pulled up
+        drawPixelRect(ctx, -8, 8, 6, 4, '#38200c');
+        drawPixelRect(ctx, 1, 7, 6, 4, '#38200c');
+      } else if (isWalking) {
+        if (walkFrame === 0) {
+          drawPixelRect(ctx, -7, 9, 6, 4, '#38200c');
+          drawPixelRect(ctx, 2, 8, 5, 4, '#38200c');
+        } else if (walkFrame === 1) {
+          drawPixelRect(ctx, -5, 8, 5, 4, '#38200c');
+          drawPixelRect(ctx, 0, 9, 6, 4, '#38200c');
+        } else {
+          drawPixelRect(ctx, -3, 8, 5, 4, '#38200c');
+          drawPixelRect(ctx, 3, 9, 5, 4, '#38200c');
+        }
+      } else {
+        // Idle Standing Feet
+        drawPixelRect(ctx, -7, 9, 5, 4, '#38200c');
+        drawPixelRect(ctx, 2, 9, 5, 4, '#38200c');
+      }
+
+      ctx.restore();
     }
 
-    let total = 0;
-    const names = [];
-    for (let start=0; start<=2; start++){
-      const sub = center.slice(start, start+3);
-      const match3 = consecutiveMatch(sub, 3);
-      if (match3){
-        const sym = SYM_MAP[match3];
-        total += sym.p3 * betAmount;
-        names.push(sym.name);
+    // Draw Classic Green Caterpillar (송충이)
+    function drawCaterpillar(ctx, cat) {
+      ctx.save();
+      const wave = Math.sin(Date.now() / 90 + cat.x * 0.1) * 2.5;
+      const x = Math.floor(cat.x);
+      const y = Math.floor(cat.y - 12);
+
+      // Body segments (Green caterpillar)
+      const segments = 4;
+      for (let i = 0; i < segments; i++) {
+        const segX = x - (i * 5 * cat.dir);
+        const segY = y + (i % 2 === 0 ? wave : -wave * 0.5);
+        ctx.fillStyle = (i % 2 === 0) ? '#48bb78' : '#38a169';
+        ctx.beginPath();
+        ctx.arc(segX, segY, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Little spikes/hairs on back
+        ctx.fillStyle = '#2f855a';
+        ctx.fillRect(segX - 1, segY - 7, 2, 3);
+      }
+
+      // Head
+      const headX = x + (cat.dir * 4);
+      ctx.fillStyle = '#276749';
+      ctx.beginPath();
+      ctx.arc(headX, y, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eyes
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(headX + (cat.dir * 2), y - 3, 2, 3);
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(headX + (cat.dir * 3), y - 2, 1, 2);
+
+      // Antennae
+      ctx.fillStyle = '#ecc94b';
+      ctx.fillRect(headX + (cat.dir * 2), y - 8, 1, 4);
+
+      ctx.restore();
+    }
+
+    // Draw Spikes / Thorns (압정/가시)
+    function drawSpike(ctx, spk) {
+      const x = Math.floor(spk.x);
+      const y = Math.floor(spk.y);
+
+      // Metallic Sharp Tack / Spike
+      ctx.fillStyle = '#e2e8f0';
+      ctx.beginPath();
+      ctx.moveTo(x + 10, y - 13); // Sharp top tip
+      ctx.lineTo(x + 3, y);
+      ctx.lineTo(x + 17, y);
+      ctx.closePath();
+      ctx.fill();
+
+      // Spike highlight & shade
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(x + 10, y - 13);
+      ctx.lineTo(x + 7, y);
+      ctx.lineTo(x + 10, y);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.beginPath();
+      ctx.moveTo(x + 10, y - 13);
+      ctx.lineTo(x + 10, y);
+      ctx.lineTo(x + 17, y);
+      ctx.closePath();
+      ctx.fill();
+
+      // Base mount
+      ctx.fillStyle = '#dc2626';
+      ctx.fillRect(x + 2, y - 2, 16, 3);
+    }
+
+    // Draw Platform Bricks
+    function drawPlatform(ctx, p) {
+      // Main Brick Fill
+      ctx.fillStyle = '#c2410c'; // Brick red/orange
+      ctx.fillRect(p.x, p.y, p.w, p.h);
+
+      // Top Highlight Rim
+      ctx.fillStyle = '#fb923c';
+      ctx.fillRect(p.x, p.y, p.w, 3);
+
+      // Bottom Shadow Rim
+      ctx.fillStyle = '#7c2d12';
+      ctx.fillRect(p.x, p.y + p.h - 2, p.w, 2);
+
+      // Mortar Brick Dividers
+      ctx.fillStyle = '#431407';
+      const brickW = 20;
+      for (let bx = p.x; bx < p.x + p.w; bx += brickW) {
+        ctx.fillRect(bx, p.y, 2, p.h);
       }
     }
 
-    if (total > 0){
-      spawnCoins(10);
-      addWinnings(total, names.map(n=>'3x '+n).join(' · '));
-      finishSpin();
-      return;
+    // Draw Ladder
+    function drawLadder(ctx, lad) {
+      const x = Math.floor(lad.x);
+      const y1 = Math.floor(lad.y1);
+      const y2 = Math.floor(lad.y2);
+      const h = y2 - y1;
+      const w = 22;
+
+      // Vertical Rails (Cyan/Steel Retro Style)
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(x, y1, 3, h);
+      ctx.fillRect(x + w - 3, y1, 3, h);
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(x + 1, y1, 1, h);
+      ctx.fillRect(x + w - 2, y1, 1, h);
+
+      // Horizontal Rungs
+      const rungSpacing = 12;
+      ctx.fillStyle = '#e0f2fe';
+      for (let ry = y1 + 6; ry < y2; ry += rungSpacing) {
+        ctx.fillRect(x + 2, ry, w - 4, 3);
+        ctx.fillStyle = '#0369a1';
+        ctx.fillRect(x + 2, ry + 2, w - 4, 1);
+        ctx.fillStyle = '#e0f2fe';
+      }
     }
 
-    const diamondCount = center.filter(s => s === 'diamond').length;
-    if (diamondCount >= 3){
-      triggerFreeSpins(5 + diamondCount*2);
-      finishSpin();
-      return;
+    // Draw Fruit / Collectibles
+    function drawFood(ctx, food) {
+      const bob = Math.sin(Date.now() / 160 + food.x) * 2;
+      const x = Math.floor(food.x);
+      const y = Math.floor(food.y - 14 + bob);
+
+      ctx.save();
+      switch (food.type) {
+        case 'apple': // Red Apple
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.arc(x + 8, y + 8, 7, 0, Math.PI * 2);
+          ctx.fill();
+          // Stem & Leaf
+          ctx.fillStyle = '#22c55e';
+          ctx.fillRect(x + 9, y, 3, 2);
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(x + 7, y - 2, 2, 3);
+          break;
+
+        case 'carrot': // Orange Carrot
+          ctx.fillStyle = '#f97316';
+          ctx.beginPath();
+          ctx.moveTo(x + 3, y + 2);
+          ctx.lineTo(x + 13, y + 2);
+          ctx.lineTo(x + 8, y + 15);
+          ctx.closePath();
+          ctx.fill();
+          // Green top
+          ctx.fillStyle = '#16a34a';
+          ctx.fillRect(x + 6, y - 2, 4, 4);
+          break;
+
+        case 'grape': // Purple Grapes
+          ctx.fillStyle = '#a855f7';
+          [[6, 6], [11, 6], [4, 10], [9, 10], [13, 10], [7, 14], [11, 14], [9, 17]].forEach(([gx, gy]) => {
+            ctx.beginPath();
+            ctx.arc(x + gx, y + gy - 2, 3, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          // Stem
+          ctx.fillStyle = '#15803d';
+          ctx.fillRect(x + 8, y - 2, 2, 4);
+          break;
+
+        case 'watermelon': // Watermelon slice
+          ctx.fillStyle = '#16a34a';
+          ctx.beginPath();
+          ctx.arc(x + 8, y + 6, 8, 0, Math.PI);
+          ctx.fill();
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.arc(x + 8, y + 6, 6, 0, Math.PI);
+          ctx.fill();
+          // Seeds
+          ctx.fillStyle = '#000000';
+          ctx.fillRect(x + 6, y + 8, 1, 1);
+          ctx.fillRect(x + 9, y + 9, 1, 1);
+          break;
+
+        case 'banana': // Yellow Banana bunch
+          ctx.fillStyle = '#eab308';
+          ctx.beginPath();
+          ctx.arc(x + 8, y + 4, 8, 0.4, 2.2);
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = '#eab308';
+          ctx.stroke();
+          ctx.fillStyle = '#713f12';
+          ctx.fillRect(x + 13, y + 1, 2, 2);
+          break;
+
+        case 'mushroom': // 1UP Red Mushroom
+          ctx.fillStyle = '#dc2626';
+          ctx.beginPath();
+          ctx.arc(x + 8, y + 6, 7, Math.PI, 0);
+          ctx.fill();
+          // White dots
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x + 5, y + 2, 2, 2);
+          ctx.fillRect(x + 9, y + 2, 2, 2);
+          // Stem
+          ctx.fillStyle = '#fed7aa';
+          ctx.fillRect(x + 6, y + 6, 5, 6);
+          break;
+
+        case 'beer': // Golden Beer Mug
+        default:
+          ctx.fillStyle = '#eab308';
+          ctx.fillRect(x + 3, y + 3, 10, 11);
+          // Mug Handle
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x + 12, y + 5, 4, 6);
+          // Frothy White Head
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x + 2, y, 12, 4);
+          break;
+      }
+
+      // Sparkle Shimmer
+      if ((Date.now() + food.x * 20) % 800 < 200) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x + 12, y + 1, 2, 2);
+      }
+      ctx.restore();
     }
 
-    winDisplay.textContent = '다음 기회에...';
-    winDisplay.className = 'led-strip';
-    finishSpin();
-  }
+    function drawHUD(ctx) {
+      // Top HUD Bar Background
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, 34);
 
-  function consecutiveMatch(symbols, count){
-    for (let start=0; start<=symbols.length-count; start++){
-      const sub = symbols.slice(start, start+count);
-      const base = sub.find(s => s !== 'wild');
-      if (!base) continue;
-      if (sub.every(s => s === base || s === 'wild')) return base;
+      ctx.font = '10px "Press Start 2P", monospace';
+      
+      // 1UP Score
+      ctx.fillStyle = '#ff3344';
+      ctx.fillText('1UP', 30, 14);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(String(score).padStart(6, '0'), 30, 28);
+
+      // High Score
+      ctx.fillStyle = '#ffcc00';
+      ctx.fillText('HIGH SCORE', 240, 14);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(String(Math.max(score, highScore)).padStart(6, '0'), 264, 28);
+
+      // Stage
+      ctx.fillStyle = '#00ccff';
+      ctx.fillText('STAGE', 440, 14);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(String(currentStageIndex + 1).padStart(2, '0'), 456, 28);
+
+      // Lives Display (Raccoon Icons)
+      ctx.fillStyle = '#4ade80';
+      ctx.fillText('REST', 530, 14);
+      for (let i = 0; i < lives - 1; i++) {
+        // Mini Raccoon Icon
+        const lx = 530 + (i * 20);
+        ctx.fillStyle = '#7c4a1e';
+        ctx.fillRect(lx, 20, 12, 10);
+        ctx.fillStyle = '#f2d5b6';
+        ctx.fillRect(lx + 3, 23, 6, 6);
+        ctx.fillStyle = '#1e1610';
+        ctx.fillRect(lx + 2, 21, 3, 3);
+        ctx.fillRect(lx + 7, 21, 3, 3);
+      }
+
+      // Bottom Bonus / Time Limit Bar
+      const timerWidth = 360;
+      const curTimerW = Math.max(0, (stageTimer / STAGE_CONFIGS[currentStageIndex].timeLimit) * timerWidth);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(140, 462, timerWidth, 8);
+
+      // Dynamic Color Bar (Green -> Yellow -> Red)
+      if (stageTimer > 25) {
+        ctx.fillStyle = '#22c55e';
+      } else if (stageTimer > 10) {
+        ctx.fillStyle = '#eab308';
+      } else {
+        ctx.fillStyle = '#ef4444';
+      }
+      ctx.fillRect(140, 462, curTimerW, 8);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.fillText('BONUS TIME', 40, 470);
+      ctx.fillText(String(Math.floor(stageTimer)).padStart(2, '0') + 's', 510, 470);
     }
-    return null;
-  }
 
-  function addWinnings(amount, label){
-    balance += amount;
-    winDisplay.textContent = `WIN! ${label} +${amount.toLocaleString()}`;
-    winDisplay.className = amount >= betAmount * 40 ? 'led-strip big' : 'led-strip';
-    updateDisplay();
-  }
-
-  function triggerFreeSpins(count){
-    freeSpinsRemaining += count;
-    freeBadge.style.display = 'inline-block';
-    freeCount.textContent = freeSpinsRemaining;
-    winDisplay.textContent = `FREE SPIN +${count}!`;
-    winDisplay.className = 'led-strip big';
-    spawnCoins(14);
-    updateDisplay();
-  }
-
-  function triggerJackpot(){
-    const win = jackpot;
-    balance += win;
-    jackpot = 5000000;
-    updateDisplay();
-
-    const overlay = document.createElement('div');
-    overlay.className = 'jackpot-overlay';
-    overlay.innerHTML = `
-      <div class="big-text">JACKPOT!!</div>
-      <div class="amt">+${win.toLocaleString()}</div>
-      <button class="pixel-btn" style="font-size:.7rem;">CONTINUE</button>
-    `;
-    overlay.querySelector('button').addEventListener('click', () => overlay.remove());
-    document.body.appendChild(overlay);
-    spawnCoins(40);
-
-    winDisplay.textContent = `JACKPOT! +${win.toLocaleString()}`;
-    winDisplay.className = 'led-strip big';
-    finishSpin();
-  }
-
-  function finishSpin(){
-    isSpinning = false;
-    spinBtn.disabled = false;
-    updateDisplay();
-  }
-
-  function flashMessage(msg){
-    winDisplay.textContent = msg;
-    winDisplay.className = 'led-strip';
-  }
-
-  function spawnCoins(count){
-    for (let i=0;i<count;i++){
-      setTimeout(() => {
-        const c = document.createElement('div');
-        c.className = 'pixel-coin';
-        c.style.left = Math.random()*100 + '%';
-        c.style.top = '-20px';
-        c.style.animationDuration = (1.1 + Math.random()*0.8) + 's';
-        particles.appendChild(c);
-        setTimeout(() => c.remove(), 2000);
-      }, i*40);
+    function spawnFloatingText(text, x, y, color = '#ffeb3b') {
+      floatingTexts.push({
+        text,
+        x,
+        y,
+        color,
+        alpha: 1.0,
+        dy: -1.2
+      });
     }
-  }
 
-  /* ================= UI 업데이트 ================= */
-  function updateDisplay(){
-    balanceValue.textContent = balance.toLocaleString();
-    betValue.textContent = betAmount.toLocaleString();
-    jackpotValue.textContent = jackpot.toLocaleString();
-    spinBtn.textContent = freeSpinsRemaining > 0 ? `▶ FREE (${freeSpinsRemaining})` : '▶ SPIN';
-  }
+    function updateAndDrawFloatingTexts(ctx) {
+      for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        const ft = floatingTexts[i];
+        ft.y += ft.dy;
+        ft.alpha -= 0.025;
 
-  function changeBet(dir){
-    if (isSpinning) return;
-    const idx = BET_OPTIONS.indexOf(betAmount);
-    let next = idx + dir;
-    if (next < 0) next = BET_OPTIONS.length - 1;
-    if (next >= BET_OPTIONS.length) next = 0;
-    betAmount = BET_OPTIONS[next];
-    updateDisplay();
-  }
+        if (ft.alpha <= 0) {
+          floatingTexts.splice(i, 1);
+          continue;
+        }
 
-  function setMaxBet(){
-    if (isSpinning) return;
-    let max = BET_OPTIONS[BET_OPTIONS.length-1];
-    if (max > balance) max = BET_OPTIONS.filter(b => b <= balance).pop() || BET_OPTIONS[0];
-    betAmount = max;
-    updateDisplay();
-  }
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, ft.alpha);
+        ctx.fillStyle = ft.color;
+        ctx.font = '9px "Press Start 2P", monospace';
+        ctx.fillText(ft.text, ft.x - 10, ft.y);
+        ctx.restore();
+      }
+    }
 
-  document.getElementById('spinBtn').addEventListener('click', spin);
-  document.getElementById('betDown').addEventListener('click', () => changeBet(-1));
-  document.getElementById('betUp').addEventListener('click', () => changeBet(1));
-  document.getElementById('betMax').addEventListener('click', setMaxBet);
-  document.addEventListener('keydown', e => {
-    if (e.code === 'Space' && !isSpinning){ e.preventDefault(); spin(); }
-  });
+    function loadStage(index) {
+      currentStageIndex = index % STAGE_CONFIGS.length;
+      const conf = STAGE_CONFIGS[currentStageIndex];
 
-  initReels();
-  updateDisplay();
-})();
-</script>
+      activePlatforms = conf.platforms.map(p => ({ ...p }));
+      activeLadders = conf.ladders.map(l => ({ ...l }));
+      activeSpikes = conf.spikes.map(s => ({ ...s }));
+      activeCaterpillars = conf.caterpillars.map(c => ({ ...c }));
+      activeFoods = conf.foods.map(f => ({ ...f }));
+
+      stageTimer = conf.timeLimit;
+      timerTickAcc = 0;
+      floatingTexts = [];
+
+      resetPlayerPosition();
+    }
+
+    function resetPlayerPosition() {
+      const conf = STAGE_CONFIGS[currentStageIndex];
+      player.x = conf.playerStart.x;
+      player.y = conf.playerStart.y;
+      player.vx = 0;
+      player.vy = 0;
+      player.isGrounded = true;
+      player.isClimbing = false;
+      player.currentLadder = null;
+      player.facing = 1;
+      player.animFrame = 0;
+      player.animTimer = 0;
+      player.deathTimer = 0;
+      player.deathRotation = 0;
+    }
+
+    function updatePlayer() {
+      if (gameState !== 'PLAYING') return;
+
+      const p = player;
+      const conf = STAGE_CONFIGS[currentStageIndex];
+
+      // 1. Check Ladder Attachment
+      let alignedLadder = null;
+      for (const lad of activeLadders) {
+        const ladderCenterX = lad.x + 11;
+        const playerCenterX = p.x + p.w / 2;
+        // Check horizontal alignment proximity
+        if (Math.abs(ladderCenterX - playerCenterX) < 14) {
+          // Check vertical boundary
+          if (p.y + p.h >= lad.y1 - 4 && p.y <= lad.y2 + 2) {
+            alignedLadder = lad;
+            break;
+          }
+        }
+      }
+
+      // 2. Ladder Climbing Movement
+      if (alignedLadder && (keys.ArrowUp || keys.ArrowDown)) {
+        p.isClimbing = true;
+        p.currentLadder = alignedLadder;
+        p.vx = 0;
+        // Snap horizontally to ladder center
+        p.x = (alignedLadder.x + 11) - p.w / 2;
+      }
+
+      if (p.isClimbing && p.currentLadder) {
+        p.vy = 0;
+        let isMovingVertical = false;
+
+        if (keys.ArrowUp) {
+          p.y -= p.climbSpeed;
+          isMovingVertical = true;
+          // Top limit check
+          if (p.y + p.h < p.currentLadder.y1) {
+            p.y = p.currentLadder.y1 - p.h;
+            p.isClimbing = false;
+            p.isGrounded = true;
+          }
+        } else if (keys.ArrowDown) {
+          p.y += p.climbSpeed;
+          isMovingVertical = true;
+          // Bottom limit check
+          if (p.y + p.h >= p.currentLadder.y2) {
+            p.y = p.currentLadder.y2 - p.h;
+            p.isClimbing = false;
+            p.isGrounded = true;
+          }
+        }
+
+        if (isMovingVertical && Math.random() < 0.25) {
+          soundEngine.playClimb();
+        }
+
+        // Drop from ladder if Jump is pressed or player walks off bottom
+        if (keys.Space) {
+          p.isClimbing = false;
+          p.vy = p.jumpPower * 0.7;
+          soundEngine.playJump();
+        }
+        return;
+      }
+
+      // 3. Horizontal Running Movement
+      if (keys.ArrowLeft) {
+        p.vx = -p.speed;
+        p.facing = -1;
+        p.animTimer++;
+        if (p.animTimer % 7 === 0 && p.isGrounded) {
+          p.animFrame++;
+          soundEngine.playWalk();
+        }
+      } else if (keys.ArrowRight) {
+        p.vx = p.speed;
+        p.facing = 1;
+        p.animTimer++;
+        if (p.animTimer % 7 === 0 && p.isGrounded) {
+          p.animFrame++;
+          soundEngine.playWalk();
+        }
+      } else {
+        p.vx = 0;
+        p.animFrame = 0;
+      }
+
+      // 4. Jump Action (Authentic Ponpoko jump arc)
+      if ((keys.Space || keys.ArrowUp) && p.isGrounded) {
+        p.vy = p.jumpPower;
+        p.isGrounded = false;
+        soundEngine.playJump();
+      }
+
+      // 5. Apply Gravity
+      p.vy += p.gravity;
+      if (p.vy > 9) p.vy = 9;
+
+      // 6. Apply Movement
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Screen boundary clamps
+      if (p.x < 10) p.x = 10;
+      if (p.x + p.w > canvas.width - 10) p.x = canvas.width - 10 - p.w;
+
+      // 7. Platform Landing Collision Detection
+      p.isGrounded = false;
+      const feetY = p.y + p.h;
+      const prevFeetY = feetY - p.vy;
+
+      for (const plat of activePlatforms) {
+        // Horizontal overlap
+        if (p.x + p.w > plat.x + 4 && p.x < plat.x + plat.w - 4) {
+          // Downward motion crossing the top surface
+          if (p.vy >= 0 && prevFeetY <= plat.y + 4 && feetY >= plat.y) {
+            p.y = plat.y - p.h;
+            p.vy = 0;
+            p.isGrounded = true;
+            break;
+          }
+        }
+      }
+
+      // Bottom Pit Death
+      if (p.y > canvas.height + 20) {
+        triggerDeath("추락했습니다!");
+      }
+    }
+
+    function updateCaterpillars() {
+      if (gameState !== 'PLAYING') return;
+
+      for (const cat of activeCaterpillars) {
+        cat.x += cat.speed * cat.dir;
+
+        // Platform bounds patrol reversal
+        if (cat.x >= cat.maxX) {
+          cat.x = cat.maxX;
+          cat.dir = -1;
+        } else if (cat.x <= cat.minX) {
+          cat.x = cat.minX;
+          cat.dir = 1;
+        }
+
+        // Collision test with Player
+        // Player bounding box
+        const px = player.x + 4;
+        const py = player.y + 4;
+        const pw = player.w - 8;
+        const ph = player.h - 4;
+
+        // Caterpillar bounding box
+        const cx = cat.x - 10;
+        const cy = cat.y - 14;
+        const cw = 20;
+        const ch = 14;
+
+        if (
+          px < cx + cw &&
+          px + pw > cx &&
+          py < cy + ch &&
+          py + ph > cy
+        ) {
+          triggerDeath("송충이에 닿았습니다!");
+          return;
+        }
+      }
+    }
+
+    function checkSpikeCollisions() {
+      if (gameState !== 'PLAYING') return;
+
+      const px = player.x + 5;
+      const py = player.y + 6;
+      const pw = player.w - 10;
+      const ph = player.h - 6;
+
+      for (const spk of activeSpikes) {
+        // Spike collision box
+        const sx = spk.x + 4;
+        const sy = spk.y - 12;
+        const sw = 12;
+        const sh = 12;
+
+        if (
+          px < sx + sw &&
+          px + pw > sx &&
+          py < sy + sh &&
+          py + ph > sy
+        ) {
+          triggerDeath("가시/압정에 찔렸습니다!");
+          return;
+        }
+      }
+    }
+
+    function checkFoodCollection() {
+      if (gameState !== 'PLAYING') return;
+
+      const px = player.x;
+      const py = player.y;
+      const pw = player.w;
+      const ph = player.h;
+
+      for (let i = activeFoods.length - 1; i >= 0; i--) {
+        const food = activeFoods[i];
+        const fx = food.x;
+        const fy = food.y - 14;
+        const fw = 16;
+        const fh = 16;
+
+        if (
+          px < fx + fw &&
+          px + pw > fx &&
+          py < fy + fh &&
+          py + ph > fy
+        ) {
+          // Collected food!
+          score += food.pts;
+          soundEngine.playItem();
+          spawnFloatingText(`+${food.pts}`, food.x + 8, food.y - 10, '#fbbf24');
+          activeFoods.splice(i, 1);
+
+          // Update High Score immediately
+          if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('ponpoko_high_score', String(highScore));
+            document.getElementById('footerHighScore').textContent = String(highScore).padStart(5, '0');
+          }
+
+          // Check Stage Clear
+          if (activeFoods.length === 0) {
+            triggerStageClear();
+            return;
+          }
+        }
+      }
+    }
+
+    function triggerDeath(reason) {
+      if (gameState === 'DYING' || gameState === 'GAMEOVER') return;
+      gameState = 'DYING';
+      player.deathTimer = 0;
+      soundEngine.stopBGM();
+      soundEngine.playDie();
+
+      spawnFloatingText("OUCH!", player.x + 6, player.y - 16, '#ef4444');
+    }
+
+    function updateDeathSequence() {
+      player.deathTimer += 0.05;
+      player.deathRotation += 0.25;
+
+      if (player.deathTimer > 1.8) {
+        lives--;
+        if (lives <= 0) {
+          triggerGameOver();
+        } else {
+          resetPlayerPosition();
+          gameState = 'PLAYING';
+          soundEngine.startBGM();
+        }
+      }
+    }
+
+    function triggerStageClear() {
+      gameState = 'STAGE_CLEAR';
+      soundEngine.stopBGM();
+      soundEngine.playClear();
+
+      // Bonus tally based on remaining timer
+      stageBonusDisplay = Math.floor(stageTimer) * 50;
+      score += stageBonusDisplay;
+
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('ponpoko_high_score', String(highScore));
+        document.getElementById('footerHighScore').textContent = String(highScore).padStart(5, '0');
+      }
+
+      showModal(`
+        <div class="space-y-4">
+          <h2 class="text-xl font-bold text-amber-400 glow-gold animate-bounce">STAGE CLEAR!</h2>
+          <p class="text-sm text-emerald-400 font-semibold">모든 음식을 획득했습니다!</p>
+          <div class="bg-slate-800 p-3 rounded-md border border-slate-700 text-xs text-left space-y-1">
+            <div class="flex justify-between"><span>남은 시간 보너스:</span><strong class="text-amber-300">+${stageBonusDisplay} PTS</strong></div>
+            <div class="flex justify-between"><span>현재 누적 점수:</span><strong class="text-cyan-300">${score} PTS</strong></div>
+          </div>
+          <button id="nextStageBtn" class="arcade-btn w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-900 font-black rounded text-sm shadow-lg">
+            다음 스테이지 도전 ▶
+          </button>
+        </div>
+      `);
+
+      document.getElementById('nextStageBtn').addEventListener('click', () => {
+        hideModal();
+        loadStage(currentStageIndex + 1);
+        gameState = 'PLAYING';
+        soundEngine.startBGM();
+      });
+    }
+
+    function triggerGameOver() {
+      gameState = 'GAMEOVER';
+      soundEngine.stopBGM();
+
+      showModal(`
+        <div class="space-y-4">
+          <h2 class="text-2xl font-black text-red-500 glow-red animate-pulse">GAME OVER</h2>
+          <p class="text-xs text-slate-300">너구리의 모험이 끝났습니다.</p>
+          <div class="bg-slate-800 p-3 rounded border border-slate-700 text-xs space-y-1">
+            <div class="flex justify-between"><span>최종 점수:</span><strong class="text-amber-400 font-mono text-sm">${score}</strong></div>
+            <div class="flex justify-between"><span>최고 점수:</span><strong class="text-cyan-400 font-mono text-sm">${highScore}</strong></div>
+          </div>
+          <button id="restartBtn" class="arcade-btn w-full py-3 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-black rounded text-sm">
+            다시 시작하기 (RETRY) 🔄
+          </button>
+        </div>
+      `);
+
+      document.getElementById('restartBtn').addEventListener('click', () => {
+        hideModal();
+        startGame();
+      });
+    }
+
+    function startGame() {
+      score = 0;
+      lives = 3;
+      loadStage(0);
+      gameState = 'PLAYING';
+      soundEngine.init();
+      soundEngine.startBGM();
+    }
+
+    function drawTitleScreen(ctx) {
+      ctx.fillStyle = '#050508';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Title Banner
+      ctx.fillStyle = '#ffcc00';
+      ctx.font = '24px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('너구리 (PONPOKO)', canvas.width / 2, 110);
+
+      ctx.font = '10px "Press Start 2P", monospace';
+      ctx.fillStyle = '#00ccff';
+      ctx.fillText('© 1982 SIGMA / RETRO ARCADE CLASSIC', canvas.width / 2, 140);
+
+      // Animated Mascot & Items Showcase
+      const showcaseY = 220;
+      drawRaccoon(ctx, { x: canvas.width / 2 - 80, y: showcaseY - 14, w: 22, h: 24, isClimbing: false, isGrounded: true, vx: 1, animFrame: Math.floor(Date.now() / 150) % 3, facing: 1 });
+      drawCaterpillar(ctx, { x: canvas.width / 2 + 70, y: showcaseY + 4, dir: -1 });
+
+      // Item Point Legend
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.textAlign = 'left';
+      const itemsList = [
+        { type: 'apple', pts: '100 PTS' },
+        { type: 'carrot', pts: '200 PTS' },
+        { type: 'grape', pts: '300 PTS' },
+        { type: 'watermelon', pts: '500 PTS' },
+        { type: 'beer', pts: '800 PTS' }
+      ];
+
+      itemsList.forEach((it, idx) => {
+        const rowX = 140 + (idx % 2 === 0 ? 0 : 200);
+        const rowY = 280 + Math.floor(idx / 2) * 28;
+        drawFood(ctx, { type: it.type, x: rowX, y: rowY });
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(`= ${it.pts}`, rowX + 24, rowY - 2);
+      });
+
+      // Flashing "PRESS START" Text
+      if (Math.floor(Date.now() / 450) % 2 === 0) {
+        ctx.fillStyle = '#4ade80';
+        ctx.font = '13px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('PRESS SPACE OR TAP TO PLAY', canvas.width / 2, 400);
+      }
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '9px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('ARROW KEYS / WASD : MOVE & CLIMB', canvas.width / 2, 435);
+      ctx.fillText('SPACE : JUMP OVER SPIKES & BUGS', canvas.width / 2, 455);
+    }
+
+    function gameLoop(timestamp) {
+      // 1. Clear Screen
+      ctx.fillStyle = '#050508';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (gameState === 'TITLE') {
+        drawTitleScreen(ctx);
+      } else {
+        // Update Timers & Physics
+        if (gameState === 'PLAYING') {
+          timerTickAcc += 1 / 60;
+          if (timerTickAcc >= 1.0) {
+            timerTickAcc -= 1.0;
+            stageTimer--;
+            if (stageTimer <= 0) {
+              triggerDeath("시간이 초과되었습니다!");
+            }
+          }
+
+          updatePlayer();
+          updateCaterpillars();
+          checkSpikeCollisions();
+          checkFoodCollection();
+        } else if (gameState === 'DYING') {
+          updateDeathSequence();
+        }
+
+        // Draw Stage Graphics
+        // 1. Ladders
+        for (const lad of activeLadders) {
+          drawLadder(ctx, lad);
+        }
+
+        // 2. Platforms
+        for (const plat of activePlatforms) {
+          drawPlatform(ctx, plat);
+        }
+
+        // 3. Spikes
+        for (const spk of activeSpikes) {
+          drawSpike(ctx, spk);
+        }
+
+        // 4. Foods
+        for (const food of activeFoods) {
+          drawFood(ctx, food);
+        }
+
+        // 5. Caterpillars
+        for (const cat of activeCaterpillars) {
+          drawCaterpillar(ctx, cat);
+        }
+
+        // 6. Player Raccoon
+        drawRaccoon(ctx, player);
+
+        // 7. Floating score tags
+        updateAndDrawFloatingTexts(ctx);
+
+        // 8. Arcade HUD Overlay
+        drawHUD(ctx);
+
+        // 9. Paused Overlay Indicator
+        if (gameState === 'PAUSED') {
+          ctx.fillStyle = 'rgba(0,0,0,0.65)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = '#ffcc00';
+          ctx.font = '20px "Press Start 2P", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
+          ctx.font = '10px "Press Start 2P", monospace';
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText('PRESS P TO RESUME', canvas.width / 2, canvas.height / 2 + 30);
+        }
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalContent = document.getElementById('modalContent');
+
+    function showModal(html) {
+      modalContent.innerHTML = html;
+      modalOverlay.classList.remove('hidden');
+    }
+
+    function hideModal() {
+      modalOverlay.classList.add('hidden');
+    }
+
+    function togglePause() {
+      if (gameState === 'PLAYING') {
+        gameState = 'PAUSED';
+        soundEngine.stopBGM();
+      } else if (gameState === 'PAUSED') {
+        gameState = 'PLAYING';
+        soundEngine.startBGM();
+      }
+    }
+
+    // Modal Help Action
+    document.getElementById('helpBtn').addEventListener('click', () => {
+      const prev = gameState;
+      if (gameState === 'PLAYING') {
+        gameState = 'PAUSED';
+        soundEngine.stopBGM();
+      }
+
+      showModal(`
+        <div class="space-y-3 text-left">
+          <h2 class="text-base font-bold text-amber-400 text-center glow-gold">게임 방법 & 규칙</h2>
+          <div class="text-xs text-slate-300 space-y-2 leading-relaxed">
+            <p>🐾 <strong>목표:</strong> 너구리를 조종하여 각 층의 모든 과일과 음식을 모으면 스테이지를 클리어합니다!</p>
+            <p>🐛 <strong>송충이 & 가시:</strong> 기어다니는 초록 송충이나 바닥의 압정/가시에 닿으면 생명을 잃습니다. 타이밍 맞춰 <strong>점프</strong>로 뛰어넘으세요!</p>
+            <p>🪜 <strong>사다리:</strong> 사다리 위치에서 <strong>위/아래 방향키</strong>로 층을 오르내릴 수 있습니다.</p>
+            <p>⏰ <strong>보너스 타임:</strong> 시간이 0이 되기 전에 클리어하면 남은 시간에 비례하여 막대한 보너스 점수를 획득합니다.</p>
+          </div>
+          <button id="closeHelpBtn" class="arcade-btn w-full py-2.5 bg-slate-700 hover:bg-slate-600 border border-slate-500 rounded text-xs text-white font-bold mt-2">
+            닫기 (닫고 계속하기)
+          </button>
+        </div>
+      `);
+
+      document.getElementById('closeHelpBtn').addEventListener('click', () => {
+        hideModal();
+        if (prev === 'PLAYING') {
+          gameState = 'PLAYING';
+          soundEngine.startBGM();
+        }
+      });
+    });
+
+    // Sound Toggle Button
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+    const soundIcon = document.getElementById('soundIcon');
+    soundToggleBtn.addEventListener('click', () => {
+      const muted = soundEngine.toggleMute();
+      soundIcon.textContent = muted ? '🔇' : '🔊';
+    });
+
+    // CRT Scanline Toggle Button
+    const crtToggleBtn = document.getElementById('crtToggleBtn');
+    const scanlineLayer = document.getElementById('scanlineLayer');
+    let crtActive = true;
+    crtToggleBtn.addEventListener('click', () => {
+      crtActive = !crtActive;
+      scanlineLayer.style.display = crtActive ? 'block' : 'none';
+    });
+
+    // Keyboard Event Handlers
+    window.addEventListener('keydown', (e) => {
+      soundEngine.init();
+
+      if (e.code === 'KeyP') {
+        togglePause();
+        return;
+      }
+
+      if (gameState === 'TITLE' && (e.code === 'Space' || e.code === 'Enter')) {
+        startGame();
+        return;
+      }
+
+      switch (e.code) {
+        case 'ArrowLeft':
+        case 'KeyA':
+          keys.ArrowLeft = true;
+          break;
+        case 'ArrowRight':
+        case 'KeyD':
+          keys.ArrowRight = true;
+          break;
+        case 'ArrowUp':
+        case 'KeyW':
+          keys.ArrowUp = true;
+          break;
+        case 'ArrowDown':
+        case 'KeyS':
+          keys.ArrowDown = true;
+          break;
+        case 'Space':
+          keys.Space = true;
+          break;
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      switch (e.code) {
+        case 'ArrowLeft':
+        case 'KeyA':
+          keys.ArrowLeft = false;
+          break;
+        case 'ArrowRight':
+        case 'KeyD':
+          keys.ArrowRight = false;
+          break;
+        case 'ArrowUp':
+        case 'KeyW':
+          keys.ArrowUp = false;
+          break;
+        case 'ArrowDown':
+        case 'KeyS':
+          keys.ArrowDown = false;
+          break;
+        case 'Space':
+          keys.Space = false;
+          break;
+      }
+    });
+
+    // Canvas click to start on title screen
+    canvas.addEventListener('click', () => {
+      soundEngine.init();
+      if (gameState === 'TITLE') {
+        startGame();
+      }
+    });
+
+    // Mobile / Touch Virtual Controls
+    function setupVirtualButton(id, keyName) {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+
+      const press = (e) => {
+        e.preventDefault();
+        soundEngine.init();
+        if (gameState === 'TITLE') {
+          startGame();
+          return;
+        }
+        keys[keyName] = true;
+        btn.classList.add('pressed');
+      };
+
+      const release = (e) => {
+        e.preventDefault();
+        keys[keyName] = false;
+        btn.classList.remove('pressed');
+      };
+
+      btn.addEventListener('touchstart', press, { passive: false });
+      btn.addEventListener('touchend', release, { passive: false });
+      btn.addEventListener('mousedown', press);
+      btn.addEventListener('mouseup', release);
+      btn.addEventListener('mouseleave', release);
+    }
+
+    setupVirtualButton('vLeft', 'ArrowLeft');
+    setupVirtualButton('vRight', 'ArrowRight');
+    setupVirtualButton('vUp', 'ArrowUp');
+    setupVirtualButton('vDown', 'ArrowDown');
+    setupVirtualButton('vJump', 'Space');
+
+    document.getElementById('vPause').addEventListener('click', togglePause);
+
+    window.onload = () => {
+      document.getElementById('footerHighScore').textContent = String(highScore).padStart(5, '0');
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
 </body>
 </html>
