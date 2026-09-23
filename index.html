@@ -1,1568 +1,989 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>슈퍼 로또 6/45 - 1등 1/814 초정밀 부스트 시뮬레이터</title>
-  
-  <!-- Fonts & Tailwind CSS -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <style>
-    :root {
-      --ball-yellow: #fbc400;
-      --ball-blue: #2b7fff;
-      --ball-red: #ff3b30;
-      --ball-gray: #8e8e93;
-      --ball-green: #34c759;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Galaga 1981 - Tractor Beam Fixed</title>
+<style>
+  :root {
+    --cabinet-border: #1a1c23;
+    --neon-blue: #00d2ff;
+    --neon-red: #ff2a5f;
+    --neon-gold: #ffcc00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+  body {
+    background: #030407;
+    color: #fff;
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
 
-    * {
-      box-sizing: border-box;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: manipulation;
-    }
+  #cabinet {
+    position: relative;
+    width: 100vw;
+    max-width: 520px;
+    height: 100vh;
+    max-height: 720px;
+    background: #000;
+    border: 4px solid var(--cabinet-border);
+    box-shadow: 0 0 40px rgba(0, 210, 255, 0.15), 0 0 80px rgba(255, 42, 95, 0.15);
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 3 / 4;
+  }
 
-    body {
-      background: radial-gradient(circle at 50% 15%, #111827 0%, #080c16 50%, #030509 100%);
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-      color: #f3f4f6;
-      min-height: 100vh;
-      overflow-x: hidden;
-      margin: 0;
-      padding: 0;
-    }
+  #cabinet::before {
+    content: " ";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
+                linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,255,0,0.01), rgba(0,0,255,0.02));
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
 
-    .font-digital {
-      font-family: 'Orbitron', monospace;
-    }
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
 
-    /* 3D Glass & Neumorphic Studio Panels */
-    .studio-panel {
-      background: rgba(17, 24, 39, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-
-    /* Tactile 3D Buttons */
-    .btn-tactile {
-      transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.5), 0 6px 14px rgba(0, 0, 0, 0.35);
-    }
-    .btn-tactile:active:not(:disabled) {
-      transform: translateY(3px);
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5), 0 2px 5px rgba(0, 0, 0, 0.35);
-    }
-    .btn-tactile:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      filter: grayscale(0.85);
-      transform: none !important;
-    }
-
-    /* 3D Shaded Lotto Spheres */
-    .lotto-ball-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 9999px;
-      font-weight: 900;
-      box-shadow: 
-        inset -2px -3px 6px rgba(0, 0, 0, 0.5),
-        inset 2px 3px 5px rgba(255, 255, 255, 0.65),
-        0 4px 8px rgba(0, 0, 0, 0.45);
-      position: relative;
-    }
-
-    .ball-theme-yellow {
-      background: radial-gradient(circle at 35% 30%, #fff7a1 0%, #fbc400 65%, #b57a00 100%);
-      color: #3b2800;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-    }
-    .ball-theme-blue {
-      background: radial-gradient(circle at 35% 30%, #aadaff 0%, #2b7fff 65%, #0f4bb5 100%);
-      color: #ffffff;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    }
-    .ball-theme-red {
-      background: radial-gradient(circle at 35% 30%, #ffb1b1 0%, #ff3b30 65%, #a80f07 100%);
-      color: #ffffff;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    }
-    .ball-theme-gray {
-      background: radial-gradient(circle at 35% 30%, #eeeeee 0%, #8e8e93 65%, #444448 100%);
-      color: #ffffff;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    }
-    .ball-theme-green {
-      background: radial-gradient(circle at 35% 30%, #c4ffd2 0%, #34c759 65%, #12792d 100%);
-      color: #063110;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
-    }
-
-    /* Golden Ring Glow for Matched Numbers */
-    .ball-matched {
-      box-shadow: 0 0 0 3px #ffd700, 0 0 18px #ffb700 !important;
-      animation: pulseMatch 1.2s infinite alternate ease-in-out;
-    }
-    @keyframes pulseMatch {
-      0% { transform: scale(1); filter: brightness(1); }
-      100% { transform: scale(1.14); filter: brightness(1.25); }
-    }
-
-    /* Screen Tremble on Big Win */
-    @keyframes bigWinTremble {
-      0%, 100% { transform: translate(0, 0); }
-      15% { transform: translate(-4px, 4px) rotate(-0.5deg); }
-      30% { transform: translate(4px, -4px) rotate(0.5deg); }
-      45% { transform: translate(-3px, -3px) rotate(-0.3deg); }
-      60% { transform: translate(3px, 3px) rotate(0.3deg); }
-      75% { transform: translate(-2px, 1px); }
-    }
-    .shake-active {
-      animation: bigWinTremble 0.45s ease-in-out;
-    }
-
-    /* Rack Ball Arrival Animation */
-    @keyframes ballDropSpring {
-      0% { transform: translateY(-50px) scale(0.4); opacity: 0; }
-      65% { transform: translateY(5px) scale(1.15); opacity: 1; }
-      85% { transform: translateY(-2px) scale(0.96); }
-      100% { transform: translateY(0) scale(1); opacity: 1; }
-    }
-    .ball-rack-animate {
-      animation: ballDropSpring 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
-  </style>
+  #touch-controls {
+    display: none;
+    position: absolute;
+    bottom: 16px;
+    left: 0; right: 0;
+    padding: 0 20px;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 20;
+    pointer-events: none;
+  }
+  @media (pointer: coarse) {
+    #touch-controls { display: flex; }
+  }
+  .touch-group { display: flex; gap: 14px; pointer-events: auto; }
+  .t-btn {
+    width: 62px; height: 62px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 22px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation;
+  }
+  .t-btn:active { background: rgba(0, 210, 255, 0.4); border-color: var(--neon-blue); }
+  .btn-fire {
+    width: 74px; height: 74px;
+    background: rgba(255, 42, 95, 0.25);
+    border-color: var(--neon-red);
+    color: var(--neon-red);
+    font-size: 15px;
+    pointer-events: auto;
+  }
+  .btn-fire:active { background: rgba(255, 42, 95, 0.6); }
+</style>
 </head>
-<body class="flex flex-col items-center justify-start p-2 sm:p-4 min-h-screen">
+<body>
 
-  <!-- Top Broadcast Marquee Bar -->
-  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 studio-panel rounded-2xl mb-3 border border-slate-700/60 shadow-2xl">
-    <div class="flex items-center gap-3">
-      <div class="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-yellow-600 text-slate-950 font-black text-xl shadow-lg shadow-amber-500/20">
-        6/45
-        <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 border-2 border-slate-900"></span>
-        </span>
-      </div>
-      <div>
-        <div class="flex items-center gap-2">
-          <h1 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-1.5">
-            슈퍼 로또 6/45 <span class="text-amber-400">라이브 스튜디오</span>
-          </h1>
-          <span class="px-2 py-0.5 rounded text-[10px] font-black bg-gradient-to-r from-red-600 to-rose-600 text-white tracking-wider animate-pulse">ON-AIR</span>
-        </div>
-        <p class="text-[11px] text-slate-400 font-medium flex items-center gap-1.5">
-          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span>확률 보정 가동: <strong>1등 1/814</strong> (0.123%) | <strong>2등 1/135</strong> (0.741%)</span>
-        </p>
-      </div>
+<div id="cabinet">
+  <canvas id="gameCanvas" width="480" height="640"></canvas>
+  <div id="touch-controls">
+    <div class="touch-group">
+      <div class="t-btn" id="t-left">◀</div>
+      <div class="t-btn" id="t-right">▶</div>
     </div>
-
-    <!-- Quick Utilities -->
-    <div class="flex items-center gap-2">
-      <div class="hidden sm:flex items-center gap-1 px-3 py-1 rounded-xl bg-slate-900/80 border border-slate-700 text-xs font-semibold text-amber-300">
-        <span>회차: 제</span>
-        <strong id="roundBadge" class="font-digital text-sm text-white">1140</strong>
-        <span>회</span>
-      </div>
-      <button id="soundToggleBtn" class="btn-tactile px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold flex items-center gap-1.5 text-amber-300">
-        <span id="soundIcon">🔊</span>
-        <span class="hidden md:inline">SOUND</span>
-      </button>
-      <button id="helpModalBtn" class="btn-tactile px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 flex items-center gap-1">
-        <span>❓</span>
-        <span class="hidden md:inline">확률 가이드</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Live Financial & Jackpot Scoreboard -->
-  <section class="w-full max-w-6xl grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
-    <div class="studio-panel p-3 rounded-xl border border-amber-500/30 text-center relative overflow-hidden group">
-      <div class="absolute -right-3 -top-3 text-4xl opacity-10 group-hover:opacity-20 transition text-amber-400">👑</div>
-      <span class="text-[10px] text-amber-300/80 font-bold block tracking-wider">1등 추정 누적 당첨금</span>
-      <span id="jackpotText" class="font-digital text-sm sm:text-lg font-black text-amber-400 drop-shadow-[0_0_8px_rgba(251,196,0,0.3)]">2,854,000,000 원</span>
-    </div>
-    <div class="studio-panel p-3 rounded-xl border border-slate-800 text-center relative overflow-hidden group">
-      <div class="absolute -right-3 -top-3 text-4xl opacity-10 group-hover:opacity-20 transition text-emerald-400">💰</div>
-      <span class="text-[10px] text-slate-400 font-bold block tracking-wider">내 보유 자산</span>
-      <span id="myBalanceText" class="font-digital text-sm sm:text-lg font-black text-emerald-400">100,000 원</span>
-    </div>
-    <div class="studio-panel p-3 rounded-xl border border-slate-800 text-center relative overflow-hidden group">
-      <div class="absolute -right-3 -top-3 text-4xl opacity-10 group-hover:opacity-20 transition text-yellow-400">🏆</div>
-      <span class="text-[10px] text-slate-400 font-bold block tracking-wider">누적 수령 당첨금</span>
-      <span id="totalWonText" class="font-digital text-sm sm:text-lg font-black text-yellow-300">0 원</span>
-    </div>
-    <div class="studio-panel p-3 rounded-xl border border-slate-800 text-center relative overflow-hidden group">
-      <div class="absolute -right-3 -top-3 text-4xl opacity-10 group-hover:opacity-20 transition text-cyan-400">📈</div>
-      <span class="text-[10px] text-slate-400 font-bold block tracking-wider">통산 수익률 (ROI)</span>
-      <span id="roiText" class="font-digital text-sm sm:text-lg font-black text-slate-300">0.0%</span>
-    </div>
-  </section>
-
-  <!-- Detailed Live Stats Breakdown Bar -->
-  <section class="w-full max-w-6xl studio-panel rounded-xl px-4 py-2 text-xs flex flex-wrap items-center justify-between gap-2.5 mb-3 border border-slate-800 shadow-inner">
-    <div class="flex items-center gap-3">
-      <span class="text-slate-400 font-bold">📊 시행 통계:</span>
-      <span>총 추첨 <strong id="statDraws" class="font-digital text-amber-300 text-sm">0</strong> 회</span>
-      <span class="text-slate-600">|</span>
-      <span>총 발권 <strong id="statGames" class="font-digital text-slate-200 text-sm">0</strong> 게임</span>
-    </div>
-    <div class="flex flex-wrap items-center gap-3 font-semibold text-[11px]">
-      <span class="text-amber-400">👑 1등: <b id="statRank1" class="font-digital text-white font-black text-sm">0</b></span>
-      <span class="text-cyan-400">🥈 2등: <b id="statRank2" class="font-digital text-white font-black text-sm">0</b></span>
-      <span class="text-emerald-400">🥉 3등: <b id="statRank3" class="font-digital text-white font-black text-sm">0</b></span>
-      <span class="text-indigo-400">4등: <b id="statRank4" class="font-digital text-white font-black text-sm">0</b></span>
-      <span class="text-rose-400">5등: <b id="statRank5" class="font-digital text-white font-black text-sm">0</b></span>
-      <button id="resetStatsBtn" class="text-[11px] text-slate-500 hover:text-red-400 underline ml-2 transition">
-        통계 초기화
-      </button>
-    </div>
-  </section>
-
-  <!-- Main Studio Workspace (Left: 2D Physics Acrylic Machine / Right: Interactive OMR Slip) -->
-  <main id="mainCabinet" class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
-    
-    <!-- LEFT PANEL: Acrylic Blower Machine Stage & Drawn Ball Rack (lg:col-span-7) -->
-    <div class="lg:col-span-7 flex flex-col gap-3">
-      
-      <!-- Acrylic Sphere Mechanical Blower Canvas Stage -->
-      <div class="relative w-full aspect-[4/3] max-h-[460px] rounded-2xl overflow-hidden studio-panel border-2 border-slate-700/80 shadow-2xl flex flex-col items-center justify-between p-3">
-        
-        <!-- Overhead Tube Status Badge -->
-        <div class="w-full flex items-center justify-between px-2 z-10">
-          <div class="flex items-center gap-1.5 bg-slate-950/80 border border-slate-700/80 px-3 py-1 rounded-full text-[11px] text-slate-300 font-semibold backdrop-blur-md shadow-md">
-            <span id="blowerStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34c759]"></span>
-            <span id="blowerStatusText">추첨기 대기 중 (STANDBY)</span>
-          </div>
-          <div class="flex items-center gap-1.5 bg-slate-950/80 border border-amber-500/50 px-3 py-1 rounded-full text-[11px] font-bold text-amber-300 backdrop-blur-md">
-            <span>🔴 LIVE CAM</span>
-          </div>
-        </div>
-
-        <!-- 2D Physics Canvas for Swirling Balls Inside Sphere -->
-        <canvas id="blowerCanvas" class="w-full h-full absolute inset-0 block cursor-pointer"></canvas>
-
-        <!-- Confetti Particle Overlay Canvas -->
-        <canvas id="confettiCanvas" class="w-full h-full absolute inset-0 pointer-events-none z-20"></canvas>
-
-        <!-- Dynamic Announcement Alert Bar -->
-        <div id="liveAlertBar" class="z-10 px-4 py-1.5 rounded-full bg-slate-950/90 border border-amber-400 text-amber-300 font-bold text-xs tracking-wide shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none mb-1 text-center">
-          준비 완료! 번호 추첨을 시작하세요.
-        </div>
-      </div>
-
-      <!-- Winning Numbers Output Tray (6 Main Balls + 1 Bonus Ball) -->
-      <div class="w-full studio-panel border-2 border-amber-500/40 rounded-2xl p-3.5 shadow-xl flex flex-col gap-2.5">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1">
-              <span>🎯</span> 제 <span id="rackRoundLabel" class="text-white">1140</span>회 당첨 번호
-            </span>
-            <span id="rackSubLabel" class="text-[10px] text-slate-400 font-medium">(추첨 대기)</span>
-          </div>
-          <span class="text-[10px] text-slate-400 font-medium">당첨 기준: 6개(1등) / 5개+보너스(2등)</span>
-        </div>
-
-        <!-- Ball Slots Container -->
-        <div class="flex items-center justify-between gap-1 sm:gap-2 px-1 py-1">
-          <!-- 6 Main Drawn Balls -->
-          <div class="flex items-center gap-1.5 sm:gap-2.5 flex-1 justify-around">
-            <div id="slot0" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
-            <div id="slot1" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
-            <div id="slot2" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
-            <div id="slot3" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
-            <div id="slot4" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
-            <div id="slot5" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm">?</div>
-          </div>
-
-          <div class="text-slate-500 font-black text-lg px-0.5 sm:px-1.5">+</div>
-
-          <!-- Bonus Ball Slot -->
-          <div class="flex flex-col items-center">
-            <div id="slotBonus" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-amber-600/60 bg-slate-950/70 flex items-center justify-center font-bold text-amber-500/70 text-[10px] sm:text-xs">보너스</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Action Control Console Buttons -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <button id="drawBtn" class="btn-tactile py-3 px-2 rounded-xl bg-gradient-to-r from-red-600 via-amber-500 to-yellow-400 hover:from-red-500 hover:to-yellow-300 text-slate-950 font-black text-xs sm:text-sm tracking-tight shadow-lg flex items-center justify-center gap-1.5">
-          <span>▶️</span>
-          <span>추첨 시작</span>
-        </button>
-
-        <button id="instantDrawBtn" class="btn-tactile py-3 px-2 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white font-bold text-xs sm:text-sm tracking-tight shadow-lg flex items-center justify-center gap-1">
-          <span>⚡</span>
-          <span>즉시 추첨</span>
-        </button>
-
-        <button id="draw10Btn" class="btn-tactile py-3 px-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm tracking-tight shadow-lg flex items-center justify-center gap-1">
-          <span>⏩</span>
-          <span>10회 고속</span>
-        </button>
-
-        <button id="autoUntil1stBtn" class="btn-tactile py-3 px-2 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 hover:from-purple-500 hover:to-rose-500 text-white font-bold text-xs sm:text-sm tracking-tight shadow-lg flex items-center justify-center gap-1">
-          <span>🎯</span>
-          <span>1등 나올때까지</span>
-        </button>
-
-        <!-- Simulation Cancel Stop Button (Shown during continuous loop) -->
-        <button id="stopSimBtn" class="btn-tactile col-span-2 sm:col-span-4 py-3 rounded-xl bg-gradient-to-r from-red-700 to-rose-800 text-white font-black text-sm tracking-wider shadow-xl hidden flex items-center justify-center gap-2 animate-pulse border border-red-400">
-          <span>🛑</span>
-          <span>시뮬레이션 즉시 중지</span>
-        </button>
-      </div>
-
-    </div>
-
-    <!-- RIGHT PANEL: Korean Lotto 6/45 OMR Paper Slip (lg:col-span-5) -->
-    <div class="lg:col-span-5 flex flex-col gap-3">
-      
-      <!-- OMR Ticket Container -->
-      <div class="studio-panel border-2 border-slate-700/80 rounded-2xl p-3.5 shadow-xl flex flex-col gap-2.5">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-black text-amber-300 flex items-center gap-1">
-              <span>📋</span> 로또 6/45 발권표 (OMR)
-            </span>
-            <span id="ticketCountBadge" class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] px-2 py-0.5 rounded-full font-bold">5게임 (5,000원)</span>
-          </div>
-          <button id="clearSlipBtn" class="text-[11px] text-slate-400 hover:text-red-400 underline transition">
-            전체 비우기
-          </button>
-        </div>
-
-        <!-- 5 Game Rows (A, B, C, D, E) -->
-        <div id="gamesList" class="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-1">
-          <!-- Dynamically populated via JS -->
-        </div>
-
-        <!-- Quick Ticket Operations -->
-        <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800">
-          <button id="buy5AutoBtn" class="btn-tactile py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-bold text-amber-300 flex items-center justify-center gap-1">
-            <span>🎲</span> 5게임 자동
-          </button>
-          <button id="add1AutoBtn" class="btn-tactile py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-bold text-slate-200 flex items-center justify-center gap-1">
-            <span>➕</span> 1게임 추가
-          </button>
-          <button id="openManualPadBtn" class="btn-tactile py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-bold text-cyan-300 flex items-center justify-center gap-1">
-            <span>✏️</span> 번호 마킹
-          </button>
-        </div>
-      </div>
-
-      <!-- Interactive 1~45 OMR Number Marking Pad -->
-      <div id="manualPadSection" class="studio-panel rounded-2xl p-3.5 shadow-lg border border-slate-700/80 flex flex-col gap-2.5">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-1.5">
-            <span class="text-xs font-bold text-cyan-400">수동 번호 마킹 패드</span>
-            <span class="text-[11px] text-slate-400">(선택: <strong id="selectedNumCount" class="text-amber-400 text-sm">0</strong>/6)</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <button id="padQuickAutoBtn" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-amber-300 text-[10px] font-bold rounded border border-slate-600">자동 6개</button>
-            <button id="padClearBtn" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-bold rounded border border-slate-600">초기화</button>
-          </div>
-        </div>
-
-        <!-- 1~45 Number Grid -->
-        <div id="numberPadGrid" class="grid grid-cols-9 gap-1 sm:gap-1.5 pt-1">
-          <!-- Injected via JavaScript -->
-        </div>
-
-        <button id="submitManualGameBtn" class="btn-tactile w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-xl text-white font-bold text-xs shadow-md disabled:opacity-40 flex items-center justify-center gap-1">
-          <span>📝</span>
-          <span>선택한 6개 번호로 신규 게임 등록 (1,000원)</span>
-        </button>
-      </div>
-
-      <!-- Real Prize Payout Matrix Reference -->
-      <div class="studio-panel rounded-xl p-3 text-[11px] text-slate-400 space-y-1 border border-slate-800">
-        <div class="flex justify-between text-slate-300 font-bold border-b border-slate-800 pb-1">
-          <span>등위 (보정 당첨 확률)</span>
-          <span>당첨금 기준</span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-amber-400 font-bold">👑 1등 (6개 일치 / 1:814)</span>
-          <strong class="text-amber-300">약 28억 5천만 원</strong>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-cyan-400 font-bold">🥈 2등 (5개+보너스 / 1:135)</span>
-          <strong class="text-cyan-300">약 6,500만 원</strong>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-emerald-400">🥉 3등 (5개 일치 / 1:25)</span>
-          <span>약 150만 원</span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-indigo-300">4등 (4개 일치 / 1:6)</span>
-          <span>고정 50,000원</span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-rose-300">5등 (3개 일치 / 1:3)</span>
-          <span>고정 5,000원</span>
-        </div>
-      </div>
-
-    </div>
-  </main>
-
-  <!-- GRAND WINNER CELEBRATION MODAL -->
-  <div id="winModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="studio-panel border-4 border-amber-400 rounded-3xl p-6 max-w-md w-full text-center relative shadow-[0_0_80px_rgba(251,196,0,0.5)] flex flex-col items-center">
-      
-      <span class="text-5xl animate-bounce mb-1">🎉</span>
-      <h2 id="winModalTitle" class="text-2xl sm:text-3xl font-black text-amber-300 tracking-wider">
-        1등 대박 잭팟 당첨!
-      </h2>
-      <p id="winModalSub" class="text-xs sm:text-sm text-slate-300 mt-1">
-        1/814 확률의 기적을 뚫고 1등 신화를 달성했습니다!
-      </p>
-
-      <div class="w-full bg-slate-950 border border-amber-500/50 rounded-2xl p-4 my-4 flex flex-col gap-2">
-        <span class="text-xs text-amber-200/80 font-bold">총 수령 당첨금</span>
-        <span id="winModalPrizeText" class="font-digital text-2xl sm:text-3xl font-black text-yellow-300">
-          2,854,000,000 원
-        </span>
-        <div id="winModalDetailList" class="text-xs text-slate-300 border-t border-slate-800 pt-2 flex flex-col gap-1 text-left max-h-36 overflow-y-auto">
-          <!-- Injected dynamically -->
-        </div>
-      </div>
-
-      <button id="closeWinModalBtn" class="btn-tactile w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-sm tracking-wider shadow-xl">
-        당첨금 전액 지갑으로 입금하기
-      </button>
-    </div>
+    <div class="t-btn btn-fire" id="t-fire">FIRE</div>
   </div>
+</div>
 
-  <!-- HELP & PROBABILITY GUIDE MODAL -->
-  <div id="helpModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="studio-panel border-2 border-slate-700 rounded-2xl p-5 max-w-lg w-full text-left shadow-2xl space-y-3">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-        <h3 class="font-black text-base text-amber-300 flex items-center gap-1.5">
-          <span>💡</span> 슈퍼 로또 6/45 시스템 안내
-        </h3>
-        <button id="closeHelpModalBtn" class="text-slate-400 hover:text-white font-bold text-lg p-1">✕</button>
-      </div>
-      <div class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
-        <p>
-          🔥 <strong>초정밀 부스트 확률 엔진 (요청 사양 적용):</strong><br>
-          실제 로또 1등 확률인 <strong>8,145,060분의 1 (0.000012%)</strong>을 현실감과 당첨 쾌감을 동시에 누릴 수 있도록 다음과 같이 정밀 보정했습니다:
-        </p>
-        <ul class="list-disc pl-5 space-y-1 text-amber-200">
-          <li><strong>1등 (6개 일치):</strong> <strong>814분의 1</strong> (약 0.123%)</li>
-          <li><strong>2등 (5개 + 보너스 일치):</strong> <strong>135분의 1</strong> (약 0.741%)</li>
-          <li><strong>3등 (5개 일치):</strong> <strong>25분의 1</strong> (약 4.0%)</li>
-          <li><strong>4등 (4개 일치):</strong> <strong>6분의 1</strong> (약 16.7%)</li>
-          <li><strong>5등 (3개 일치):</strong> <strong>3분의 1</strong> (약 33.3%)</li>
-        </ul>
-        <p>
-          🎯 <strong>1등 나올 때까지 시뮬레이션:</strong><br>
-          1/814 확률을 뚫고 1등이 나올 때까지 브라우저 멈춤 없이 백그라운드 청크 비동기 연산으로 초당 수백 회차를 고속 시뮬레이션합니다. 총 소요 비용과 통산 ROI를 실시간으로 확인해보세요!
-        </p>
-      </div>
-    </div>
-  </div>
+<script>
+/**
+ * 1. 8-BIT AUDIO SYNTHESIZER
+ */
+const Sound = {
+  ctx: null,
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new AudioCtx();
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+  },
+  playLaser() {
+    this.init();
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(950, t);
+    osc.frequency.exponentialRampToValueAtTime(130, t + 0.11);
+    gain.gain.setValueAtTime(0.25, t);
+    gain.gain.linearRampToValueAtTime(0.01, t + 0.11);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(t); osc.stop(t + 0.11);
+  },
+  playExplode() {
+    this.init();
+    const t = this.ctx.currentTime;
+    const dur = 0.25;
+    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * dur, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buf;
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(850, t);
+    filter.frequency.linearRampToValueAtTime(80, t + dur);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.3, t);
+    gain.gain.linearRampToValueAtTime(0.01, t + dur);
+    noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+    noise.start(t);
+  },
+  playTractorHum() {
+    this.init();
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(160, t);
+    osc.frequency.linearRampToValueAtTime(320, t + 0.1);
+    osc.frequency.linearRampToValueAtTime(160, t + 0.2);
+    gain.gain.setValueAtTime(0.15, t);
+    gain.gain.linearRampToValueAtTime(0.01, t + 0.2);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(t); osc.stop(t + 0.2);
+  },
+  playDockingFanfare() {
+    this.init();
+    const notes = [440, 554.37, 659.25, 880];
+    notes.forEach((freq, idx) => {
+      const t = this.ctx.currentTime + idx * 0.08;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.18, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+      osc.connect(gain); gain.connect(this.ctx.destination);
+      osc.start(t); osc.stop(t + 0.14);
+    });
+  }
+};
 
-  <script>
-    /**
-     * Web Audio API Synthesizer Engine
-     * Pure procedural audio for mechanical sphere suction, ball collisions,
-     * rack drops, and big win celebrations. No external mp3 files required.
-     */
-    class LottoAudioEngine {
-      constructor() {
-        this.ctx = null;
-        this.isMuted = false;
-        this.blowerNoiseNode = null;
-        this.blowerGain = null;
+/**
+ * 2. SPRITE ENGINE (16x16 Pixel Buffers)
+ */
+const SpriteEngine = {
+  cache: {},
+  init() {
+    this.cache['FIGHTER'] = this.renderPixelMap(16, 16, [
+      "....00000000....", ".......11.......", "......1111......", "......1111......",
+      ".....111111.....", ".....112211.....", "....11122111....", "...3111111113...",
+      "...3111111113...", "..331111111133..", "..333111111333..", ".33333311333333.",
+      ".33.33311333.33.", "44...33..33...44", "44............44", "4..............4"
+    ], { '1': '#ffffff', '2': '#00d2ff', '3': '#ff2a5f', '4': '#ffcc00' });
+
+    this.cache['CAPTURED_FIGHTER'] = this.renderPixelMap(16, 16, [
+      "....00000000....", ".......11.......", "......1111......", "......1111......",
+      ".....111111.....", ".....112211.....", "....11122111....", "...3111111113...",
+      "...3111111113...", "..331111111133..", "..333111111333..", ".33333311333333.",
+      ".33.33311333.33.", "44...33..33...44", "44............44", "4..............4"
+    ], { '1': '#4a75a0', '2': '#2b4461', '3': '#8a2b43', '4': '#a0852b' });
+
+    this.cache['BOSS_G1'] = this.renderPixelMap(16, 16, [
+      "......1111......", ".....111111.....", "....21311312....", "...2211111122...",
+      "..222211112222..", ".22222211222222.", ".22.22211222.22.", "22..22211222..22",
+      "....22211222....", "....22444422....", "...2244444422...", "...2.444444.2...",
+      ".....444444.....", ".....44..44.....", "....44....44....", "...44......44..."
+    ], { '1': '#00ff88', '2': '#ffcc00', '3': '#ff2a5f', '4': '#00aa55' });
+
+    this.cache['BOSS_G2'] = this.renderPixelMap(16, 16, [
+      "......1111......", ".....111111.....", "....21311312....", "..222111111222..",
+      ".22222111122222.", "2222222112222222", "22..22211222..22", "....22211222....",
+      "....22211222....", "...2224444222...", "..22.444444.22..", ".....444444.....",
+      ".....444444.....", ".....44..44.....", "....44....44....", "...44......44..."
+    ], { '1': '#00ff88', '2': '#ffcc00', '3': '#ff2a5f', '4': '#00aa55' });
+
+    this.cache['BOSS_B1'] = this.renderPixelMap(16, 16, [
+      "......1111......", ".....111111.....", "....21311312....", "...2211111122...",
+      "..222211112222..", ".22222211222222.", ".22.22211222.22.", "22..22211222..22",
+      "....22211222....", "....22444422....", "...2244444422...", "...2.444444.2...",
+      ".....444444.....", ".....44..44.....", "....44....44....", "...44......44..."
+    ], { '1': '#00d2ff', '2': '#ffcc00', '3': '#ff2a5f', '4': '#0066cc' });
+
+    this.cache['GOEI_1'] = this.renderPixelMap(16, 16, [
+      ".......11.......", "......1111......", ".....211112.....", "....22211222....",
+      "...2222112222...", "..222221122222..", ".22222211222222.", ".22.22211222.22.",
+      "22..22211222..22", "....22211222....", "....22211222....", "....33333333....",
+      "...3333333333...", "...33..33..33...", "..33........33..", ".33..........33."
+    ], { '1': '#ffffff', '2': '#ff2a5f', '3': '#ffcc00' });
+
+    this.cache['GOEI_2'] = this.renderPixelMap(16, 16, [
+      ".......11.......", "......1111......", ".....211112.....", "...2222112222...",
+      "..222221122222..", ".22222211222222.", "2222222112222222", "22..22211222..22",
+      "....22211222....", "....22211222....", "...3333333333...", "..333333333333..",
+      "..33...33...33..", ".33..........33.", "33............33", "................"
+    ], { '1': '#ffffff', '2': '#ff2a5f', '3': '#ffcc00' });
+
+    this.cache['ZAKO_1'] = this.renderPixelMap(16, 16, [
+      ".......11.......", "......1111......", ".....211112.....", "....22111122....",
+      "...2222112222...", "..222221122222..", "..22.221122.22..", ".22..221122..22.",
+      ".....221122.....", ".....333333.....", "....33333333....", "....22222222....",
+      "....33333333....", ".....33..33.....", "....33....33....", "...33......33..."
+    ], { '1': '#ff2a5f', '2': '#00d2ff', '3': '#ffcc00' });
+
+    this.cache['ZAKO_2'] = this.renderPixelMap(16, 16, [
+      ".......11.......", "......1111......", ".....211112.....", "..222221122222..",
+      ".22222211222222.", "2222222112222222", "22...221122...22", ".....221122.....",
+      ".....333333.....", "....33333333....", "....22222222....", "....33333333....",
+      "....33333333....", "...33......33...", "..33........33..", "................"
+    ], { '1': '#ff2a5f', '2': '#00d2ff', '3': '#ffcc00' });
+
+    for (let f = 0; f < 5; f++) {
+      const c = document.createElement('canvas');
+      c.width = 32; c.height = 32;
+      const cx = c.getContext('2d');
+      const rad = 3 + f * 3.2;
+      const cols = ['#ffffff', '#ffcc00', '#ff5500', '#ff0044', '#551122'];
+      cx.fillStyle = cols[f];
+      for (let i = 0; i < 8; i++) {
+        const ang = (i / 8) * Math.PI * 2 + (f * 0.2);
+        const dist = rad * (0.6 + (i % 2) * 0.4);
+        cx.beginPath();
+        cx.arc(16 + Math.cos(ang) * dist, 16 + Math.sin(ang) * dist, Math.max(1, 4 - f * 0.7), 0, Math.PI * 2);
+        cx.fill();
       }
-
-      init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
+      this.cache[`EXP_${f}`] = c;
+    }
+  },
+  renderPixelMap(w, h, rows, palette) {
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const cx = c.getContext('2d');
+    for (let y = 0; y < h; y++) {
+      const line = rows[y];
+      for (let x = 0; x < w; x++) {
+        if (palette[line[x]]) {
+          cx.fillStyle = palette[line[x]];
+          cx.fillRect(x, y, 1, 1);
         }
-        if (this.ctx.state === 'suspended') {
-          this.ctx.resume();
-        }
-      }
-
-      toggleMute() {
-        this.isMuted = !this.isMuted;
-        if (this.isMuted && this.blowerGain) {
-          this.blowerGain.gain.setValueAtTime(0, this.ctx.currentTime);
-        }
-        return this.isMuted;
-      }
-
-      playTone(freq, type, duration, volume = 0.1, bend = 0) {
-        if (this.isMuted) return;
-        try {
-          this.init();
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-
-          osc.type = type;
-          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-          if (bend !== 0) {
-            osc.frequency.exponentialRampToValueAtTime(Math.max(10, freq + bend), this.ctx.currentTime + duration);
-          }
-
-          gain.gain.setValueAtTime(volume, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
-
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-
-          osc.start();
-          osc.stop(this.ctx.currentTime + duration);
-        } catch (e) {}
-      }
-
-      // Ball Clatter Sound
-      playBallClick() {
-        if (this.isMuted) return;
-        const freqs = [1100, 1450, 1750, 2100];
-        const f = freqs[Math.floor(Math.random() * freqs.length)];
-        this.playTone(f, 'sine', 0.04, 0.04, -280);
-      }
-
-      // Suction Tube Pop Sound
-      playSuctionPop() {
-        if (this.isMuted) return;
-        this.playTone(320, 'triangle', 0.14, 0.22, 550);
-      }
-
-      // Rack Drop Chime
-      playRackChime(stepIndex) {
-        if (this.isMuted) return;
-        const pentatonic = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66];
-        const note = pentatonic[stepIndex % pentatonic.length];
-        this.playTone(note, 'triangle', 0.35, 0.18);
-        setTimeout(() => this.playTone(note * 1.5, 'sine', 0.25, 0.09), 50);
-      }
-
-      // Continuous Air Suction Noise
-      startBlowerSound() {
-        if (this.isMuted) return;
-        try {
-          this.init();
-          if (this.blowerNoiseNode) return;
-
-          const bufferSize = this.ctx.sampleRate * 2;
-          const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-          const output = noiseBuffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) {
-            output[i] = Math.random() * 2 - 1;
-          }
-
-          const whiteNoise = this.ctx.createBufferSource();
-          whiteNoise.buffer = noiseBuffer;
-          whiteNoise.loop = true;
-
-          const filter = this.ctx.createBiquadFilter();
-          filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(400, this.ctx.currentTime);
-
-          this.blowerGain = this.ctx.createGain();
-          this.blowerGain.gain.setValueAtTime(0.07, this.ctx.currentTime);
-
-          whiteNoise.connect(filter);
-          filter.connect(this.blowerGain);
-          this.blowerGain.connect(this.ctx.destination);
-
-          whiteNoise.start();
-          this.blowerNoiseNode = whiteNoise;
-        } catch (e) {}
-      }
-
-      stopBlowerSound() {
-        if (this.blowerGain && this.ctx) {
-          try {
-            this.blowerGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
-            setTimeout(() => {
-              if (this.blowerNoiseNode) {
-                this.blowerNoiseNode.stop();
-                this.blowerNoiseNode.disconnect();
-                this.blowerNoiseNode = null;
-                this.blowerGain = null;
-              }
-            }, 270);
-          } catch (e) {}
-        }
-      }
-
-      // Victory Fanfare & Siren
-      playGrandFanfare() {
-        if (this.isMuted) return;
-        const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
-        notes.forEach((freq, idx) => {
-          setTimeout(() => {
-            this.playTone(freq, 'triangle', 0.45, 0.25);
-            this.playTone(freq * 1.25, 'sawtooth', 0.3, 0.12);
-          }, idx * 110);
-        });
       }
     }
+    return c;
+  }
+};
 
-    const sound = new LottoAudioEngine();
+/**
+ * 3. MATH HELPERS
+ */
+function getCubicBezier(p0, p1, p2, p3, t) {
+  const mt = 1 - t;
+  const mt2 = mt * mt;
+  const t2 = t * t;
+  return {
+    x: mt2 * mt * p0.x + 3 * mt2 * t * p1.x + 3 * mt * t2 * p2.x + t2 * t * p3.x,
+    y: mt2 * mt * p0.y + 3 * mt2 * t * p1.y + 3 * mt * t2 * p2.y + t2 * t * p3.y
+  };
+}
 
-    /**
-     * Exact User Specification Probability Engine:
-     * - 1등 (6 match): 1 / 814 ≈ 0.0012285
-     * - 2등 (5 match + bonus): 1 / 135 ≈ 0.0074074
-     * - 3등 (5 match): 1 / 25 ≈ 0.0400000
-     * - 4등 (4 match): 1 / 6 ≈ 0.1666667
-     * - 5등 (3 match): 1 / 3 ≈ 0.3333333
-     */
-    const PROB_1ST = 1 / 814;
-    const PROB_2ND = 1 / 135;
-    const PROB_3RD = 1 / 25;
-    const PROB_4TH = 1 / 6;
-    const PROB_5TH = 1 / 3;
+/**
+ * 4. GAME ENGINE
+ */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const W = 480;
+const H = 640;
 
-    // Cumulative thresholds
-    const THRESH_1 = PROB_1ST;
-    const THRESH_2 = THRESH_1 + PROB_2ND;
-    const THRESH_3 = THRESH_2 + PROB_3RD;
-    const THRESH_4 = THRESH_3 + PROB_4TH;
-    const THRESH_5 = THRESH_4 + PROB_5TH;
+const Engine = {
+  state: 'TITLE',
+  tick: 0,
+  score: 0,
+  highScore: 30000,
+  stage: 1,
+  lives: 3,
 
-    // Financial State
-    let currentRound = 1140;
-    let baseJackpot = 2854000000;
-    let playerBalance = 100000;
-    let totalSpent = 0;
-    let totalWon = 0;
+  player: {
+    x: W / 2,
+    y: H - 55,
+    speed: 4.8,
+    isDual: false,
+    invulnerableTimer: 0,
+    capturedState: 'NONE', // NONE, PULLING, RESCUING
+    pullAngle: 0,
+    rescueX: 0,
+    rescueY: 0
+  },
 
-    // Run State Flags
-    let isDrawing = false;
-    let isSimulating = false;
-    let stopRequested = false;
+  lasers: [],
+  enemyBullets: [],
+  enemies: [],
+  explosions: [],
+  floatingScores: [],
 
-    // Stats Accumulators
-    let statTotalDraws = 0;
-    let statTotalGames = 0;
-    let hitStats = { rank1: 0, rank2: 0, rank3: 0, rank4: 0, rank5: 0, fail: 0 };
+  gridBreathX: 0,
+  gridExpand: 1.0,
 
-    // Active Ticket Slips (List of { id, label, mode, numbers, matches, hasBonus, rank, prize })
-    let userTickets = [];
-    let manualSelectedNumbers = new Set();
+  // 트랙터 시퀀스 제어
+  tractorBoss: null,
+  tractorTimer: 0,
+  tractorCooldown: 600, // 시작 후 10초간은 트랙터 빔 사용 불가
 
-    // Winning Result for Current Round
-    let drawnWinningNumbers = [];
-    let drawnBonusNumber = null;
+  init() {
+    SpriteEngine.init();
+    this.initStars();
+    this.bindInputs();
+    this.loop();
+  },
 
-    // Helper: Determine Official Ball Theme
-    function getBallTheme(num) {
-      if (num <= 10) return { bg: '#fbc400', class: 'ball-theme-yellow', text: '#3b2800' };
-      if (num <= 20) return { bg: '#2b7fff', class: 'ball-theme-blue', text: '#ffffff' };
-      if (num <= 30) return { bg: '#ff3b30', class: 'ball-theme-red', text: '#ffffff' };
-      if (num <= 40) return { bg: '#8e8e93', class: 'ball-theme-gray', text: '#ffffff' };
-      return { bg: '#34c759', class: 'ball-theme-green', text: '#063110' };
-    }
-
-    // Helper: Generate 6 Unique Random Numbers from 1 to 45
-    function generateRandom6() {
-      const pool = Array.from({ length: 45 }, (_, i) => i + 1);
-      const chosen = [];
-      while (chosen.length < 6) {
-        const idx = Math.floor(Math.random() * pool.length);
-        chosen.push(pool.splice(idx, 1)[0]);
-      }
-      return chosen.sort((a, b) => a - b);
-    }
-
-    const blowerCanvas = document.getElementById('blowerCanvas');
-    const blowerCtx = blowerCanvas.getContext('2d');
-    const confettiCanvas = document.getElementById('confettiCanvas');
-    const confettiCtx = confettiCanvas.getContext('2d');
-
-    let machineBalls = [];
-    let machineCenter = { x: 0, y: 0 };
-    let machineRadius = 140;
-    let suctionActive = false;
-    let ballBeingSuctioned = null;
-
-    function resizeCanvases() {
-      const rect = blowerCanvas.parentElement.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-
-      blowerCanvas.width = rect.width * dpr;
-      blowerCanvas.height = rect.height * dpr;
-      blowerCtx.scale(dpr, dpr);
-
-      confettiCanvas.width = rect.width * dpr;
-      confettiCanvas.height = rect.height * dpr;
-      confettiCtx.scale(dpr, dpr);
-
-      machineCenter.x = rect.width / 2;
-      machineCenter.y = rect.height * 0.58;
-      machineRadius = Math.min(rect.width * 0.42, rect.height * 0.38);
-    }
-    window.addEventListener('resize', resizeCanvases);
-
-    function initMachineBalls() {
-      machineBalls = [];
-      for (let i = 1; i <= 45; i++) {
-        const theme = getBallTheme(i);
-        const ang = Math.random() * Math.PI * 2;
-        const dist = Math.random() * (machineRadius - 24);
-        machineBalls.push({
-          num: i,
-          x: machineCenter.x + Math.cos(ang) * dist,
-          y: machineCenter.y + Math.sin(ang) * dist,
-          vx: (Math.random() - 0.5) * 4,
-          vy: (Math.random() - 0.5) * 4,
-          radius: 12.5,
-          theme: theme,
-          inMachine: true
-        });
-      }
-    }
-
-    function updateBlowerPhysics() {
-      const cx = machineCenter.x;
-      const cy = machineCenter.y;
-      const R = machineRadius;
-
-      machineBalls.forEach(ball => {
-        if (!ball.inMachine) return;
-
-        // If suction animation is pulling this ball into the top pipe
-        if (ball === ballBeingSuctioned) {
-          const chuteTargetX = cx;
-          const chuteTargetY = cy - R - 35;
-          ball.x += (chuteTargetX - ball.x) * 0.22;
-          ball.y += (chuteTargetY - ball.y) * 0.22;
-          return;
-        }
-
-        if (isDrawing) {
-          // Strong upward turbulent air jet from bottom
-          const blast = 0.65 + Math.random() * 0.75;
-          ball.vy -= blast;
-          ball.vx += (Math.random() - 0.5) * 0.9;
-
-          // Gentle rotational swirl
-          const dx = ball.x - cx;
-          const dy = ball.y - cy;
-          ball.vx += -dy * 0.008;
-          ball.vy += dx * 0.008;
-        } else {
-          // Resting gravity
-          ball.vy += 0.28;
-        }
-
-        // Air damping drag
-        ball.vx *= 0.985;
-        ball.vy *= 0.985;
-
-        // Position integration
-        ball.x += ball.vx;
-        ball.y += ball.vy;
-
-        // Spherical boundary reflection
-        const dist = Math.hypot(ball.x - cx, ball.y - cy);
-        const maxDist = R - ball.radius;
-
-        if (dist > maxDist) {
-          const nx = (ball.x - cx) / dist;
-          const ny = (ball.y - cy) / dist;
-
-          ball.x = cx + nx * maxDist;
-          ball.y = cy + ny * maxDist;
-
-          const dot = ball.vx * nx + ball.vy * ny;
-          ball.vx = (ball.vx - 2 * dot * nx) * 0.76;
-          ball.vy = (ball.vy - 2 * dot * ny) * 0.76;
-
-          if (isDrawing && Math.random() < 0.1) {
-            sound.playBallClick();
-          }
-        }
+  initStars() {
+    this.stars = [];
+    for (let i = 0; i < 90; i++) {
+      this.stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        spd: 0.6 + Math.random() * 2.2,
+        color: ['#ffffff', '#00d2ff', '#ffcc00', '#ff2a5f'][Math.floor(Math.random() * 4)]
       });
     }
+  },
 
-    function renderBlower() {
-      const rect = blowerCanvas.parentElement.getBoundingClientRect();
-      const cx = machineCenter.x;
-      const cy = machineCenter.y;
-      const R = machineRadius;
-
-      blowerCtx.clearRect(0, 0, rect.width, rect.height);
-
-      // 1. Suction Tube Glass Rails
-      blowerCtx.save();
-      blowerCtx.strokeStyle = 'rgba(105, 200, 242, 0.45)';
-      blowerCtx.lineWidth = 3;
-      blowerCtx.beginPath();
-      blowerCtx.moveTo(cx - 24, cy - R);
-      blowerCtx.lineTo(cx - 16, 20);
-      blowerCtx.lineTo(cx + 16, 20);
-      blowerCtx.lineTo(cx + 24, cy - R);
-      blowerCtx.stroke();
-
-      if (suctionActive) {
-        blowerCtx.fillStyle = 'rgba(255, 215, 0, 0.3)';
-        blowerCtx.fill();
-      }
-      blowerCtx.restore();
-
-      // 2. Acrylic Sphere Glass Background
-      blowerCtx.save();
-      const glassGrad = blowerCtx.createRadialGradient(cx - R * 0.3, cy - R * 0.3, 10, cx, cy, R);
-      glassGrad.addColorStop(0, 'rgba(30, 45, 80, 0.35)');
-      glassGrad.addColorStop(0.7, 'rgba(10, 16, 30, 0.6)');
-      glassGrad.addColorStop(1, 'rgba(4, 7, 15, 0.9)');
-      blowerCtx.fillStyle = glassGrad;
-      blowerCtx.beginPath();
-      blowerCtx.arc(cx, cy, R, 0, Math.PI * 2);
-      blowerCtx.fill();
-
-      // Golden Bezel Ring
-      blowerCtx.strokeStyle = 'rgba(251, 196, 0, 0.75)';
-      blowerCtx.lineWidth = 5;
-      blowerCtx.shadowColor = 'rgba(251, 196, 0, 0.45)';
-      blowerCtx.shadowBlur = 16;
-      blowerCtx.stroke();
-      blowerCtx.restore();
-
-      // 3. Render 45 Numbered Balls
-      machineBalls.forEach(ball => {
-        if (!ball.inMachine && ball !== ballBeingSuctioned) return;
-
-        blowerCtx.save();
-        blowerCtx.translate(ball.x, ball.y);
-
-        // 3D Sphere Shading
-        const ballGrad = blowerCtx.createRadialGradient(-3, -3, 1, 0, 0, ball.radius);
-        ballGrad.addColorStop(0, '#ffffff');
-        ballGrad.addColorStop(0.35, ball.theme.bg);
-        ballGrad.addColorStop(1, 'rgba(0, 0, 0, 0.55)');
-        blowerCtx.fillStyle = ballGrad;
-        blowerCtx.beginPath();
-        blowerCtx.arc(0, 0, ball.radius, 0, Math.PI * 2);
-        blowerCtx.fill();
-
-        // Contrasting Ball Number
-        blowerCtx.fillStyle = ball.theme.text;
-        blowerCtx.font = '900 9.5px Pretendard, sans-serif';
-        blowerCtx.textAlign = 'center';
-        blowerCtx.textBaseline = 'middle';
-        blowerCtx.fillText(ball.num, 0, 0.5);
-
-        blowerCtx.restore();
-      });
-
-      // 4. Front Glass Gloss Arc
-      blowerCtx.save();
-      blowerCtx.beginPath();
-      blowerCtx.arc(cx, cy, R - 4, Math.PI * 1.12, Math.PI * 1.82);
-      blowerCtx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
-      blowerCtx.lineWidth = 6;
-      blowerCtx.stroke();
-      blowerCtx.restore();
-    }
-
-    // Confetti Shower Particle System
-    let confettiParticles = [];
-    function spawnConfetti(count = 180) {
-      const rect = confettiCanvas.parentElement.getBoundingClientRect();
-      for (let i = 0; i < count; i++) {
-        confettiParticles.push({
-          x: rect.width / 2 + (Math.random() - 0.5) * 140,
-          y: rect.height * 0.45,
-          vx: (Math.random() - 0.5) * 16,
-          vy: -(Math.random() * 16 + 8),
-          size: Math.random() * 8 + 4,
-          rot: Math.random() * Math.PI,
-          rotSpeed: (Math.random() - 0.5) * 0.25,
-          color: ['#fbc400', '#2b7fff', '#ff3b30', '#34c759', '#ffffff', '#ffd700', '#ff007f'][Math.floor(Math.random() * 7)],
-          gravity: 0.45
-        });
-      }
-    }
-
-    function updateAndRenderConfetti() {
-      const rect = confettiCanvas.parentElement.getBoundingClientRect();
-      confettiCtx.clearRect(0, 0, rect.width, rect.height);
-
-      for (let i = confettiParticles.length - 1; i >= 0; i--) {
-        const p = confettiParticles[i];
-        p.vy += p.gravity;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.rot += p.rotSpeed;
-
-        if (p.y > rect.height + 25) {
-          confettiParticles.splice(i, 1);
-          continue;
+  bindInputs() {
+    this.keys = { left: false, right: false, fireLock: false };
+    window.addEventListener('keydown', e => {
+      Sound.init();
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.keys.left = true;
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') this.keys.right = true;
+      if (e.code === 'Space') {
+        if (!this.keys.fireLock) {
+          this.triggerAction();
+          this.keys.fireLock = true;
         }
-
-        confettiCtx.save();
-        confettiCtx.translate(p.x, p.y);
-        confettiCtx.rotate(p.rot);
-        confettiCtx.fillStyle = p.color;
-        confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
-        confettiCtx.restore();
       }
+    });
+    window.addEventListener('keyup', e => {
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.keys.left = false;
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') this.keys.right = false;
+      if (e.code === 'Space') this.keys.fireLock = false;
+    });
+
+    const tl = document.getElementById('t-left');
+    const tr = document.getElementById('t-right');
+    const tf = document.getElementById('t-fire');
+    tl.addEventListener('touchstart', e => { e.preventDefault(); Sound.init(); this.keys.left = true; });
+    tl.addEventListener('touchend', e => { e.preventDefault(); this.keys.left = false; });
+    tr.addEventListener('touchstart', e => { e.preventDefault(); Sound.init(); this.keys.right = true; });
+    tr.addEventListener('touchend', e => { e.preventDefault(); this.keys.right = false; });
+    tf.addEventListener('touchstart', e => { e.preventDefault(); Sound.init(); this.triggerAction(); });
+  },
+
+  triggerAction() {
+    if (this.state === 'TITLE' || this.state === 'GAMEOVER') {
+      this.score = 0;
+      this.stage = 1;
+      this.lives = 3;
+      this.player.isDual = false;
+      this.startStage(1);
+    } else if (this.state === 'PLAYING' && this.player.capturedState === 'NONE') {
+      const maxL = this.player.isDual ? 4 : 2;
+      if (this.lasers.length >= maxL) return;
+      if (this.player.isDual) {
+        this.lasers.push({ x: this.player.x - 14, y: this.player.y - 14 });
+        this.lasers.push({ x: this.player.x + 14, y: this.player.y - 14 });
+      } else {
+        this.lasers.push({ x: this.player.x, y: this.player.y - 14 });
+      }
+      Sound.playLaser();
     }
+  },
 
-    function mainAnimationLoop() {
-      updateBlowerPhysics();
-      renderBlower();
-      updateAndRenderConfetti();
-      requestAnimationFrame(mainAnimationLoop);
-    }
+  startStage(stg) {
+    this.stage = stg;
+    this.lasers = [];
+    this.enemyBullets = [];
+    this.enemies = [];
+    this.explosions = [];
+    this.floatingScores = [];
+    this.tractorBoss = null;
+    this.tractorTimer = 0;
+    this.tractorCooldown = 700; // 스테이지 시작 후 12초간 대기
 
-    function renderUserTickets() {
-      const container = document.getElementById('gamesList');
-      container.innerHTML = '';
+    this.player.x = W / 2;
+    this.player.y = H - 55;
+    this.player.invulnerableTimer = 120;
+    this.player.capturedState = 'NONE';
 
-      document.getElementById('ticketCountBadge').textContent = `${userTickets.length}게임 (${(userTickets.length * 1000).toLocaleString()}원)`;
+    this.spawnFormation();
+    this.state = 'READY';
+    this.tick = 0;
+  },
 
-      userTickets.forEach((ticket, idx) => {
-        const row = document.createElement('div');
-        row.className = "flex items-center justify-between p-2 rounded-xl bg-slate-950/70 border border-slate-800/80 text-xs";
+  spawnFormation() {
+    const rows = [
+      { type: 'BOSS', count: 4, hp: 2, ptsGrid: 150, ptsDive: 400 },
+      { type: 'GOEI', count: 8, hp: 1, ptsGrid: 80,  ptsDive: 160 },
+      { type: 'GOEI', count: 8, hp: 1, ptsGrid: 80,  ptsDive: 160 },
+      { type: 'ZAKO', count: 10, hp: 1, ptsGrid: 50,  ptsDive: 100 },
+      { type: 'ZAKO', count: 10, hp: 1, ptsGrid: 50,  ptsDive: 100 }
+    ];
 
-        // Left Label & Badge
-        const leftWrap = document.createElement('div');
-        leftWrap.className = "flex items-center gap-2";
+    let gIdx = 0;
+    rows.forEach((r, rIdx) => {
+      const spacingX = 36;
+      const startX = (W - (r.count - 1) * spacingX) / 2;
+      const targetY = 90 + rIdx * 30;
 
-        const label = document.createElement('span');
-        label.className = "w-6 h-6 rounded-lg bg-slate-800 text-amber-300 font-black flex items-center justify-center text-xs";
-        label.textContent = String.fromCharCode(65 + idx);
+      for (let c = 0; c < r.count; c++) {
+        const targetX = startX + c * spacingX;
+        const fromLeft = (gIdx % 2 === 0);
+        const p0 = { x: fromLeft ? -40 : W + 40, y: 140 + (gIdx % 4) * 35 };
+        const p1 = { x: fromLeft ? W * 0.75 : W * 0.25, y: 340 };
+        const p2 = { x: fromLeft ? W * 0.2 : W * 0.8, y: 460 };
+        const p3 = { x: targetX, y: targetY };
 
-        const modeBadge = document.createElement('span');
-        modeBadge.className = "text-[10px] px-1.5 py-0.5 rounded font-bold " + 
-          (ticket.mode === '자동' ? 'bg-blue-900/60 text-blue-300 border border-blue-700/60' : 'bg-emerald-900/60 text-emerald-300 border border-emerald-700/60');
-        modeBadge.textContent = ticket.mode;
-
-        leftWrap.appendChild(label);
-        leftWrap.appendChild(modeBadge);
-
-        // Center 6 Balls
-        const ballsWrap = document.createElement('div');
-        ballsWrap.className = "flex items-center gap-1 sm:gap-1.5";
-
-        ticket.numbers.forEach(num => {
-          const b = document.createElement('span');
-          const theme = getBallTheme(num);
-          const isMatched = ticket.matches && ticket.matches.includes(num);
-          const isBonusMatch = ticket.hasBonus && (num === drawnBonusNumber);
-
-          b.className = `w-7 h-7 sm:w-8 sm:h-8 rounded-full lotto-ball-badge ${theme.class} text-[11px] sm:text-xs font-black transition-all ` + 
-            (isMatched ? 'ball-matched' : (isBonusMatch ? 'ring-2 ring-cyan-400 shadow-[0_0_12px_#22d3ee]' : ''));
-          b.textContent = num;
-          ballsWrap.appendChild(b);
+        this.enemies.push({
+          id: `e_${rIdx}_${c}`,
+          type: r.type,
+          hp: r.hp,
+          maxHp: r.hp,
+          ptsGrid: r.ptsGrid,
+          ptsDive: r.ptsDive,
+          gridOriginX: targetX,
+          gridOriginY: targetY,
+          x: p0.x, y: p0.y,
+          angle: 0,
+          state: 'ENTERING',
+          animFrame: 0,
+          t: 0,
+          speedT: 0.012 + (gIdx % 5) * 0.001,
+          p0, p1, p2, p3,
+          diveTime: 0,
+          capturedFighter: false,
+          hoverTargetX: 0,
+          hoverTargetY: 220
         });
+        gIdx++;
+      }
+    });
+  },
 
-        // Right Rank / Prize Tag
-        const rightWrap = document.createElement('div');
-        rightWrap.className = "flex items-center gap-1.5 min-w-[70px] justify-end";
+  update() {
+    this.tick++;
 
-        if (ticket.rank) {
-          const rankBadge = document.createElement('span');
-          let rankColor = 'bg-slate-800 text-slate-400';
-          if (ticket.rank === '1등') rankColor = 'bg-amber-500 text-slate-950 font-black shadow-[0_0_10px_#fbc400]';
-          else if (ticket.rank === '2등') rankColor = 'bg-cyan-500 text-slate-950 font-black shadow-[0_0_10px_#06b6d4]';
-          else if (ticket.rank === '3등') rankColor = 'bg-emerald-600 text-white font-bold';
-          else if (ticket.rank === '4등') rankColor = 'bg-indigo-600 text-white font-bold';
-          else if (ticket.rank === '5등') rankColor = 'bg-rose-600 text-white font-bold';
+    // 배경 스크롤
+    this.stars.forEach(s => {
+      s.y += s.spd;
+      if (s.y > H) { s.y = 0; s.x = Math.random() * W; }
+    });
 
-          rankBadge.className = `px-2 py-0.5 rounded text-[10px] ${rankColor}`;
-          rankBadge.textContent = ticket.rank;
-          rightWrap.appendChild(rankBadge);
-        } else {
-          const delBtn = document.createElement('button');
-          delBtn.className = "text-slate-500 hover:text-red-400 text-xs px-1";
-          delBtn.textContent = '✕';
-          delBtn.onclick = () => {
-            userTickets.splice(idx, 1);
-            renderUserTickets();
-          };
-          rightWrap.appendChild(delBtn);
-        }
-
-        row.appendChild(leftWrap);
-        row.appendChild(ballsWrap);
-        row.appendChild(rightWrap);
-        container.appendChild(row);
-      });
+    if (this.state === 'READY') {
+      if (this.tick > 90) this.state = 'PLAYING';
     }
+    if (this.state !== 'PLAYING') return;
 
-    // Populate Manual Number Picker Grid 1~45
-    function initNumberPadGrid() {
-      const grid = document.getElementById('numberPadGrid');
-      grid.innerHTML = '';
+    // 쿨다운 감쇄
+    if (this.tractorCooldown > 0) this.tractorCooldown--;
 
-      for (let i = 1; i <= 45; i++) {
-        const btn = document.createElement('button');
-        const theme = getBallTheme(i);
-        btn.id = `padBtn_${i}`;
-        btn.className = `w-7 h-7 sm:w-8 sm:h-8 rounded-full lotto-ball-badge ${theme.class} text-[11px] sm:text-xs font-black transition-all hover:scale-105 active:scale-95 border-2 border-transparent`;
-        btn.textContent = i;
+    if (this.player.invulnerableTimer > 0) this.player.invulnerableTimer--;
 
-        btn.onclick = () => {
-          if (manualSelectedNumbers.has(i)) {
-            manualSelectedNumbers.delete(i);
-            btn.classList.remove('ring-4', 'ring-white', 'scale-110');
+    // 1. 플레이어 제어
+    if (this.player.capturedState === 'NONE') {
+      const margin = this.player.isDual ? 32 : 20;
+      if (this.keys.left && this.player.x > margin) this.player.x -= this.player.speed;
+      if (this.keys.right && this.player.x < W - margin) this.player.x += this.player.speed;
+    } else if (this.player.capturedState === 'PULLING') {
+      this.player.pullAngle += 0.24;
+      if (this.tractorBoss) {
+        this.player.x += (this.tractorBoss.x - this.player.x) * 0.09;
+        this.player.y -= 2.2;
+        if (this.player.y <= this.tractorBoss.y + 26) {
+          // 납치 완료 시점
+          this.tractorBoss.capturedFighter = true;
+          this.tractorBoss.state = 'BEAM_EXIT';
+          this.tractorBoss.diveSpeedY = 4.0;
+          this.tractorBoss = null;
+          this.player.capturedState = 'NONE';
+          this.lives--;
+          if (this.lives <= 0) {
+            this.state = 'GAMEOVER';
           } else {
-            if (manualSelectedNumbers.size >= 6) {
-              showAlert("최대 6개 번호까지만 선택 가능합니다.");
-              return;
-            }
-            manualSelectedNumbers.add(i);
-            btn.classList.add('ring-4', 'ring-white', 'scale-110');
+            this.respawnPlayer();
           }
-          document.getElementById('selectedNumCount').textContent = manualSelectedNumbers.size;
-          sound.playBallClick();
-        };
-
-        grid.appendChild(btn);
-      }
-    }
-
-    function resetManualPad() {
-      manualSelectedNumbers.clear();
-      document.getElementById('selectedNumCount').textContent = '0';
-      for (let i = 1; i <= 45; i++) {
-        const btn = document.getElementById(`padBtn_${i}`);
-        if (btn) btn.classList.remove('ring-4', 'ring-white', 'scale-110');
-      }
-    }
-
-    // Manual Pad Actions
-    document.getElementById('padQuickAutoBtn').addEventListener('click', () => {
-      resetManualPad();
-      const auto6 = generateRandom6();
-      auto6.forEach(num => {
-        manualSelectedNumbers.add(num);
-        const btn = document.getElementById(`padBtn_${num}`);
-        if (btn) btn.classList.add('ring-4', 'ring-white', 'scale-110');
-      });
-      document.getElementById('selectedNumCount').textContent = '6';
-      sound.playBallClick();
-    });
-
-    document.getElementById('padClearBtn').addEventListener('click', resetManualPad);
-
-    document.getElementById('submitManualGameBtn').addEventListener('click', () => {
-      if (manualSelectedNumbers.size !== 6) {
-        showAlert("번호 6개를 마킹해야 등록할 수 있습니다!");
-        return;
-      }
-      if (userTickets.length >= 5) {
-        showAlert("한 슬립에는 최대 5게임까지만 등록 가능합니다.");
-        return;
-      }
-      if (playerBalance < 1000) {
-        showAlert("보유 자산이 부족합니다!");
-        return;
-      }
-
-      playerBalance -= 1000;
-      totalSpent += 1000;
-      userTickets.push({
-        id: crypto.randomUUID(),
-        mode: '수동',
-        numbers: Array.from(manualSelectedNumbers).sort((a, b) => a - b),
-        matches: []
-      });
-
-      resetManualPad();
-      renderUserTickets();
-      updateWalletUI();
-      sound.playBallClick();
-      showAlert("수동 1게임이 발권표에 등록되었습니다.");
-    });
-
-    // Auto Ticket Actions
-    function buy5AutoGames() {
-      if (playerBalance < 5000) {
-        showAlert("5게임을 발권하기 위한 자산이 부족합니다!");
-        return;
-      }
-      playerBalance -= 5000;
-      totalSpent += 5000;
-      userTickets = [];
-      for (let i = 0; i < 5; i++) {
-        userTickets.push({
-          id: crypto.randomUUID(),
-          mode: '자동',
-          numbers: generateRandom6(),
-          matches: []
-        });
-      }
-      renderUserTickets();
-      updateWalletUI();
-      sound.playBallClick();
-    }
-    document.getElementById('buy5AutoBtn').addEventListener('click', buy5AutoGames);
-
-    document.getElementById('add1AutoBtn').addEventListener('click', () => {
-      if (userTickets.length >= 5) {
-        showAlert("한 슬립에는 최대 5게임까지만 등록할 수 있습니다.");
-        return;
-      }
-      if (playerBalance < 1000) {
-        showAlert("보유 자산이 부족합니다!");
-        return;
-      }
-      playerBalance -= 1000;
-      totalSpent += 1000;
-      userTickets.push({
-        id: crypto.randomUUID(),
-        mode: '자동',
-        numbers: generateRandom6(),
-        matches: []
-      });
-      renderUserTickets();
-      updateWalletUI();
-      sound.playBallClick();
-    });
-
-    document.getElementById('clearSlipBtn').addEventListener('click', () => {
-      userTickets = [];
-      renderUserTickets();
-    });
-
-    /**
-     * Compute Winning Draw based on User Specifications:
-     * - 1등: 1/814
-     * - 2등: 1/135
-     * - 3등: 1/25
-     * - 4등: 1/6
-     * - 5등: 1/3
-     */
-    function computeTargetDraw() {
-      if (userTickets.length === 0) {
-        const numbers = generateRandom6();
-        const pool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !numbers.includes(n));
-        const bonus = pool[Math.floor(Math.random() * pool.length)];
-        return { main: numbers, bonus: bonus };
-      }
-
-      // Pick one lucky user game to test boost condition against
-      const targetTicket = userTickets[Math.floor(Math.random() * userTickets.length)];
-      const targetNums = [...targetTicket.numbers];
-      const roll = Math.random();
-
-      let mainNums = [];
-      let bonusNum = null;
-
-      if (roll < THRESH_1) {
-        // 1등 당첨 (1/814): 6개 전부 일치!
-        mainNums = [...targetNums].sort((a, b) => a - b);
-        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !mainNums.includes(n));
-        bonusNum = remPool[Math.floor(Math.random() * remPool.length)];
-      } else if (roll < THRESH_2) {
-        // 2등 당첨 (1/135): 5개 일치 + 대상 티켓의 6번째 숫자가 보너스 번호!
-        const shuffled = [...targetNums].sort(() => Math.random() - 0.5);
-        const match5 = shuffled.slice(0, 5);
-        bonusNum = shuffled[5];
-        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !targetNums.includes(n));
-        const extra6th = remPool[Math.floor(Math.random() * remPool.length)];
-        mainNums = [...match5, extra6th].sort((a, b) => a - b);
-      } else if (roll < THRESH_3) {
-        // 3등 당첨 (1/25): 5개 일치 (보너스는 제외)
-        const match5 = targetNums.sort(() => Math.random() - 0.5).slice(0, 5);
-        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !targetNums.includes(n));
-        const extra6th = remPool[Math.floor(Math.random() * remPool.length)];
-        mainNums = [...match5, extra6th].sort((a, b) => a - b);
-        const bonusPool = remPool.filter(n => n !== extra6th);
-        bonusNum = bonusPool[Math.floor(Math.random() * bonusPool.length)];
-      } else if (roll < THRESH_4) {
-        // 4등 당첨 (1/6): 4개 일치
-        const match4 = targetNums.sort(() => Math.random() - 0.5).slice(0, 4);
-        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !targetNums.includes(n));
-        const rand2 = remPool.sort(() => Math.random() - 0.5).slice(0, 2);
-        mainNums = [...match4, ...rand2].sort((a, b) => a - b);
-        const bonusPool = remPool.filter(n => !rand2.includes(n));
-        bonusNum = bonusPool[Math.floor(Math.random() * bonusPool.length)];
-      } else if (roll < THRESH_5) {
-        // 5등 당첨 (1/3): 3개 일치
-        const match3 = targetNums.sort(() => Math.random() - 0.5).slice(0, 3);
-        const remPool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !targetNums.includes(n));
-        const rand3 = remPool.sort(() => Math.random() - 0.5).slice(0, 3);
-        mainNums = [...match3, ...rand3].sort((a, b) => a - b);
-        const bonusPool = remPool.filter(n => !rand3.includes(n));
-        bonusNum = bonusPool[Math.floor(Math.random() * bonusPool.length)];
-      } else {
-        // 미당첨 / 일반 무작위
-        const numbers = generateRandom6();
-        const pool = Array.from({ length: 45 }, (_, i) => i + 1).filter(n => !numbers.includes(n));
-        bonusNum = pool[Math.floor(Math.random() * pool.length)];
-        mainNums = numbers;
-      }
-
-      return { main: mainNums, bonus: bonusNum };
-    }
-
-    function renderRackSlot(slotId, num, stepIdx, isBonus = false) {
-      const slot = document.getElementById(slotId);
-      const theme = getBallTheme(num);
-      slot.className = `w-10 h-10 sm:w-12 sm:h-12 rounded-full lotto-ball-badge ${theme.class} text-xs sm:text-sm font-black ball-rack-animate`;
-      slot.textContent = num;
-      sound.playRackChime(stepIdx);
-    }
-
-    async function executeSingleDraw(isFast = false) {
-      if (isDrawing && !isFast) return;
-      if (userTickets.length === 0) {
-        showAlert("먼저 1개 이상의 로또 게임을 발권해주세요!");
-        return;
-      }
-
-      isDrawing = true;
-      toggleButtons(false);
-
-      document.getElementById('blowerStatusDot').className = "w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444] animate-ping";
-      document.getElementById('blowerStatusText').textContent = "공기 흡입기 가동 중! (DRAWING)";
-
-      if (!isFast) {
-        sound.init();
-        sound.startBlowerSound();
-      }
-
-      const drawData = computeTargetDraw();
-      drawnWinningNumbers = drawData.main;
-      drawnBonusNumber = drawData.bonus;
-
-      document.getElementById('rackRoundLabel').textContent = currentRound;
-      document.getElementById('rackSubLabel').textContent = "(추첨 진행 중)";
-
-      if (!isFast) {
-        // Reset Rack Slots to Placeholder
-        for (let i = 0; i < 6; i++) {
-          const s = document.getElementById(`slot${i}`);
-          s.className = "w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-slate-700 bg-slate-950/70 flex items-center justify-center font-bold text-slate-600 text-xs sm:text-sm";
-          s.textContent = "?";
-        }
-        const sBonus = document.getElementById('slotBonus');
-        sBonus.className = "w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-amber-600/60 bg-slate-950/70 flex items-center justify-center font-bold text-amber-500/70 text-[10px] sm:text-xs";
-        sBonus.textContent = "보너스";
-
-        // Draw 6 Main Balls Sequentially
-        for (let step = 0; step < 6; step++) {
-          await new Promise(r => setTimeout(r, 650));
-          const num = drawnWinningNumbers[step];
-          suctionActive = true;
-          const mb = machineBalls.find(b => b.num === num);
-          if (mb) ballBeingSuctioned = mb;
-          sound.playSuctionPop();
-
-          await new Promise(r => setTimeout(r, 220));
-          suctionActive = false;
-          ballBeingSuctioned = null;
-          renderRackSlot(`slot${step}`, num, step);
-        }
-
-        // Draw Bonus Ball
-        await new Promise(r => setTimeout(r, 650));
-        suctionActive = true;
-        const bBall = machineBalls.find(b => b.num === drawnBonusNumber);
-        if (bBall) ballBeingSuctioned = bBall;
-        sound.playSuctionPop();
-
-        await new Promise(r => setTimeout(r, 220));
-        suctionActive = false;
-        ballBeingSuctioned = null;
-        renderRackSlot('slotBonus', drawnBonusNumber, 6, true);
-
-        sound.stopBlowerSound();
-      } else {
-        // Instant visual update for fast mode
-        for (let step = 0; step < 6; step++) {
-          renderRackSlot(`slot${step}`, drawnWinningNumbers[step], step);
-        }
-        renderRackSlot('slotBonus', drawnBonusNumber, 6, true);
-      }
-
-      isDrawing = false;
-      document.getElementById('blowerStatusDot').className = "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34c759]";
-      document.getElementById('blowerStatusText').textContent = "추첨 완료 (COMPLETED)";
-      document.getElementById('rackSubLabel').textContent = "(추첨 완료)";
-
-      const result = verifyTicketsAndReward(isFast);
-      return result;
-    }
-
-    function verifyTicketsAndReward(silentModal = false) {
-      let highestRank = null;
-      let roundTotalPrize = 0;
-      const prizeDetails = [];
-
-      statTotalDraws++;
-      statTotalGames += userTickets.length;
-
-      userTickets.forEach((ticket, idx) => {
-        const gameLabel = String.fromCharCode(65 + idx);
-        const matched = ticket.numbers.filter(n => drawnWinningNumbers.includes(n));
-        const hasBonus = ticket.numbers.includes(drawnBonusNumber);
-        ticket.matches = matched;
-        ticket.hasBonus = hasBonus;
-
-        let rank = null;
-        let prize = 0;
-
-        if (matched.length === 6) {
-          rank = '1등';
-          prize = baseJackpot;
-          hitStats.rank1++;
-        } else if (matched.length === 5 && hasBonus) {
-          rank = '2등';
-          prize = 65000000;
-          hitStats.rank2++;
-        } else if (matched.length === 5) {
-          rank = '3등';
-          prize = 1500000;
-          hitStats.rank3++;
-        } else if (matched.length === 4) {
-          rank = '4등';
-          prize = 50000;
-          hitStats.rank4++;
-        } else if (matched.length === 3) {
-          rank = '5등';
-          prize = 5000;
-          hitStats.rank5++;
-        } else {
-          rank = '낙첨';
-          prize = 0;
-          hitStats.fail++;
-        }
-
-        ticket.rank = rank;
-        ticket.prize = prize;
-        roundTotalPrize += prize;
-
-        if (prize > 0) {
-          prizeDetails.push(`${gameLabel}게임 [${rank}]: +${prize.toLocaleString()} 원 (${matched.length}개 일치${rank === '2등' ? '+보너스' : ''})`);
-        }
-
-        if (rank === '1등') highestRank = '1등';
-        else if (rank === '2등' && highestRank !== '1등') highestRank = '2등';
-        else if (rank === '3등' && !['1등', '2등'].includes(highestRank)) highestRank = '3등';
-      });
-
-      renderUserTickets();
-
-      totalWon += roundTotalPrize;
-      playerBalance += roundTotalPrize;
-      baseJackpot += userTickets.length * 500; // Progressive growth
-      currentRound++;
-
-      updateWalletUI();
-      updateStatsUI();
-
-      if (!silentModal && (highestRank === '1등' || highestRank === '2등')) {
-        sound.playGrandFanfare();
-        spawnConfetti(highestRank === '1등' ? 240 : 130);
-
-        const cabinet = document.getElementById('mainCabinet');
-        cabinet.classList.remove('shake-active');
-        void cabinet.offsetWidth;
-        cabinet.classList.add('shake-active');
-
-        showWinModal(highestRank, roundTotalPrize, prizeDetails);
-      } else if (!silentModal) {
-        if (roundTotalPrize > 0) {
-          showAlert(`축하합니다! 총 당첨금 +${roundTotalPrize.toLocaleString()} 원 획득!`);
-        } else {
-          showAlert("이번 회차는 아쉽게 낙첨되었습니다. 다음 회차에 도전하세요!");
         }
       }
-
-      if (!isSimulating) {
-        toggleButtons(true);
+    } else if (this.player.capturedState === 'RESCUING') {
+      this.player.rescueY += 2.5;
+      if (this.player.rescueY >= this.player.y) {
+        this.player.rescueY = this.player.y;
+        this.player.capturedState = 'NONE';
+        this.player.isDual = true;
+        Sound.playDockingFanfare();
+        this.spawnFloatingScore('DUAL FIGHTER!', this.player.x, this.player.y - 30, '#00d2ff');
       }
-
-      return { highestRank, roundTotalPrize, prizeDetails };
     }
 
-    function toggleButtons(enable) {
-      document.getElementById('drawBtn').disabled = !enable;
-      document.getElementById('instantDrawBtn').disabled = !enable;
-      document.getElementById('draw10Btn').disabled = !enable;
-      document.getElementById('autoUntil1stBtn').disabled = !enable;
+    // 2. 레이저 갱신
+    for (let i = this.lasers.length - 1; i >= 0; i--) {
+      const l = this.lasers[i];
+      l.y -= 12;
+      if (l.y < -10) this.lasers.splice(i, 1);
     }
 
-    function updateStatsUI() {
-      document.getElementById('statDraws').textContent = statTotalDraws.toLocaleString();
-      document.getElementById('statGames').textContent = statTotalGames.toLocaleString();
-      document.getElementById('statRank1').textContent = hitStats.rank1.toLocaleString();
-      document.getElementById('statRank2').textContent = hitStats.rank2.toLocaleString();
-      document.getElementById('statRank3').textContent = hitStats.rank3.toLocaleString();
-      document.getElementById('statRank4').textContent = hitStats.rank4.toLocaleString();
-      document.getElementById('statRank5').textContent = hitStats.rank5.toLocaleString();
-    }
+    // 3. 적 탄환 갱신
+    for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
+      const b = this.enemyBullets[i];
+      b.x += b.vx; b.y += b.vy;
 
-    function updateWalletUI() {
-      document.getElementById('jackpotText').textContent = `${baseJackpot.toLocaleString()} 원`;
-      document.getElementById('myBalanceText').textContent = `${playerBalance.toLocaleString()} 원`;
-      document.getElementById('totalWonText').textContent = `${totalWon.toLocaleString()} 원`;
-
-      const roi = totalSpent > 0 ? (((totalWon - totalSpent) / totalSpent) * 100).toFixed(1) : '0.0';
-      const roiEl = document.getElementById('roiText');
-      roiEl.textContent = `${roi}%`;
-      roiEl.className = `font-digital text-sm sm:text-lg font-black ${parseFloat(roi) >= 0 ? 'text-cyan-400' : 'text-red-400'}`;
-      document.getElementById('roundBadge').textContent = currentRound;
-    }
-
-    function showAlert(msg) {
-      const banner = document.getElementById('liveAlertBar');
-      banner.textContent = msg;
-      banner.style.opacity = '1';
-      setTimeout(() => {
-        banner.style.opacity = '0';
-      }, 3500);
-    }
-
-    function showWinModal(rank, prize, details) {
-      const modal = document.getElementById('winModal');
-      const title = document.getElementById('winModalTitle');
-      const sub = document.getElementById('winModalSub');
-      const prizeEl = document.getElementById('winModalPrizeText');
-      const detailList = document.getElementById('winModalDetailList');
-
-      if (rank === '1등') {
-        title.textContent = "👑 1등 대박 잭팟 당첨! 👑";
-        sub.textContent = "1/814 확률을 뚫고 1등 신화를 이뤄냈습니다!";
-      } else {
-        title.textContent = "🥈 2등 당첨! (보너스 일치) 🥈";
-        sub.textContent = "5개 번호와 보너스 번호가 완벽하게 일치했습니다!";
-      }
-
-      prizeEl.textContent = `${prize.toLocaleString()} 원`;
-      detailList.innerHTML = details.map(d => `<div class="text-amber-300 font-semibold">• ${d}</div>`).join('');
-      modal.classList.remove('hidden');
-    }
-
-    document.getElementById('closeWinModalBtn').addEventListener('click', () => {
-      document.getElementById('winModal').classList.add('hidden');
-    });
-
-    // Reset Statistics
-    document.getElementById('resetStatsBtn').addEventListener('click', () => {
-      statTotalDraws = 0;
-      statTotalGames = 0;
-      hitStats = { rank1: 0, rank2: 0, rank3: 0, rank4: 0, rank5: 0, fail: 0 };
-      updateStatsUI();
-      showAlert("누적 통계가 초기화되었습니다.");
-    });
-
-    // 10 Runs Fast Batch
-    document.getElementById('draw10Btn').addEventListener('click', async () => {
-      if (isDrawing || isSimulating) return;
-      isSimulating = true;
-      toggleButtons(false);
-      showAlert("⏩ 10회 연속 고속 추첨을 진행합니다...");
-
-      for (let i = 0; i < 10; i++) {
-        if (userTickets.length === 0) buy5AutoGames();
-        await executeSingleDraw(true);
-        await new Promise(r => setTimeout(r, 60));
-      }
-
-      isSimulating = false;
-      toggleButtons(true);
-      showAlert("10회 연속 추첨이 완료되었습니다. 통계를 확인하세요!");
-    });
-
-    // Asynchronous Chunk Simulation: Loop Until 1st Prize Hit!
-    document.getElementById('autoUntil1stBtn').addEventListener('click', async () => {
-      if (isDrawing || isSimulating) return;
-      isSimulating = true;
-      stopRequested = false;
-      toggleButtons(false);
-
-      const stopBtn = document.getElementById('stopSimBtn');
-      stopBtn.classList.remove('hidden');
-      showAlert("🎯 1등 당첨될 때까지 고속 시뮬레이션 가동 중!");
-
-      let attempts = 0;
-      const maxSafetyAttempts = 150000;
-
-      while (!stopRequested && attempts < maxSafetyAttempts) {
-        attempts++;
-        if (userTickets.length === 0) buy5AutoGames();
-
-        const res = await executeSingleDraw(true);
-
-        if (res && res.highestRank === '1등') {
-          sound.playGrandFanfare();
-          spawnConfetti(260);
-          showWinModal('1등', res.roundTotalPrize, res.prizeDetails);
+      if (this.player.capturedState === 'NONE' && this.player.invulnerableTimer === 0) {
+        const hitDist = this.player.isDual ? 24 : 14;
+        if (Math.hypot(b.x - this.player.x, b.y - this.player.y) < hitDist) {
+          this.enemyBullets.splice(i, 1);
+          this.killPlayer();
           break;
         }
+      }
+      if (b.y > H + 10 || b.y < -10 || b.x < -10 || b.x > W + 10) {
+        this.enemyBullets.splice(i, 1);
+      }
+    }
 
-        // Keep UI thread responsive every 15 draws
-        if (attempts % 15 === 0) {
-          await new Promise(r => setTimeout(r, 0));
+    // 4. 진형 호흡 계산
+    this.gridBreathX = Math.sin(this.tick * 0.035) * 26;
+    this.gridExpand = 1.0 + Math.sin(this.tick * 0.02) * 0.09;
+
+    // 5. 다이브 & 트랙터 트리거 스케줄링
+    if (this.tick % 110 === 0) {
+      this.scheduleEnemyMoves();
+    }
+
+    // 6. 적 개체 업데이트 루프
+    let livingEnemies = 0;
+    this.enemies.forEach(e => {
+      if (e.state === 'DEAD') return;
+      livingEnemies++;
+
+      if (this.tick % 16 === 0) e.animFrame = e.animFrame === 0 ? 1 : 0;
+
+      if (e.state === 'ENTERING') {
+        e.t += e.speedT;
+        const pt = getCubicBezier(e.p0, e.p1, e.p2, e.p3, Math.min(1, e.t));
+        const nextPt = getCubicBezier(e.p0, e.p1, e.p2, e.p3, Math.min(1, e.t + 0.02));
+        e.x = pt.x; e.y = pt.y;
+        e.angle = Math.atan2(nextPt.y - pt.y, nextPt.x - pt.x) - Math.PI / 2;
+        if (e.t >= 1.0) {
+          e.state = 'IN_GRID';
+          e.angle = 0;
+        }
+      } else if (e.state === 'IN_GRID') {
+        e.x = (e.gridOriginX - W / 2) * this.gridExpand + W / 2 + this.gridBreathX;
+        e.y = e.gridOriginY;
+        e.angle = 0;
+      } 
+      // ================= 트랙터 빔 3단계 모션 =================
+      else if (e.state === 'BEAM_DESCEND') {
+        // [1단계: 하강 모션] 호버링 고도(Y: 220)로 부드럽게 선회하며 강하
+        const targetX = e.hoverTargetX;
+        const targetY = e.hoverTargetY;
+        const dx = targetX - e.x;
+        const dy = targetY - e.y;
+        const dist = Math.hypot(dx, dy);
+
+        e.x += dx * 0.05;
+        e.y += dy * 0.05;
+        e.angle = Math.atan2(dy, dx) - Math.PI / 2;
+
+        if (dist < 8) {
+          e.x = targetX;
+          e.y = targetY;
+          e.state = 'BEAM_ACTIVE';
+          e.angle = 0;
+          this.tractorTimer = 0;
+          this.tractorBoss = e;
+        }
+      } else if (e.state === 'BEAM_ACTIVE') {
+        // [2단계: 빔 전개 모션] 130프레임(약 2.1초)간 유지
+        e.angle = 0;
+        this.tractorTimer++;
+        if (this.tractorTimer % 18 === 0) Sound.playTractorHum();
+
+        // 빔 피격 범위 검증 (호버 지점 아래 부채꼴)
+        const beamTopY = e.y + 16;
+        if (this.player.capturedState === 'NONE' && !this.player.isDual && this.player.invulnerableTimer === 0) {
+          if (this.player.y >= beamTopY) {
+            const spread = ((this.player.y - beamTopY) / (this.player.y - beamTopY + 1)) * 65;
+            if (Math.abs(this.player.x - e.x) < spread) {
+              this.player.capturedState = 'PULLING';
+            }
+          }
+        }
+
+        // 제한 시간 초과 시 빔 종료 후 퇴각 강하
+        if (this.tractorTimer > 130) {
+          this.tractorBoss = null;
+          e.state = 'BEAM_EXIT';
+          e.diveSpeedY = 4.2;
+          e.diveTime = 0;
+        }
+      } else if (e.state === 'BEAM_EXIT') {
+        // [3단계: 미포획 퇴각 모션] 부드러운 곡선으로 하단 관통 후 상단 루프
+        e.diveTime += 0.04;
+        e.y += e.diveSpeedY;
+        e.x += Math.sin(e.diveTime * 3) * 3.5;
+        e.angle = Math.PI + Math.sin(e.diveTime * 3) * 0.5;
+
+        if (e.y > H + 30) {
+          e.y = -30;
+          e.state = 'RETURNING';
+        }
+      } 
+      // ================= 일반 다이브 =================
+      else if (e.state === 'DIVING') {
+        e.diveTime += 0.035;
+        e.y += e.diveSpeedY;
+        e.x += Math.sin(e.diveTime * 2.5) * 4.2;
+        e.angle = Math.sin(e.diveTime * 2.5) * 0.6 + Math.PI;
+
+        if (Math.random() < 0.015 && e.y < this.player.y - 80) {
+          const a = Math.atan2(this.player.y - e.y, this.player.x - e.x);
+          this.enemyBullets.push({
+            x: e.x, y: e.y + 10,
+            vx: Math.cos(a) * 4.0,
+            vy: Math.sin(a) * 4.0
+          });
+        }
+
+        if (e.y > H + 30) {
+          e.y = -30;
+          e.state = 'RETURNING';
+        }
+
+        if (this.player.capturedState === 'NONE' && this.player.invulnerableTimer === 0) {
+          const colDist = this.player.isDual ? 26 : 16;
+          if (Math.hypot(e.x - this.player.x, e.y - this.player.y) < colDist) {
+            this.destroyEnemy(e, true);
+            this.killPlayer();
+          }
+        }
+      } else if (e.state === 'RETURNING') {
+        e.y += 3.5;
+        const targetX = (e.gridOriginX - W / 2) * this.gridExpand + W / 2 + this.gridBreathX;
+        e.x += (targetX - e.x) * 0.06;
+        e.angle = 0;
+        if (e.y >= e.gridOriginY) {
+          e.y = e.gridOriginY;
+          e.state = 'IN_GRID';
         }
       }
 
-      stopBtn.classList.add('hidden');
-      isSimulating = false;
-      toggleButtons(true);
+      // 레이저 피격 검증
+      for (let li = this.lasers.length - 1; li >= 0; li--) {
+        const l = this.lasers[li];
+        if (Math.hypot(l.x - e.x, l.y - e.y) < 18) {
+          this.lasers.splice(li, 1);
+          e.hp--;
+          if (e.hp <= 0) {
+            const inFlight = (e.state !== 'IN_GRID');
+            this.destroyEnemy(e, inFlight);
+          } else {
+            Sound.playLaser();
+          }
+          break;
+        }
+      }
     });
 
-    document.getElementById('stopSimBtn').addEventListener('click', () => {
-      stopRequested = true;
-      showAlert("시뮬레이션 중단 요청이 접수되었습니다.");
+    // 7. 파티클 & 텍스트
+    for (let i = this.explosions.length - 1; i >= 0; i--) {
+      const exp = this.explosions[i];
+      exp.frame += 0.25;
+      if (exp.frame >= 5) this.explosions.splice(i, 1);
+    }
+    for (let i = this.floatingScores.length - 1; i >= 0; i--) {
+      const fs = this.floatingScores[i];
+      fs.y -= 0.8; fs.alpha -= 0.02;
+      if (fs.alpha <= 0) this.floatingScores.splice(i, 1);
+    }
+
+    // 8. 스테이지 클리어 판정
+    if (livingEnemies === 0 && this.state === 'PLAYING') {
+      setTimeout(() => this.startStage(this.stage + 1), 1600);
+      this.state = 'READY';
+    }
+  },
+
+  scheduleEnemyMoves() {
+    const gridEnemies = this.enemies.filter(e => e.state === 'IN_GRID');
+    if (gridEnemies.length === 0) return;
+
+    // [트랙터 빔 출격 조건]: 쿨다운 해제 + 싱글 파이터 + 보스 미소지 + 15% 희귀 확률
+    if (this.tractorCooldown <= 0 && !this.tractorBoss && !this.player.isDual && this.player.capturedState === 'NONE') {
+      const boss = gridEnemies.find(e => e.type === 'BOSS' && !e.capturedFighter);
+      if (boss && Math.random() < 0.2) {
+        boss.state = 'BEAM_DESCEND';
+        boss.hoverTargetX = Math.min(W - 80, Math.max(80, this.player.x)); // 플레이어 상공 조준
+        boss.hoverTargetY = 210;
+        this.tractorCooldown = 850; // 재발동까지 최소 14초 쿨다운 부여
+        return;
+      }
+    }
+
+    // 일반 편대 다이브
+    const count = Math.min(gridEnemies.length, Math.floor(Math.random() * 2) + 1);
+    for (let i = 0; i < count; i++) {
+      const pick = gridEnemies[Math.floor(Math.random() * gridEnemies.length)];
+      pick.state = 'DIVING';
+      pick.diveSpeedY = 3.6 + Math.random() * 1.2;
+      pick.diveTime = Math.random() * Math.PI;
+    }
+  },
+
+  destroyEnemy(e, inFlight) {
+    if (this.tractorBoss === e) this.tractorBoss = null;
+    e.state = 'DEAD';
+    const pts = inFlight ? e.ptsDive : e.ptsGrid;
+    this.score += pts;
+    if (this.score > this.highScore) this.highScore = this.score;
+
+    Sound.playExplode();
+    this.explosions.push({ x: e.x, y: e.y, frame: 0 });
+    this.spawnFloatingScore(`+${pts}`, e.x, e.y, '#fff');
+
+    // 포획된 기체를 가진 보스 격추 시 구조 도킹 시작
+    if (e.type === 'BOSS' && e.capturedFighter) {
+      this.player.capturedState = 'RESCUING';
+      this.player.rescueX = e.x;
+      this.player.rescueY = e.y;
+    }
+  },
+
+  killPlayer() {
+    Sound.playExplode();
+    this.explosions.push({ x: this.player.x, y: this.player.y, frame: 0 });
+
+    if (this.player.isDual) {
+      this.player.isDual = false;
+      this.player.invulnerableTimer = 120;
+      this.spawnFloatingScore('FIGHTER DOWN', this.player.x, this.player.y - 20, '#ffcc00');
+    } else {
+      this.lives--;
+      if (this.lives <= 0) {
+        this.state = 'GAMEOVER';
+      } else {
+        this.respawnPlayer();
+      }
+    }
+  },
+
+  respawnPlayer() {
+    this.player.x = W / 2;
+    this.player.y = H - 55;
+    this.player.invulnerableTimer = 150;
+  },
+
+  spawnFloatingScore(txt, x, y, color) {
+    this.floatingScores.push({ text: txt, x, y, color, alpha: 1.4 });
+  },
+
+  render() {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+
+    // 1. 별빛
+    this.stars.forEach(s => {
+      ctx.fillStyle = s.color;
+      ctx.fillRect(s.x, s.y, 2, 2);
     });
 
-    // Trigger Single Animated Draw
-    document.getElementById('drawBtn').addEventListener('click', () => executeSingleDraw(false));
+    // 2. 트랙터 빔 렌더링 (호버링 중일 때만 표시)
+    if (this.tractorBoss && this.tractorBoss.state === 'BEAM_ACTIVE') {
+      const bx = this.tractorBoss.x;
+      const by = this.tractorBoss.y + 16;
+      const grad = ctx.createLinearGradient(bx, by, bx, H);
+      grad.addColorStop(0, 'rgba(0, 210, 255, 0.85)');
+      grad.addColorStop(0.5, 'rgba(255, 42, 95, 0.45)');
+      grad.addColorStop(1, 'rgba(0, 210, 255, 0.05)');
 
-    // Trigger Instant Draw
-    document.getElementById('instantDrawBtn').addEventListener('click', () => executeSingleDraw(true));
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(bx - 12, by);
+      ctx.lineTo(bx + 12, by);
+      ctx.lineTo(bx + 70, H - 30);
+      ctx.lineTo(bx - 70, H - 30);
+      ctx.closePath();
+      ctx.fill();
 
-    // Sound Toggle Button
-    const soundBtn = document.getElementById('soundToggleBtn');
-    const soundIcon = document.getElementById('soundIcon');
-    soundBtn.addEventListener('click', () => {
-      const isMuted = sound.toggleMute();
-      soundIcon.textContent = isMuted ? '🔇' : '🔊';
+      // 횡단 파동 와이어
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      for (let y = by + 10; y < H - 30; y += 14) {
+        const spread = ((y - by) / (H - by)) * 65;
+        const wave = Math.sin(this.tick * 0.25 + y * 0.12) * 4;
+        ctx.beginPath();
+        ctx.moveTo(bx - spread + wave, y);
+        ctx.lineTo(bx + spread + wave, y);
+        ctx.stroke();
+      }
+    }
+
+    // 3. 적기 스프라이트
+    this.enemies.forEach(e => {
+      if (e.state === 'DEAD') return;
+      ctx.save();
+      ctx.translate(e.x, e.y);
+      ctx.rotate(e.angle);
+
+      let spr = 'ZAKO_1';
+      if (e.type === 'BOSS') {
+        if (e.hp === 2) spr = e.animFrame === 0 ? 'BOSS_G1' : 'BOSS_G2';
+        else spr = 'BOSS_B1';
+      } else if (e.type === 'GOEI') {
+        spr = e.animFrame === 0 ? 'GOEI_1' : 'GOEI_2';
+      } else if (e.type === 'ZAKO') {
+        spr = e.animFrame === 0 ? 'ZAKO_1' : 'ZAKO_2';
+      }
+
+      ctx.drawImage(SpriteEngine.cache[spr], -16, -16, 32, 32);
+
+      if (e.capturedFighter) {
+        ctx.drawImage(SpriteEngine.cache['CAPTURED_FIGHTER'], -16, -34, 32, 32);
+      }
+      ctx.restore();
     });
 
-    // Help Modal Triggers
-    document.getElementById('helpModalBtn').addEventListener('click', () => {
-      document.getElementById('helpModal').classList.remove('hidden');
-    });
-    document.getElementById('closeHelpModalBtn').addEventListener('click', () => {
-      document.getElementById('helpModal').classList.add('hidden');
-    });
-
-    // Mobile scroll to manual pad
-    document.getElementById('openManualPadBtn').addEventListener('click', () => {
-      const pad = document.getElementById('manualPadSection');
-      pad.scrollIntoView({ behavior: 'smooth' });
+    // 4. 레이저 & 탄환
+    this.lasers.forEach(l => {
+      ctx.fillStyle = '#ff2a5f';
+      ctx.fillRect(l.x - 3, l.y, 6, 16);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(l.x - 1, l.y + 2, 2, 12);
     });
 
-    // Window Init
-    window.addEventListener('load', () => {
-      resizeCanvases();
-      initMachineBalls();
-      initNumberPadGrid();
-
-      // Pre-purchase 5 initial games for immediate playability
-      buy5AutoGames();
-
-      // Start 60fps canvas engine
-      requestAnimationFrame(mainAnimationLoop);
+    ctx.fillStyle = '#ffcc00';
+    this.enemyBullets.forEach(b => {
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+      ctx.fill();
     });
-  </script>
+
+    // 5. 플레이어
+    if (this.state === 'PLAYING' || this.state === 'READY') {
+      const showShip = (this.player.invulnerableTimer % 6 < 3);
+      if (showShip) {
+        if (this.player.capturedState === 'PULLING') {
+          ctx.save();
+          ctx.translate(this.player.x, this.player.y);
+          ctx.rotate(this.player.pullAngle);
+          ctx.drawImage(SpriteEngine.cache['CAPTURED_FIGHTER'], -16, -16, 32, 32);
+          ctx.restore();
+        } else {
+          const fImg = SpriteEngine.cache['FIGHTER'];
+          if (this.player.isDual) {
+            ctx.drawImage(fImg, this.player.x - 30, this.player.y - 16, 32, 32);
+            ctx.drawImage(fImg, this.player.x - 2,  this.player.y - 16, 32, 32);
+          } else {
+            ctx.drawImage(fImg, this.player.x - 16, this.player.y - 16, 32, 32);
+          }
+        }
+      }
+
+      if (this.player.capturedState === 'RESCUING') {
+        ctx.drawImage(SpriteEngine.cache['FIGHTER'], this.player.rescueX - 16, this.player.rescueY - 16, 32, 32);
+      }
+    }
+
+    // 6. 폭발 & 부유 텍스트
+    this.explosions.forEach(exp => {
+      const f = Math.floor(exp.frame);
+      const eImg = SpriteEngine.cache[`EXP_${f}`];
+      if (eImg) ctx.drawImage(eImg, exp.x - 24, exp.y - 24, 48, 48);
+    });
+
+    this.floatingScores.forEach(fs => {
+      ctx.fillStyle = fs.color;
+      ctx.globalAlpha = fs.alpha;
+      ctx.font = 'bold 13px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(fs.text, fs.x, fs.y);
+    });
+    ctx.globalAlpha = 1.0;
+
+    // 7. HUD
+    this.renderHUD();
+
+    // 8. 오버레이
+    if (this.state === 'TITLE') {
+      ctx.fillStyle = '#ff2a5f';
+      ctx.font = '900 38px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('GALAGA', W / 2, H / 2 - 50);
+      ctx.fillStyle = '#ffcc00';
+      ctx.font = 'bold 15px monospace';
+      ctx.fillText('ARCADE TRACTOR FIX', W / 2, H / 2 - 15);
+      ctx.fillStyle = '#ffffff';
+      if (Math.floor(this.tick / 30) % 2 === 0) {
+        ctx.fillText('PRESS SPACE OR FIRE', W / 2, H / 2 + 55);
+      }
+    } else if (this.state === 'READY') {
+      ctx.fillStyle = '#00d2ff';
+      ctx.font = '900 22px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`STAGE ${this.stage}`, W / 2, H / 2 - 10);
+      ctx.fillStyle = '#ff2a5f';
+      ctx.font = 'bold 18px monospace';
+      ctx.fillText('READY', W / 2, H / 2 + 18);
+    } else if (this.state === 'GAMEOVER') {
+      ctx.fillStyle = '#ff2a5f';
+      ctx.font = '900 32px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('GAME OVER', W / 2, H / 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 14px monospace';
+      ctx.fillText('PRESS SPACE TO RESTART', W / 2, H / 2 + 45);
+    }
+  },
+
+  renderHUD() {
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#ff2a5f';
+    ctx.fillText('1UP', 24, 24);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(String(this.score).padStart(6, '0'), 24, 42);
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ff2a5f';
+    ctx.fillText('HIGH SCORE', W - 24, 24);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(String(this.highScore).padStart(6, '0'), W - 24, 42);
+
+    for (let i = 0; i < this.lives - 1; i++) {
+      ctx.drawImage(SpriteEngine.cache['FIGHTER'], 24 + i * 26, H - 28, 20, 20);
+    }
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ffcc00';
+    ctx.fillText(`STAGE ${this.stage}`, W - 24, H - 15);
+  },
+
+  loop() {
+    Engine.update();
+    Engine.render();
+    requestAnimationFrame(() => Engine.loop());
+  }
+};
+
+window.addEventListener('load', () => Engine.init());
+</script>
 </body>
 </html>
