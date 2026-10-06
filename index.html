@@ -1,989 +1,1449 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Galaga 1981 - Tractor Beam Fixed</title>
-<style>
-  :root {
-    --cabinet-border: #1a1c23;
-    --neon-blue: #00d2ff;
-    --neon-red: #ff2a5f;
-    --neon-gold: #ffcc00;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-  body {
-    background: #030407;
-    color: #fff;
-    font-family: 'Courier New', Courier, monospace;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    overflow: hidden;
-  }
-
-  #cabinet {
-    position: relative;
-    width: 100vw;
-    max-width: 520px;
-    height: 100vh;
-    max-height: 720px;
-    background: #000;
-    border: 4px solid var(--cabinet-border);
-    box-shadow: 0 0 40px rgba(0, 210, 255, 0.15), 0 0 80px rgba(255, 42, 95, 0.15);
-    display: flex;
-    flex-direction: column;
-    aspect-ratio: 3 / 4;
-  }
-
-  #cabinet::before {
-    content: " ";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
-                linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,255,0,0.01), rgba(0,0,255,0.02));
-    background-size: 100% 4px, 6px 100%;
-    pointer-events: none;
-    z-index: 10;
-  }
-
-  canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-  }
-
-  #touch-controls {
-    display: none;
-    position: absolute;
-    bottom: 16px;
-    left: 0; right: 0;
-    padding: 0 20px;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 20;
-    pointer-events: none;
-  }
-  @media (pointer: coarse) {
-    #touch-controls { display: flex; }
-  }
-  .touch-group { display: flex; gap: 14px; pointer-events: auto; }
-  .t-btn {
-    width: 62px; height: 62px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    color: #fff;
-    font-size: 22px; font-weight: 900;
-    display: flex; align-items: center; justify-content: center;
-    touch-action: manipulation;
-  }
-  .t-btn:active { background: rgba(0, 210, 255, 0.4); border-color: var(--neon-blue); }
-  .btn-fire {
-    width: 74px; height: 74px;
-    background: rgba(255, 42, 95, 0.25);
-    border-color: var(--neon-red);
-    color: var(--neon-red);
-    font-size: 15px;
-    pointer-events: auto;
-  }
-  .btn-fire:active { background: rgba(255, 42, 95, 0.6); }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>텍사스 홀뎀 포커 (Texas Hold'em)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 50% 40%, #151e2b 0%, #090d14 100%);
+      overflow-x: hidden;
+    }
+    .cinzel {
+      font-family: 'Cinzel', serif;
+    }
+    /* Poker Table Felt with wood border & felt depth */
+    .poker-table-rim {
+      background: linear-gradient(135deg, #422513 0%, #201108 50%, #422513 100%);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 2px 5px rgba(255, 215, 0, 0.2);
+    }
+    .poker-felt {
+      background: radial-gradient(ellipse at 50% 50%, #0d703b 0%, #095029 55%, #05331a 100%);
+      box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.7);
+    }
+    .poker-inner-line {
+      border: 2px dashed rgba(255, 215, 0, 0.25);
+    }
+    /* Card Styles & Animations */
+    .playing-card {
+      perspective: 1000px;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
+    }
+    .playing-card:hover {
+      transform: translateY(-4px);
+    }
+    .card-highlight {
+      box-shadow: 0 0 15px 4px #fbbf24 !important;
+      border: 2px solid #fef08a !important;
+      animation: pulse-gold 1.5s infinite alternate;
+    }
+    @keyframes pulse-gold {
+      from { transform: translateY(-4px) scale(1.02); box-shadow: 0 0 10px 2px #f59e0b; }
+      to { transform: translateY(-4px) scale(1.06); box-shadow: 0 0 22px 6px #fde047; }
+    }
+    /* Turn Indicator Pulse */
+    .active-seat {
+      box-shadow: 0 0 25px 5px rgba(34, 197, 94, 0.65);
+      border-color: #4ade80 !important;
+      animation: turn-pulse 1.8s infinite ease-in-out;
+    }
+    @keyframes turn-pulse {
+      0%, 100% { border-color: #22c55e; box-shadow: 0 0 15px 3px rgba(34, 197, 94, 0.4); }
+      50% { border-color: #86efac; box-shadow: 0 0 28px 8px rgba(34, 197, 94, 0.85); }
+    }
+    /* Chip Badge */
+    .chip-badge {
+      background: radial-gradient(circle, #f59e0b 20%, #b45309 100%);
+      border: 2px dashed #fef3c7;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+    /* Custom Scrollbar for Hand Log */
+    #log-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    #log-container::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    #log-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+  </style>
 </head>
-<body>
+<body class="min-h-screen text-slate-100 flex flex-col justify-between p-2 md:p-4 select-none">
 
-<div id="cabinet">
-  <canvas id="gameCanvas" width="480" height="640"></canvas>
-  <div id="touch-controls">
-    <div class="touch-group">
-      <div class="t-btn" id="t-left">◀</div>
-      <div class="t-btn" id="t-right">▶</div>
+  <header class="w-full max-w-6xl mx-auto flex items-center justify-between px-2 py-1 bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-800 shadow-lg">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 to-yellow-400 flex items-center justify-center shadow-md font-black text-slate-950 cinzel text-lg">
+        ♠
+      </div>
+      <div>
+        <h1 class="text-base md:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+          텍사스 홀뎀 <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">4인 테이블</span>
+        </h1>
+        <p class="text-[10px] md:text-xs text-slate-400">당신 vs 3인 AI (철수, 영희, 민수)</p>
+      </div>
     </div>
-    <div class="t-btn btn-fire" id="t-fire">FIRE</div>
+
+    <!-- Hand stage & top stats -->
+    <div class="hidden sm:flex items-center gap-3 bg-slate-950/70 px-4 py-1.5 rounded-xl border border-slate-800">
+      <div class="text-center">
+        <span class="text-[10px] text-slate-400 block">핸드 번호</span>
+        <span id="stat-hand-count" class="text-xs font-bold text-amber-400">#1</span>
+      </div>
+      <div class="h-5 w-[1px] bg-slate-800"></div>
+      <div class="text-center">
+        <span class="text-[10px] text-slate-400 block">블라인드 (SB/BB)</span>
+        <span class="text-xs font-bold text-emerald-400">$10 / $20</span>
+      </div>
+      <div class="h-5 w-[1px] bg-slate-800"></div>
+      <div class="text-center">
+        <span class="text-[10px] text-slate-400 block">현재 단계</span>
+        <span id="stat-stage-badge" class="text-xs font-extrabold text-blue-400">대기 중</span>
+      </div>
+    </div>
+
+    <!-- Utility Buttons -->
+    <div class="flex items-center gap-2">
+      <button id="btn-sound" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm border border-slate-700 transition" title="사운드 토글">
+        🔊
+      </button>
+      <button id="btn-rules" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition flex items-center gap-1">
+        📖 족보 안내
+      </button>
+      <button id="btn-log-toggle" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition">
+        📜 로그
+      </button>
+    </div>
+  </header>
+
+  <main class="w-full max-w-6xl mx-auto flex-1 flex flex-col justify-center items-center my-2 relative">
+    
+    <!-- Oval Table Outer Shell -->
+    <div class="w-full relative aspect-[16/9] max-h-[640px] poker-table-rim rounded-[90px] md:rounded-[150px] p-4 md:p-6 shadow-2xl flex items-center justify-center">
+      
+      <!-- Inner Felt Cloth -->
+      <div class="w-full h-full poker-felt rounded-[75px] md:rounded-[130px] relative flex flex-col items-center justify-between p-3 md:p-6 overflow-hidden">
+        
+        <!-- Table Inscription Lines -->
+        <div class="absolute inset-4 md:inset-8 poker-inner-line rounded-[65px] md:rounded-[115px] pointer-events-none"></div>
+
+        <!-- ================= TOP SEAT: BOT 2 (영희) ================= -->
+        <div class="z-10 flex flex-col items-center -mt-1 md:-mt-2">
+          <div id="seat-2" class="relative flex items-center gap-2 md:gap-3 bg-slate-900/90 border-2 border-slate-700 rounded-2xl px-3 py-2 shadow-xl backdrop-blur-md transition-all duration-300">
+            <!-- Position Badges -->
+            <div id="badge-dealer-2" class="hidden absolute -top-3 -left-2 w-6 h-6 rounded-full bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow border border-white">D</div>
+            <div id="badge-blind-2" class="hidden absolute -top-3 -right-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow">SB</div>
+            <!-- Avatar & Profile -->
+            <div class="text-2xl md:text-3xl">👩‍💼</div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs md:text-sm font-bold text-slate-100">영희 (AI)</span>
+                <span class="text-[9px] px-1 rounded bg-rose-900/60 text-rose-300 border border-rose-700/50">어그레시브</span>
+              </div>
+              <div class="text-xs font-black text-amber-400" id="chips-2">$1,000</div>
+            </div>
+            <!-- Hole Cards Container -->
+            <div id="cards-2" class="flex gap-1 ml-2"></div>
+          </div>
+          <!-- Action Bubble & Current Bet -->
+          <div class="flex items-center gap-2 mt-1 min-h-[24px]">
+            <span id="action-2" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-white shadow-md border border-slate-600"></span>
+            <span id="bet-pill-2" class="hidden text-[11px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow-md"></span>
+          </div>
+        </div>
+
+        <!-- ================= CENTER TABLE: COMMUNITY CARDS & POT ================= -->
+        <div class="z-10 flex flex-col items-center justify-center w-full my-auto">
+          <!-- Main Pot Badge -->
+          <div class="flex items-center gap-2 bg-slate-950/80 px-4 py-1.5 rounded-full border border-amber-500/40 shadow-2xl mb-3">
+            <span class="text-xs font-semibold text-amber-300 tracking-wider">TOTAL POT</span>
+            <div class="flex items-center gap-1">
+              <span class="w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center text-[10px] text-slate-900 font-bold">$</span>
+              <span id="pot-amount" class="text-base md:text-xl font-black text-amber-400 tracking-tight">$0</span>
+            </div>
+          </div>
+
+          <!-- Community Cards (Flop 3, Turn 1, River 1) -->
+          <div class="flex items-center justify-center gap-1.5 md:gap-3 p-2 bg-black/30 rounded-2xl border border-white/10 backdrop-blur-sm min-h-[78px] md:min-h-[105px]">
+            <div id="community-card-0" class="w-11 h-16 md:w-16 md:h-24 rounded-lg bg-emerald-950/40 border border-dashed border-emerald-500/30 flex items-center justify-center text-emerald-500/40 font-bold text-xs">1</div>
+            <div id="community-card-1" class="w-11 h-16 md:w-16 md:h-24 rounded-lg bg-emerald-950/40 border border-dashed border-emerald-500/30 flex items-center justify-center text-emerald-500/40 font-bold text-xs">2</div>
+            <div id="community-card-2" class="w-11 h-16 md:w-16 md:h-24 rounded-lg bg-emerald-950/40 border border-dashed border-emerald-500/30 flex items-center justify-center text-emerald-500/40 font-bold text-xs">3</div>
+            <div id="community-card-3" class="w-11 h-16 md:w-16 md:h-24 rounded-lg bg-emerald-950/40 border border-dashed border-emerald-500/30 flex items-center justify-center text-emerald-500/40 font-bold text-xs">턴</div>
+            <div id="community-card-4" class="w-11 h-16 md:w-16 md:h-24 rounded-lg bg-emerald-950/40 border border-dashed border-emerald-500/30 flex items-center justify-center text-emerald-500/40 font-bold text-xs">리버</div>
+          </div>
+
+          <!-- Round Status Announcement Pill -->
+          <div id="center-message" class="mt-2 text-xs md:text-sm font-bold text-amber-200 bg-slate-900/80 px-3 py-1 rounded-full border border-amber-500/30 shadow transition opacity-100">
+            게임을 시작하려면 아래 버튼을 누르세요
+          </div>
+        </div>
+
+        <!-- ================= FLANK SEATS: BOT 1 (LEFT) & BOT 3 (RIGHT) ================= -->
+        <div class="w-full flex justify-between items-center absolute inset-x-3 md:inset-x-8 top-1/2 -translate-y-1/2 pointer-events-none">
+          
+          <!-- LEFT SEAT: BOT 1 (철수) -->
+          <div class="pointer-events-auto flex flex-col items-start">
+            <div id="seat-1" class="relative flex items-center gap-2 bg-slate-900/90 border-2 border-slate-700 rounded-2xl px-2.5 py-2 shadow-xl backdrop-blur-md transition-all duration-300">
+              <div id="badge-dealer-1" class="hidden absolute -top-3 -left-2 w-6 h-6 rounded-full bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow border border-white">D</div>
+              <div id="badge-blind-1" class="hidden absolute -top-3 -right-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow">BB</div>
+              <div class="text-2xl md:text-3xl">👨‍💻</div>
+              <div>
+                <div class="flex items-center gap-1">
+                  <span class="text-xs md:text-sm font-bold text-slate-100">철수 (AI)</span>
+                  <span class="text-[9px] px-1 rounded bg-blue-900/60 text-blue-300 border border-blue-700/50">타이트</span>
+                </div>
+                <div class="text-xs font-black text-amber-400" id="chips-1">$1,000</div>
+              </div>
+              <div id="cards-1" class="flex gap-1 ml-1"></div>
+            </div>
+            <!-- Action & Bet -->
+            <div class="flex items-center gap-1.5 mt-1 min-h-[24px]">
+              <span id="action-1" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-white shadow border border-slate-600"></span>
+              <span id="bet-pill-1" class="hidden text-[11px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow"></span>
+            </div>
+          </div>
+
+          <!-- RIGHT SEAT: BOT 3 (민수) -->
+          <div class="pointer-events-auto flex flex-col items-end">
+            <div id="seat-3" class="relative flex items-center gap-2 bg-slate-900/90 border-2 border-slate-700 rounded-2xl px-2.5 py-2 shadow-xl backdrop-blur-md transition-all duration-300">
+              <div id="badge-dealer-3" class="hidden absolute -top-3 -right-2 w-6 h-6 rounded-full bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow border border-white">D</div>
+              <div id="badge-blind-3" class="hidden absolute -top-3 -left-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow">SB</div>
+              <div id="cards-3" class="flex gap-1 mr-1"></div>
+              <div>
+                <div class="flex items-center gap-1 justify-end">
+                  <span class="text-[9px] px-1 rounded bg-emerald-900/60 text-emerald-300 border border-emerald-700/50">밸런스</span>
+                  <span class="text-xs md:text-sm font-bold text-slate-100">민수 (AI)</span>
+                </div>
+                <div class="text-xs font-black text-amber-400 text-right" id="chips-3">$1,000</div>
+              </div>
+              <div class="text-2xl md:text-3xl">🤠</div>
+            </div>
+            <!-- Action & Bet -->
+            <div class="flex items-center gap-1.5 mt-1 min-h-[24px]">
+              <span id="bet-pill-3" class="hidden text-[11px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow"></span>
+              <span id="action-3" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-white shadow border border-slate-600"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= BOTTOM SEAT: USER (PLAYER) ================= -->
+        <div class="z-10 flex flex-col items-center -mb-2 md:-mb-3">
+          <!-- Action & Bet for User -->
+          <div class="flex items-center gap-2 mb-1 min-h-[24px]">
+            <span id="action-0" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-white shadow border border-slate-600"></span>
+            <span id="bet-pill-0" class="hidden text-[11px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow"></span>
+          </div>
+
+          <div id="seat-0" class="relative flex items-center gap-3 bg-slate-900/95 border-2 border-emerald-500/60 rounded-2xl px-4 py-2.5 shadow-2xl backdrop-blur-md transition-all duration-300">
+            <div id="badge-dealer-0" class="hidden absolute -top-3 -left-2 w-6 h-6 rounded-full bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow border border-white">D</div>
+            <div id="badge-blind-0" class="hidden absolute -top-3 -right-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow">BB</div>
+            
+            <div class="text-3xl md:text-4xl">👑</div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm md:text-base font-extrabold text-white">나 (플레이어)</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">USER</span>
+              </div>
+              <div class="text-sm md:text-base font-black text-emerald-400" id="chips-0">$1,000</div>
+              <!-- Real-time Hand strength hint -->
+              <div id="user-hand-rating" class="text-[11px] font-bold text-amber-300 mt-0.5">-</div>
+            </div>
+
+            <!-- Player Hole Cards (Large) -->
+            <div id="cards-0" class="flex gap-2 ml-2"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="w-full max-w-4xl mx-auto bg-slate-900/95 border border-slate-800 rounded-2xl p-2.5 md:p-3 shadow-2xl backdrop-blur-md">
+    
+    <!-- Next Hand / New Game Bar (when round is finished or inactive) -->
+    <div id="panel-deal" class="flex items-center justify-between gap-3">
+      <div class="text-xs md:text-sm text-slate-300">
+        <span class="font-bold text-amber-400">새로운 핸드 준비 완료!</span> 카드를 분배하고 플레이를 시작하세요.
+      </div>
+      <div class="flex gap-2">
+        <button id="btn-rebuy" class="hidden px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs md:text-sm shadow transition">
+          💰 칩 충전 (+$1,000)
+        </button>
+        <button id="btn-start-hand" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm md:text-base shadow-lg transition transform active:scale-95 flex items-center gap-1.5">
+          <span>🃏 카드 분배 (딜)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Betting Controls Bar (shown on player turn) -->
+    <div id="panel-actions" class="hidden flex flex-col md:flex-row items-center gap-2.5">
+      
+      <!-- Fold & Check/Call Buttons -->
+      <div class="flex items-center gap-2 w-full md:w-auto">
+        <button id="btn-fold" class="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 active:scale-95 text-white font-bold text-xs md:text-sm shadow-md transition border border-rose-400/40">
+          폴드 (다이)
+        </button>
+        <button id="btn-check-call" class="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-extrabold text-xs md:text-sm shadow-md transition border border-blue-400/40 min-w-[100px]">
+          체크
+        </button>
+      </div>
+
+      <!-- Divider -->
+      <div class="hidden md:block h-8 w-[1px] bg-slate-800 mx-1"></div>
+
+      <!-- Raise Controls: Slider & Presets -->
+      <div class="flex-1 flex flex-col md:flex-row items-center gap-2 w-full">
+        <!-- Quick Preset Buttons -->
+        <div class="flex items-center gap-1 w-full md:w-auto">
+          <button id="btn-preset-min" class="flex-1 md:flex-none px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700">Min</button>
+          <button id="btn-preset-half" class="flex-1 md:flex-none px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700">1/2 팟</button>
+          <button id="btn-preset-pot" class="flex-1 md:flex-none px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700">팟</button>
+          <button id="btn-preset-allin" class="flex-1 md:flex-none px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-slate-950 font-black text-xs">올인</button>
+        </div>
+
+        <!-- Range Slider with Value Display -->
+        <div class="flex items-center gap-2 w-full flex-1">
+          <input type="range" id="raise-slider" min="20" max="1000" step="10" value="40" class="w-full accent-amber-500 cursor-pointer">
+          <button id="btn-raise" class="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 active:scale-95 text-slate-950 font-black text-xs md:text-sm whitespace-nowrap shadow-lg min-w-[120px]">
+            레이즈 <span id="raise-amount-label">$40</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Hand Rankings Modal -->
+  <div id="modal-rules" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 shadow-2xl max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-bold text-amber-400 flex items-center gap-2">
+          📖 텍사스 홀뎀 족보 (높은 순서)
+        </h3>
+        <button id="btn-close-rules" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+      <div class="space-y-2.5 mt-3 text-xs text-slate-300">
+        <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex justify-between items-center">
+          <span class="font-extrabold text-amber-300">1. 로열 스트레이트 플러시</span>
+          <span class="text-slate-400">같은 무늬 A, K, Q, J, 10</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
+          <span class="font-bold text-white">2. 스트레이트 플러시</span>
+          <span class="text-slate-400">같은 무늬 연속된 숫자 5장</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
+          <span class="font-bold text-white">3. 포카드 (Four of a Kind)</span>
+          <span class="text-slate-400">같은 숫자 4장</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
+          <span class="font-bold text-white">4. 풀하우스 (Full House)</span>
+          <span class="text-slate-400">트리플(3장) + 원페어(2장)</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
+          <span class="font-bold text-white">5. 플러시 (Flush)</span>
+          <span class="text-slate-400">숫자 상관없이 같은 무늬 5장</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
+          <span class="font-bold text-white">6. 스트레이트 (Straight)</span>
+          <span class="text-slate-400">무늬 상관없이 연속된 숫자 5장</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
+          <span class="font-bold text-white">7. 트리플 (Three of a Kind)</span>
+          <span class="text-slate-400">같은 숫자 3장</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
+          <span class="font-bold text-white">8. 투페어 (Two Pair)</span>
+          <span class="text-slate-400">같은 숫자 2장씩 2쌍</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
+          <span class="font-bold text-white">9. 원페어 (One Pair)</span>
+          <span class="text-slate-400">같은 숫자 2장 1쌍</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
+          <span class="font-bold text-white">10. 하이 카드 (High Card)</span>
+          <span class="text-slate-400">아무 족보도 없을 때 가장 높은 숫자</span>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 
-<script>
-/**
- * 1. 8-BIT AUDIO SYNTHESIZER
- */
-const Sound = {
-  ctx: null,
-  init() {
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioCtx();
-    }
-    if (this.ctx.state === 'suspended') this.ctx.resume();
-  },
-  playLaser() {
-    this.init();
-    const t = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(950, t);
-    osc.frequency.exponentialRampToValueAtTime(130, t + 0.11);
-    gain.gain.setValueAtTime(0.25, t);
-    gain.gain.linearRampToValueAtTime(0.01, t + 0.11);
-    osc.connect(gain); gain.connect(this.ctx.destination);
-    osc.start(t); osc.stop(t + 0.11);
-  },
-  playExplode() {
-    this.init();
-    const t = this.ctx.currentTime;
-    const dur = 0.25;
-    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * dur, this.ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-    const noise = this.ctx.createBufferSource();
-    noise.buffer = buf;
-    const filter = this.ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(850, t);
-    filter.frequency.linearRampToValueAtTime(80, t + dur);
-    const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0.3, t);
-    gain.gain.linearRampToValueAtTime(0.01, t + dur);
-    noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
-    noise.start(t);
-  },
-  playTractorHum() {
-    this.init();
-    const t = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(160, t);
-    osc.frequency.linearRampToValueAtTime(320, t + 0.1);
-    osc.frequency.linearRampToValueAtTime(160, t + 0.2);
-    gain.gain.setValueAtTime(0.15, t);
-    gain.gain.linearRampToValueAtTime(0.01, t + 0.2);
-    osc.connect(gain); gain.connect(this.ctx.destination);
-    osc.start(t); osc.stop(t + 0.2);
-  },
-  playDockingFanfare() {
-    this.init();
-    const notes = [440, 554.37, 659.25, 880];
-    notes.forEach((freq, idx) => {
-      const t = this.ctx.currentTime + idx * 0.08;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(freq, t);
-      gain.gain.setValueAtTime(0.18, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
-      osc.connect(gain); gain.connect(this.ctx.destination);
-      osc.start(t); osc.stop(t + 0.14);
-    });
-  }
-};
+  <!-- Hand History Log Drawer -->
+  <div id="modal-log" class="hidden fixed bottom-16 right-4 z-40 w-80 md:w-96 bg-slate-900/95 border border-slate-700 rounded-2xl shadow-2xl p-3 backdrop-blur-md">
+    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+      <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+        📜 게임 진행 기록
+      </h3>
+      <button id="btn-close-log" class="text-slate-400 hover:text-white text-xs">닫기</button>
+    </div>
+    <div id="log-container" class="h-56 overflow-y-auto space-y-1 mt-2 text-[11px] pr-1"></div>
+  </div>
 
-/**
- * 2. SPRITE ENGINE (16x16 Pixel Buffers)
- */
-const SpriteEngine = {
-  cache: {},
-  init() {
-    this.cache['FIGHTER'] = this.renderPixelMap(16, 16, [
-      "....00000000....", ".......11.......", "......1111......", "......1111......",
-      ".....111111.....", ".....112211.....", "....11122111....", "...3111111113...",
-      "...3111111113...", "..331111111133..", "..333111111333..", ".33333311333333.",
-      ".33.33311333.33.", "44...33..33...44", "44............44", "4..............4"
-    ], { '1': '#ffffff', '2': '#00d2ff', '3': '#ff2a5f', '4': '#ffcc00' });
+  <script>
+    /* Audio System using Web Audio API (Synthesized SFX without external dependencies) */
+    const SoundManager = {
+      ctx: null,
+      enabled: true,
 
-    this.cache['CAPTURED_FIGHTER'] = this.renderPixelMap(16, 16, [
-      "....00000000....", ".......11.......", "......1111......", "......1111......",
-      ".....111111.....", ".....112211.....", "....11122111....", "...3111111113...",
-      "...3111111113...", "..331111111133..", "..333111111333..", ".33333311333333.",
-      ".33.33311333.33.", "44...33..33...44", "44............44", "4..............4"
-    ], { '1': '#4a75a0', '2': '#2b4461', '3': '#8a2b43', '4': '#a0852b' });
-
-    this.cache['BOSS_G1'] = this.renderPixelMap(16, 16, [
-      "......1111......", ".....111111.....", "....21311312....", "...2211111122...",
-      "..222211112222..", ".22222211222222.", ".22.22211222.22.", "22..22211222..22",
-      "....22211222....", "....22444422....", "...2244444422...", "...2.444444.2...",
-      ".....444444.....", ".....44..44.....", "....44....44....", "...44......44..."
-    ], { '1': '#00ff88', '2': '#ffcc00', '3': '#ff2a5f', '4': '#00aa55' });
-
-    this.cache['BOSS_G2'] = this.renderPixelMap(16, 16, [
-      "......1111......", ".....111111.....", "....21311312....", "..222111111222..",
-      ".22222111122222.", "2222222112222222", "22..22211222..22", "....22211222....",
-      "....22211222....", "...2224444222...", "..22.444444.22..", ".....444444.....",
-      ".....444444.....", ".....44..44.....", "....44....44....", "...44......44..."
-    ], { '1': '#00ff88', '2': '#ffcc00', '3': '#ff2a5f', '4': '#00aa55' });
-
-    this.cache['BOSS_B1'] = this.renderPixelMap(16, 16, [
-      "......1111......", ".....111111.....", "....21311312....", "...2211111122...",
-      "..222211112222..", ".22222211222222.", ".22.22211222.22.", "22..22211222..22",
-      "....22211222....", "....22444422....", "...2244444422...", "...2.444444.2...",
-      ".....444444.....", ".....44..44.....", "....44....44....", "...44......44..."
-    ], { '1': '#00d2ff', '2': '#ffcc00', '3': '#ff2a5f', '4': '#0066cc' });
-
-    this.cache['GOEI_1'] = this.renderPixelMap(16, 16, [
-      ".......11.......", "......1111......", ".....211112.....", "....22211222....",
-      "...2222112222...", "..222221122222..", ".22222211222222.", ".22.22211222.22.",
-      "22..22211222..22", "....22211222....", "....22211222....", "....33333333....",
-      "...3333333333...", "...33..33..33...", "..33........33..", ".33..........33."
-    ], { '1': '#ffffff', '2': '#ff2a5f', '3': '#ffcc00' });
-
-    this.cache['GOEI_2'] = this.renderPixelMap(16, 16, [
-      ".......11.......", "......1111......", ".....211112.....", "...2222112222...",
-      "..222221122222..", ".22222211222222.", "2222222112222222", "22..22211222..22",
-      "....22211222....", "....22211222....", "...3333333333...", "..333333333333..",
-      "..33...33...33..", ".33..........33.", "33............33", "................"
-    ], { '1': '#ffffff', '2': '#ff2a5f', '3': '#ffcc00' });
-
-    this.cache['ZAKO_1'] = this.renderPixelMap(16, 16, [
-      ".......11.......", "......1111......", ".....211112.....", "....22111122....",
-      "...2222112222...", "..222221122222..", "..22.221122.22..", ".22..221122..22.",
-      ".....221122.....", ".....333333.....", "....33333333....", "....22222222....",
-      "....33333333....", ".....33..33.....", "....33....33....", "...33......33..."
-    ], { '1': '#ff2a5f', '2': '#00d2ff', '3': '#ffcc00' });
-
-    this.cache['ZAKO_2'] = this.renderPixelMap(16, 16, [
-      ".......11.......", "......1111......", ".....211112.....", "..222221122222..",
-      ".22222211222222.", "2222222112222222", "22...221122...22", ".....221122.....",
-      ".....333333.....", "....33333333....", "....22222222....", "....33333333....",
-      "....33333333....", "...33......33...", "..33........33..", "................"
-    ], { '1': '#ff2a5f', '2': '#00d2ff', '3': '#ffcc00' });
-
-    for (let f = 0; f < 5; f++) {
-      const c = document.createElement('canvas');
-      c.width = 32; c.height = 32;
-      const cx = c.getContext('2d');
-      const rad = 3 + f * 3.2;
-      const cols = ['#ffffff', '#ffcc00', '#ff5500', '#ff0044', '#551122'];
-      cx.fillStyle = cols[f];
-      for (let i = 0; i < 8; i++) {
-        const ang = (i / 8) * Math.PI * 2 + (f * 0.2);
-        const dist = rad * (0.6 + (i % 2) * 0.4);
-        cx.beginPath();
-        cx.arc(16 + Math.cos(ang) * dist, 16 + Math.sin(ang) * dist, Math.max(1, 4 - f * 0.7), 0, Math.PI * 2);
-        cx.fill();
-      }
-      this.cache[`EXP_${f}`] = c;
-    }
-  },
-  renderPixelMap(w, h, rows, palette) {
-    const c = document.createElement('canvas');
-    c.width = w; c.height = h;
-    const cx = c.getContext('2d');
-    for (let y = 0; y < h; y++) {
-      const line = rows[y];
-      for (let x = 0; x < w; x++) {
-        if (palette[line[x]]) {
-          cx.fillStyle = palette[line[x]];
-          cx.fillRect(x, y, 1, 1);
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
         }
+      },
+
+      playDeal() {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(450, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.08);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      },
+
+      playChip() {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1200, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.05);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      },
+
+      playCheck() {
+        if (!this.enabled || !this.ctx) return;
+        [0, 0.09].forEach(offset => {
+          const now = this.ctx.currentTime + offset;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(180, now);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        });
+      },
+
+      playFold() {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(250, now);
+        osc.frequency.exponentialRampToValueAtTime(80, now + 0.15);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      },
+
+      playWin() {
+        if (!this.enabled || !this.ctx) return;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const now = this.ctx.currentTime + (idx * 0.1);
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        });
       }
-    }
-    return c;
-  }
-};
+    };
 
-/**
- * 3. MATH HELPERS
- */
-function getCubicBezier(p0, p1, p2, p3, t) {
-  const mt = 1 - t;
-  const mt2 = mt * mt;
-  const t2 = t * t;
-  return {
-    x: mt2 * mt * p0.x + 3 * mt2 * t * p1.x + 3 * mt * t2 * p2.x + t2 * t * p3.x,
-    y: mt2 * mt * p0.y + 3 * mt2 * t * p1.y + 3 * mt * t2 * p2.y + t2 * t * p3.y
-  };
-}
-
-/**
- * 4. GAME ENGINE
- */
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const W = 480;
-const H = 640;
-
-const Engine = {
-  state: 'TITLE',
-  tick: 0,
-  score: 0,
-  highScore: 30000,
-  stage: 1,
-  lives: 3,
-
-  player: {
-    x: W / 2,
-    y: H - 55,
-    speed: 4.8,
-    isDual: false,
-    invulnerableTimer: 0,
-    capturedState: 'NONE', // NONE, PULLING, RESCUING
-    pullAngle: 0,
-    rescueX: 0,
-    rescueY: 0
-  },
-
-  lasers: [],
-  enemyBullets: [],
-  enemies: [],
-  explosions: [],
-  floatingScores: [],
-
-  gridBreathX: 0,
-  gridExpand: 1.0,
-
-  // 트랙터 시퀀스 제어
-  tractorBoss: null,
-  tractorTimer: 0,
-  tractorCooldown: 600, // 시작 후 10초간은 트랙터 빔 사용 불가
-
-  init() {
-    SpriteEngine.init();
-    this.initStars();
-    this.bindInputs();
-    this.loop();
-  },
-
-  initStars() {
-    this.stars = [];
-    for (let i = 0; i < 90; i++) {
-      this.stars.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        spd: 0.6 + Math.random() * 2.2,
-        color: ['#ffffff', '#00d2ff', '#ffcc00', '#ff2a5f'][Math.floor(Math.random() * 4)]
-      });
-    }
-  },
-
-  bindInputs() {
-    this.keys = { left: false, right: false, fireLock: false };
-    window.addEventListener('keydown', e => {
-      Sound.init();
-      if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.keys.left = true;
-      if (e.code === 'ArrowRight' || e.code === 'KeyD') this.keys.right = true;
-      if (e.code === 'Space') {
-        if (!this.keys.fireLock) {
-          this.triggerAction();
-          this.keys.fireLock = true;
-        }
-      }
-    });
-    window.addEventListener('keyup', e => {
-      if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.keys.left = false;
-      if (e.code === 'ArrowRight' || e.code === 'KeyD') this.keys.right = false;
-      if (e.code === 'Space') this.keys.fireLock = false;
-    });
-
-    const tl = document.getElementById('t-left');
-    const tr = document.getElementById('t-right');
-    const tf = document.getElementById('t-fire');
-    tl.addEventListener('touchstart', e => { e.preventDefault(); Sound.init(); this.keys.left = true; });
-    tl.addEventListener('touchend', e => { e.preventDefault(); this.keys.left = false; });
-    tr.addEventListener('touchstart', e => { e.preventDefault(); Sound.init(); this.keys.right = true; });
-    tr.addEventListener('touchend', e => { e.preventDefault(); this.keys.right = false; });
-    tf.addEventListener('touchstart', e => { e.preventDefault(); Sound.init(); this.triggerAction(); });
-  },
-
-  triggerAction() {
-    if (this.state === 'TITLE' || this.state === 'GAMEOVER') {
-      this.score = 0;
-      this.stage = 1;
-      this.lives = 3;
-      this.player.isDual = false;
-      this.startStage(1);
-    } else if (this.state === 'PLAYING' && this.player.capturedState === 'NONE') {
-      const maxL = this.player.isDual ? 4 : 2;
-      if (this.lasers.length >= maxL) return;
-      if (this.player.isDual) {
-        this.lasers.push({ x: this.player.x - 14, y: this.player.y - 14 });
-        this.lasers.push({ x: this.player.x + 14, y: this.player.y - 14 });
-      } else {
-        this.lasers.push({ x: this.player.x, y: this.player.y - 14 });
-      }
-      Sound.playLaser();
-    }
-  },
-
-  startStage(stg) {
-    this.stage = stg;
-    this.lasers = [];
-    this.enemyBullets = [];
-    this.enemies = [];
-    this.explosions = [];
-    this.floatingScores = [];
-    this.tractorBoss = null;
-    this.tractorTimer = 0;
-    this.tractorCooldown = 700; // 스테이지 시작 후 12초간 대기
-
-    this.player.x = W / 2;
-    this.player.y = H - 55;
-    this.player.invulnerableTimer = 120;
-    this.player.capturedState = 'NONE';
-
-    this.spawnFormation();
-    this.state = 'READY';
-    this.tick = 0;
-  },
-
-  spawnFormation() {
-    const rows = [
-      { type: 'BOSS', count: 4, hp: 2, ptsGrid: 150, ptsDive: 400 },
-      { type: 'GOEI', count: 8, hp: 1, ptsGrid: 80,  ptsDive: 160 },
-      { type: 'GOEI', count: 8, hp: 1, ptsGrid: 80,  ptsDive: 160 },
-      { type: 'ZAKO', count: 10, hp: 1, ptsGrid: 50,  ptsDive: 100 },
-      { type: 'ZAKO', count: 10, hp: 1, ptsGrid: 50,  ptsDive: 100 }
+    const SUITS = [
+      { id: 's', symbol: '♠', color: 'text-slate-900', label: '스페이드' },
+      { id: 'h', symbol: '♥', color: 'text-rose-600', label: '하트' },
+      { id: 'd', symbol: '♦', color: 'text-blue-600', label: '다이아' },
+      { id: 'c', symbol: '♣', color: 'text-emerald-700', label: '클로버' }
     ];
 
-    let gIdx = 0;
-    rows.forEach((r, rIdx) => {
-      const spacingX = 36;
-      const startX = (W - (r.count - 1) * spacingX) / 2;
-      const targetY = 90 + rIdx * 30;
+    const RANK_LABELS = {
+      2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10',
+      11: 'J', 12: 'Q', 13: 'K', 14: 'A'
+    };
 
-      for (let c = 0; c < r.count; c++) {
-        const targetX = startX + c * spacingX;
-        const fromLeft = (gIdx % 2 === 0);
-        const p0 = { x: fromLeft ? -40 : W + 40, y: 140 + (gIdx % 4) * 35 };
-        const p1 = { x: fromLeft ? W * 0.75 : W * 0.25, y: 340 };
-        const p2 = { x: fromLeft ? W * 0.2 : W * 0.8, y: 460 };
-        const p3 = { x: targetX, y: targetY };
+    const HAND_RANKS = {
+      HIGH_CARD: 1,
+      ONE_PAIR: 2,
+      TWO_PAIR: 3,
+      THREE_OF_A_KIND: 4,
+      STRAIGHT: 5,
+      FLUSH: 6,
+      FULL_HOUSE: 7,
+      FOUR_OF_A_KIND: 8,
+      STRAIGHT_FLUSH: 9,
+      ROYAL_FLUSH: 10
+    };
 
-        this.enemies.push({
-          id: `e_${rIdx}_${c}`,
-          type: r.type,
-          hp: r.hp,
-          maxHp: r.hp,
-          ptsGrid: r.ptsGrid,
-          ptsDive: r.ptsDive,
-          gridOriginX: targetX,
-          gridOriginY: targetY,
-          x: p0.x, y: p0.y,
-          angle: 0,
-          state: 'ENTERING',
-          animFrame: 0,
-          t: 0,
-          speedT: 0.012 + (gIdx % 5) * 0.001,
-          p0, p1, p2, p3,
-          diveTime: 0,
-          capturedFighter: false,
-          hoverTargetX: 0,
-          hoverTargetY: 220
-        });
-        gIdx++;
+    const HAND_NAMES_KR = {
+      1: '하이 카드',
+      2: '원페어',
+      3: '투페어',
+      4: '트리플',
+      5: '스트레이트',
+      6: '플러시',
+      7: '풀하우스',
+      8: '포카드',
+      9: '스트레이트 플러시',
+      10: '로열 스트레이트 플러시'
+    };
+
+    function createDeck() {
+      const deck = [];
+      for (const suit of SUITS) {
+        for (let rank = 2; rank <= 14; rank++) {
+          deck.push({ rank, suit: suit.id, symbol: suit.symbol, color: suit.color });
+        }
       }
-    });
-  },
-
-  update() {
-    this.tick++;
-
-    // 배경 스크롤
-    this.stars.forEach(s => {
-      s.y += s.spd;
-      if (s.y > H) { s.y = 0; s.x = Math.random() * W; }
-    });
-
-    if (this.state === 'READY') {
-      if (this.tick > 90) this.state = 'PLAYING';
+      return deck;
     }
-    if (this.state !== 'PLAYING') return;
 
-    // 쿨다운 감쇄
-    if (this.tractorCooldown > 0) this.tractorCooldown--;
+    function shuffleDeck(deck) {
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      return deck;
+    }
 
-    if (this.player.invulnerableTimer > 0) this.player.invulnerableTimer--;
+    /* Combination helper C(n, k) */
+    function getCombinations(array, k) {
+      const results = [];
+      function backtrack(start, combo) {
+        if (combo.length === k) {
+          results.push([...combo]);
+          return;
+        }
+        for (let i = start; i < array.length; i++) {
+          combo.push(array[i]);
+          backtrack(i + 1, combo);
+          combo.pop();
+        }
+      }
+      backtrack(0, []);
+      return results;
+    }
 
-    // 1. 플레이어 제어
-    if (this.player.capturedState === 'NONE') {
-      const margin = this.player.isDual ? 32 : 20;
-      if (this.keys.left && this.player.x > margin) this.player.x -= this.player.speed;
-      if (this.keys.right && this.player.x < W - margin) this.player.x += this.player.speed;
-    } else if (this.player.capturedState === 'PULLING') {
-      this.player.pullAngle += 0.24;
-      if (this.tractorBoss) {
-        this.player.x += (this.tractorBoss.x - this.player.x) * 0.09;
-        this.player.y -= 2.2;
-        if (this.player.y <= this.tractorBoss.y + 26) {
-          // 납치 완료 시점
-          this.tractorBoss.capturedFighter = true;
-          this.tractorBoss.state = 'BEAM_EXIT';
-          this.tractorBoss.diveSpeedY = 4.0;
-          this.tractorBoss = null;
-          this.player.capturedState = 'NONE';
-          this.lives--;
-          if (this.lives <= 0) {
-            this.state = 'GAMEOVER';
-          } else {
-            this.respawnPlayer();
+    /* Evaluates exactly 5 cards and returns { tier, ranks, name, cards } */
+    function evaluate5Cards(cards) {
+      const sorted = [...cards].sort((a, b) => b.rank - a.rank);
+      const ranks = sorted.map(c => c.rank);
+      const isFlush = sorted.every(c => c.suit === sorted[0].suit);
+
+      // Check for straight
+      let isStraight = false;
+      let straightHigh = 0;
+      const uniqueRanks = [...new Set(ranks)];
+
+      if (uniqueRanks.length === 5) {
+        if (uniqueRanks[0] - uniqueRanks[4] === 4) {
+          isStraight = true;
+          straightHigh = uniqueRanks[0];
+        } else if (
+          uniqueRanks[0] === 14 &&
+          uniqueRanks[1] === 5 &&
+          uniqueRanks[2] === 4 &&
+          uniqueRanks[3] === 3 &&
+          uniqueRanks[4] === 2
+        ) {
+          // Ace-low straight A-2-3-4-5
+          isStraight = true;
+          straightHigh = 5;
+        }
+      }
+
+      // Count rank occurrences
+      const counts = {};
+      for (const r of ranks) counts[r] = (counts[r] || 0) + 1;
+      const freqList = Object.keys(counts)
+        .map(r => ({ rank: Number(r), count: counts[r] }))
+        .sort((a, b) => b.count - a.count || b.rank - a.rank);
+
+      // 1. Royal / Straight Flush
+      if (isFlush && isStraight) {
+        if (straightHigh === 14) {
+          return { tier: HAND_RANKS.ROYAL_FLUSH, score: [10, 14], name: HAND_NAMES_KR[10], cards: sorted };
+        }
+        return { tier: HAND_RANKS.STRAIGHT_FLUSH, score: [9, straightHigh], name: `${RANK_LABELS[straightHigh]} ${HAND_NAMES_KR[9]}`, cards: sorted };
+      }
+
+      // 2. Four of a Kind
+      if (freqList[0].count === 4) {
+        return { tier: HAND_RANKS.FOUR_OF_A_KIND, score: [8, freqList[0].rank, freqList[1].rank], name: `${RANK_LABELS[freqList[0].rank]} ${HAND_NAMES_KR[8]}`, cards: sorted };
+      }
+
+      // 3. Full House
+      if (freqList[0].count === 3 && freqList[1].count === 2) {
+        return { tier: HAND_RANKS.FULL_HOUSE, score: [7, freqList[0].rank, freqList[1].rank], name: `${RANK_LABELS[freqList[0].rank]} & ${RANK_LABELS[freqList[1].rank]} ${HAND_NAMES_KR[7]}`, cards: sorted };
+      }
+
+      // 4. Flush
+      if (isFlush) {
+        return { tier: HAND_RANKS.FLUSH, score: [6, ...ranks], name: `${RANK_LABELS[ranks[0]]} 하이 ${HAND_NAMES_KR[6]}`, cards: sorted };
+      }
+
+      // 5. Straight
+      if (isStraight) {
+        return { tier: HAND_RANKS.STRAIGHT, score: [5, straightHigh], name: `${RANK_LABELS[straightHigh]} 하이 ${HAND_NAMES_KR[5]}`, cards: sorted };
+      }
+
+      // 6. Three of a Kind
+      if (freqList[0].count === 3) {
+        return { tier: HAND_RANKS.THREE_OF_A_KIND, score: [4, freqList[0].rank, freqList[1].rank, freqList[2].rank], name: `${RANK_LABELS[freqList[0].rank]} ${HAND_NAMES_KR[4]}`, cards: sorted };
+      }
+
+      // 7. Two Pair
+      if (freqList[0].count === 2 && freqList[1].count === 2) {
+        return { tier: HAND_RANKS.TWO_PAIR, score: [3, freqList[0].rank, freqList[1].rank, freqList[2].rank], name: `${RANK_LABELS[freqList[0].rank]} & ${RANK_LABELS[freqList[1].rank]} ${HAND_NAMES_KR[3]}`, cards: sorted };
+      }
+
+      // 8. One Pair
+      if (freqList[0].count === 2) {
+        return { tier: HAND_RANKS.ONE_PAIR, score: [2, freqList[0].rank, freqList[1].rank, freqList[2].rank, freqList[3].rank], name: `${RANK_LABELS[freqList[0].rank]} ${HAND_NAMES_KR[2]}`, cards: sorted };
+      }
+
+      // 9. High Card
+      return { tier: HAND_RANKS.HIGH_CARD, score: [1, ...ranks], name: `${RANK_LABELS[ranks[0]]} ${HAND_NAMES_KR[1]}`, cards: sorted };
+    }
+
+    /* Compares two hand scores lexicographically */
+    function compareHandScores(scoreA, scoreB) {
+      for (let i = 0; i < Math.max(scoreA.length, scoreB.length); i++) {
+        const valA = scoreA[i] || 0;
+        const valB = scoreB[i] || 0;
+        if (valA > valB) return 1;
+        if (valA < valB) return -1;
+      }
+      return 0;
+    }
+
+    /* Evaluates best 5 cards from 5 to 7 cards */
+    function evaluateBestHand(cards) {
+      if (cards.length < 5) {
+        // Less than 5 cards: partial evaluation
+        if (cards.length === 2) {
+          if (cards[0].rank === cards[1].rank) {
+            return { tier: HAND_RANKS.ONE_PAIR, name: `포켓 ${RANK_LABELS[cards[0].rank]} 페어`, cards };
           }
+          const high = Math.max(cards[0].rank, cards[1].rank);
+          return { tier: HAND_RANKS.HIGH_CARD, name: `${RANK_LABELS[high]} 하이`, cards };
+        }
+        return { tier: 0, name: '분배 중...', cards };
+      }
+
+      const combos = getCombinations(cards, 5);
+      let best = null;
+
+      for (const combo of combos) {
+        const evaluated = evaluate5Cards(combo);
+        if (!best || compareHandScores(evaluated.score, best.score) > 0) {
+          best = evaluated;
         }
       }
-    } else if (this.player.capturedState === 'RESCUING') {
-      this.player.rescueY += 2.5;
-      if (this.player.rescueY >= this.player.y) {
-        this.player.rescueY = this.player.y;
-        this.player.capturedState = 'NONE';
-        this.player.isDual = true;
-        Sound.playDockingFanfare();
-        this.spawnFloatingScore('DUAL FIGHTER!', this.player.x, this.player.y - 30, '#00d2ff');
+      return best;
+    }
+
+    const STAGES = {
+      IDLE: '대기',
+      PREFLOP: '프리플랍',
+      FLOP: '플랍',
+      TURN: '턴',
+      RIVER: '리버',
+      SHOWDOWN: '쇼다운'
+    };
+
+    const GameState = {
+      handNumber: 1,
+      players: [
+        { id: 0, name: '나 (플레이어)', isBot: false, chips: 1000, currentBet: 0, totalBet: 0, cards: [], folded: false, allIn: false, style: 'user' },
+        { id: 1, name: '철수', isBot: true, chips: 1000, currentBet: 0, totalBet: 0, cards: [], folded: false, allIn: false, style: 'tight' },
+        { id: 2, name: '영희', isBot: true, chips: 1000, currentBet: 0, totalBet: 0, cards: [], folded: false, allIn: false, style: 'aggressive' },
+        { id: 3, name: '민수', isBot: true, chips: 1000, currentBet: 0, totalBet: 0, cards: [], folded: false, allIn: false, style: 'balanced' },
+      ],
+      dealerIdx: 0,
+      sbIdx: 1,
+      bbIdx: 2,
+      currentTurnIdx: null,
+      currentStage: 'IDLE',
+      deck: [],
+      communityCards: [],
+      pot: 0,
+      currentHighestBet: 0,
+      minRaise: 20,
+      actionCloserIdx: null,
+      sbAmount: 10,
+      bbAmount: 20,
+      isActionLocked: false,
+    };
+
+    function renderCard(card, faceUp = true, highlight = false) {
+      if (!faceUp) {
+        return `
+          <div class="playing-card w-8 h-12 md:w-12 md:h-16 rounded-md bg-gradient-to-br from-red-800 to-red-950 border border-white/20 shadow-md flex items-center justify-center">
+            <div class="w-6 h-10 md:w-9 md:h-13 rounded-sm border border-dashed border-red-400/40 flex items-center justify-center text-red-300 text-xs font-black">
+              ✦
+            </div>
+          </div>
+        `;
+      }
+
+      const suitObj = SUITS.find(s => s.id === card.suit);
+      const isRed = card.suit === 'h' || card.suit === 'd';
+      const colorClass = isRed ? 'text-rose-600' : 'text-slate-900';
+      const highlightClass = highlight ? 'card-highlight' : '';
+
+      return `
+        <div class="playing-card ${highlightClass} w-8 h-12 md:w-12 md:h-16 bg-white rounded-md border border-slate-300 shadow-md flex flex-col justify-between p-1">
+          <div class="flex items-center justify-between text-[10px] md:text-xs font-black leading-none ${colorClass}">
+            <span>${RANK_LABELS[card.rank]}</span>
+            <span class="text-[9px] md:text-[11px]">${suitObj.symbol}</span>
+          </div>
+          <div class="text-center text-xs md:text-base leading-none ${colorClass}">
+            ${suitObj.symbol}
+          </div>
+          <div class="flex items-center justify-between text-[10px] md:text-xs font-black leading-none rotate-180 ${colorClass}">
+            <span>${RANK_LABELS[card.rank]}</span>
+            <span class="text-[9px] md:text-[11px]">${suitObj.symbol}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function logMessage(text, color = 'text-slate-300') {
+      const container = document.getElementById('log-container');
+      const time = new Date().toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const entry = document.createElement('div');
+      entry.className = `py-0.5 border-b border-slate-800/50 flex gap-1.5 ${color}`;
+      entry.innerHTML = `<span class="text-[9px] text-slate-500 font-mono">${time}</span> <span>${text}</span>`;
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function setCenterStatus(msg) {
+      const el = document.getElementById('center-message');
+      el.textContent = msg;
+    }
+
+    function updateTableUI() {
+      // Pot & Stage updates
+      document.getElementById('pot-amount').textContent = `$${GameState.pot.toLocaleString()}`;
+      document.getElementById('stat-hand-count').textContent = `#${GameState.handNumber}`;
+      document.getElementById('stat-stage-badge').textContent = STAGES[GameState.currentStage] || GameState.currentStage;
+
+      // Update Community cards
+      for (let i = 0; i < 5; i++) {
+        const slot = document.getElementById(`community-card-${i}`);
+        const card = GameState.communityCards[i];
+        if (card) {
+          slot.outerHTML = `<div id="community-card-${i}">${renderCard(card, true, card.highlight)}</div>`;
+        } else {
+          slot.className = "w-11 h-16 md:w-16 md:h-24 rounded-lg bg-emerald-950/40 border border-dashed border-emerald-500/30 flex items-center justify-center text-emerald-500/40 font-bold text-xs";
+          slot.textContent = i < 3 ? `${i+1}` : (i === 3 ? '턴' : '리버');
+        }
+      }
+
+      // Update Each Player Seat
+      GameState.players.forEach(p => {
+        const seatEl = document.getElementById(`seat-${p.id}`);
+        const chipsEl = document.getElementById(`chips-${p.id}`);
+        const cardsEl = document.getElementById(`cards-${p.id}`);
+        const betPill = document.getElementById(`bet-pill-${p.id}`);
+
+        chipsEl.textContent = `$${p.chips.toLocaleString()}`;
+
+        // Active turn outline
+        if (GameState.currentTurnIdx === p.id && !p.folded && !p.allIn) {
+          seatEl.classList.add('active-seat');
+        } else {
+          seatEl.classList.remove('active-seat');
+        }
+
+        // Folded visual opacity
+        if (p.folded) {
+          seatEl.style.opacity = '0.4';
+        } else {
+          seatEl.style.opacity = '1';
+        }
+
+        // Dealer & Blind badges
+        const dBadge = document.getElementById(`badge-dealer-${p.id}`);
+        const bBadge = document.getElementById(`badge-blind-${p.id}`);
+        
+        if (GameState.dealerIdx === p.id) {
+          dBadge.classList.remove('hidden');
+        } else {
+          dBadge.classList.add('hidden');
+        }
+
+        if (GameState.sbIdx === p.id) {
+          bBadge.classList.remove('hidden');
+          bBadge.textContent = 'SB';
+          bBadge.className = 'absolute -top-3 -right-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow bg-blue-600 border border-blue-400';
+        } else if (GameState.bbIdx === p.id) {
+          bBadge.classList.remove('hidden');
+          bBadge.textContent = 'BB';
+          bBadge.className = 'absolute -top-3 -right-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow bg-purple-600 border border-purple-400';
+        } else {
+          bBadge.classList.add('hidden');
+        }
+
+        // Current round bet pill
+        if (p.currentBet > 0) {
+          betPill.classList.remove('hidden');
+          betPill.textContent = `$${p.currentBet}`;
+        } else {
+          betPill.classList.add('hidden');
+        }
+
+        // Hole cards display
+        if (p.cards.length === 2) {
+          const isShowdown = GameState.currentStage === 'SHOWDOWN';
+          const showFace = p.id === 0 || isShowdown;
+          cardsEl.innerHTML = p.cards.map(c => renderCard(c, showFace, c.highlight)).join('');
+        } else {
+          cardsEl.innerHTML = '';
+        }
+      });
+
+      // User Hand helper estimation
+      const user = GameState.players[0];
+      const ratingEl = document.getElementById('user-hand-rating');
+      if (user.cards.length === 2 && !user.folded) {
+        const pool = [...user.cards, ...GameState.communityCards];
+        const evalRes = evaluateBestHand(pool);
+        ratingEl.textContent = `족보: ${evalRes.name}`;
+      } else {
+        ratingEl.textContent = user.folded ? '폴드됨' : '-';
+      }
+
+      // Rebuy button visibility if user busted
+      const rebuyBtn = document.getElementById('btn-rebuy');
+      if (user.chips <= 0 && GameState.currentStage === 'IDLE') {
+        rebuyBtn.classList.remove('hidden');
+      } else {
+        rebuyBtn.classList.add('hidden');
       }
     }
 
-    // 2. 레이저 갱신
-    for (let i = this.lasers.length - 1; i >= 0; i--) {
-      const l = this.lasers[i];
-      l.y -= 12;
-      if (l.y < -10) this.lasers.splice(i, 1);
+    function showActionTag(playerId, text, type = 'normal') {
+      const el = document.getElementById(`action-${playerId}`);
+      el.textContent = text;
+      el.classList.remove('hidden');
+
+      if (type === 'fold') {
+        el.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-600 text-white shadow-md border border-rose-400';
+      } else if (type === 'raise' || type === 'allin') {
+        el.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow-md border border-amber-300';
+      } else if (type === 'call') {
+        el.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-md border border-blue-400';
+      } else {
+        el.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-700 text-white shadow-md border border-slate-500';
+      }
+
+      setTimeout(() => {
+        el.classList.add('hidden');
+      }, 2500);
     }
 
-    // 3. 적 탄환 갱신
-    for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
-      const b = this.enemyBullets[i];
-      b.x += b.vx; b.y += b.vy;
+    function updateBetControls() {
+      const user = GameState.players[0];
+      const actionsPanel = document.getElementById('panel-actions');
+      const dealPanel = document.getElementById('panel-deal');
 
-      if (this.player.capturedState === 'NONE' && this.player.invulnerableTimer === 0) {
-        const hitDist = this.player.isDual ? 24 : 14;
-        if (Math.hypot(b.x - this.player.x, b.y - this.player.y) < hitDist) {
-          this.enemyBullets.splice(i, 1);
-          this.killPlayer();
-          break;
+      if (GameState.currentTurnIdx === 0 && !user.folded && !user.allIn && GameState.currentStage !== 'SHOWDOWN' && GameState.currentStage !== 'IDLE') {
+        actionsPanel.classList.remove('hidden');
+        dealPanel.classList.add('hidden');
+
+        const callAmount = GameState.currentHighestBet - user.currentBet;
+        const callBtn = document.getElementById('btn-check-call');
+
+        if (callAmount <= 0) {
+          callBtn.textContent = '체크 (Check)';
+          callBtn.className = 'flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-xs md:text-sm shadow-md transition border border-emerald-400/40 min-w-[110px]';
+        } else {
+          const effectiveCall = Math.min(callAmount, user.chips);
+          callBtn.textContent = `콜 (Call) $${effectiveCall}`;
+          callBtn.className = 'flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-extrabold text-xs md:text-sm shadow-md transition border border-blue-400/40 min-w-[110px]';
+        }
+
+        // Configure Raise slider
+        const minLegalRaise = Math.max(GameState.currentHighestBet + GameState.minRaise, GameState.bbAmount);
+        const slider = document.getElementById('raise-slider');
+        const minVal = Math.min(minLegalRaise, user.chips + user.currentBet);
+        const maxVal = user.chips + user.currentBet;
+
+        slider.min = minVal;
+        slider.max = maxVal;
+        slider.value = minVal;
+        updateRaiseLabel(minVal);
+
+        const raiseBtn = document.getElementById('btn-raise');
+        if (user.chips <= callAmount) {
+          // Cannot raise, only call/all-in
+          raiseBtn.disabled = true;
+          raiseBtn.classList.add('opacity-50');
+        } else {
+          raiseBtn.disabled = false;
+          raiseBtn.classList.remove('opacity-50');
+        }
+      } else {
+        actionsPanel.classList.add('hidden');
+        if (GameState.currentStage === 'IDLE' || GameState.currentStage === 'SHOWDOWN') {
+          dealPanel.classList.remove('hidden');
+        } else {
+          dealPanel.classList.add('hidden');
         }
       }
-      if (b.y > H + 10 || b.y < -10 || b.x < -10 || b.x > W + 10) {
-        this.enemyBullets.splice(i, 1);
-      }
     }
 
-    // 4. 진형 호흡 계산
-    this.gridBreathX = Math.sin(this.tick * 0.035) * 26;
-    this.gridExpand = 1.0 + Math.sin(this.tick * 0.02) * 0.09;
-
-    // 5. 다이브 & 트랙터 트리거 스케줄링
-    if (this.tick % 110 === 0) {
-      this.scheduleEnemyMoves();
+    function updateRaiseLabel(val) {
+      document.getElementById('raise-amount-label').textContent = `$${Number(val).toLocaleString()}`;
     }
 
-    // 6. 적 개체 업데이트 루프
-    let livingEnemies = 0;
-    this.enemies.forEach(e => {
-      if (e.state === 'DEAD') return;
-      livingEnemies++;
+    function evaluateBotDecision(bot) {
+      const callCost = GameState.currentHighestBet - bot.currentBet;
+      const holeAndCommunity = [...bot.cards, ...GameState.communityCards];
+      const handEval = evaluateBestHand(holeAndCommunity);
 
-      if (this.tick % 16 === 0) e.animFrame = e.animFrame === 0 ? 1 : 0;
+      // Preflop heuristic
+      if (GameState.currentStage === 'PREFLOP') {
+        const c1 = bot.cards[0].rank;
+        const c2 = bot.cards[1].rank;
+        const isPair = c1 === c2;
+        const highRank = Math.max(c1, c2);
+        const isSuited = bot.cards[0].suit === bot.cards[1].suit;
 
-      if (e.state === 'ENTERING') {
-        e.t += e.speedT;
-        const pt = getCubicBezier(e.p0, e.p1, e.p2, e.p3, Math.min(1, e.t));
-        const nextPt = getCubicBezier(e.p0, e.p1, e.p2, e.p3, Math.min(1, e.t + 0.02));
-        e.x = pt.x; e.y = pt.y;
-        e.angle = Math.atan2(nextPt.y - pt.y, nextPt.x - pt.x) - Math.PI / 2;
-        if (e.t >= 1.0) {
-          e.state = 'IN_GRID';
-          e.angle = 0;
+        // Premium hands (AA, KK, QQ, JJ, AK)
+        if ((isPair && highRank >= 10) || (highRank === 14 && Math.min(c1, c2) >= 12)) {
+          // Strong raise
+          return { action: 'raise', amount: Math.min(bot.chips + bot.currentBet, GameState.currentHighestBet + GameState.bbAmount * 2) };
         }
-      } else if (e.state === 'IN_GRID') {
-        e.x = (e.gridOriginX - W / 2) * this.gridExpand + W / 2 + this.gridBreathX;
-        e.y = e.gridOriginY;
-        e.angle = 0;
-      } 
-      // ================= 트랙터 빔 3단계 모션 =================
-      else if (e.state === 'BEAM_DESCEND') {
-        // [1단계: 하강 모션] 호버링 고도(Y: 220)로 부드럽게 선회하며 강하
-        const targetX = e.hoverTargetX;
-        const targetY = e.hoverTargetY;
-        const dx = targetX - e.x;
-        const dy = targetY - e.y;
-        const dist = Math.hypot(dx, dy);
 
-        e.x += dx * 0.05;
-        e.y += dy * 0.05;
-        e.angle = Math.atan2(dy, dx) - Math.PI / 2;
-
-        if (dist < 8) {
-          e.x = targetX;
-          e.y = targetY;
-          e.state = 'BEAM_ACTIVE';
-          e.angle = 0;
-          this.tractorTimer = 0;
-          this.tractorBoss = e;
-        }
-      } else if (e.state === 'BEAM_ACTIVE') {
-        // [2단계: 빔 전개 모션] 130프레임(약 2.1초)간 유지
-        e.angle = 0;
-        this.tractorTimer++;
-        if (this.tractorTimer % 18 === 0) Sound.playTractorHum();
-
-        // 빔 피격 범위 검증 (호버 지점 아래 부채꼴)
-        const beamTopY = e.y + 16;
-        if (this.player.capturedState === 'NONE' && !this.player.isDual && this.player.invulnerableTimer === 0) {
-          if (this.player.y >= beamTopY) {
-            const spread = ((this.player.y - beamTopY) / (this.player.y - beamTopY + 1)) * 65;
-            if (Math.abs(this.player.x - e.x) < spread) {
-              this.player.capturedState = 'PULLING';
-            }
+        // Playable hands (Medium pair, suited broadway)
+        if (isPair || (highRank >= 11) || (isSuited && highRank >= 10)) {
+          if (callCost <= GameState.bbAmount * 3) {
+            return { action: callCost === 0 ? 'check' : 'call' };
           }
+          // Fold to huge preflop bet unless aggressive
+          return bot.style === 'aggressive' && Math.random() < 0.4 ? { action: 'call' } : { action: 'fold' };
         }
 
-        // 제한 시간 초과 시 빔 종료 후 퇴각 강하
-        if (this.tractorTimer > 130) {
-          this.tractorBoss = null;
-          e.state = 'BEAM_EXIT';
-          e.diveSpeedY = 4.2;
-          e.diveTime = 0;
-        }
-      } else if (e.state === 'BEAM_EXIT') {
-        // [3단계: 미포획 퇴각 모션] 부드러운 곡선으로 하단 관통 후 상단 루프
-        e.diveTime += 0.04;
-        e.y += e.diveSpeedY;
-        e.x += Math.sin(e.diveTime * 3) * 3.5;
-        e.angle = Math.PI + Math.sin(e.diveTime * 3) * 0.5;
-
-        if (e.y > H + 30) {
-          e.y = -30;
-          e.state = 'RETURNING';
-        }
-      } 
-      // ================= 일반 다이브 =================
-      else if (e.state === 'DIVING') {
-        e.diveTime += 0.035;
-        e.y += e.diveSpeedY;
-        e.x += Math.sin(e.diveTime * 2.5) * 4.2;
-        e.angle = Math.sin(e.diveTime * 2.5) * 0.6 + Math.PI;
-
-        if (Math.random() < 0.015 && e.y < this.player.y - 80) {
-          const a = Math.atan2(this.player.y - e.y, this.player.x - e.x);
-          this.enemyBullets.push({
-            x: e.x, y: e.y + 10,
-            vx: Math.cos(a) * 4.0,
-            vy: Math.sin(a) * 4.0
-          });
-        }
-
-        if (e.y > H + 30) {
-          e.y = -30;
-          e.state = 'RETURNING';
-        }
-
-        if (this.player.capturedState === 'NONE' && this.player.invulnerableTimer === 0) {
-          const colDist = this.player.isDual ? 26 : 16;
-          if (Math.hypot(e.x - this.player.x, e.y - this.player.y) < colDist) {
-            this.destroyEnemy(e, true);
-            this.killPlayer();
-          }
-        }
-      } else if (e.state === 'RETURNING') {
-        e.y += 3.5;
-        const targetX = (e.gridOriginX - W / 2) * this.gridExpand + W / 2 + this.gridBreathX;
-        e.x += (targetX - e.x) * 0.06;
-        e.angle = 0;
-        if (e.y >= e.gridOriginY) {
-          e.y = e.gridOriginY;
-          e.state = 'IN_GRID';
-        }
+        // Weak hands
+        if (callCost === 0) return { action: 'check' };
+        if (callCost <= GameState.bbAmount && Math.random() < 0.5) return { action: 'call' };
+        return { action: 'fold' };
       }
 
-      // 레이저 피격 검증
-      for (let li = this.lasers.length - 1; li >= 0; li--) {
-        const l = this.lasers[li];
-        if (Math.hypot(l.x - e.x, l.y - e.y) < 18) {
-          this.lasers.splice(li, 1);
-          e.hp--;
-          if (e.hp <= 0) {
-            const inFlight = (e.state !== 'IN_GRID');
-            this.destroyEnemy(e, inFlight);
-          } else {
-            Sound.playLaser();
-          }
-          break;
-        }
+      // Postflop heuristic (Flop, Turn, River)
+      const potOdds = callCost / (GameState.pot + callCost || 1);
+      const tier = handEval.tier;
+
+      // Aggressive / Bluff factor
+      const bluffChance = bot.style === 'aggressive' ? 0.22 : 0.08;
+      const isBluffing = Math.random() < bluffChance;
+
+      // High Hands (Full house or better)
+      if (tier >= HAND_RANKS.FULL_HOUSE) {
+        return { action: 'raise', amount: Math.min(bot.chips + bot.currentBet, GameState.currentHighestBet + Math.max(GameState.minRaise, Math.floor(GameState.pot * 0.75))) };
       }
-    });
 
-    // 7. 파티클 & 텍스트
-    for (let i = this.explosions.length - 1; i >= 0; i--) {
-      const exp = this.explosions[i];
-      exp.frame += 0.25;
-      if (exp.frame >= 5) this.explosions.splice(i, 1);
+      // Strong Hands (Flush, Straight, Three of a kind)
+      if (tier >= HAND_RANKS.THREE_OF_A_KIND) {
+        if (Math.random() < 0.65) {
+          return { action: 'raise', amount: Math.min(bot.chips + bot.currentBet, GameState.currentHighestBet + Math.max(GameState.minRaise, Math.floor(GameState.pot * 0.5))) };
+        }
+        return { action: callCost === 0 ? 'check' : 'call' };
+      }
+
+      // Medium Hands (Two pair, One high pair)
+      if (tier >= HAND_RANKS.ONE_PAIR) {
+        if (callCost === 0) {
+          // 40% chance to bet small
+          if (Math.random() < 0.4) {
+            return { action: 'raise', amount: Math.min(bot.chips + bot.currentBet, GameState.currentHighestBet + GameState.bbAmount) };
+          }
+          return { action: 'check' };
+        }
+        // Call if cost is reasonable compared to pot
+        if (callCost <= GameState.pot * 0.6 || potOdds < 0.35) {
+          return { action: 'call' };
+        }
+        return { action: 'fold' };
+      }
+
+      // Trash Hand (High card)
+      if (callCost === 0) return { action: 'check' };
+      if (isBluffing && GameState.pot > 0 && Math.random() < 0.3) {
+        return { action: 'raise', amount: Math.min(bot.chips + bot.currentBet, GameState.currentHighestBet + GameState.bbAmount) };
+      }
+      return { action: 'fold' };
     }
-    for (let i = this.floatingScores.length - 1; i >= 0; i--) {
-      const fs = this.floatingScores[i];
-      fs.y -= 0.8; fs.alpha -= 0.02;
-      if (fs.alpha <= 0) this.floatingScores.splice(i, 1);
-    }
 
-    // 8. 스테이지 클리어 판정
-    if (livingEnemies === 0 && this.state === 'PLAYING') {
-      setTimeout(() => this.startStage(this.stage + 1), 1600);
-      this.state = 'READY';
-    }
-  },
-
-  scheduleEnemyMoves() {
-    const gridEnemies = this.enemies.filter(e => e.state === 'IN_GRID');
-    if (gridEnemies.length === 0) return;
-
-    // [트랙터 빔 출격 조건]: 쿨다운 해제 + 싱글 파이터 + 보스 미소지 + 15% 희귀 확률
-    if (this.tractorCooldown <= 0 && !this.tractorBoss && !this.player.isDual && this.player.capturedState === 'NONE') {
-      const boss = gridEnemies.find(e => e.type === 'BOSS' && !e.capturedFighter);
-      if (boss && Math.random() < 0.2) {
-        boss.state = 'BEAM_DESCEND';
-        boss.hoverTargetX = Math.min(W - 80, Math.max(80, this.player.x)); // 플레이어 상공 조준
-        boss.hoverTargetY = 210;
-        this.tractorCooldown = 850; // 재발동까지 최소 14초 쿨다운 부여
+    function startNewHand() {
+      SoundManager.init();
+      
+      // Check if user has chips
+      if (GameState.players[0].chips <= 0) {
+        setCenterStatus('칩이 부족합니다! 칩 충전 버튼을 누르세요.');
         return;
       }
+
+      // Rebuy bots if busted
+      GameState.players.forEach(p => {
+        if (p.isBot && p.chips <= 0) {
+          p.chips = 1000;
+          logMessage(`💰 ${p.name}님이 칩을 리바이하였습니다 ($1,000)`, 'text-purple-400');
+        }
+      });
+
+      // Increment hand and rotate dealer
+      GameState.handNumber++;
+      GameState.dealerIdx = (GameState.dealerIdx + 1) % 4;
+      GameState.sbIdx = (GameState.dealerIdx + 1) % 4;
+      GameState.bbIdx = (GameState.dealerIdx + 2) % 4;
+
+      // Reset round state
+      GameState.deck = shuffleDeck(createDeck());
+      GameState.communityCards = [];
+      GameState.pot = 0;
+      GameState.currentHighestBet = 0;
+      GameState.minRaise = GameState.bbAmount;
+      GameState.currentStage = 'PREFLOP';
+
+      GameState.players.forEach(p => {
+        p.cards = [];
+        p.currentBet = 0;
+        p.totalBet = 0;
+        p.folded = false;
+        p.allIn = false;
+      });
+
+      logMessage(`--- 새로운 핸드 #${GameState.handNumber} 시작 (딜러: ${GameState.players[GameState.dealerIdx].name}) ---`, 'text-amber-400 font-bold');
+
+      // Post Blinds
+      const sbPlayer = GameState.players[GameState.sbIdx];
+      const bbPlayer = GameState.players[GameState.bbIdx];
+
+      applyBet(sbPlayer, GameState.sbAmount, '스몰 블라인드');
+      applyBet(bbPlayer, GameState.bbAmount, '빅 블라인드');
+      GameState.currentHighestBet = GameState.bbAmount;
+
+      // Deal 2 hole cards to each
+      for (let i = 0; i < 2; i++) {
+        GameState.players.forEach(p => {
+          p.cards.push(GameState.deck.pop());
+        });
+      }
+      SoundManager.playDeal();
+
+      // Action starts left of Big Blind (UTG)
+      const firstActionIdx = (GameState.bbIdx + 1) % 4;
+      GameState.currentTurnIdx = firstActionIdx;
+      GameState.actionCloserIdx = firstActionIdx;
+
+      setCenterStatus('프리플랍 배팅 진행 중...');
+      updateTableUI();
+      updateBetControls();
+
+      // Run turn loop
+      processTurn();
     }
 
-    // 일반 편대 다이브
-    const count = Math.min(gridEnemies.length, Math.floor(Math.random() * 2) + 1);
-    for (let i = 0; i < count; i++) {
-      const pick = gridEnemies[Math.floor(Math.random() * gridEnemies.length)];
-      pick.state = 'DIVING';
-      pick.diveSpeedY = 3.6 + Math.random() * 1.2;
-      pick.diveTime = Math.random() * Math.PI;
+    function applyBet(player, amount, label) {
+      const actualBet = Math.min(amount, player.chips);
+      player.chips -= actualBet;
+      player.currentBet += actualBet;
+      player.totalBet += actualBet;
+      GameState.pot += actualBet;
+
+      if (player.chips === 0) {
+        player.allIn = true;
+      }
+      SoundManager.playChip();
     }
-  },
 
-  destroyEnemy(e, inFlight) {
-    if (this.tractorBoss === e) this.tractorBoss = null;
-    e.state = 'DEAD';
-    const pts = inFlight ? e.ptsDive : e.ptsGrid;
-    this.score += pts;
-    if (this.score > this.highScore) this.highScore = this.score;
+    function processTurn() {
+      if (checkOnlyOnePlayerLeft()) return;
 
-    Sound.playExplode();
-    this.explosions.push({ x: e.x, y: e.y, frame: 0 });
-    this.spawnFloatingScore(`+${pts}`, e.x, e.y, '#fff');
+      const activePlayers = GameState.players.filter(p => !p.folded && !p.allIn);
+      const nonFolded = GameState.players.filter(p => !p.folded);
 
-    // 포획된 기체를 가진 보스 격추 시 구조 도킹 시작
-    if (e.type === 'BOSS' && e.capturedFighter) {
-      this.player.capturedState = 'RESCUING';
-      this.player.rescueX = e.x;
-      this.player.rescueY = e.y;
-    }
-  },
+      // Check if betting round has concluded
+      if (isRoundComplete()) {
+        advanceStage();
+        return;
+      }
 
-  killPlayer() {
-    Sound.playExplode();
-    this.explosions.push({ x: this.player.x, y: this.player.y, frame: 0 });
+      const curr = GameState.players[GameState.currentTurnIdx];
 
-    if (this.player.isDual) {
-      this.player.isDual = false;
-      this.player.invulnerableTimer = 120;
-      this.spawnFloatingScore('FIGHTER DOWN', this.player.x, this.player.y - 20, '#ffcc00');
-    } else {
-      this.lives--;
-      if (this.lives <= 0) {
-        this.state = 'GAMEOVER';
+      // Skip folded or all-in players
+      if (curr.folded || curr.allIn) {
+        nextTurn();
+        return;
+      }
+
+      updateTableUI();
+      updateBetControls();
+
+      if (curr.isBot) {
+        GameState.isActionLocked = true;
+        setCenterStatus(`${curr.name}님의 생각 중...`);
+        setTimeout(() => {
+          executeBotTurn(curr);
+        }, 900 + Math.random() * 500);
       } else {
-        this.respawnPlayer();
-      }
-    }
-  },
-
-  respawnPlayer() {
-    this.player.x = W / 2;
-    this.player.y = H - 55;
-    this.player.invulnerableTimer = 150;
-  },
-
-  spawnFloatingScore(txt, x, y, color) {
-    this.floatingScores.push({ text: txt, x, y, color, alpha: 1.4 });
-  },
-
-  render() {
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, W, H);
-
-    // 1. 별빛
-    this.stars.forEach(s => {
-      ctx.fillStyle = s.color;
-      ctx.fillRect(s.x, s.y, 2, 2);
-    });
-
-    // 2. 트랙터 빔 렌더링 (호버링 중일 때만 표시)
-    if (this.tractorBoss && this.tractorBoss.state === 'BEAM_ACTIVE') {
-      const bx = this.tractorBoss.x;
-      const by = this.tractorBoss.y + 16;
-      const grad = ctx.createLinearGradient(bx, by, bx, H);
-      grad.addColorStop(0, 'rgba(0, 210, 255, 0.85)');
-      grad.addColorStop(0.5, 'rgba(255, 42, 95, 0.45)');
-      grad.addColorStop(1, 'rgba(0, 210, 255, 0.05)');
-
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.moveTo(bx - 12, by);
-      ctx.lineTo(bx + 12, by);
-      ctx.lineTo(bx + 70, H - 30);
-      ctx.lineTo(bx - 70, H - 30);
-      ctx.closePath();
-      ctx.fill();
-
-      // 횡단 파동 와이어
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.5;
-      for (let y = by + 10; y < H - 30; y += 14) {
-        const spread = ((y - by) / (H - by)) * 65;
-        const wave = Math.sin(this.tick * 0.25 + y * 0.12) * 4;
-        ctx.beginPath();
-        ctx.moveTo(bx - spread + wave, y);
-        ctx.lineTo(bx + spread + wave, y);
-        ctx.stroke();
+        GameState.isActionLocked = false;
+        setCenterStatus('당신의 차례입니다. 액션을 선택하세요.');
       }
     }
 
-    // 3. 적기 스프라이트
-    this.enemies.forEach(e => {
-      if (e.state === 'DEAD') return;
-      ctx.save();
-      ctx.translate(e.x, e.y);
-      ctx.rotate(e.angle);
+    function isRoundComplete() {
+      const activeUnfolded = GameState.players.filter(p => !p.folded);
+      if (activeUnfolded.length <= 1) return true;
 
-      let spr = 'ZAKO_1';
-      if (e.type === 'BOSS') {
-        if (e.hp === 2) spr = e.animFrame === 0 ? 'BOSS_G1' : 'BOSS_G2';
-        else spr = 'BOSS_B1';
-      } else if (e.type === 'GOEI') {
-        spr = e.animFrame === 0 ? 'GOEI_1' : 'GOEI_2';
-      } else if (e.type === 'ZAKO') {
-        spr = e.animFrame === 0 ? 'ZAKO_1' : 'ZAKO_2';
+      // All active players must have matched currentHighestBet (or be all-in)
+      const eligibleToAct = GameState.players.filter(p => !p.folded && !p.allIn);
+      if (eligibleToAct.length === 0) return true;
+
+      // Check if everyone called the highest bet
+      const allMatched = eligibleToAct.every(p => p.currentBet === GameState.currentHighestBet);
+      return allMatched && (GameState.currentTurnIdx === GameState.actionCloserIdx);
+    }
+
+    function nextTurn() {
+      GameState.currentTurnIdx = (GameState.currentTurnIdx + 1) % 4;
+      processTurn();
+    }
+
+    function executeBotTurn(bot) {
+      const decision = evaluateBotDecision(bot);
+
+      if (decision.action === 'fold') {
+        bot.folded = true;
+        SoundManager.playFold();
+        showActionTag(bot.id, '폴드', 'fold');
+        logMessage(`${bot.name}님이 폴드하였습니다.`, 'text-rose-400');
+      } else if (decision.action === 'check') {
+        SoundManager.playCheck();
+        showActionTag(bot.id, '체크', 'normal');
+        logMessage(`${bot.name}님이 체크하였습니다.`);
+      } else if (decision.action === 'call') {
+        const callAmount = GameState.currentHighestBet - bot.currentBet;
+        applyBet(bot, callAmount);
+        showActionTag(bot.id, `콜 $${bot.currentBet}`, 'call');
+        logMessage(`${bot.name}님이 콜하였습니다. ($${callAmount})`);
+      } else if (decision.action === 'raise') {
+        const raiseTarget = decision.amount;
+        const addAmount = raiseTarget - bot.currentBet;
+        applyBet(bot, addAmount);
+        GameState.minRaise = raiseTarget - GameState.currentHighestBet;
+        GameState.currentHighestBet = raiseTarget;
+        GameState.actionCloserIdx = bot.id; // reopen betting
+        showActionTag(bot.id, `레이즈 $${raiseTarget}`, 'raise');
+        logMessage(`${bot.name}님이 $${raiseTarget}로 레이즈하였습니다!`, 'text-amber-400 font-bold');
       }
 
-      ctx.drawImage(SpriteEngine.cache[spr], -16, -16, 32, 32);
+      nextTurn();
+    }
 
-      if (e.capturedFighter) {
-        ctx.drawImage(SpriteEngine.cache['CAPTURED_FIGHTER'], -16, -34, 32, 32);
+    function handleUserFold() {
+      if (GameState.isActionLocked) return;
+      const user = GameState.players[0];
+      user.folded = true;
+      SoundManager.playFold();
+      showActionTag(0, '폴드', 'fold');
+      logMessage(`나(플레이어)님이 폴드하였습니다.`, 'text-rose-400 font-bold');
+      nextTurn();
+    }
+
+    function handleUserCheckCall() {
+      if (GameState.isActionLocked) return;
+      const user = GameState.players[0];
+      const callDiff = GameState.currentHighestBet - user.currentBet;
+
+      if (callDiff <= 0) {
+        SoundManager.playCheck();
+        showActionTag(0, '체크', 'normal');
+        logMessage(`나(플레이어)님이 체크하였습니다.`);
+      } else {
+        applyBet(user, callDiff);
+        showActionTag(0, `콜 $${user.currentBet}`, 'call');
+        logMessage(`나(플레이어)님이 $${callDiff}을 콜하였습니다.`);
       }
-      ctx.restore();
-    });
+      nextTurn();
+    }
 
-    // 4. 레이저 & 탄환
-    this.lasers.forEach(l => {
-      ctx.fillStyle = '#ff2a5f';
-      ctx.fillRect(l.x - 3, l.y, 6, 16);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(l.x - 1, l.y + 2, 2, 12);
-    });
+    function handleUserRaise() {
+      if (GameState.isActionLocked) return;
+      const user = GameState.players[0];
+      const targetRaise = Number(document.getElementById('raise-slider').value);
+      const needed = targetRaise - user.currentBet;
 
-    ctx.fillStyle = '#ffcc00';
-    this.enemyBullets.forEach(b => {
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
-      ctx.fill();
-    });
+      if (needed <= 0 || user.chips <= 0) return;
 
-    // 5. 플레이어
-    if (this.state === 'PLAYING' || this.state === 'READY') {
-      const showShip = (this.player.invulnerableTimer % 6 < 3);
-      if (showShip) {
-        if (this.player.capturedState === 'PULLING') {
-          ctx.save();
-          ctx.translate(this.player.x, this.player.y);
-          ctx.rotate(this.player.pullAngle);
-          ctx.drawImage(SpriteEngine.cache['CAPTURED_FIGHTER'], -16, -16, 32, 32);
-          ctx.restore();
-        } else {
-          const fImg = SpriteEngine.cache['FIGHTER'];
-          if (this.player.isDual) {
-            ctx.drawImage(fImg, this.player.x - 30, this.player.y - 16, 32, 32);
-            ctx.drawImage(fImg, this.player.x - 2,  this.player.y - 16, 32, 32);
-          } else {
-            ctx.drawImage(fImg, this.player.x - 16, this.player.y - 16, 32, 32);
-          }
+      applyBet(user, needed);
+      GameState.minRaise = targetRaise - GameState.currentHighestBet;
+      GameState.currentHighestBet = targetRaise;
+      GameState.actionCloserIdx = 0; // Action resets to user
+
+      const isAllIn = user.chips === 0;
+      showActionTag(0, isAllIn ? `올인! $${targetRaise}` : `레이즈 $${targetRaise}`, 'raise');
+      logMessage(`나(플레이어)님이 $${targetRaise}로 레이즈하였습니다!`, 'text-amber-400 font-extrabold');
+      nextTurn();
+    }
+
+    function advanceStage() {
+      // Gather bets into center
+      GameState.players.forEach(p => p.currentBet = 0);
+      GameState.currentHighestBet = 0;
+      GameState.minRaise = GameState.bbAmount;
+
+      const nonFolded = GameState.players.filter(p => !p.folded);
+      const activeUnallin = nonFolded.filter(p => !p.allIn);
+
+      // If everyone except at most 1 is all-in, fast deal remaining cards
+      const canBet = activeUnallin.length > 1;
+
+      if (GameState.currentStage === 'PREFLOP') {
+        GameState.currentStage = 'FLOP';
+        // Burn 1 card, deal 3 flop cards
+        GameState.deck.pop();
+        GameState.communityCards.push(GameState.deck.pop(), GameState.deck.pop(), GameState.deck.pop());
+        SoundManager.playDeal();
+        logMessage(`--- [플랍] 커뮤니티 카드 3장 오픈 ---`, 'text-blue-300 font-semibold');
+      } else if (GameState.currentStage === 'FLOP') {
+        GameState.currentStage = 'TURN';
+        GameState.deck.pop();
+        GameState.communityCards.push(GameState.deck.pop());
+        SoundManager.playDeal();
+        logMessage(`--- [턴] 커뮤니티 카드 4번째 오픈 ---`, 'text-blue-300 font-semibold');
+      } else if (GameState.currentStage === 'TURN') {
+        GameState.currentStage = 'RIVER';
+        GameState.deck.pop();
+        GameState.communityCards.push(GameState.deck.pop());
+        SoundManager.playDeal();
+        logMessage(`--- [리버] 마지막 커뮤니티 카드 오픈 ---`, 'text-blue-300 font-semibold');
+      } else if (GameState.currentStage === 'RIVER') {
+        handleShowdown();
+        return;
+      }
+
+      // First to act postflop is first non-folded player left of dealer
+      let nextActor = (GameState.dealerIdx + 1) % 4;
+      while (GameState.players[nextActor].folded || (canBet && GameState.players[nextActor].allIn)) {
+        nextActor = (nextActor + 1) % 4;
+      }
+
+      GameState.currentTurnIdx = nextActor;
+      GameState.actionCloserIdx = nextActor;
+
+      updateTableUI();
+      updateBetControls();
+
+      if (!canBet) {
+        // Run out cards smoothly
+        setCenterStatus('모든 플레이어 올인 완료! 커뮤니티 카드를 공개합니다.');
+        setTimeout(() => {
+          advanceStage();
+        }, 1200);
+      } else {
+        processTurn();
+      }
+    }
+
+    function checkOnlyOnePlayerLeft() {
+      const active = GameState.players.filter(p => !p.folded);
+      if (active.length === 1) {
+        const winner = active[0];
+        winner.chips += GameState.pot;
+        SoundManager.playWin();
+        logMessage(`🏆 [단독 생존] 모두 폴드하여 ${winner.name}님이 팟 $${GameState.pot.toLocaleString()}을 획득하였습니다!`, 'text-emerald-400 font-extrabold');
+        setCenterStatus(`모두 폴드하여 ${winner.name}님 승리! (+$${GameState.pot})`);
+        
+        GameState.pot = 0;
+        GameState.currentStage = 'IDLE';
+        GameState.currentTurnIdx = null;
+        updateTableUI();
+        updateBetControls();
+        return true;
+      }
+      return false;
+    }
+
+    function handleShowdown() {
+      GameState.currentStage = 'SHOWDOWN';
+      GameState.currentTurnIdx = null;
+      setCenterStatus('쇼다운! 패를 비교합니다.');
+
+      const contenders = GameState.players.filter(p => !p.folded);
+      logMessage(`--- [쇼다운] ${contenders.length}명의 핸드 공개 ---`, 'text-yellow-400 font-bold');
+
+      // Evaluate each contender's 7-card hand
+      const evaluations = contenders.map(player => {
+        const sevenCards = [...player.cards, ...GameState.communityCards];
+        const best = evaluateBestHand(sevenCards);
+        return { player, best };
+      });
+
+      evaluations.forEach(ev => {
+        logMessage(`🔎 ${ev.player.name}: ${ev.best.name}`, 'text-slate-300');
+      });
+
+      // Find winner(s)
+      let winningEval = evaluations[0];
+      let winners = [winningEval];
+
+      for (let i = 1; i < evaluations.length; i++) {
+        const cmp = compareHandScores(evaluations[i].best.score, winningEval.best.score);
+        if (cmp > 0) {
+          winningEval = evaluations[i];
+          winners = [evaluations[i]];
+        } else if (cmp === 0) {
+          winners.push(evaluations[i]);
         }
       }
 
-      if (this.player.capturedState === 'RESCUING') {
-        ctx.drawImage(SpriteEngine.cache['FIGHTER'], this.player.rescueX - 16, this.player.rescueY - 16, 32, 32);
+      // Highlight winning 5 cards
+      winningEval.best.cards.forEach(bestCard => {
+        // Highlight in community cards
+        GameState.communityCards.forEach(c => {
+          if (c.rank === bestCard.rank && c.suit === bestCard.suit) c.highlight = true;
+        });
+        // Highlight in winner's hole cards
+        winners.forEach(w => {
+          w.player.cards.forEach(c => {
+            if (c.rank === bestCard.rank && c.suit === bestCard.suit) c.highlight = true;
+          });
+        });
+      });
+
+      // Distribute Pot
+      const share = Math.floor(GameState.pot / winners.length);
+      winners.forEach(w => {
+        w.player.chips += share;
+      });
+
+      SoundManager.playWin();
+
+      if (winners.length === 1) {
+        const w = winners[0];
+        setCenterStatus(`🏆 ${w.player.name} 승리! [${w.best.name}] (+$${GameState.pot})`);
+        logMessage(`🎉 [승자] ${w.player.name}님이 ${w.best.name}으로 팟 $${GameState.pot.toLocaleString()}을 차지했습니다!`, 'text-emerald-400 font-black');
+      } else {
+        const names = winners.map(w => w.player.name).join(', ');
+        setCenterStatus(`🤝 무승부! [${winningEval.best.name}] ($${share} 분배)`);
+        logMessage(`🤝 [타이] ${names}님이 팟을 분배받았습니다. (각 $${share})`, 'text-blue-300 font-bold');
       }
+
+      GameState.pot = 0;
+      updateTableUI();
+      updateBetControls();
     }
 
-    // 6. 폭발 & 부유 텍스트
-    this.explosions.forEach(exp => {
-      const f = Math.floor(exp.frame);
-      const eImg = SpriteEngine.cache[`EXP_${f}`];
-      if (eImg) ctx.drawImage(eImg, exp.x - 24, exp.y - 24, 48, 48);
+    window.addEventListener('DOMContentLoaded', () => {
+      // Sound toggle
+      const soundBtn = document.getElementById('btn-sound');
+      soundBtn.addEventListener('click', () => {
+        SoundManager.init();
+        SoundManager.enabled = !SoundManager.enabled;
+        soundBtn.textContent = SoundManager.enabled ? '🔊' : '🔇';
+      });
+
+      // Modals
+      const rulesModal = document.getElementById('modal-rules');
+      document.getElementById('btn-rules').addEventListener('click', () => rulesModal.classList.remove('hidden'));
+      document.getElementById('btn-close-rules').addEventListener('click', () => rulesModal.classList.add('hidden'));
+
+      const logModal = document.getElementById('modal-log');
+      document.getElementById('btn-log-toggle').addEventListener('click', () => {
+        logModal.classList.toggle('hidden');
+      });
+      document.getElementById('btn-close-log').addEventListener('click', () => logModal.classList.add('hidden'));
+
+      // Rebuy
+      document.getElementById('btn-rebuy').addEventListener('click', () => {
+        GameState.players[0].chips += 1000;
+        SoundManager.playChip();
+        logMessage('💰 나(플레이어)님이 칩을 리바이했습니다 (+$1,000)', 'text-emerald-400 font-bold');
+        updateTableUI();
+      });
+
+      // Start Hand Button
+      document.getElementById('btn-start-hand').addEventListener('click', startNewHand);
+
+      // Betting Action Buttons
+      document.getElementById('btn-fold').addEventListener('click', handleUserFold);
+      document.getElementById('btn-check-call').addEventListener('click', handleUserCheckCall);
+      document.getElementById('btn-raise').addEventListener('click', handleUserRaise);
+
+      // Raise slider & Presets
+      const raiseSlider = document.getElementById('raise-slider');
+      raiseSlider.addEventListener('input', (e) => updateRaiseLabel(e.target.value));
+
+      document.getElementById('btn-preset-min').addEventListener('click', () => {
+        const minVal = Number(raiseSlider.min);
+        raiseSlider.value = minVal;
+        updateRaiseLabel(minVal);
+      });
+
+      document.getElementById('btn-preset-half').addEventListener('click', () => {
+        const target = Math.min(Number(raiseSlider.max), Math.max(Number(raiseSlider.min), Math.floor(GameState.pot / 2) + GameState.currentHighestBet));
+        raiseSlider.value = target;
+        updateRaiseLabel(target);
+      });
+
+      document.getElementById('btn-preset-pot').addEventListener('click', () => {
+        const target = Math.min(Number(raiseSlider.max), Math.max(Number(raiseSlider.min), GameState.pot + GameState.currentHighestBet));
+        raiseSlider.value = target;
+        updateRaiseLabel(target);
+      });
+
+      document.getElementById('btn-preset-allin').addEventListener('click', () => {
+        const maxVal = Number(raiseSlider.max);
+        raiseSlider.value = maxVal;
+        updateRaiseLabel(maxVal);
+      });
+
+      // Initial visual setup
+      updateTableUI();
+      logMessage('♠ 텍사스 홀뎀 포커 게임에 오신 것을 환영합니다! 딜 버튼을 눌러 시작하세요.', 'text-emerald-300 font-bold');
     });
-
-    this.floatingScores.forEach(fs => {
-      ctx.fillStyle = fs.color;
-      ctx.globalAlpha = fs.alpha;
-      ctx.font = 'bold 13px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(fs.text, fs.x, fs.y);
-    });
-    ctx.globalAlpha = 1.0;
-
-    // 7. HUD
-    this.renderHUD();
-
-    // 8. 오버레이
-    if (this.state === 'TITLE') {
-      ctx.fillStyle = '#ff2a5f';
-      ctx.font = '900 38px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('GALAGA', W / 2, H / 2 - 50);
-      ctx.fillStyle = '#ffcc00';
-      ctx.font = 'bold 15px monospace';
-      ctx.fillText('ARCADE TRACTOR FIX', W / 2, H / 2 - 15);
-      ctx.fillStyle = '#ffffff';
-      if (Math.floor(this.tick / 30) % 2 === 0) {
-        ctx.fillText('PRESS SPACE OR FIRE', W / 2, H / 2 + 55);
-      }
-    } else if (this.state === 'READY') {
-      ctx.fillStyle = '#00d2ff';
-      ctx.font = '900 22px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(`STAGE ${this.stage}`, W / 2, H / 2 - 10);
-      ctx.fillStyle = '#ff2a5f';
-      ctx.font = 'bold 18px monospace';
-      ctx.fillText('READY', W / 2, H / 2 + 18);
-    } else if (this.state === 'GAMEOVER') {
-      ctx.fillStyle = '#ff2a5f';
-      ctx.font = '900 32px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('GAME OVER', W / 2, H / 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 14px monospace';
-      ctx.fillText('PRESS SPACE TO RESTART', W / 2, H / 2 + 45);
-    }
-  },
-
-  renderHUD() {
-    ctx.font = 'bold 14px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#ff2a5f';
-    ctx.fillText('1UP', 24, 24);
-    ctx.fillStyle = '#fff';
-    ctx.fillText(String(this.score).padStart(6, '0'), 24, 42);
-
-    ctx.textAlign = 'right';
-    ctx.fillStyle = '#ff2a5f';
-    ctx.fillText('HIGH SCORE', W - 24, 24);
-    ctx.fillStyle = '#fff';
-    ctx.fillText(String(this.highScore).padStart(6, '0'), W - 24, 42);
-
-    for (let i = 0; i < this.lives - 1; i++) {
-      ctx.drawImage(SpriteEngine.cache['FIGHTER'], 24 + i * 26, H - 28, 20, 20);
-    }
-
-    ctx.textAlign = 'right';
-    ctx.fillStyle = '#ffcc00';
-    ctx.fillText(`STAGE ${this.stage}`, W - 24, H - 15);
-  },
-
-  loop() {
-    Engine.update();
-    Engine.render();
-    requestAnimationFrame(() => Engine.loop());
-  }
-};
-
-window.addEventListener('load', () => Engine.init());
-</script>
+  </script>
 </body>
 </html>
