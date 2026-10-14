@@ -1,2362 +1,784 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>포트리스 2 블루 - 웹 아케이드 에디션</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@500;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
-    <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
-            font-family: 'Noto Sans KR', sans-serif;
-            color: #fff;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .font-title {
-            font-family: 'Black Han Sans', sans-serif;
-        }
-        .font-digital {
-            font-family: 'Orbitron', monospace;
-        }
-        /* Retro Metallic Dashboard Styling */
-        .fortress-panel {
-            background: linear-gradient(180deg, #3b4d6b 0%, #1e293b 50%, #0f172a 100%);
-            border-top: 3px solid #94a3b8;
-            border-bottom: 4px solid #020617;
-            border-left: 3px solid #64748b;
-            border-right: 3px solid #0f172a;
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.25), 0 8px 25px rgba(0,0,0,0.8);
-        }
-        .inset-panel {
-            background: linear-gradient(180deg, #090d16 0%, #151e2e 100%);
-            border-top: 2px solid #020617;
-            border-left: 2px solid #020617;
-            border-right: 2px solid #334155;
-            border-bottom: 2px solid #475569;
-            box-shadow: inset 0 3px 8px rgba(0,0,0,0.9);
-        }
-        .gauge-bar-bg {
-            background: repeating-linear-gradient(
-                90deg,
-                rgba(255,255,255,0.06) 0px,
-                rgba(255,255,255,0.06) 8px,
-                transparent 8px,
-                transparent 16px
-            ), #090d16;
-        }
-        .arcade-btn {
-            background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
-            border: 2px solid #94a3b8;
-            border-bottom-color: #0f172a;
-            border-right-color: #0f172a;
-            transition: all 0.1s ease;
-        }
-        .arcade-btn:hover:not(:disabled) {
-            filter: brightness(1.18);
-            transform: translateY(-1px);
-        }
-        .arcade-btn:active:not(:disabled) {
-            transform: translateY(1px);
-            border-top-color: #0f172a;
-            border-left-color: #0f172a;
-        }
-        .arcade-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-        .item-slot {
-            background: linear-gradient(135deg, #1e293b 0%, #090d16 100%);
-            border: 2px solid #475569;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
-            transition: all 0.15s ease;
-        }
-        .item-slot:hover:not(.used) {
-            border-color: #facc15;
-            box-shadow: 0 0 10px rgba(250, 204, 21, 0.4), inset 0 2px 5px rgba(0,0,0,0.8);
-            transform: scale(1.04);
-        }
-        .item-slot.active-item {
-            border-color: #22c55e;
-            box-shadow: 0 0 14px rgba(34, 197, 94, 0.7), inset 0 0 8px rgba(34, 197, 94, 0.4);
-            animation: pulse-border 1s infinite alternate;
-        }
-        .item-slot.used {
-            opacity: 0.25;
-            filter: grayscale(1);
-            cursor: default;
-        }
-        @keyframes pulse-border {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.06); }
-        }
-        .tank-card {
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-            border: 2px solid #334155;
-            transition: all 0.2s;
-        }
-        .tank-card:hover {
-            border-color: #60a5fa;
-            transform: translateY(-2px);
-        }
-        .tank-card.selected {
-            border-color: #facc15;
-            background: linear-gradient(180deg, #312e81 0%, #0f172a 100%);
-            box-shadow: 0 0 18px rgba(250, 204, 21, 0.35);
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-    </style>
-</head>
-<body class="w-full h-screen select-none p-1 sm:p-3">
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>라스베이거스 룰렛</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Limelight&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* 레이아웃: 왼쪽에 휠과 결과판(스티키), 오른쪽에 펠트 베팅 테이블. 좁은 화면에서는 휠, 칩, 테이블 순서로 세로 배치.
+   카지노 야간 분위기에 맞춘 단일 테마(펠트 그린, 마호가니 레일, 황동 골드). */
+:root{
+  color-scheme: dark;
+  --room:#06241a;
+  --felt:#0e5a3b;
+  --rail:#24140d;
+  --gold:#d9b45b;
+  --ivory:#f1e9d2;
+  --muted:#9db8a6;
+  --red:#b81f2d;
+  --ink:#121317;
+  --zero:#12804d;
+  --line:rgba(241,233,210,.55);
+  --panel:#0a3123;
+  --warn:#ffab8c;
+  --win:#8fe3a8;
+  --lose:#ff8d8d;
+  --tex:radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.6px);
+  --font-display:'Limelight','Noto Sans KR',serif;
+  --font-body:'Noto Sans KR',system-ui,sans-serif;
+  --font-num:'Barlow Condensed','Noto Sans KR',system-ui,sans-serif;
+  --rh:44px;
+  --hs:22px;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--room);
+  background-image:radial-gradient(120% 60% at 50% -10%, #0e4431 0%, rgba(14,68,49,0) 62%);
+  color:var(--ivory);
+  font:15px/1.55 var(--font-body);
+}
+button{font:inherit;color:inherit;touch-action:manipulation}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
-    <div id="game-wrapper" class="relative w-full max-w-[1150px] h-full max-h-[820px] flex flex-col rounded-xl overflow-hidden shadow-2xl border-2 border-slate-600 bg-slate-950">
+.page{
+  max-width:1100px;margin:0 auto;
+  padding-block:20px 48px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;margin-bottom:20px}
+h1{margin:0;font:400 clamp(30px,6vw,46px)/1.05 var(--font-display);color:var(--gold);letter-spacing:.02em;text-shadow:0 0 22px rgba(217,180,91,.28);text-wrap:balance}
+.sub{margin:6px 0 0;color:var(--muted);font-size:14px}
+.plaque{display:grid;gap:2px;padding:8px 14px;border:1px solid var(--gold);border-radius:4px;box-shadow:inset 0 0 0 3px var(--room), inset 0 0 0 4px rgba(217,180,91,.45);font-family:var(--font-num);font-size:14px;letter-spacing:.08em;color:var(--gold);text-align:center}
+.plaque b{font-weight:700;font-size:13px;letter-spacing:.22em}
+.plaque span{color:var(--ivory)}
 
-        <!-- TOP HUD BAR -->
-        <div class="h-12 sm:h-14 fortress-panel px-3 flex items-center justify-between z-20 shrink-0">
-            <!-- Left: Title & Mode Info -->
-            <div class="flex items-center gap-2 sm:gap-3">
-                <div class="flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1 rounded border border-slate-600">
-                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-400 animate-ping"></span>
-                    <span class="font-title text-base sm:text-xl tracking-wider bg-gradient-to-r from-yellow-300 via-amber-400 to-orange-400 bg-clip-text text-transparent">FORTRESS 2</span>
-                </div>
-                <span id="hud-mode-badge" class="text-xs sm:text-sm font-bold px-2 py-0.5 rounded bg-blue-900/80 text-blue-200 border border-blue-500/40">
-                    1P vs AI
-                </span>
-                <span id="turn-badge" class="hidden sm:inline-block text-xs font-bold px-2.5 py-0.5 rounded bg-emerald-900/80 text-emerald-300 border border-emerald-500/40">
-                    TURN 1
-                </span>
-            </div>
+.room{display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+@media (min-width:940px){
+  .room{grid-template-columns:minmax(0,1fr) 470px;gap:36px;align-items:start}
+  .wheel-col{position:sticky;top:16px}
+  :root{--rh:46px}
+}
+@media (max-width:480px){ :root{--hs:18px;--rh:42px} }
+.wheel-col,.table-col{min-width:0;display:grid;gap:14px}
 
-            <!-- Center: Turn Owner & Digital Turn Timer -->
-            <div class="flex items-center gap-3">
-                <div id="active-player-banner" class="px-3 py-1 rounded inset-panel text-xs sm:text-sm font-bold text-yellow-300 flex items-center gap-2">
-                    <span id="active-player-dot" class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
-                    <span id="active-player-text">PLAYER 1 턴</span>
-                </div>
-                <div class="inset-panel px-3 py-0.5 rounded flex items-center gap-1.5 border border-slate-700">
-                    <span class="text-[10px] text-slate-400 font-bold">TIME</span>
-                    <span id="turn-timer-display" class="font-digital text-lg sm:text-2xl font-black text-amber-400 tracking-wider w-8 text-center">20</span>
-                </div>
-            </div>
+.wheel-wrap{width:100%;max-width:520px;aspect-ratio:1;margin-inline:auto}
+#wheel{display:block;width:100%;height:100%}
 
-            <!-- Right: Controls & Sound Toggle -->
-            <div class="flex items-center gap-1.5 sm:gap-2">
-                <button id="btn-sound" onclick="toggleSound()" class="arcade-btn px-2.5 py-1 rounded text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1" title="사운드 켜기/끄기">
-                    <span id="sound-icon">🔊</span>
-                    <span class="hidden md:inline">효과음</span>
-                </button>
-                <button onclick="openSetupModal()" class="arcade-btn px-2.5 py-1 rounded text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-1">
-                    <span>⚙️</span>
-                    <span class="hidden sm:inline">모드/탱크 변경</span>
-                </button>
-            </div>
-        </div>
+.result{display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--panel);border:1px solid rgba(217,180,91,.35);border-radius:10px}
+.res-num{flex:none;display:grid;place-items:center;width:66px;height:66px;border-radius:50%;border:3px solid var(--gold);background:#17382b;color:var(--muted);font:700 30px/1 var(--font-num)}
+.res-num.red{background:var(--red);color:#fff}
+.res-num.black{background:var(--ink);color:#fff}
+.res-num.green{background:var(--zero);color:#fff}
+.res-txt{min-width:0}
+.res-main{font-size:20px;font-weight:700;line-height:1.25}
+.res-sub{color:var(--muted);font-size:14px}
+.res-net{font-family:var(--font-num);font-size:18px;font-weight:600;letter-spacing:.02em;font-variant-numeric:tabular-nums;min-height:1.2em}
+.res-net.pos{color:var(--win)} .res-net.neg{color:var(--lose)}
 
-        <!-- MAIN GAME CANVAS CONTAINER -->
-        <div id="canvas-container" class="relative flex-1 w-full bg-slate-900 overflow-hidden">
-            <canvas id="gameCanvas" class="w-full h-full block"></canvas>
+.hist-wrap{padding:12px 14px;background:var(--panel);border:1px solid rgba(217,180,91,.2);border-radius:10px}
+.k{font-family:var(--font-num);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.hist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:30px}
+.hdot{display:grid;place-items:center;min-width:30px;height:30px;padding:0 4px;border-radius:50%;font:600 15px/1 var(--font-num);color:#fff;background:var(--ink)}
+.hdot.red{background:var(--red)} .hdot.green{background:var(--zero)}
+.hdot.first{outline:2px solid var(--gold);outline-offset:2px}
+.stats{margin:10px 0 0;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
 
-            <!-- Floating Top-Center Wind Indicator -->
-            <div class="absolute top-3 left-1/2 -translate-x-1/2 fortress-panel px-4 py-1.5 rounded-full flex items-center gap-3 pointer-events-none shadow-lg border border-slate-500/80">
-                <span class="text-[11px] font-bold text-sky-300 tracking-wider">WIND</span>
-                <div class="w-28 sm:w-36 h-3.5 inset-panel rounded-full relative overflow-hidden flex items-center">
-                    <!-- Center Marker -->
-                    <div class="w-[2px] h-full bg-white/60 absolute left-1/2 -translate-x-1/2 z-10"></div>
-                    <!-- Left / Right Wind Fill -->
-                    <div id="wind-bar-left" class="h-full bg-gradient-to-l from-cyan-400 to-blue-600 absolute right-1/2 top-0 transition-all duration-300" style="width: 0%;"></div>
-                    <div id="wind-bar-right" class="h-full bg-gradient-to-r from-cyan-400 to-rose-500 absolute left-1/2 top-0 transition-all duration-300" style="width: 0%;"></div>
-                </div>
-                <span id="wind-value-text" class="font-digital text-xs sm:text-sm font-bold text-yellow-300 w-12 text-right">0</span>
-            </div>
+.bank{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px}
+.stat{padding:8px 12px;background:var(--panel);border:1px solid rgba(217,180,91,.25);border-radius:8px;min-width:0}
+.stat b{display:block;font:600 24px/1.2 var(--font-num);letter-spacing:.02em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stat b.pos{color:var(--win)} .stat b.neg{color:var(--lose)}
+#rebuy{grid-column:1/-1}
 
-            <!-- Floating Controls Help Pill (Top Left) -->
-            <div class="hidden lg:flex flex-col gap-1 absolute top-3 left-3 bg-slate-950/75 backdrop-blur-sm border border-slate-700/80 rounded-lg px-3 py-2 text-[11px] text-slate-300 pointer-events-none">
-                <div class="font-bold text-amber-400 mb-0.5">조작 가이드</div>
-                <div><kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-white">←</kbd> <kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-white">→</kbd> 지형 이동 (Move 소모)</div>
-                <div><kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-white">↑</kbd> <kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-white">↓</kbd> 포신 각도 조절</div>
-                <div><kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-600 text-yellow-300">Space</kbd> 누르고 있다가 떼서 발사</div>
-                <div><kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-cyan-300">Tab</kbd> 기본탄 / 특수탄 전환 | <kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-emerald-300">1~4</kbd> 아이템</div>
-            </div>
+.tray-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tray{display:flex;flex-wrap:wrap;gap:12px;padding:6px 6px 8px}
+.tray .chip{--cs:54px;border:0;padding:0;cursor:pointer;transition:transform .12s}
+.tray .chip:hover{transform:translateY(-2px)}
+.tray .chip.sel{transform:translateY(-4px);outline:2px solid var(--gold);outline-offset:3px}
+.tray .chip.off{opacity:.35}
+.mini{appearance:none;border:1px solid rgba(217,180,91,.4);background:transparent;color:var(--muted);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;min-height:36px;white-space:nowrap}
+.mini[aria-pressed="true"]{color:var(--ivory);border-color:var(--gold)}
 
-            <!-- Mobile / Touch On-Screen Controls Overlay -->
-            <div class="flex sm:hidden justify-between items-end absolute bottom-2 left-2 right-2 pointer-events-none">
-                <div class="grid grid-cols-3 gap-1 pointer-events-auto bg-slate-900/80 p-1.5 rounded-lg border border-slate-700">
-                    <div></div>
-                    <button id="touch-up" class="arcade-btn w-9 h-9 rounded flex items-center justify-center font-bold text-sm">▲</button>
-                    <div></div>
-                    <button id="touch-left" class="arcade-btn w-9 h-9 rounded flex items-center justify-center font-bold text-sm">◀</button>
-                    <button id="touch-down" class="arcade-btn w-9 h-9 rounded flex items-center justify-center font-bold text-sm">▼</button>
-                    <button id="touch-right" class="arcade-btn w-9 h-9 rounded flex items-center justify-center font-bold text-sm">▶</button>
-                </div>
-                <button id="touch-fire" class="pointer-events-auto arcade-btn px-5 py-3 rounded-xl font-title text-base bg-gradient-to-b from-red-500 to-red-800 border-red-300 text-white shadow-lg active:scale-95">
-                    HOLD FIRE
-                </button>
-            </div>
+.chip{--main:#eceadf;--edge:#6d7a8c;--txt:#1a1d22;position:relative;display:grid;place-items:center;width:var(--cs,30px);height:var(--cs,30px);border-radius:50%;background:repeating-conic-gradient(var(--edge) 0 12deg, var(--main) 12deg 30deg);box-shadow:0 1px 0 rgba(0,0,0,.55),0 3px 5px rgba(0,0,0,.45);font-family:var(--font-num);font-weight:700}
+.chip::before{content:"";position:absolute;inset:15%;border-radius:50%;background:var(--main);box-shadow:inset 0 0 0 1px rgba(0,0,0,.28),0 0 0 1px var(--edge)}
+.chip i{position:relative;font-style:normal;color:var(--txt);font-size:calc(var(--cs,30px) * .36);line-height:1;letter-spacing:-.02em}
+.c1{--main:#eceadf;--edge:#6d7a8c;--txt:#1a1d22}
+.c5{--main:#c42631;--edge:#f0e6d0;--txt:#fff}
+.c25{--main:#1f8a4a;--edge:#f0e6d0;--txt:#fff}
+.c100{--main:#1b1c20;--edge:#d9b45b;--txt:#f1e9d2}
+.c500{--main:#6c2d94;--edge:#f0e6d0;--txt:#fff}
 
-            <!-- Big Center Turn / Event Toast Banner -->
-            <div id="center-toast" class="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 z-10">
-                <div id="center-toast-box" class="px-8 py-3 rounded-2xl bg-slate-950/90 border-2 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.5)] text-center transform scale-95 transition-transform duration-300">
-                    <div id="center-toast-sub" class="text-xs font-bold text-sky-400 tracking-widest uppercase">FORTRESS TURN</div>
-                    <div id="center-toast-main" class="font-title text-2xl sm:text-4xl text-yellow-300 tracking-wide mt-0.5">PLAYER 1 차례!</div>
-                </div>
-            </div>
-        </div>
+.hint{margin:0;min-height:44px;color:var(--muted);font-size:13.5px}
+.hint.warn{color:var(--warn);font-weight:500}
 
-        <!-- CLASSIC FORTRESS 2 BOTTOM DASHBOARD -->
-        <div class="h-44 sm:h-48 fortress-panel p-2 sm:p-3 grid grid-cols-12 gap-2 sm:gap-3 shrink-0 z-20">
+.felt{padding:10px;background-color:var(--felt);background-image:var(--tex);background-size:4px 4px;border:10px solid var(--rail);border-radius:14px;box-shadow:inset 0 0 0 2px rgba(217,180,91,.5),0 16px 34px rgba(0,0,0,.5)}
+.board{position:relative;display:grid;grid-template-columns:44px repeat(6,minmax(0,1fr)) 44px;grid-template-rows:repeat(14,var(--rh));gap:1px;background:var(--line);border:2px solid var(--line)}
+.spot{position:relative;display:grid;place-items:center;border:0;padding:0;margin:0;color:var(--ivory);background-color:var(--felt);cursor:pointer}
+.spot:hover{filter:brightness(1.18)}
+.spot.hl{filter:brightness(1.3);box-shadow:inset 0 0 0 2px var(--gold)}
+.cell.red{background-color:var(--red)}
+.cell.black{background-color:var(--ink)}
+.cell.green{background-color:var(--zero)}
+.n{font:700 clamp(19px,3.6vw,25px)/1 var(--font-num);letter-spacing:.02em}
+.out,.fill{background-color:var(--felt);background-image:var(--tex);background-size:4px 4px}
+.out{font-family:var(--font-num);font-weight:600;font-size:17px;letter-spacing:.06em;text-transform:uppercase}
+.out.vert span{writing-mode:vertical-rl}
+.out small{font-size:14px;letter-spacing:.04em}
+.dia{width:20px;height:20px;transform:rotate(45deg);border:1px solid var(--ivory);background:var(--red)}
+.dia.k{background:var(--ink)}
+.cell.hit{box-shadow:inset 0 0 0 3px var(--gold);animation:glow 1.1s ease-in-out 3}
+@keyframes glow{50%{filter:brightness(1.55)}}
+.dolly{position:absolute;right:4px;top:4px;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff7cf,#e0b64d 55%,#8c6a1c);box-shadow:0 2px 4px rgba(0,0,0,.6);animation:drop .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes drop{from{transform:translateY(-18px) scale(1.5);opacity:0}}
 
-            <!-- 1. Left Section: Angle Protractor & Tank Weapon Info (4 Cols) -->
-            <div class="col-span-5 sm:col-span-4 flex gap-2 items-center inset-panel p-2 rounded-lg">
-                <!-- Angle Gauge Canvas -->
-                <div class="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 flex items-center justify-center bg-slate-950 rounded-full border-2 border-slate-700 shadow-inner">
-                    <canvas id="angleGaugeCanvas" width="112" height="112" class="w-full h-full"></canvas>
-                    <div class="absolute bottom-1 inset-x-0 text-center pointer-events-none">
-                        <span id="angle-text-display" class="font-digital text-[11px] sm:text-xs font-bold text-emerald-400 bg-slate-950/90 px-1.5 rounded border border-emerald-500/30">45°</span>
-                    </div>
-                </div>
+.ov{position:relative;pointer-events:none;z-index:3}
+.hot{position:absolute;display:grid;place-items:center;width:var(--hs);height:var(--hs);transform:translate(-50%,-50%);border:0;border-radius:50%;padding:0;background:transparent;cursor:pointer;pointer-events:auto}
+.hot::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--ivory);opacity:.32;transition:all .12s}
+.hot:hover::before,.hot:focus-visible::before{opacity:1;width:12px;height:12px;background:var(--gold)}
+.hot.has{z-index:5}
+.hot.has::before{display:none}
 
-                <!-- Tank Portrait & Weapon Type Selector -->
-                <div class="flex flex-col justify-between h-full flex-1 min-w-0 py-0.5">
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <span id="dash-player-name" class="text-xs font-black text-sky-400 truncate">PLAYER 1</span>
-                            <span id="dash-slope-text" class="text-[10px] font-digital text-slate-400">경사 0°</span>
-                        </div>
-                        <div id="dash-tank-name" class="font-title text-sm sm:text-base text-white truncate">캐논 (Cannon)</div>
-                    </div>
+.stack{position:absolute;left:50%;top:50%;z-index:4;transform:translate(-50%,-50%);display:grid;place-items:center;pointer-events:none}
+.stack .chip{--cs:32px}
+.hot .stack .chip{--cs:28px}
+.stack.win .chip{animation:hop .55s ease-out 2}
+.stack.lose{animation:gone .65s ease-in forwards}
+@keyframes hop{40%{transform:translateY(-9px)}}
+@keyframes gone{to{opacity:0;transform:translate(-50%,-30%) scale(.55)}}
+.pop{position:absolute;left:50%;top:-2px;z-index:8;transform:translateX(-50%);white-space:nowrap;pointer-events:none;font:700 17px/1 var(--font-num);color:var(--win);text-shadow:0 1px 3px #000,0 0 6px #000;animation:rise 1.7s ease-out forwards}
+@keyframes rise{0%{opacity:0;transform:translate(-50%,6px)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-40px)}}
 
-                    <!-- Weapon W1 / W2 Toggle Button -->
-                    <div class="flex flex-col gap-1">
-                        <span class="text-[10px] text-slate-400 font-bold">무기 선택 (Tab)</span>
-                        <div class="grid grid-cols-2 gap-1">
-                            <button id="btn-w1" onclick="selectWeapon(1)" class="px-1.5 py-1 rounded text-[11px] font-bold border border-yellow-400 bg-amber-600/40 text-yellow-200 truncate">
-                                1. 기본탄
-                            </button>
-                            <button id="btn-w2" onclick="selectWeapon(2)" class="px-1.5 py-1 rounded text-[11px] font-bold border border-slate-700 bg-slate-800/80 text-slate-300 truncate">
-                                2. 특수탄
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+.actions{position:sticky;bottom:env(safe-area-inset-bottom,0px);z-index:10;display:flex;flex-wrap:wrap;gap:8px;padding:14px 0 10px;background:linear-gradient(rgba(6,36,26,0),var(--room) 32%)}
+.btn{appearance:none;flex:1 1 56px;min-width:0;min-height:46px;padding:8px 4px;border:1px solid rgba(217,180,91,.55);border-radius:8px;background:#0b3a2a;color:var(--ivory);font-size:13px;font-weight:500;line-height:1.2;cursor:pointer}
+.btn:hover:not(:disabled){border-color:var(--gold);background:#10503a}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{flex:1.8 1 100px;border-color:#f0d58a;background:linear-gradient(#ecce7b,#c49b3d);color:#241707;font-size:17px;font-weight:700;letter-spacing:.08em}
+.btn.primary:hover:not(:disabled){background:linear-gradient(#f5da8e,#d2a947)}
+body.spinning .felt{opacity:.9}
 
-            <!-- 2. Center Section: HP, Move Gauge, Power Charging Bar (5 Cols) -->
-            <div class="col-span-7 sm:col-span-5 inset-panel p-2.5 rounded-lg flex flex-col justify-between">
-                <!-- HP Bar -->
-                <div class="flex items-center gap-2">
-                    <span class="w-12 text-[11px] font-black text-emerald-400 tracking-wider shrink-0">HP</span>
-                    <div class="flex-1 h-4 sm:h-5 gauge-bar-bg rounded border border-slate-700 relative overflow-hidden p-0.5">
-                        <div id="hp-bar-fill" class="h-full bg-gradient-to-r from-emerald-600 via-green-500 to-lime-400 rounded-sm transition-all duration-200" style="width: 100%;"></div>
-                        <span id="hp-bar-text" class="absolute inset-0 flex items-center justify-center font-digital text-[10px] sm:text-xs font-bold text-white drop-shadow">1000 / 1000</span>
-                    </div>
-                </div>
+.rules{margin-top:30px;border:1px solid rgba(217,180,91,.3);border-radius:10px;background:var(--panel)}
+.rules summary{padding:14px 16px;cursor:pointer;font-weight:700;color:var(--gold);font-family:var(--font-body)}
+.rules-in{display:grid;gap:18px;padding:0 16px 18px}
+.tw{overflow-x:auto}
+.rules table{border-collapse:collapse;width:100%;min-width:480px;font-size:14px;font-variant-numeric:tabular-nums}
+.rules th,.rules td{padding:8px 10px;border-bottom:1px solid rgba(241,233,210,.15);text-align:left;vertical-align:top}
+.rules th{font-family:var(--font-num);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.rules td.pay{font-family:var(--font-num);font-size:17px;font-weight:700;color:var(--gold)}
+.rules ul{margin:0;padding-left:20px;display:grid;gap:6px;max-width:68ch}
+.foot{margin:22px 0 0;color:var(--muted);font-size:13px}
 
-                <!-- MOVE Bar -->
-                <div class="flex items-center gap-2">
-                    <span class="w-12 text-[11px] font-black text-sky-400 tracking-wider shrink-0">MOVE</span>
-                    <div class="flex-1 h-3.5 sm:h-4 gauge-bar-bg rounded border border-slate-700 relative overflow-hidden p-0.5">
-                        <div id="move-bar-fill" class="h-full bg-gradient-to-r from-blue-600 via-sky-500 to-cyan-300 rounded-sm transition-all duration-75" style="width: 100%;"></div>
-                        <span id="move-bar-text" class="absolute inset-0 flex items-center justify-center font-digital text-[10px] font-bold text-white drop-shadow">100%</span>
-                    </div>
-                </div>
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
 
-                <!-- POWER Bar (With Previous Shot Memory Marker) -->
-                <div class="flex flex-col gap-1">
-                    <div class="flex justify-between items-center">
-                        <span class="text-[11px] font-black text-rose-400 tracking-wider flex items-center gap-1">
-                            <span>POWER</span>
-                            <span class="text-[10px] text-slate-400 font-normal hidden md:inline">(Space 누르기)</span>
-                        </span>
-                        <span id="power-num-text" class="font-digital text-xs font-bold text-amber-300">0 / 100</span>
-                    </div>
-                    <div class="w-full h-6 sm:h-7 gauge-bar-bg rounded border-2 border-slate-600 relative overflow-visible p-0.5">
-                        <!-- Current Power Fill -->
-                        <div id="power-bar-fill" class="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 rounded-sm" style="width: 0%;"></div>
-
-                        <!-- 25%, 50%, 75% Ruler Notches -->
-                        <div class="absolute inset-y-0 left-1/4 w-[1px] bg-white/25 pointer-events-none"></div>
-                        <div class="absolute inset-y-0 left-1/2 w-[1px] bg-white/40 pointer-events-none"></div>
-                        <div class="absolute inset-y-0 left-3/4 w-[1px] bg-white/25 pointer-events-none"></div>
-
-                        <!-- Previous Shot Memory Marker (Triangle + Vertical Line) -->
-                        <div id="last-power-marker" class="hidden absolute top-0 bottom-0 w-[2px] bg-cyan-300 z-20 pointer-events-none shadow-[0_0_6px_#22d3ee]" style="left: 50%;">
-                            <div class="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[7px] border-t-cyan-300 -translate-x-[4px] -translate-y-[6px]"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. Right Section: Item Slots & Pass Turn (3 Cols on desktop, full row or compact on mobile) -->
-            <div class="col-span-12 sm:col-span-3 inset-panel p-2 rounded-lg flex sm:flex-col justify-between items-center gap-2">
-                <div class="w-full flex items-center justify-between px-1 hidden sm:flex">
-                    <span class="text-[11px] font-black text-amber-400 tracking-wider">ITEM SLOTS (1~4)</span>
-                    <span id="active-item-label" class="text-[10px] text-emerald-400 font-bold truncate">대기 중</span>
-                </div>
-
-                <!-- 4 Item Slots -->
-                <div id="item-slots-container" class="grid grid-cols-4 gap-1.5 w-full flex-1 items-center">
-                    <!-- Dynamically populated by JS -->
-                </div>
-
-                <!-- Pass Turn / Wind Guide -->
-                <div class="flex sm:w-full gap-1.5 shrink-0">
-                    <button onclick="skipCurrentTurn()" id="btn-pass-turn" class="arcade-btn w-full py-1 px-2 rounded text-xs font-bold text-slate-200 flex items-center justify-center gap-1">
-                        <span>⏭️</span>
-                        <span>턴 넘기기 (F8)</span>
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- TANK & MODE SELECTION MODAL -->
-        <div id="setup-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div class="fortress-panel w-full max-w-2xl rounded-2xl p-5 sm:p-6 border-2 border-slate-500 shadow-2xl flex flex-col gap-5 max-h-[92vh] overflow-y-auto">
-                <div class="flex items-center justify-between border-b border-slate-700 pb-3">
-                    <div>
-                        <h1 class="font-title text-2xl sm:text-3xl bg-gradient-to-r from-yellow-300 via-amber-400 to-orange-500 bg-clip-text text-transparent">
-                            포트리스 2 블루 - 대기실
-                        </h1>
-                        <p class="text-xs sm:text-sm text-slate-300 mt-0.5">대전 모드와 탑승할 탱크 클래스를 선택하세요.</p>
-                    </div>
-                    <span class="text-xs font-digital px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-amber-400">VER 2.0 ARCADE</span>
-                </div>
-
-                <!-- Mode Selector -->
-                <div class="flex flex-col gap-2">
-                    <label class="text-xs font-bold text-sky-300 uppercase tracking-wider">1. 게임 모드 선택</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button id="mode-ai-btn" onclick="setGameMode('AI')" class="tank-card selected p-3 rounded-xl flex items-center gap-3 text-left">
-                            <span class="text-2xl">🤖</span>
-                            <div>
-                                <div class="font-bold text-sm sm:text-base text-white">1P vs AI (인공지능 대전)</div>
-                                <div class="text-xs text-slate-400">바람과 탄도를 계산하는 포트리스 AI와 대결</div>
-                            </div>
-                        </button>
-                        <button id="mode-pvp-btn" onclick="setGameMode('PVP')" class="tank-card p-3 rounded-xl flex items-center gap-3 text-left">
-                            <span class="text-2xl">⚔️</span>
-                            <div>
-                                <div class="font-bold text-sm sm:text-base text-white">1P vs 2P (로컬 2인 대전)</div>
-                                <div class="text-xs text-slate-400">한 키보드로 친구와 번갈아 가며 대결</div>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Player 1 Tank Selection -->
-                <div class="flex flex-col gap-2">
-                    <label class="text-xs font-bold text-emerald-300 uppercase tracking-wider">2. PLAYER 1 탱크 선택 (블루팀)</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" id="p1-tank-list">
-                        <!-- Populated via JS -->
-                    </div>
-                </div>
-
-                <!-- Player 2 / AI Tank Selection -->
-                <div class="flex flex-col gap-2">
-                    <label id="p2-select-label" class="text-xs font-bold text-rose-300 uppercase tracking-wider">3. AI 상대 탱크 선택 (레드팀)</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" id="p2-tank-list">
-                        <!-- Populated via JS -->
-                    </div>
-                </div>
-
-                <!-- Map Theme Selection -->
-                <div class="flex items-center justify-between inset-panel p-3 rounded-xl">
-                    <div class="text-xs sm:text-sm font-bold text-slate-200">🗺️ 지형 스타일 (번지 및 크레이터 파괴 가능)</div>
-                    <select id="map-style-select" class="bg-slate-800 text-amber-300 font-bold text-xs sm:text-sm px-3 py-1.5 rounded border border-slate-600 focus:outline-none">
-                        <option value="valley">더블 밸리 (고전 능선 지형)</option>
-                        <option value="island">스카이 아일랜드 (번지 특화 고지대)</option>
-                        <option value="canyon">크림슨 캐년 (험준한 협곡)</option>
-                    </select>
-                </div>
-
-                <button onclick="startNewMatch()" class="arcade-btn w-full py-3.5 rounded-xl font-title text-xl tracking-wider bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 text-slate-950 border-yellow-300 shadow-[0_0_20px_rgba(245,158,11,0.5)]">
-                    🚀 게임 시작 (BATTLE START)
-                </button>
-            </div>
-        </div>
-
-        <!-- GAME OVER MODAL -->
-        <div id="gameover-modal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div class="fortress-panel w-full max-w-md rounded-2xl p-6 border-2 border-yellow-400 text-center flex flex-col items-center gap-4 shadow-[0_0_40px_rgba(250,204,21,0.4)]">
-                <div class="text-5xl animate-bounce">🏆</div>
-                <div>
-                    <div class="text-xs font-digital text-sky-400 tracking-widest uppercase">MATCH RESULT</div>
-                    <h2 id="winner-title" class="font-title text-3xl sm:text-4xl text-yellow-300 mt-1">PLAYER 1 승리!</h2>
-                    <p id="winner-reason" class="text-sm text-slate-300 mt-1">정확한 포격으로 적 탱크를 격파했습니다!</p>
-                </div>
-                <div id="match-stats-box" class="w-full inset-panel p-3 rounded-xl text-xs text-slate-300 flex justify-around">
-                    <div>총 진행 턴: <span id="stat-turns" class="font-bold text-white">5</span></div>
-                    <div>남은 체력: <span id="stat-hp" class="font-bold text-emerald-400">650</span></div>
-                </div>
-                <div class="flex gap-3 w-full mt-2">
-                    <button onclick="startNewMatch()" class="arcade-btn flex-1 py-3 rounded-xl font-title text-lg bg-gradient-to-b from-emerald-500 to-emerald-700 text-white border-emerald-300">
-                        🔄 즉시 재대결
-                    </button>
-                    <button onclick="openSetupModal()" class="arcade-btn flex-1 py-3 rounded-xl font-title text-lg text-amber-300">
-                        ⚙️ 대기실로
-                    </button>
-                </div>
-            </div>
-        </div>
-
+<div class="page">
+  <header class="top">
+    <div>
+      <h1>American Roulette</h1>
+      <p class="sub">라스베이거스 룰 그대로. 0과 00이 있는 38칸 휠입니다.</p>
     </div>
-
-    <script>
-        /**
-         * ============================================================================
-         * 1. WEB AUDIO SYNTHESIZER (No external audio files needed)
-         * ============================================================================
-         */
-        class FortressSoundEngine {
-            constructor() {
-                this.ctx = null;
-                this.enabled = true;
-                this.chargeOsc = null;
-                this.chargeGain = null;
-            }
-
-            init() {
-                if (!this.ctx) {
-                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                    if (AudioCtx) this.ctx = new AudioCtx();
-                }
-                if (this.ctx && this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
-            }
-
-            playMoveTick() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const now = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(110, now);
-                osc.frequency.exponentialRampToValueAtTime(65, now + 0.04);
-                gain.gain.setValueAtTime(0.08, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.04);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.045);
-            }
-
-            playAngleTick() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const now = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(620, now);
-                gain.gain.setValueAtTime(0.04, now);
-                gain.gain.linearRampToValueAtTime(0.005, now + 0.025);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.03);
-            }
-
-            startCharging() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx || this.chargeOsc) return;
-                const now = this.ctx.currentTime;
-                this.chargeOsc = this.ctx.createOscillator();
-                this.chargeGain = this.ctx.createGain();
-                this.chargeOsc.type = 'sawtooth';
-                this.chargeOsc.frequency.setValueAtTime(180, now);
-                this.chargeGain.gain.setValueAtTime(0.06, now);
-                this.chargeOsc.connect(this.chargeGain);
-                this.chargeGain.connect(this.ctx.destination);
-                this.chargeOsc.start(now);
-            }
-
-            updateChargingPitch(powerRatio) {
-                if (this.chargeOsc && this.ctx) {
-                    this.chargeOsc.frequency.setValueAtTime(180 + powerRatio * 520, this.ctx.currentTime);
-                }
-            }
-
-            stopCharging() {
-                if (this.chargeOsc) {
-                    try {
-                        this.chargeOsc.stop();
-                        this.chargeOsc.disconnect();
-                    } catch (e) {}
-                    this.chargeOsc = null;
-                    this.chargeGain = null;
-                }
-            }
-
-            playFire(type = 'cannon') {
-                this.stopCharging();
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const now = this.ctx.currentTime;
-
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                if (type === 'laser') {
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(920, now);
-                    osc.frequency.exponentialRampToValueAtTime(160, now + 0.28);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
-                } else {
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(240, now);
-                    osc.frequency.exponentialRampToValueAtTime(45, now + 0.25);
-                    gain.gain.setValueAtTime(0.25, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-                }
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.3);
-            }
-
-            playExplosion(radius = 40) {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const now = this.ctx.currentTime;
-                const duration = Math.min(0.8, 0.25 + radius * 0.006);
-
-                // White Noise Burst + Lowpass Filter for Boom
-                const bufferSize = this.ctx.sampleRate * duration;
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
-
-                const noise = this.ctx.createBufferSource();
-                noise.buffer = buffer;
-
-                const filter = this.ctx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(400, now);
-                filter.frequency.exponentialRampToValueAtTime(60, now + duration);
-
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0.38, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
-
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                noise.start(now);
-                noise.stop(now + duration);
-            }
-
-            playItemUse() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const now = this.ctx.currentTime;
-                const notes = [523.25, 659.25, 783.99, 1046.5];
-                notes.forEach((freq, idx) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, now + idx * 0.05);
-                    gain.gain.setValueAtTime(0.12, now + idx * 0.05);
-                    gain.gain.exponentialRampToValueAtTime(0.008, now + idx * 0.05 + 0.12);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(now + idx * 0.05);
-                    osc.stop(now + idx * 0.05 + 0.13);
-                });
-            }
-
-            playTurnStart() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const now = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(440, now);
-                osc.frequency.setValueAtTime(587.33, now + 0.09);
-                gain.gain.setValueAtTime(0.14, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.26);
-            }
-        }
-
-        const sound = new FortressSoundEngine();
-
-        function toggleSound() {
-            sound.enabled = !sound.enabled;
-            document.getElementById('sound-icon').textContent = sound.enabled ? '🔊' : '🔇';
-        }
-
-        /**
-         * ============================================================================
-         * 2. TANK CLASSES & ITEM DEFINITIONS (Korean Fortress 2 Authentic Specs)
-         * ============================================================================
-         */
-        const TANK_CLASSES = {
-            cannon: {
-                id: 'cannon',
-                name: '캐논 (Cannon)',
-                badge: '중화기 지형파괴형',
-                desc: '강력한 단발 화력과 거대한 지형 파괴력(번지 유도)을 가진 정통 헤비 탱크',
-                hp: 1000,
-                moveMax: 110,
-                colorPrimary: '#ef4444',
-                colorSecondary: '#991b1b',
-                w1: {
-                    name: '검콩 (대구경포)',
-                    damage: 250,
-                    crater: 48,
-                    count: 1,
-                    spread: 0,
-                    style: 'blackball'
-                },
-                w2: {
-                    name: '빨콩 (정밀고폭탄)',
-                    damage: 310,
-                    crater: 30,
-                    count: 1,
-                    spread: 0,
-                    style: 'redball'
-                }
-            },
-            multi: {
-                id: 'multi',
-                name: '멀티미사일 (Multi)',
-                badge: '다연장 광역화력형',
-                desc: '다수의 미사일을 동시 발사하여 넓은 범위를 초토화하는 기동형 미사일 탱크',
-                hp: 950,
-                moveMax: 135,
-                colorPrimary: '#10b981',
-                colorSecondary: '#065f46',
-                w1: {
-                    name: '3연장 미사일',
-                    damage: 105,
-                    crater: 26,
-                    count: 3,
-                    spread: 0.065,
-                    style: 'missile'
-                },
-                w2: {
-                    name: '9연발 집중포화',
-                    damage: 44,
-                    crater: 16,
-                    count: 9,
-                    spread: 0.13,
-                    style: 'swarm'
-                }
-            },
-            supertank: {
-                id: 'supertank',
-                name: '슈탱 (Super Tank)',
-                badge: '유도탄 & 관통레이저',
-                desc: '적 탱크를 자동 추적하는 유도 미사일과 바람의 영향을 덜 받는 플라즈마 포 보유',
-                hp: 1050,
-                moveMax: 130,
-                colorPrimary: '#f59e0b',
-                colorSecondary: '#92400e',
-                w1: {
-                    name: '듀얼 플라즈마',
-                    damage: 145,
-                    crater: 28,
-                    count: 2,
-                    spread: 0.035,
-                    style: 'laser'
-                },
-                w2: {
-                    name: '호밍 유도탄',
-                    damage: 215,
-                    crater: 32,
-                    count: 1,
-                    spread: 0,
-                    homing: true,
-                    style: 'homing'
-                }
-            }
-        };
-
-        const DEFAULT_ITEMS = [
-            { id: 'double', key: '1', name: '더블파이어', icon: '🔥', desc: '이번 턴 2회 연속 발사' },
-            { id: 'power',  key: '2', name: '파워업탄',   icon: '💥', desc: '데미지 및 지형파괴 +35%' },
-            { id: 'teleport', key: '3', name: '이동탄',   icon: '🌀', desc: '탄착 지점으로 탱크 순간이동' },
-            { id: 'repair', key: '4', name: '수리킷',     icon: '🔧', desc: '즉시 체력 +300 회복' }
-        ];
-
-        /**
-         * ============================================================================
-         * 3. GAME STATE & PROCEDURAL DESTRUCTIBLE TERRAIN ENGINE
-         * ============================================================================
-         */
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const angleCanvas = document.getElementById('angleGaugeCanvas');
-        const angleCtx = angleCanvas.getContext('2d');
-
-        // Fixed internal logical resolution for crisp physics & pixel terrain
-        const WORLD_W = 1200;
-        const WORLD_H = 600;
-        canvas.width = WORLD_W;
-        canvas.height = WORLD_H;
-
-        // Offscreen Terrain Canvas for pixel-level craters & overhangs
-        const terrainCanvas = document.createElement('canvas');
-        terrainCanvas.width = WORLD_W;
-        terrainCanvas.height = WORLD_H;
-        const terrainCtx = terrainCanvas.getContext('2d', { willReadFrequently: true });
-        let terrainMask = new Uint8Array(WORLD_W * WORLD_H); // 1 = solid ground, 0 = air
-
-        let gameMode = 'AI'; // 'AI' or 'PVP'
-        let selectedP1Class = 'cannon';
-        let selectedP2Class = 'multi';
-        let selectedMapStyle = 'valley';
-
-        let tanks = [];
-        let projectiles = [];
-        let particles = [];
-        let floatingTexts = [];
-        let clouds = [];
-        let stars = [];
-
-        let currentTurnIndex = 0;
-        let turnNumber = 1;
-        let wind = 0; // -15 to +15
-        let turnTimer = 20;
-        let turnTimerInterval = null;
-        let gameState = 'SETUP'; // 'SETUP', 'AIMING', 'CHARGING', 'FIRING', 'SETTLING', 'AI_THINKING', 'GAMEOVER'
-
-        // Input state
-        const keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false, Space: false };
-        let isCharging = false;
-        let currentPower = 0;
-        let chargeDirection = 1;
-        let waterWaveOffset = 0;
-        let screenShake = 0;
-
-        // Initialize Setup Modal Cards
-        function renderSetupCards() {
-            const p1List = document.getElementById('p1-tank-list');
-            const p2List = document.getElementById('p2-tank-list');
-            p1List.innerHTML = '';
-            p2List.innerHTML = '';
-
-            Object.values(TANK_CLASSES).forEach(tc => {
-                // P1 Card
-                const c1 = document.createElement('button');
-                c1.className = `tank-card p-3 rounded-xl text-left flex flex-col justify-between gap-1.5 ${selectedP1Class === tc.id ? 'selected' : ''}`;
-                c1.onclick = () => { selectedP1Class = tc.id; renderSetupCards(); };
-                c1.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <span class="font-title text-base text-white">${tc.name}</span>
-                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 border border-slate-600">${tc.badge}</span>
-                    </div>
-                    <p class="text-[11px] text-slate-300 leading-snug">${tc.desc}</p>
-                    <div class="text-[10px] text-sky-300 font-bold mt-1">기본: ${tc.w1.name} / 특수: ${tc.w2.name}</div>
-                `;
-                p1List.appendChild(c1);
-
-                // P2 Card
-                const c2 = document.createElement('button');
-                c2.className = `tank-card p-3 rounded-xl text-left flex flex-col justify-between gap-1.5 ${selectedP2Class === tc.id ? 'selected' : ''}`;
-                c2.onclick = () => { selectedP2Class = tc.id; renderSetupCards(); };
-                c2.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <span class="font-title text-base text-white">${tc.name}</span>
-                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-rose-300 border border-slate-600">${tc.badge}</span>
-                    </div>
-                    <p class="text-[11px] text-slate-300 leading-snug">${tc.desc}</p>
-                    <div class="text-[10px] text-rose-300 font-bold mt-1">기본: ${tc.w1.name} / 특수: ${tc.w2.name}</div>
-                `;
-                p2List.appendChild(c2);
-            });
-        }
-
-        function setGameMode(mode) {
-            gameMode = mode;
-            document.getElementById('mode-ai-btn').classList.toggle('selected', mode === 'AI');
-            document.getElementById('mode-pvp-btn').classList.toggle('selected', mode === 'PVP');
-            document.getElementById('p2-select-label').textContent =
-                mode === 'AI' ? '3. AI 상대 탱크 선택 (레드팀)' : '3. PLAYER 2 탱크 선택 (레드팀)';
-        }
-
-        function openSetupModal() {
-            renderSetupCards();
-            document.getElementById('gameover-modal').classList.add('hidden');
-            document.getElementById('setup-modal').classList.remove('hidden');
-        }
-
-        /**
-         * Generate Procedural Destructible Terrain
-         */
-        function generateTerrain(style = 'valley') {
-            terrainCtx.clearRect(0, 0, WORLD_W, WORLD_H);
-            terrainMask.fill(0);
-
-            const heights = new Float32Array(WORLD_W);
-            const seed1 = Math.random() * 10;
-            const seed2 = Math.random() * 10;
-
-            for (let x = 0; x < WORLD_W; x++) {
-                const nx = x / WORLD_W;
-                let h = 360;
-
-                if (style === 'valley') {
-                    // Classic hills and central valley
-                    h = 340
-                        + Math.sin(nx * Math.PI * 2.5 + seed1) * 75
-                        + Math.cos(nx * Math.PI * 5.5 + seed2) * 32
-                        - Math.sin(nx * Math.PI) * 45;
-                } else if (style === 'island') {
-                    // High plateaus with steep bungee drops
-                    h = 275
-                        + Math.sin(nx * Math.PI * 3 + seed1) * 65
-                        + Math.sin(nx * Math.PI * 9) * 18;
-                } else if (style === 'canyon') {
-                    // Rugged jagged canyon
-                    h = 320
-                        + Math.cos(nx * Math.PI * 4 + seed1) * 90
-                        + Math.sin(nx * Math.PI * 10 + seed2) * 25;
-                }
-
-                heights[x] = Math.max(170, Math.min(WORLD_H - 95, Math.floor(h)));
-            }
-
-            // Draw rock strata & topsoil into terrainCanvas
-            const grad = terrainCtx.createLinearGradient(0, 150, 0, WORLD_H);
-            if (style === 'canyon') {
-                grad.addColorStop(0, '#c2410c');
-                grad.addColorStop(0.3, '#9a3412');
-                grad.addColorStop(0.7, '#7c2d12');
-                grad.addColorStop(1, '#431407');
-            } else if (style === 'island') {
-                grad.addColorStop(0, '#4ade80');
-                grad.addColorStop(0.15, '#ca8a04');
-                grad.addColorStop(0.5, '#64748b');
-                grad.addColorStop(1, '#1e293b');
-            } else {
-                grad.addColorStop(0, '#65a30d');
-                grad.addColorStop(0.12, '#854d0e');
-                grad.addColorStop(0.55, '#57534e');
-                grad.addColorStop(1, '#292524');
-            }
-
-            terrainCtx.fillStyle = grad;
-            terrainCtx.beginPath();
-            terrainCtx.moveTo(0, WORLD_H);
-            for (let x = 0; x < WORLD_W; x++) {
-                if (style === 'island' && (x < 65 || x > WORLD_W - 65 || (x > 545 && x < 655))) {
-                    heights[x] = WORLD_H + 10; // Bungee abyss gaps!
-                }
-                terrainCtx.lineTo(x, heights[x]);
-            }
-            terrainCtx.lineTo(WORLD_W, WORLD_H);
-            terrainCtx.closePath();
-            terrainCtx.fill();
-
-            // Add subtle horizontal rock texture stripes
-            terrainCtx.globalCompositeOperation = 'source-atop';
-            for (let y = 160; y < WORLD_H; y += 14) {
-                terrainCtx.fillStyle = y % 28 === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.08)';
-                terrainCtx.fillRect(0, y, WORLD_W, 5);
-            }
-
-            // Draw bright grass/top crust rim
-            terrainCtx.lineWidth = 6;
-            terrainCtx.strokeStyle = style === 'canyon' ? '#fb923c' : '#84cc16';
-            terrainCtx.beginPath();
-            for (let x = 0; x < WORLD_W; x++) {
-                if (heights[x] >= WORLD_H) continue;
-                if (x === 0 || heights[x - 1] >= WORLD_H) {
-                    terrainCtx.moveTo(x, heights[x]);
-                } else {
-                    terrainCtx.lineTo(x, heights[x]);
-                }
-            }
-            terrainCtx.stroke();
-            terrainCtx.globalCompositeOperation = 'source-over';
-
-            // Populate fast 1D collision mask from alpha channel
-            const imgData = terrainCtx.getImageData(0, 0, WORLD_W, WORLD_H).data;
-            for (let i = 0; i < WORLD_W * WORLD_H; i++) {
-                terrainMask[i] = imgData[i * 4 + 3] > 90 ? 1 : 0;
-            }
-        }
-
-        function isSolid(x, y) {
-            const ix = Math.floor(x);
-            const iy = Math.floor(y);
-            if (ix < 0 || ix >= WORLD_W || iy >= WORLD_H) return false;
-            if (iy < 0) return false;
-            return terrainMask[iy * WORLD_W + ix] === 1;
-        }
-
-        function getSurfaceY(x, startY = 0) {
-            const ix = Math.max(0, Math.min(WORLD_W - 1, Math.floor(x)));
-            const sy = Math.max(0, Math.floor(startY));
-            for (let y = sy; y < WORLD_H; y++) {
-                if (terrainMask[y * WORLD_W + ix] === 1) return y;
-            }
-            return WORLD_H + 50; // Abyss
-        }
-
-        /**
-         * Carve Circular Crater in Both Visual Canvas & Collision Bitmap
-         */
-        function carveCrater(cx, cy, radius) {
-            const r = Math.floor(radius);
-            // Scorched rim ring on terrainCanvas
-            terrainCtx.save();
-            terrainCtx.globalCompositeOperation = 'source-atop';
-            terrainCtx.beginPath();
-            terrainCtx.arc(cx, cy, r + 5, 0, Math.PI * 2);
-            terrainCtx.fillStyle = 'rgba(20, 15, 10, 0.65)';
-            terrainCtx.fill();
-            terrainCtx.restore();
-
-            // Punch hole
-            terrainCtx.save();
-            terrainCtx.globalCompositeOperation = 'destination-out';
-            terrainCtx.beginPath();
-            terrainCtx.arc(cx, cy, r, 0, Math.PI * 2);
-            terrainCtx.fill();
-            terrainCtx.restore();
-
-            // Update binary collision mask
-            const rSq = r * r;
-            const minX = Math.max(0, Math.floor(cx - r));
-            const maxX = Math.min(WORLD_W - 1, Math.ceil(cx + r));
-            const minY = Math.max(0, Math.floor(cy - r));
-            const maxY = Math.min(WORLD_H - 1, Math.ceil(cy + r));
-
-            for (let y = minY; y <= maxY; y++) {
-                const dy = y - cy;
-                const rowOffset = y * WORLD_W;
-                for (let x = minX; x <= maxX; x++) {
-                    const dx = x - cx;
-                    if (dx * dx + dy * dy <= rSq) {
-                        terrainMask[rowOffset + x] = 0;
-                    }
-                }
-            }
-        }
-
-        /**
-         * ============================================================================
-         * 4. TANK ENTITY CLASS (Slope alignment, movement gauge, items, aiming)
-         * ============================================================================
-         */
-        class Tank {
-            constructor(id, name, team, classKey, x, facingRight, isAI = false) {
-                const spec = TANK_CLASSES[classKey];
-                this.id = id;
-                this.name = name;
-                this.team = team; // 1 = Blue, 2 = Red
-                this.classKey = classKey;
-                this.spec = spec;
-                this.isAI = isAI;
-
-                this.x = x;
-                this.y = 100;
-                this.vy = 0;
-                this.radius = 15;
-
-                this.hp = spec.hp;
-                this.maxHp = spec.hp;
-                this.moveRemaining = spec.moveMax;
-                this.maxMove = spec.moveMax;
-
-                this.facingRight = facingRight;
-                this.slopeAngle = 0; // Terrain tilt in radians
-                this.aimAngle = 45;  // Relative barrel elevation in degrees (5° to 85°)
-                this.lastPower = 0;  // Remembers previous shot power (0-100)
-                this.selectedWeapon = 1; // 1 or 2
-
-                // Clone 4 standard items
-                this.items = DEFAULT_ITEMS.map(item => ({ ...item, used: false }));
-                this.activeItem = null; // 'double', 'power', 'teleport'
-                this.extraShotPending = false;
-                this.alive = true;
-            }
-
-            snapToGround() {
-                const surfY = getSurfaceY(this.x, 0);
-                this.y = surfY - 2;
-                this.updateSlope();
-            }
-
-            updateSlope() {
-                const span = 10;
-                const leftY = getSurfaceY(this.x - span, Math.max(0, this.y - 35));
-                const rightY = getSurfaceY(this.x + span, Math.max(0, this.y - 35));
-                if (leftY < WORLD_H && rightY < WORLD_H) {
-                    const angle = Math.atan2(rightY - leftY, span * 2);
-                    // Clamp visual slope so tank doesn't flip upside down
-                    this.slopeAngle = Math.max(-0.65, Math.min(0.65, angle));
-                } else {
-                    this.slopeAngle = 0;
-                }
-            }
-
-            /**
-             * World firing angle in radians
-             */
-            getWorldBarrelAngleRad() {
-                const elevRad = (this.aimAngle * Math.PI) / 180;
-                if (this.facingRight) {
-                    return this.slopeAngle - elevRad;
-                } else {
-                    return Math.PI + this.slopeAngle + elevRad;
-                }
-            }
-
-            /**
-             * True world firing angle in degrees for HUD display
-             */
-            getDisplayAngleDeg() {
-                const slopeDeg = Math.round((this.slopeAngle * 180) / Math.PI) * (this.facingRight ? -1 : 1);
-                return Math.round(this.aimAngle + slopeDeg);
-            }
-
-            updatePhysics() {
-                if (!this.alive) return false;
-
-                // Check if ground beneath tank was destroyed (fall with gravity!)
-                if (!isSolid(this.x, this.y + 2)) {
-                    this.vy += 0.35;
-                    this.y += this.vy;
-
-                    // Hit ground while falling
-                    for (let step = 0; step < Math.ceil(this.vy); step++) {
-                        if (isSolid(this.x, this.y + 1)) {
-                            this.y = Math.floor(this.y);
-                            this.vy = 0;
-                            this.updateSlope();
-                            break;
-                        }
-                    }
-
-                    // Bungee / Fall into water abyss!
-                    if (this.y > WORLD_H - 18) {
-                        this.hp = 0;
-                        this.alive = false;
-                        spawnFloatingText(this.x, WORLD_H - 45, '번지 낙사! (BUNGEE!)', '#38bdf8', 22);
-                        spawnExplosionVisual(this.x, WORLD_H - 20, 35, '#38bdf8');
-                        sound.playExplosion(45);
-                        checkGameOver();
-                        return false;
-                    }
-                    return true; // Still falling
-                } else {
-                    this.vy = 0;
-                    // Smoothly climb small pixel steps
-                    while (isSolid(this.x, this.y - 1) && this.y > 10) {
-                        this.y--;
-                    }
-                    this.updateSlope();
-                    return false;
-                }
-            }
-
-            moveHorizontal(dir) {
-                if (!this.alive || this.moveRemaining <= 0) return;
-                this.facingRight = dir > 0;
-                const nextX = this.x + dir * 1.4;
-                if (nextX < 22 || nextX > WORLD_W - 22) return;
-
-                // Check if slope is climbable (max step height 10px)
-                let climbY = this.y;
-                let blocked = false;
-                if (isSolid(nextX, climbY)) {
-                    let foundAir = false;
-                    for (let up = 1; up <= 11; up++) {
-                        if (!isSolid(nextX, climbY - up)) {
-                            climbY -= up;
-                            foundAir = true;
-                            break;
-                        }
-                    }
-                    if (!foundAir) blocked = true;
-                } else {
-                    // Step down slope smoothly
-                    for (let down = 1; down <= 12; down++) {
-                        if (isSolid(nextX, climbY + down)) {
-                            climbY += down - 1;
-                            break;
-                        }
-                    }
-                }
-
-                if (!blocked) {
-                    this.x = nextX;
-                    this.y = climbY;
-                    this.moveRemaining = Math.max(0, this.moveRemaining - 0.8);
-                    this.updateSlope();
-                    if (Math.random() < 0.35) sound.playMoveTick();
-                    updateDashboardUI();
-                }
-            }
-
-            draw(ctx, isCurrentTurn) {
-                if (!this.alive) return;
-
-                ctx.save();
-                ctx.translate(this.x, this.y - 8);
-                ctx.rotate(this.slopeAngle);
-
-                // Active Turn Pulsing Aura
-                if (isCurrentTurn && (gameState === 'AIMING' || gameState === 'CHARGING')) {
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.arc(0, 0, 26 + Math.sin(Date.now() * 0.008) * 3, 0, Math.PI * 2);
-                    ctx.strokeStyle = this.team === 1 ? 'rgba(56, 189, 248, 0.45)' : 'rgba(251, 113, 133, 0.45)';
-                    ctx.lineWidth = 2.5;
-                    ctx.stroke();
-                    ctx.restore();
-                }
-
-                // Draw Barrel (Rotated relative to tank body)
-                const localElev = (this.aimAngle * Math.PI) / 180;
-                const barrelAngle = this.facingRight ? -localElev : Math.PI + localElev;
-
-                ctx.save();
-                ctx.translate(0, -6);
-                ctx.rotate(barrelAngle);
-
-                // Barrel Graphics per Class
-                if (this.classKey === 'cannon') {
-                    ctx.fillStyle = '#1e293b';
-                    ctx.strokeStyle = '#94a3b8';
-                    ctx.lineWidth = 1.5;
-                    ctx.fillRect(0, -4, 24, 8);
-                    ctx.strokeRect(0, -4, 24, 8);
-                    // Muzzle tip
-                    ctx.fillStyle = '#ef4444';
-                    ctx.fillRect(20, -5, 5, 10);
-                } else if (this.classKey === 'multi') {
-                    ctx.fillStyle = '#065f46';
-                    ctx.strokeStyle = '#6ee7b7';
-                    ctx.lineWidth = 1.5;
-                    ctx.fillRect(0, -6, 20, 12);
-                    ctx.strokeRect(0, -6, 20, 12);
-                } else {
-                    // Super Tank futuristic twin rail
-                    ctx.fillStyle = '#f59e0b';
-                    ctx.fillRect(0, -4, 23, 3);
-                    ctx.fillRect(0, 1, 23, 3);
-                    ctx.fillStyle = '#38bdf8';
-                    ctx.fillRect(18, -3, 6, 6);
-                }
-                ctx.restore();
-
-                // Draw Tank Treads (Caterpillar)
-                ctx.fillStyle = '#1e293b';
-                ctx.strokeStyle = '#475569';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.roundRect(-17, 1, 34, 9, 4);
-                ctx.fill();
-                ctx.stroke();
-
-                // Tread wheels
-                ctx.fillStyle = '#94a3b8';
-                for (let wx = -12; wx <= 12; wx += 6) {
-                    ctx.beginPath();
-                    ctx.arc(wx, 5.5, 2.2, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                // Draw Tank Hull & Turret Dome
-                const hullGrad = ctx.createLinearGradient(0, -14, 0, 4);
-                hullGrad.addColorStop(0, this.spec.colorPrimary);
-                hullGrad.addColorStop(1, this.spec.colorSecondary);
-                ctx.fillStyle = hullGrad;
-                ctx.strokeStyle = '#f8fafc';
-                ctx.lineWidth = 1.5;
-
-                ctx.beginPath();
-                ctx.roundRect(-14, -6, 28, 9, 4);
-                ctx.fill();
-                ctx.stroke();
-
-                // Turret dome
-                ctx.beginPath();
-                ctx.arc(0, -6, 9, Math.PI, 0);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-
-                // Team Emblem Star/Stripe
-                ctx.fillStyle = '#fef08a';
-                ctx.beginPath();
-                ctx.arc(this.facingRight ? 3 : -3, -9, 2.5, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.restore();
-
-                // Draw Aiming Crosshair Reticle if Current Player
-                if (isCurrentTurn && (gameState === 'AIMING' || gameState === 'CHARGING')) {
-                    const worldAngle = this.getWorldBarrelAngleRad();
-                    const cx = this.x + Math.cos(worldAngle) * 52;
-                    const cy = (this.y - 14) + Math.sin(worldAngle) * 52;
-
-                    ctx.save();
-                    ctx.strokeStyle = '#facc15';
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-                    ctx.moveTo(cx - 10, cy);
-                    ctx.lineTo(cx + 10, cy);
-                    ctx.moveTo(cx, cy - 10);
-                    ctx.lineTo(cx, cy + 10);
-                    ctx.stroke();
-                    ctx.restore();
-
-                    // Bouncing Arrow Above Active Tank
-                    const bounce = Math.sin(Date.now() * 0.01) * 5;
-                    ctx.save();
-                    ctx.fillStyle = '#facc15';
-                    ctx.beginPath();
-                    ctx.moveTo(this.x, this.y - 52 + bounce);
-                    ctx.lineTo(this.x - 7, this.y - 64 + bounce);
-                    ctx.lineTo(this.x + 7, this.y - 64 + bounce);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.restore();
-                }
-
-                // Overhead Nameplate & Mini HP Bar (Fortress 2 Style)
-                const barW = 46;
-                const barH = 5;
-                const bx = this.x - barW / 2;
-                const by = this.y - 42;
-
-                ctx.save();
-                ctx.font = 'bold 11px "Noto Sans KR"';
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#000';
-                ctx.fillText(this.name, this.x + 1, by - 4);
-                ctx.fillStyle = this.team === 1 ? '#38bdf8' : '#fb7185';
-                ctx.fillText(this.name, this.x, by - 5);
-
-                // HP Background
-                ctx.fillStyle = 'rgba(0,0,0,0.75)';
-                ctx.fillRect(bx - 1, by - 1, barW + 2, barH + 2);
-
-                const hpRatio = Math.max(0, this.hp / this.maxHp);
-                ctx.fillStyle = hpRatio > 0.5 ? '#22c55e' : hpRatio > 0.25 ? '#f59e0b' : '#ef4444';
-                ctx.fillRect(bx, by, barW * hpRatio, barH);
-                ctx.restore();
-            }
-        }
-
-        /**
-         * ============================================================================
-         * 5. PROJECTILES, PARTICLES & FLOATING DAMAGE NUMBERS
-         * ============================================================================
-         */
-        class Projectile {
-            constructor(owner, x, y, vx, vy, weaponSpec, itemModifier) {
-                this.owner = owner;
-                this.x = x;
-                this.y = y;
-                this.vx = vx;
-                this.vy = vy;
-                this.weaponSpec = weaponSpec;
-                this.itemModifier = itemModifier; // 'power', 'teleport', etc.
-                this.trail = [];
-                this.age = 0;
-                this.active = true;
-            }
-
-            update() {
-                if (!this.active) return;
-                this.age++;
-
-                // Save trail coordinates
-                this.trail.push({ x: this.x, y: this.y });
-                if (this.trail.length > 16) this.trail.shift();
-
-                // Sub-step integration for accurate collision
-                const steps = 3;
-                for (let s = 0; s < steps; s++) {
-                    this.x += this.vx / steps;
-                    this.y += this.vy / steps;
-
-                    // Gravity & Wind acceleration
-                    const windFactor = this.weaponSpec.style === 'laser' ? 0.0018 : 0.0034;
-                    this.vx += (wind * windFactor) / steps;
-                    this.vy += 0.22 / steps;
-
-                    // Super Tank Homing Missile behavior (activates on downward arc near enemy)
-                    if (this.weaponSpec.homing && this.vy > -1 && this.age > 18) {
-                        const target = tanks.find(t => t.alive && t.id !== this.owner.id);
-                        if (target) {
-                            const dx = target.x - this.x;
-                            const dy = (target.y - 10) - this.y;
-                            const dist = Math.hypot(dx, dy);
-                            if (dist < 260) {
-                                this.vx += (dx / dist) * 0.09;
-                                this.vy += (dy / dist) * 0.09;
-                            }
-                        }
-                    }
-
-                    // Out of horizontal bounds or fell into water
-                    if (this.x < -40 || this.x > WORLD_W + 40 || this.y > WORLD_H) {
-                        this.active = false;
-                        return;
-                    }
-
-                    // Check Direct Hit on any Tank
-                    for (const t of tanks) {
-                        if (!t.alive) continue;
-                        if (this.age < 7 && t.id === this.owner.id) continue; // Don't self-collide on muzzle exit
-                        const dist = Math.hypot(this.x - t.x, this.y - (t.y - 10));
-                        if (dist <= t.radius + 4) {
-                            this.detonate(this.x, this.y);
-                            return;
-                        }
-                    }
-
-                    // Check Terrain Pixel Hit
-                    if (this.y >= 0 && isSolid(this.x, this.y)) {
-                        this.detonate(this.x, this.y);
-                        return;
-                    }
-                }
-            }
-
-            detonate(ix, iy) {
-                this.active = false;
-
-                // Teleport Ball Item Logic (이동탄)
-                if (this.itemModifier === 'teleport') {
-                    this.owner.x = Math.max(25, Math.min(WORLD_W - 25, ix));
-                    this.owner.y = iy - 12;
-                    this.owner.updateSlope();
-                    spawnExplosionVisual(ix, iy, 28, '#38bdf8');
-                    spawnFloatingText(ix, iy - 25, '순간이동!', '#38bdf8', 18);
-                    sound.playItemUse();
-                    return;
-                }
-
-                const powerMult = this.itemModifier === 'power' ? 1.35 : 1.0;
-                const craterRadius = Math.round(this.weaponSpec.crater * powerMult);
-                const maxDamage = Math.round(this.weaponSpec.damage * powerMult);
-
-                // 1. Carve Circular Crater in Terrain
-                carveCrater(ix, iy, craterRadius);
-
-                // 2. Visual & Audio Explosion
-                const color = this.itemModifier === 'power' ? '#f43f5e' :
-                              this.weaponSpec.style === 'laser' ? '#38bdf8' :
-                              this.weaponSpec.style === 'redball' ? '#ef4444' : '#f59e0b';
-                spawnExplosionVisual(ix, iy, craterRadius, color);
-                sound.playExplosion(craterRadius);
-                screenShake = Math.min(14, Math.floor(craterRadius / 3.5));
-
-                // 3. Calculate Splash Damage to Tanks
-                const splashRadius = craterRadius * 1.45 + 14;
-                tanks.forEach(t => {
-                    if (!t.alive) return;
-                    const dist = Math.hypot(t.x - ix, (t.y - 10) - iy);
-                    if (dist <= splashRadius) {
-                        const falloff = Math.max(0.2, 1 - (dist / splashRadius) * 0.85);
-                        const dmg = Math.max(1, Math.round(maxDamage * falloff));
-                        t.hp = Math.max(0, t.hp - dmg);
-
-                        // Knockback impulse
-                        const angle = Math.atan2((t.y - 10) - iy, t.x - ix);
-                        t.vy = Math.min(t.vy, -2.5);
-
-                        spawnFloatingText(
-                            t.x + (Math.random() * 20 - 10),
-                            t.y - 48,
-                            `-${dmg}`,
-                            dmg >= 200 ? '#f43f5e' : '#facc15',
-                            dmg >= 200 ? 22 : 17
-                        );
-
-                        if (t.hp <= 0) {
-                            t.alive = false;
-                            spawnExplosionVisual(t.x, t.y - 10, 50, '#ef4444');
-                            spawnFloatingText(t.x, t.y - 70, '격파! (DESTROYED)', '#ef4444', 22);
-                        }
-                    }
-                });
-
-                updateDashboardUI();
-            }
-
-            draw(ctx) {
-                if (!this.active) return;
-
-                // Draw smoke/energy trail
-                for (let i = 0; i < this.trail.length; i++) {
-                    const pt = this.trail[i];
-                    const alpha = (i / this.trail.length) * 0.55;
-                    ctx.fillStyle = this.itemModifier === 'teleport'
-                        ? `rgba(56, 189, 248, ${alpha})`
-                        : this.weaponSpec.style === 'laser' || this.weaponSpec.style === 'homing'
-                        ? `rgba(56, 189, 248, ${alpha})`
-                        : `rgba(226, 232, 240, ${alpha})`;
-                    ctx.beginPath();
-                    ctx.arc(pt.x, pt.y, 2 + (i / this.trail.length) * 3, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                // Draw Projectile Shell
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(Math.atan2(this.vy, this.vx));
-
-                if (this.itemModifier === 'teleport') {
-                    ctx.fillStyle = '#38bdf8';
-                    ctx.beginPath();
-                    ctx.arc(0, 0, 6, 0, Math.PI * 2);
-                    ctx.fill();
-                } else if (this.weaponSpec.style === 'blackball') {
-                    // Classic Cannon Black Ball (검콩)
-                    ctx.fillStyle = '#1e293b';
-                    ctx.strokeStyle = '#f8fafc';
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.arc(0, 0, 6.5, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.stroke();
-                } else if (this.weaponSpec.style === 'redball') {
-                    // Classic Cannon Red Ball (빨콩)
-                    ctx.fillStyle = '#ef4444';
-                    ctx.strokeStyle = '#fef08a';
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.arc(0, 0, 6, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.stroke();
-                } else if (this.weaponSpec.style === 'laser') {
-                    ctx.fillStyle = '#38bdf8';
-                    ctx.shadowColor = '#38bdf8';
-                    ctx.shadowBlur = 8;
-                    ctx.beginPath();
-                    ctx.roundRect(-8, -3, 16, 6, 3);
-                    ctx.fill();
-                } else {
-                    // Missile / Homing Warhead
-                    ctx.fillStyle = this.weaponSpec.homing ? '#f59e0b' : '#f8fafc';
-                    ctx.beginPath();
-                    ctx.moveTo(8, 0);
-                    ctx.lineTo(-6, -4);
-                    ctx.lineTo(-6, 4);
-                    ctx.closePath();
-                    ctx.fill();
-                }
-                ctx.restore();
-            }
-        }
-
-        function spawnExplosionVisual(x, y, radius, mainColor) {
-            // Core flash
-            particles.push({
-                x, y, vx: 0, vy: 0,
-                r: radius * 1.15,
-                maxR: radius * 1.35,
-                alpha: 1,
-                color: '#fef08a',
-                type: 'flash'
-            });
-
-            // Flying debris & fire sparks
-            const count = Math.min(45, Math.floor(radius * 0.85));
-            for (let i = 0; i < count; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = 1.5 + Math.random() * (radius * 0.14);
-                particles.push({
-                    x, y,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed - 1.5,
-                    r: 2.5 + Math.random() * 4,
-                    alpha: 1,
-                    color: i % 3 === 0 ? '#fef08a' : i % 2 === 0 ? mainColor : '#78350f',
-                    type: 'spark'
-                });
-            }
-        }
-
-        function spawnFloatingText(x, y, text, color = '#facc15', size = 18) {
-            floatingTexts.push({
-                x, y,
-                vy: -1.2,
-                text,
-                color,
-                size,
-                alpha: 1.0,
-                life: 65
-            });
-        }
-
-        /**
-         * ============================================================================
-         * 6. TURN SYSTEM, WIND GENERATOR, ITEMS & AI SOLVER
-         * ============================================================================
-         */
-        function startNewMatch() {
-            selectedMapStyle = document.getElementById('map-style-select').value;
-            document.getElementById('setup-modal').classList.add('hidden');
-            document.getElementById('gameover-modal').classList.add('hidden');
-            document.getElementById('hud-mode-badge').textContent = gameMode === 'AI' ? '1P vs AI' : '1P vs 2P';
-
-            generateTerrain(selectedMapStyle);
-
-            // Spawn Clouds & Background Stars
-            clouds = Array.from({ length: 6 }, () => ({
-                x: Math.random() * WORLD_W,
-                y: 45 + Math.random() * 110,
-                w: 70 + Math.random() * 60,
-                speed: 0.15 + Math.random() * 0.25
-            }));
-            stars = Array.from({ length: 45 }, () => ({
-                x: Math.random() * WORLD_W,
-                y: Math.random() * 240,
-                size: Math.random() * 2 + 0.5
-            }));
-
-            // Spawn Tanks on Opposite Sides
-            const p1X = 160 + Math.floor(Math.random() * 110);
-            const p2X = WORLD_W - 160 - Math.floor(Math.random() * 110);
-
-            const t1 = new Tank(1, 'PLAYER 1', 1, selectedP1Class, p1X, true, false);
-            const t2 = new Tank(2, gameMode === 'AI' ? 'FORTRESS AI' : 'PLAYER 2', 2, selectedP2Class, p2X, false, gameMode === 'AI');
-
-            t1.snapToGround();
-            t2.snapToGround();
-
-            tanks = [t1, t2];
-            projectiles = [];
-            particles = [];
-            floatingTexts = [];
-            currentTurnIndex = 0;
-            turnNumber = 1;
-            wind = Math.floor(Math.random() * 15) - 7;
-
-            beginTurn();
-        }
-
-        function getCurrentTank() {
-            return tanks[currentTurnIndex];
-        }
-
-        function beginTurn() {
-            if (checkGameOver()) return;
-
-            const activeTank = getCurrentTank();
-            activeTank.moveRemaining = activeTank.maxMove;
-            activeTank.activeItem = null;
-            isCharging = false;
-            currentPower = 0;
-
-            // Slightly shift wind each turn
-            const deltaWind = Math.floor(Math.random() * 9) - 4;
-            wind = Math.max(-15, Math.min(15, wind + deltaWind));
-
-            updateWindUI();
-            updateDashboardUI();
-            renderItemSlots();
-
-            document.getElementById('turn-badge').textContent = `TURN ${turnNumber}`;
-            document.getElementById('active-player-text').textContent = `${activeTank.name} 턴`;
-            document.getElementById('active-player-dot').className =
-                `w-2.5 h-2.5 rounded-full ${activeTank.team === 1 ? 'bg-sky-400' : 'bg-rose-500'}`;
-
-            showCenterToast(`${activeTank.name} 차례!`, `WIND ${wind > 0 ? '+' + wind : wind}`);
-            sound.playTurnStart();
-
-            // Start 20s Turn Countdown
-            clearInterval(turnTimerInterval);
-            turnTimer = 20;
-            document.getElementById('turn-timer-display').textContent = turnTimer;
-            turnTimerInterval = setInterval(() => {
-                if (gameState !== 'AIMING' && gameState !== 'CHARGING' && gameState !== 'AI_THINKING') return;
-                turnTimer--;
-                document.getElementById('turn-timer-display').textContent = Math.max(0, turnTimer);
-                if (turnTimer <= 0) {
-                    clearInterval(turnTimerInterval);
-                    if (isCharging) {
-                        releaseAndFire();
-                    } else {
-                        spawnFloatingText(activeTank.x, activeTank.y - 50, '시간 초과!', '#fb7185', 18);
-                        advanceTurn();
-                    }
-                }
-            }, 1000);
-
-            if (activeTank.isAI) {
-                gameState = 'AI_THINKING';
-                setTimeout(() => executeAITurn(activeTank), 1100);
-            } else {
-                gameState = 'AIMING';
-            }
-        }
-
-        function advanceTurn() {
-            clearInterval(turnTimerInterval);
-            const activeTank = getCurrentTank();
-
-            // Check if Double Fire triggers an immediate second shot
-            if (activeTank && activeTank.alive && activeTank.extraShotPending) {
-                activeTank.extraShotPending = false;
-                isCharging = false;
-                currentPower = 0;
-                updateDashboardUI();
-                showCenterToast('더블파이어 발동!', '추가 발사 찬스!');
-                if (activeTank.isAI) {
-                    gameState = 'AI_THINKING';
-                    setTimeout(() => executeAITurn(activeTank), 900);
-                } else {
-                    gameState = 'AIMING';
-                }
-                return;
-            }
-
-            currentTurnIndex = (currentTurnIndex + 1) % tanks.length;
-            if (currentTurnIndex === 0) turnNumber++;
-            beginTurn();
-        }
-
-        function skipCurrentTurn() {
-            if (gameState !== 'AIMING') return;
-            const t = getCurrentTank();
-            t.extraShotPending = false;
-            spawnFloatingText(t.x, t.y - 45, '턴 패스 (SKIP)', '#94a3b8', 16);
-            advanceTurn();
-        }
-
-        /**
-         * Fire Projectiles from Current Tank with Power (5-100)
-         */
-        function fireTankWeapon(tank, powerPercent) {
-            clearInterval(turnTimerInterval);
-            gameState = 'FIRING';
-
-            tank.lastPower = powerPercent;
-            const wSpec = tank.selectedWeapon === 1 ? tank.spec.w1 : tank.spec.w2;
-            const worldAngle = tank.getWorldBarrelAngleRad();
-            const speed = (powerPercent / 100) * 19.5 + 1.5;
-
-            const muzzleX = tank.x + Math.cos(worldAngle) * 24;
-            const muzzleY = (tank.y - 14) + Math.sin(worldAngle) * 24;
-
-            // Teleport item overrides projectile count to 1
-            const count = tank.activeItem === 'teleport' ? 1 : wSpec.count;
-            const spread = wSpec.spread || 0;
-
-            for (let i = 0; i < count; i++) {
-                const offsetAngle = count === 1 ? 0 : (i - (count - 1) / 2) * spread;
-                const finalAngle = worldAngle + offsetAngle;
-                const speedJitter = count > 3 ? (1 + (Math.random() - 0.5) * 0.08) : 1;
-
-                const vx = Math.cos(finalAngle) * speed * speedJitter;
-                const vy = Math.sin(finalAngle) * speed * speedJitter;
-
-                projectiles.push(new Projectile(tank, muzzleX, muzzleY, vx, vy, wSpec, tank.activeItem));
-            }
-
-            sound.playFire(wSpec.style);
-            tank.activeItem = null;
-            updateDashboardUI();
-        }
-
-        /**
-         * AI Ballistic Trajectory Solver (Simulates wind + gravity to find best angle & power)
-         */
-        function executeAITurn(aiTank) {
-            if (!aiTank.alive || gameState !== 'AI_THINKING') return;
-            const target = tanks.find(t => t.alive && t.id !== aiTank.id);
-            if (!target) return;
-
-            // Face target
-            aiTank.facingRight = target.x > aiTank.x;
-
-            // Optionally move a bit for better positioning
-            const moveSteps = Math.floor(Math.random() * 14) - 6;
-            for (let i = 0; i < Math.abs(moveSteps); i++) {
-                aiTank.moveHorizontal(moveSteps > 0 ? 1 : -1);
-            }
-            aiTank.facingRight = target.x > aiTank.x;
-
-            // AI Item Selection
-            if (aiTank.hp < 450) {
-                const rep = aiTank.items.find(it => it.id === 'repair' && !it.used);
-                if (rep) useItemSlot('repair');
-            } else if (Math.random() < 0.45) {
-                const offItems = aiTank.items.filter(it => (it.id === 'double' || it.id === 'power') && !it.used);
-                if (offItems.length > 0) {
-                    useItemSlot(offItems[Math.floor(Math.random() * offItems.length)].id);
-                }
-            }
-
-            // Choose weapon 1 or 2
-            aiTank.selectedWeapon = Math.random() < 0.38 ? 2 : 1;
-
-            // Simulate trajectories to find best angle & power
-            let bestAngle = 48;
-            let bestPower = 60;
-            let minMissDist = Infinity;
-
-            const candidateAngles = [35, 42, 50, 58, 65, 72];
-            const windFactor = (aiTank.selectedWeapon === 1 ? aiTank.spec.w1 : aiTank.spec.w2).style === 'laser' ? 0.0018 : 0.0034;
-
-            for (const testAngle of candidateAngles) {
-                aiTank.aimAngle = testAngle;
-                const worldRad = aiTank.getWorldBarrelAngleRad();
-
-                for (let p = 22; p <= 96; p += 2) {
-                    const spd = (p / 100) * 19.5 + 1.5;
-                    let sx = aiTank.x + Math.cos(worldRad) * 24;
-                    let sy = (aiTank.y - 14) + Math.sin(worldRad) * 24;
-                    let svx = Math.cos(worldRad) * spd;
-                    let svy = Math.sin(worldRad) * spd;
-
-                    for (let t = 0; t < 180; t++) {
-                        sx += svx;
-                        sy += svy;
-                        svx += wind * windFactor;
-                        svy += 0.22;
-
-                        const d = Math.hypot(sx - target.x, sy - (target.y - 10));
-                        if (d < minMissDist) {
-                            minMissDist = d;
-                            bestAngle = testAngle;
-                            bestPower = p;
-                        }
-                        if (sy > WORLD_H || (sy > 0 && isSolid(sx, sy))) break;
-                    }
-                }
-            }
-
-            // Add slight human-like imperfection (+/- 2.5% power)
-            aiTank.aimAngle = bestAngle;
-            const finalPower = Math.max(15, Math.min(99, bestPower + (Math.random() * 5 - 2.5)));
-            updateDashboardUI();
-
-            setTimeout(() => {
-                if (gameState !== 'AI_THINKING') return;
-                fireTankWeapon(aiTank, Math.round(finalPower));
-            }, 650);
-        }
-
-        /**
-         * ============================================================================
-         * 7. DASHBOARD UI, ANGLE PROTRACTOR & ITEM CONTROLS
-         * ============================================================================
-         */
-        function selectWeapon(num) {
-            if (gameState !== 'AIMING') return;
-            const t = getCurrentTank();
-            if (!t || t.isAI) return;
-            t.selectedWeapon = num;
-            sound.playAngleTick();
-            updateDashboardUI();
-        }
-
-        function renderItemSlots() {
-            const container = document.getElementById('item-slots-container');
-            container.innerHTML = '';
-            const t = getCurrentTank();
-            if (!t) return;
-
-            t.items.forEach((item, idx) => {
-                const btn = document.createElement('button');
-                const isActive = t.activeItem === item.id || (item.id === 'double' && t.extraShotPending);
-                btn.className = `item-slot h-12 sm:h-14 rounded-lg flex flex-col items-center justify-center relative p-1 ${item.used ? 'used' : ''} ${isActive ? 'active-item' : ''}`;
-                btn.onclick = () => {
-                    if (gameState === 'AIMING' && !t.isAI) useItemSlot(item.id);
-                };
-                btn.title = `${item.name}: ${item.desc}`;
-                btn.innerHTML = `
-                    <span class="absolute top-0.5 left-1 font-digital text-[9px] text-slate-400">${idx + 1}</span>
-                    <span class="text-base sm:text-lg leading-none">${item.icon}</span>
-                    <span class="text-[9px] sm:text-[10px] font-bold text-slate-200 truncate w-full text-center mt-0.5">${item.name}</span>
-                `;
-                container.appendChild(btn);
-            });
-        }
-
-        function useItemSlot(itemId) {
-            const t = getCurrentTank();
-            if (!t || !t.alive) return;
-            const slot = t.items.find(it => it.id === itemId);
-            if (!slot || slot.used) return;
-
-            if (itemId === 'repair') {
-                slot.used = true;
-                const heal = 300;
-                t.hp = Math.min(t.maxHp, t.hp + heal);
-                spawnFloatingText(t.x, t.y - 50, `+${heal} 수리 완료!`, '#4ade80', 19);
-                sound.playItemUse();
-            } else if (itemId === 'double') {
-                if (t.extraShotPending) return;
-                slot.used = true;
-                t.extraShotPending = true;
-                spawnFloatingText(t.x, t.y - 50, '더블파이어 장착!', '#facc15', 18);
-                sound.playItemUse();
-            } else {
-                // Power or Teleport
-                if (t.activeItem) return;
-                slot.used = true;
-                t.activeItem = itemId;
-                spawnFloatingText(t.x, t.y - 50, `${slot.name} 장착!`, '#38bdf8', 18);
-                sound.playItemUse();
-            }
-
-            renderItemSlots();
-            updateDashboardUI();
-        }
-
-        function updateWindUI() {
-            const maxWind = 15;
-            const pct = Math.min(100, (Math.abs(wind) / maxWind) * 100);
-            const leftBar = document.getElementById('wind-bar-left');
-            const rightBar = document.getElementById('wind-bar-right');
-            const textEl = document.getElementById('wind-value-text');
-
-            if (wind < 0) {
-                leftBar.style.width = `${pct / 2}%`;
-                rightBar.style.width = '0%';
-                textEl.textContent = `◀ ${Math.abs(wind)}`;
-            } else if (wind > 0) {
-                leftBar.style.width = '0%';
-                rightBar.style.width = `${pct / 2}%`;
-                textEl.textContent = `${wind} ▶`;
-            } else {
-                leftBar.style.width = '0%';
-                rightBar.style.width = '0%';
-                textEl.textContent = '0';
-            }
-        }
-
-        function updateDashboardUI() {
-            const t = getCurrentTank();
-            if (!t) return;
-
-            document.getElementById('dash-player-name').textContent = t.name;
-            document.getElementById('dash-player-name').className =
-                `text-xs font-black truncate ${t.team === 1 ? 'text-sky-400' : 'text-rose-400'}`;
-            document.getElementById('dash-tank-name').textContent = t.spec.name;
-
-            const slopeDeg = Math.round((t.slopeAngle * 180) / Math.PI);
-            document.getElementById('dash-slope-text').textContent = `경사 ${slopeDeg > 0 ? '+' + slopeDeg : slopeDeg}°`;
-
-            // Weapon Buttons
-            const b1 = document.getElementById('btn-w1');
-            const b2 = document.getElementById('btn-w2');
-            b1.textContent = `1. ${t.spec.w1.name}`;
-            b2.textContent = `2. ${t.spec.w2.name}`;
-
-            if (t.selectedWeapon === 1) {
-                b1.className = 'px-1.5 py-1 rounded text-[11px] font-bold border border-yellow-400 bg-amber-500/30 text-yellow-200 truncate';
-                b2.className = 'px-1.5 py-1 rounded text-[11px] font-bold border border-slate-700 bg-slate-800/80 text-slate-400 truncate';
-            } else {
-                b1.className = 'px-1.5 py-1 rounded text-[11px] font-bold border border-slate-700 bg-slate-800/80 text-slate-400 truncate';
-                b2.className = 'px-1.5 py-1 rounded text-[11px] font-bold border border-yellow-400 bg-amber-500/30 text-yellow-200 truncate';
-            }
-
-            // HP Bar
-            const hpPct = Math.max(0, (t.hp / t.maxHp) * 100);
-            document.getElementById('hp-bar-fill').style.width = `${hpPct}%`;
-            document.getElementById('hp-bar-text').textContent = `${t.hp} / ${t.maxHp}`;
-
-            // Move Bar
-            const movePct = Math.max(0, Math.round((t.moveRemaining / t.maxMove) * 100));
-            document.getElementById('move-bar-fill').style.width = `${movePct}%`;
-            document.getElementById('move-bar-text').textContent = `${movePct}%`;
-
-            // Power Bar & Last Power Memory Marker
-            document.getElementById('power-bar-fill').style.width = `${currentPower}%`;
-            document.getElementById('power-num-text').textContent = `${Math.round(currentPower)} / 100`;
-
-            const marker = document.getElementById('last-power-marker');
-            if (t.lastPower > 0) {
-                marker.classList.remove('hidden');
-                marker.style.left = `${t.lastPower}%`;
-            } else {
-                marker.classList.add('hidden');
-            }
-
-            // Active Item Label
-            const itemLabel = document.getElementById('active-item-label');
-            if (t.activeItem === 'power') itemLabel.textContent = '파워업탄 장착중';
-            else if (t.activeItem === 'teleport') itemLabel.textContent = '이동탄 장착중';
-            else if (t.extraShotPending) itemLabel.textContent = '더블파이어 활성';
-            else itemLabel.textContent = '대기 중';
-
-            // Angle Protractor Canvas
-            drawAngleProtractor(t);
-        }
-
-        function drawAngleProtractor(tank) {
-            const w = angleCanvas.width;
-            const h = angleCanvas.height;
-            const cx = w / 2;
-            const cy = h / 2 + 6;
-            const r = 42;
-
-            angleCtx.clearRect(0, 0, w, h);
-
-            // Outer Radar Ring
-            angleCtx.strokeStyle = '#334155';
-            angleCtx.lineWidth = 1.5;
-            angleCtx.beginPath();
-            angleCtx.arc(cx, cy, r, 0, Math.PI * 2);
-            angleCtx.stroke();
-
-            // Crosshairs
-            angleCtx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
-            angleCtx.beginPath();
-            angleCtx.moveTo(cx - r, cy);
-            angleCtx.lineTo(cx + r, cy);
-            angleCtx.moveTo(cx, cy - r);
-            angleCtx.lineTo(cx, cy + r);
-            angleCtx.stroke();
-
-            // Tank Slope Horizon Line (Tilted by terrain slope)
-            angleCtx.save();
-            angleCtx.translate(cx, cy);
-            angleCtx.rotate(tank.slopeAngle);
-
-            // Valid Aiming Sector Fan (5° to 85°)
-            angleCtx.fillStyle = 'rgba(34, 197, 94, 0.18)';
-            angleCtx.beginPath();
-            angleCtx.moveTo(0, 0);
-            if (tank.facingRight) {
-                angleCtx.arc(0, 0, r - 2, -(85 * Math.PI) / 180, -(5 * Math.PI) / 180);
-            } else {
-                angleCtx.arc(0, 0, r - 2, Math.PI + (5 * Math.PI) / 180, Math.PI + (85 * Math.PI) / 180);
-            }
-            angleCtx.closePath();
-            angleCtx.fill();
-
-            // Tank Horizon Base Line
-            angleCtx.strokeStyle = '#60a5fa';
-            angleCtx.lineWidth = 2;
-            angleCtx.beginPath();
-            angleCtx.moveTo(-r + 6, 0);
-            angleCtx.lineTo(r - 6, 0);
-            angleCtx.stroke();
-            angleCtx.restore();
-
-            // Actual World Firing Vector Line
-            const worldRad = tank.getWorldBarrelAngleRad();
-            angleCtx.strokeStyle = '#facc15';
-            angleCtx.lineWidth = 2.5;
-            angleCtx.beginPath();
-            angleCtx.moveTo(cx, cy);
-            angleCtx.lineTo(cx + Math.cos(worldRad) * r, cy + Math.sin(worldRad) * r);
-            angleCtx.stroke();
-
-            // Center Pivot Dot
-            angleCtx.fillStyle = '#f8fafc';
-            angleCtx.beginPath();
-            angleCtx.arc(cx, cy, 3.5, 0, Math.PI * 2);
-            angleCtx.fill();
-
-            document.getElementById('angle-text-display').textContent = `${tank.aimAngle}° (${tank.getDisplayAngleDeg()}°)`;
-        }
-
-        function showCenterToast(mainText, subText = 'FORTRESS 2') {
-            const toast = document.getElementById('center-toast');
-            const box = document.getElementById('center-toast-box');
-            document.getElementById('center-toast-main').textContent = mainText;
-            document.getElementById('center-toast-sub').textContent = subText;
-
-            toast.classList.remove('opacity-0');
-            box.classList.remove('scale-95');
-            box.classList.add('scale-100');
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-                box.classList.remove('scale-100');
-                box.classList.add('scale-95');
-            }, 1350);
-        }
-
-        function checkGameOver() {
-            const aliveTanks = tanks.filter(t => t.alive);
-            if (aliveTanks.length <= 1 && gameState !== 'SETUP') {
-                gameState = 'GAMEOVER';
-                clearInterval(turnTimerInterval);
-                sound.stopCharging();
-
-                const modal = document.getElementById('gameover-modal');
-                const title = document.getElementById('winner-title');
-                const reason = document.getElementById('winner-reason');
-
-                if (aliveTanks.length === 1) {
-                    const winner = aliveTanks[0];
-                    title.textContent = `${winner.name} 승리!`;
-                    reason.textContent = `${winner.spec.name}의 정밀한 포격으로 승리를 쟁취했습니다!`;
-                    document.getElementById('stat-hp').textContent = `${winner.hp} HP`;
-                } else {
-                    title.textContent = '무승부 (DRAW)!';
-                    reason.textContent = '양측 탱크가 동시에 파괴되었습니다!';
-                    document.getElementById('stat-hp').textContent = '0 HP';
-                }
-
-                document.getElementById('stat-turns').textContent = `${turnNumber} 턴`;
-                setTimeout(() => modal.classList.remove('hidden'), 900);
-                return true;
-            }
-            return false;
-        }
-
-        /**
-         * ============================================================================
-         * 8. KEYBOARD & TOUCH INPUT HANDLERS
-         * ============================================================================
-         */
-        window.addEventListener('keydown', (e) => {
-            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
-                e.preventDefault();
-            }
-
-            const t = getCurrentTank();
-            if (!t || t.isAI) return;
-
-            if (e.code in keys) keys[e.code] = true;
-
-            if (gameState === 'AIMING') {
-                if (e.code === 'Tab') {
-                    e.preventDefault();
-                    selectWeapon(t.selectedWeapon === 1 ? 2 : 1);
-                } else if (e.key === '1') useItemSlot('double');
-                else if (e.key === '2') useItemSlot('power');
-                else if (e.key === '3') useItemSlot('teleport');
-                else if (e.key === '4') useItemSlot('repair');
-                else if (e.code === 'F8') skipCurrentTurn();
-                else if (e.code === 'Space' && !isCharging) {
-                    gameState = 'CHARGING';
-                    isCharging = true;
-                    currentPower = 0;
-                    chargeDirection = 1;
-                    sound.startCharging();
-                }
-            }
-        });
-
-        window.addEventListener('keyup', (e) => {
-            if (e.code in keys) keys[e.code] = false;
-            if (e.code === 'Space' && isCharging) {
-                releaseAndFire();
-            }
-        });
-
-        function releaseAndFire() {
-            if (!isCharging) return;
-            isCharging = false;
-            sound.stopCharging();
-            const t = getCurrentTank();
-            if (t && t.alive) {
-                const firePower = Math.max(8, Math.round(currentPower));
-                fireTankWeapon(t, firePower);
-            }
-        }
-
-        // Bind Mobile Touch Controls
-        function bindTouchControls() {
-            const bindHold = (id, keyName) => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; });
-                el.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
-                el.addEventListener('mousedown', () => keys[keyName] = true);
-                el.addEventListener('mouseup', () => keys[keyName] = false);
-            };
-            bindHold('touch-left', 'ArrowLeft');
-            bindHold('touch-right', 'ArrowRight');
-            bindHold('touch-up', 'ArrowUp');
-            bindHold('touch-down', 'ArrowDown');
-
-            const fireBtn = document.getElementById('touch-fire');
-            if (fireBtn) {
-                const startFire = (e) => {
-                    e.preventDefault();
-                    const t = getCurrentTank();
-                    if (gameState === 'AIMING' && t && !t.isAI && !isCharging) {
-                        gameState = 'CHARGING';
-                        isCharging = true;
-                        currentPower = 0;
-                        chargeDirection = 1;
-                        sound.startCharging();
-                    }
-                };
-                const endFire = (e) => {
-                    e.preventDefault();
-                    if (isCharging) releaseAndFire();
-                };
-                fireBtn.addEventListener('touchstart', startFire);
-                fireBtn.addEventListener('touchend', endFire);
-                fireBtn.addEventListener('mousedown', startFire);
-                fireBtn.addEventListener('mouseup', endFire);
-            }
-        }
-        bindTouchControls();
-
-        /**
-         * ============================================================================
-         * 9. MAIN 60FPS GAME LOOP & RENDERING PIPELINE
-         * ============================================================================
-         */
-        let lastAngleTickTime = 0;
-
-        function updateGame() {
-            const activeTank = getCurrentTank();
-
-            // 1. Handle Player Input During AIMING / CHARGING
-            if (activeTank && !activeTank.isAI && activeTank.alive) {
-                if (gameState === 'AIMING') {
-                    if (keys.ArrowLeft) activeTank.moveHorizontal(-1);
-                    if (keys.ArrowRight) activeTank.moveHorizontal(1);
-
-                    let angleChanged = false;
-                    if (keys.ArrowUp && activeTank.aimAngle < 85) {
-                        activeTank.aimAngle = Math.min(85, activeTank.aimAngle + 0.65);
-                        angleChanged = true;
-                    }
-                    if (keys.ArrowDown && activeTank.aimAngle > 5) {
-                        activeTank.aimAngle = Math.max(5, activeTank.aimAngle - 0.65);
-                        angleChanged = true;
-                    }
-                    if (angleChanged) {
-                        const now = Date.now();
-                        if (now - lastAngleTickTime > 55) {
-                            sound.playAngleTick();
-                            lastAngleTickTime = now;
-                        }
-                        updateDashboardUI();
-                    }
-                } else if (gameState === 'CHARGING' && isCharging) {
-                    currentPower += 1.35 * chargeDirection;
-                    if (currentPower >= 100) {
-                        currentPower = 100;
-                        chargeDirection = -1;
-                    } else if (currentPower <= 5) {
-                        currentPower = 5;
-                        chargeDirection = 1;
-                    }
-                    sound.updateChargingPitch(currentPower / 100);
-                    updateDashboardUI();
-                }
-            }
-
-            // 2. Update Tank Gravity / Falling Physics
-            let anyTankFalling = false;
-            for (const t of tanks) {
-                if (t.updatePhysics()) anyTankFalling = true;
-            }
-
-            // 3. Update Active Projectiles
-            if (projectiles.length > 0) {
-                for (const p of projectiles) p.update();
-                projectiles = projectiles.filter(p => p.active);
-
-                if (projectiles.length === 0 && gameState === 'FIRING') {
-                    gameState = 'SETTLING';
-                }
-            }
-
-            // 4. Transition from SETTLING to next turn once tanks stop falling
-            if (gameState === 'SETTLING' && !anyTankFalling && projectiles.length === 0) {
-                if (!checkGameOver()) {
-                    gameState = 'TRANSITION';
-                    setTimeout(() => advanceTurn(), 550);
-                }
-            }
-
-            // 5. Update Clouds
-            for (const c of clouds) {
-                c.x += wind * 0.08 + c.speed * (wind >= 0 ? 1 : -1);
-                if (c.x > WORLD_W + 100) c.x = -100;
-                if (c.x < -100) c.x = WORLD_W + 100;
-            }
-
-            // 6. Update Explosion Particles
-            for (const pt of particles) {
-                if (pt.type === 'flash') {
-                    pt.r += (pt.maxR - pt.r) * 0.3;
-                    pt.alpha -= 0.08;
-                } else {
-                    pt.x += pt.vx;
-                    pt.y += pt.vy;
-                    pt.vy += 0.18;
-                    pt.alpha -= 0.022;
-                }
-            }
-            particles = particles.filter(pt => pt.alpha > 0);
-
-            // 7. Update Floating Damage Texts
-            for (const ft of floatingTexts) {
-                ft.y += ft.vy;
-                ft.life--;
-                if (ft.life < 20) ft.alpha = ft.life / 20;
-            }
-            floatingTexts = floatingTexts.filter(ft => ft.life > 0);
-
-            if (screenShake > 0) screenShake *= 0.85;
-            if (screenShake < 0.4) screenShake = 0;
-            waterWaveOffset += 0.05;
-        }
-
-        function drawGame() {
-            ctx.save();
-            if (screenShake > 0) {
-                const dx = (Math.random() - 0.5) * screenShake * 2;
-                const dy = (Math.random() - 0.5) * screenShake * 2;
-                ctx.translate(dx, dy);
-            }
-
-            // 1. Vibrant Sky Gradient
-            const skyGrad = ctx.createLinearGradient(0, 0, 0, WORLD_H);
-            if (selectedMapStyle === 'canyon') {
-                skyGrad.addColorStop(0, '#1e1b4b');
-                skyGrad.addColorStop(0.55, '#7c2d12');
-                skyGrad.addColorStop(1, '#f97316');
-            } else if (selectedMapStyle === 'island') {
-                skyGrad.addColorStop(0, '#0284c7');
-                skyGrad.addColorStop(0.6, '#38bdf8');
-                skyGrad.addColorStop(1, '#bae6fd');
-            } else {
-                skyGrad.addColorStop(0, '#090d16');
-                skyGrad.addColorStop(0.45, '#1e3a8a');
-                skyGrad.addColorStop(1, '#3b82f6');
-            }
-            ctx.fillStyle = skyGrad;
-            ctx.fillRect(0, 0, WORLD_W, WORLD_H);
-
-            // 2. Background Stars
-            if (selectedMapStyle !== 'island') {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-                for (const s of stars) {
-                    ctx.beginPath();
-                    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            // 3. Distant Mountain Silhouette
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-            ctx.beginPath();
-            ctx.moveTo(0, WORLD_H);
-            for (let x = 0; x <= WORLD_W; x += 120) {
-                const peak = 290 + Math.sin(x * 0.01) * 55;
-                ctx.lineTo(x, peak);
-            }
-            ctx.lineTo(WORLD_W, WORLD_H);
-            ctx.closePath();
-            ctx.fill();
-
-            // 4. Drifting Clouds
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
-            for (const c of clouds) {
-                ctx.beginPath();
-                ctx.roundRect(c.x, c.y, c.w, 22, 11);
-                ctx.fill();
-            }
-
-            // 5. Destructible Terrain Layer
-            ctx.drawImage(terrainCanvas, 0, 0);
-
-            // 6. Tanks
-            const activeTank = getCurrentTank();
-            for (const t of tanks) {
-                t.draw(ctx, activeTank && t.id === activeTank.id);
-            }
-
-            // 7. Projectiles
-            for (const p of projectiles) {
-                p.draw(ctx);
-            }
-
-            // 8. Explosion Particles
-            for (const pt of particles) {
-                ctx.save();
-                ctx.globalAlpha = Math.max(0, pt.alpha);
-                ctx.fillStyle = pt.color;
-                ctx.beginPath();
-                ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-
-            // 9. Bottom Bungee Water Abyss Waves
-            const waterGrad = ctx.createLinearGradient(0, WORLD_H - 26, 0, WORLD_H);
-            waterGrad.addColorStop(0, 'rgba(14, 165, 233, 0.78)');
-            waterGrad.addColorStop(1, 'rgba(3, 105, 161, 0.96)');
-            ctx.fillStyle = waterGrad;
-            ctx.beginPath();
-            ctx.moveTo(0, WORLD_H);
-            for (let x = 0; x <= WORLD_W; x += 20) {
-                const wy = WORLD_H - 18 + Math.sin(x * 0.03 + waterWaveOffset) * 4;
-                ctx.lineTo(x, wy);
-            }
-            ctx.lineTo(WORLD_W, WORLD_H);
-            ctx.closePath();
-            ctx.fill();
-
-            // 10. Floating Damage & Event Numbers
-            for (const ft of floatingTexts) {
-                ctx.save();
-                ctx.globalAlpha = Math.max(0, ft.alpha);
-                ctx.font = `900 ${ft.size}px "Noto Sans KR"`;
-                ctx.textAlign = 'center';
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 4;
-                ctx.strokeText(ft.text, ft.x, ft.y);
-                ctx.fillStyle = ft.color;
-                ctx.fillText(ft.text, ft.x, ft.y);
-                ctx.restore();
-            }
-
-            ctx.restore();
-        }
-
-        function gameLoop() {
-            updateGame();
-            drawGame();
-            requestAnimationFrame(gameLoop);
-        }
-
-        window.onload = function () {
-            renderSetupCards();
-            generateTerrain('valley');
-            requestAnimationFrame(gameLoop);
-        };
-    </script>
-</body>
-</html>
+    <div class="plaque" aria-label="테이블 한도">
+      <b>TABLE LIMITS</b>
+      <span>INSIDE $1 · 합계 $5 이상</span>
+      <span>OUTSIDE $5 이상</span>
+    </div>
+  </header>
+
+  <main class="room">
+    <section class="wheel-col" aria-label="룰렛 휠">
+      <div class="wheel-wrap" id="wheelWrap"><canvas id="wheel" role="img" aria-label="38칸 아메리칸 룰렛 휠"></canvas></div>
+      <div class="result" aria-live="polite">
+        <div class="res-num" id="resNum">—</div>
+        <div class="res-txt">
+          <div class="res-main" id="resMain">베팅을 받습니다</div>
+          <div class="res-sub" id="resSub">Place your bets</div>
+          <div class="res-net" id="resNet"></div>
+        </div>
+      </div>
+      <div class="hist-wrap">
+        <div class="k">최근 결과</div>
+        <div class="hist" id="hist"></div>
+        <p class="stats" id="stats"></p>
+      </div>
+    </section>
+
+    <section class="table-col" aria-label="베팅 테이블">
+      <div class="bank">
+        <div class="stat"><span class="k">보유 칩</span><b id="bal">$1,000</b></div>
+        <div class="stat"><span class="k">테이블 위 베팅</span><b id="onTable">$0</b></div>
+        <div class="stat"><span class="k">직전 스핀</span><b id="lastNet">—</b></div>
+        <button class="btn" id="rebuy" type="button" hidden>칩이 바닥났습니다. $1,000 다시 받기</button>
+      </div>
+      <div class="tray-row">
+        <div class="tray" id="tray" role="group" aria-label="칩 선택"></div>
+        <button class="mini" id="snd" type="button" aria-pressed="true">소리 켬</button>
+      </div>
+      <p class="hint" id="hint"></p>
+      <div class="felt"><div class="board" id="board" role="group" aria-label="룰렛 베팅 레이아웃"></div></div>
+      <div class="actions">
+        <button class="btn" id="undo" type="button">되돌리기</button>
+        <button class="btn" id="clear" type="button">비우기</button>
+        <button class="btn" id="double" type="button">2배</button>
+        <button class="btn" id="rebet" type="button">재베팅</button>
+        <button class="btn primary" id="spin" type="button">스핀</button>
+      </div>
+    </section>
+  </main>
+
+  <details class="rules">
+    <summary>룰과 배당표</summary>
+    <div class="rules-in">
+      <div class="tw">
+        <table>
+          <thead><tr><th>베팅</th><th>걸리는 칸</th><th>배당</th><th>최대 한도</th></tr></thead>
+          <tbody>
+            <tr><td>Straight Up 스트레이트</td><td>숫자 1개 (0, 00 포함)</td><td class="pay">35:1</td><td>$100</td></tr>
+            <tr><td>Split 스플릿</td><td>맞닿은 2칸</td><td class="pay">17:1</td><td>$200</td></tr>
+            <tr><td>Street 스트리트</td><td>가로줄 3칸 (예: 4-5-6)</td><td class="pay">11:1</td><td>$300</td></tr>
+            <tr><td>Trio 트리오</td><td>0-1-2, 0-00-2, 00-2-3</td><td class="pay">11:1</td><td>$300</td></tr>
+            <tr><td>Corner 코너</td><td>네 칸이 만나는 점</td><td class="pay">8:1</td><td>$400</td></tr>
+            <tr><td>Five Number 파이브넘버</td><td>0, 00, 1, 2, 3</td><td class="pay">6:1</td><td>$500</td></tr>
+            <tr><td>Six Line 식스라인</td><td>가로줄 2개, 6칸</td><td class="pay">5:1</td><td>$500</td></tr>
+            <tr><td>Column 컬럼 / Dozen 더즌</td><td>12칸</td><td class="pay">2:1</td><td>$2,000</td></tr>
+            <tr><td>Red·Black, Odd·Even, 1–18·19–36</td><td>18칸</td><td class="pay">1:1</td><td>$5,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul>
+        <li>휠에는 1에서 36까지의 숫자와 0, 00 모두 38칸이 있고, 칸마다 나올 확률은 똑같이 1/38입니다.</li>
+        <li>0이나 00이 나오면 레드·블랙, 홀짝, 1–18·19–36, 더즌, 컬럼 같은 아웃사이드 베팅은 모두 집니다. 라 파르타지와 앙 프리종은 없습니다.</li>
+        <li>이기면 베팅액에 배당을 곱한 칩을 받고, 이긴 베팅의 원금은 테이블에 그대로 남습니다. 진 베팅은 딜러가 치웁니다. 이긴 칸에는 황금색 마커가 놓입니다.</li>
+        <li>인사이드 베팅은 칸마다 최소 $1이고 인사이드 합계가 $5 이상이어야 합니다. 아웃사이드 베팅은 칸마다 최소 $5입니다.</li>
+        <li>하우스 엣지는 대부분의 베팅에서 5.26%이고 파이브넘버는 7.89%입니다.</li>
+        <li>스핀을 누르는 순간 브라우저의 암호학적 난수로 38칸 중 하나가 균등하게 정해집니다.</li>
+      </ul>
+    </div>
+  </details>
+  <p class="foot">가상 칩으로 즐기는 오락용 게임입니다. 실제 돈은 오가지 않습니다.</p>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= 규칙 (순수 로직) ================= */
+//LOGIC_START
+const WHEEL=[0,28,9,26,30,11,7,20,32,17,5,22,34,15,3,24,36,13,1,37,27,10,25,29,12,8,19,31,18,6,21,33,16,4,23,35,14,2]; // 37 = 00
+const REDS=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+const lab=n=>n===37?'00':String(n);
+const colorOf=n=>(n===0||n===37)?'green':(REDS.has(n)?'red':'black');
+const PAY={straight:35,split:17,street:11,trio:11,corner:8,six:5,five:6,column:2,dozen:2,even:1};
+const MAXBET={straight:100,split:200,street:300,trio:300,corner:400,six:500,five:500,column:2000,dozen:2000,even:5000};
+const MINBET={inside:1,outside:5};
+const INSIDE_TOTAL_MIN=5;
+const INSIDE=new Set(['straight','split','street','trio','corner','six','five']);
+const NAMES={straight:'스트레이트',split:'스플릿',street:'스트리트',trio:'트리오',corner:'코너',six:'식스라인',five:'파이브넘버',column:'컬럼',dozen:'더즌',even:'이븐머니'};
+
+function def(key){
+  const parts=key.split(':'); const type=parts[0]; const rest=parts[1];
+  let nums=[];
+  if(type==='column'){ const c=+rest; for(let n=1;n<=36;n++) if((n-1)%3===c-1) nums.push(n); }
+  else if(type==='dozen'){ const d=+rest; for(let n=12*(d-1)+1;n<=12*d;n++) nums.push(n); }
+  else if(type==='even'){
+    for(let n=1;n<=36;n++){
+      const ok= rest==='red'?REDS.has(n) : rest==='black'?!REDS.has(n) : rest==='odd'?n%2===1 : rest==='even'?n%2===0 : rest==='low'?n<=18 : n>=19;
+      if(ok) nums.push(n);
+    }
+  }
+  else nums=rest.split(',').map(Number);
+  return {type:type,nums:nums,pay:PAY[type],inside:INSIDE.has(type)};
+}
+function validate(bets){
+  let insideTotal=0;
+  for(const [key,amt] of bets){
+    const d=def(key);
+    if(amt>MAXBET[d.type]) return {ok:false,msg:NAMES[d.type]+' 최대 한도는 $'+MAXBET[d.type]+'입니다'};
+    if(d.inside){ insideTotal+=amt; if(amt<MINBET.inside) return {ok:false,msg:'인사이드 베팅은 칸마다 최소 $1입니다'}; }
+    else if(amt<MINBET.outside) return {ok:false,msg:NAMES[d.type]+' 베팅은 칸마다 최소 $5입니다'};
+  }
+  if(bets.size===0) return {ok:false,msg:'먼저 칩을 올려 베팅하세요'};
+  if(insideTotal>0&&insideTotal<INSIDE_TOTAL_MIN) return {ok:false,msg:'인사이드 베팅 합계는 최소 $5입니다'};
+  return {ok:true,msg:''};
+}
+function settle(bets,result){
+  let won=0,lost=0; const detail=[];
+  for(const [key,amt] of bets){
+    const d=def(key);
+    if(d.nums.includes(result)){ const w=amt*d.pay; won+=w; detail.push({key:key,amt:amt,win:w}); }
+    else { lost+=amt; detail.push({key:key,amt:amt,win:0}); }
+  }
+  return {won:won,lost:lost,detail:detail};
+}
+//LOGIC_END
+
+/* ================= 상태 ================= */
+const $=id=>document.getElementById(id);
+function mk(tag,cls,parent){ const e=document.createElement(tag); if(cls) e.className=cls; if(parent) parent.appendChild(e); return e; }
+const money=n=>'$'+Math.round(n).toLocaleString('en-US');
+const DENOMS=[1,5,25,100,500];
+const START=1000;
+const KEY='vegas-roulette-v1';
+const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let bankroll=START, results=[], spins=0;
+let bets=new Map(), undo=[], lastLayout=null;
+let chipVal=5, spinning=false, hintBase='', hlList=[], flashTimer=null;
+
+(function load(){
+  try{
+    const j=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(j&&typeof j.wealth==='number'&&j.wealth>=0&&isFinite(j.wealth)){
+      bankroll=Math.floor(j.wealth);
+      if(Array.isArray(j.hist)) results=j.hist.filter(n=>Number.isInteger(n)&&n>=0&&n<=37).slice(0,60);
+      if(Number.isInteger(j.spins)) spins=j.spins;
+    }
+  }catch(e){}
+})();
+const tableTotal=()=>{ let t=0; for(const a of bets.values()) t+=a; return t; };
+function save(){
+  try{ localStorage.setItem(KEY,JSON.stringify({wealth:bankroll+tableTotal(),hist:results.slice(0,60),spins:spins})); }catch(e){}
+}
+
+/* ================= 소리 ================= */
+let soundOn=true, actx=null;
+function audio(){
+  if(!soundOn) return null;
+  try{
+    if(!actx){ const C=window.AudioContext||window.webkitAudioContext; if(C) actx=new C(); }
+    if(actx&&actx.state==='suspended') actx.resume();
+  }catch(e){}
+  return actx;
+}
+function beep(freq,dur,type,vol,delay){
+  const a=audio(); if(!a) return;
+  try{
+    const t=a.currentTime+(delay||0);
+    const o=a.createOscillator(), g=a.createGain();
+    o.type=type||'sine'; o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(vol||.05,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+dur+.03);
+  }catch(e){}
+}
+const sfx={
+  chip(){ beep(1100,.05,'triangle',.06); beep(720,.04,'square',.02,.012); },
+  tick(){ beep(1700+Math.random()*400,.022,'square',.022); },
+  land(){ beep(300,.14,'triangle',.08); },
+  win(){ [523,659,784,1047].forEach((f,i)=>beep(f,.22,'triangle',.06,i*.09)); },
+  lose(){ beep(190,.28,'sawtooth',.03); }
+};
+
+/* ================= 보드 구성 ================= */
+const board=$('board'), tray=$('tray'), hint=$('hint');
+const spotEls=new Map(), numEls=new Map();
+
+function describe(key){
+  const d=def(key); const v=key.split(':')[1]; let nm;
+  if(d.type==='column') nm='컬럼 '+v+' (2 to 1)';
+  else if(d.type==='dozen') nm=['','1st 12','2nd 12','3rd 12'][+v]+' 더즌';
+  else if(d.type==='even') nm={red:'레드',black:'블랙',odd:'홀수 Odd',even:'짝수 Even',low:'1–18',high:'19–36'}[v];
+  else nm=NAMES[d.type]+' '+d.nums.map(lab).join('·');
+  return nm+' · '+d.pay+':1';
+}
+function addSpot(el,key){
+  el.dataset.key=key; spotEls.set(key,el);
+  el.addEventListener('click',()=>place(key));
+  el.addEventListener('contextmenu',ev=>{ ev.preventDefault(); take(key); });
+  el.addEventListener('pointerenter',()=>hover(key));
+  el.addEventListener('pointerleave',unhover);
+  el.addEventListener('focus',()=>hover(key));
+  el.addEventListener('blur',unhover);
+}
+function numCell(n,gc,gr){
+  const b=mk('button','spot cell '+colorOf(n),board); b.type='button';
+  b.style.gridColumn=gc; b.style.gridRow=gr;
+  b.innerHTML='<span class="n">'+lab(n)+'</span>';
+  b.setAttribute('aria-label',lab(n)+' 스트레이트 35:1');
+  addSpot(b,'straight:'+n); numEls.set(n,b);
+}
+function outCell(key,gc,gr,html,cls){
+  const b=mk('button','spot out '+(cls||''),board); b.type='button';
+  b.style.gridColumn=gc; b.style.gridRow=gr; b.innerHTML=html;
+  b.setAttribute('aria-label',describe(key));
+  addSpot(b,key);
+}
+function fill(gc,gr){ const f=mk('div','fill',board); f.style.gridColumn=gc; f.style.gridRow=gr; }
+
+function buildBoard(){
+  numCell(0,'2 / span 3',1);
+  numCell(37,'5 / span 3',1);
+  for(let n=1;n<=36;n++){
+    const r=Math.ceil(n/3), c=((n-1)%3)+1;
+    numCell(n,(2+(c-1)*2)+' / span 2',r+1);
+  }
+  [1,2,3].forEach((d,i)=>outCell('dozen:'+d,1,(2+i*4)+' / span 4','<span>'+['1st 12','2nd 12','3rd 12'][i]+'</span>','vert'));
+  outCell('even:low',8,'2 / span 2','<span>1–18</span>','vert');
+  outCell('even:even',8,'4 / span 2','<span>Even</span>','vert');
+  outCell('even:red',8,'6 / span 2','<span class="dia"></span>');
+  outCell('even:black',8,'8 / span 2','<span class="dia k"></span>');
+  outCell('even:odd',8,'10 / span 2','<span>Odd</span>','vert');
+  outCell('even:high',8,'12 / span 2','<span>19–36</span>','vert');
+  [1,2,3].forEach((c,i)=>outCell('column:'+c,(2+i*2)+' / span 2',14,'<small>2 to 1</small>'));
+  fill(1,14); fill(8,14);
+
+  const ov=mk('div','ov',board); ov.style.gridColumn='2 / 8'; ov.style.gridRow='1 / 14';
+  const hot=(key,x,y)=>{
+    const b=mk('button','hot',ov); b.type='button'; b.tabIndex=-1;
+    b.style.left=(x/3*100)+'%'; b.style.top=(y/13*100)+'%';
+    b.setAttribute('aria-label',describe(key)); addSpot(b,key);
+  };
+  for(let r=1;r<=12;r++){
+    for(let c=1;c<=2;c++){ const a=3*(r-1)+c; hot('split:'+a+','+(a+1),c,r+.5); }
+    hot('street:'+(3*r-2)+','+(3*r-1)+','+(3*r),0,r+.5);
+  }
+  for(let r=1;r<=11;r++){
+    for(let c=1;c<=3;c++){ const a=3*(r-1)+c; hot('split:'+a+','+(a+3),c-.5,r+1); }
+    for(let c=1;c<=2;c++){ const a=3*(r-1)+c; hot('corner:'+a+','+(a+1)+','+(a+3)+','+(a+4),c,r+1); }
+    const a=3*(r-1)+1; hot('six:'+[a,a+1,a+2,a+3,a+4,a+5].join(','),0,r+1);
+  }
+  hot('split:0,37',1.5,.5);
+  hot('split:0,1',.5,1); hot('split:0,2',1.25,1); hot('split:37,2',1.75,1); hot('split:37,3',2.5,1);
+  hot('trio:0,1,2',1,1); hot('trio:0,37,2',1.5,1); hot('trio:37,2,3',2,1);
+  hot('five:0,37,1,2,3',0,1);
+}
+
+function buildTray(){
+  DENOMS.forEach(v=>{
+    const b=mk('button','chip c'+v,tray); b.type='button'; b.dataset.v=v;
+    b.setAttribute('aria-label','$'+v+' 칩'); b.setAttribute('aria-pressed',String(v===chipVal));
+    b.innerHTML='<i>'+v+'</i>';
+    if(v===chipVal) b.classList.add('sel');
+    b.addEventListener('click',()=>{
+      chipVal=v;
+      tray.querySelectorAll('.chip').forEach(x=>{ const on=+x.dataset.v===v; x.classList.toggle('sel',on); x.setAttribute('aria-pressed',String(on)); });
+      sfx.chip();
+    });
+  });
+}
+
+/* ================= 칩 표시 ================= */
+function denomFor(a){ for(let i=DENOMS.length-1;i>=0;i--) if(a>=DENOMS[i]) return DENOMS[i]; return 1; }
+function compact(a){ if(a<1000) return String(a); const k=a/1000; return (Number.isInteger(k)?k:k.toFixed(1))+'k'; }
+function chipEl(a){ const c=mk('span','chip c'+denomFor(a)); c.innerHTML='<i>'+compact(a)+'</i>'; return c; }
+
+const balEl=$('bal'), tableEl=$('onTable'), lastNetEl=$('lastNet'), rebuyBtn=$('rebuy');
+const btns={undo:$('undo'),clear:$('clear'),dbl:$('double'),rebet:$('rebet'),spin:$('spin')};
+
+function render(){
+  let total=0;
+  for(const [key,el] of spotEls){
+    const amt=bets.get(key)||0; let st=el._stack;
+    if(amt>0){
+      total+=amt;
+      if(!st){ st=mk('span','stack',el); el._stack=st; el.classList.add('has'); }
+      st.replaceChildren(chipEl(amt));
+    } else if(st){ st.remove(); el._stack=null; el.classList.remove('has'); }
+  }
+  balEl.textContent=money(bankroll); tableEl.textContent=money(total);
+  tray.querySelectorAll('.chip').forEach(x=>x.classList.toggle('off',+x.dataset.v>bankroll));
+  rebuyBtn.hidden=!(bankroll<1&&total===0&&!spinning);
+  btns.undo.disabled=spinning||!undo.length;
+  btns.clear.disabled=spinning||!bets.size;
+  btns.dbl.disabled=spinning||!bets.size;
+  btns.rebet.disabled=spinning||!lastLayout||!lastLayout.size;
+  btns.spin.disabled=spinning;
+}
+
+/* ================= 힌트 ================= */
+const HINT_DEFAULT='칩을 고른 뒤 번호 또는 번호 사이의 점을 눌러 베팅하세요. 칩 빼기는 오른쪽 클릭이나 되돌리기를 쓰세요.';
+function setHint(t){ hint.textContent=t||hintBase||HINT_DEFAULT; }
+function flash(msg){
+  hint.textContent=msg; hint.classList.add('warn');
+  clearTimeout(flashTimer);
+  flashTimer=setTimeout(()=>{ hint.classList.remove('warn'); setHint(); },2800);
+}
+function hover(key){
+  unhover();
+  const d=def(key);
+  d.nums.forEach(n=>{ const el=numEls.get(n); if(el){ el.classList.add('hl'); hlList.push(el); } });
+  if(!hint.classList.contains('warn')) setHint(describe(key));
+}
+function unhover(){
+  hlList.forEach(e=>e.classList.remove('hl')); hlList=[];
+  if(!hint.classList.contains('warn')) setHint();
+}
+
+/* ================= 베팅 동작 ================= */
+function setBet(k,v){ if(v>0) bets.set(k,v); else bets.delete(k); }
+function hideDolly(){
+  board.querySelectorAll('.dolly').forEach(e=>e.remove());
+  board.querySelectorAll('.cell.hit').forEach(e=>e.classList.remove('hit'));
+}
+function place(key){
+  if(spinning) return;
+  hideDolly();
+  const d=def(key), cur=bets.get(key)||0, add=chipVal;
+  if(add>bankroll){ flash('칩이 부족합니다. 더 작은 칩을 고르세요.'); return; }
+  if(cur+add>MAXBET[d.type]){ flash(NAMES[d.type]+' 베팅의 최대 한도는 $'+MAXBET[d.type]+'입니다.'); return; }
+  bankroll-=add; bets.set(key,cur+add); undo.push({key:key,delta:add});
+  sfx.chip(); render();
+}
+function take(key){
+  if(spinning) return;
+  const cur=bets.get(key)||0; if(!cur) return;
+  const rem=Math.min(chipVal,cur);
+  bankroll+=rem; setBet(key,cur-rem); undo.push({key:key,delta:-rem});
+  sfx.chip(); render();
+}
+function doUndo(){
+  if(spinning) return;
+  const op=undo.pop(); if(!op) return;
+  const cur=bets.get(op.key)||0;
+  if(op.delta>0){ const r=Math.min(op.delta,cur); bankroll+=r; setBet(op.key,cur-r); }
+  else { const a=-op.delta; if(a<=bankroll){ bankroll-=a; setBet(op.key,cur+a); } }
+  render();
+}
+function clearTable(){ bankroll+=tableTotal(); bets.clear(); undo.length=0; }
+function doClear(){ if(spinning) return; clearTable(); sfx.chip(); render(); }
+function doDouble(){
+  if(spinning||!bets.size) return;
+  let skipped=false;
+  for(const [k,a] of Array.from(bets)){
+    const d=def(k);
+    if(a<=bankroll&&a*2<=MAXBET[d.type]){ bankroll-=a; bets.set(k,a*2); undo.push({key:k,delta:a}); }
+    else skipped=true;
+  }
+  if(skipped) flash('칩이 모자라거나 한도를 넘는 베팅은 그대로 두었습니다.');
+  sfx.chip(); render();
+}
+function doRebet(){
+  if(spinning||!lastLayout||!lastLayout.size) return;
+  hideDolly(); clearTable();
+  for(const [k,a] of lastLayout){
+    const amt=Math.min(a,bankroll);
+    if(amt>0){ bankroll-=amt; bets.set(k,amt); undo.push({key:k,delta:amt}); }
+  }
+  if(tableTotal()<lastTotal(lastLayout)) flash('칩이 모자라 일부 베팅만 올렸습니다.');
+  sfx.chip(); render();
+}
+function lastTotal(m){ let t=0; for(const a of m.values()) t+=a; return t; }
+
+/* ================= 휠 ================= */
+const cv=$('wheel'), ctx=cv.getContext('2d'), wheelWrap=$('wheelWrap');
+const TAU=Math.PI*2, STEP=TAU/38;
+const css=getComputedStyle(document.documentElement);
+const tok=n=>css.getPropertyValue(n).trim();
+const C_RED=tok('--red')||'#b81f2d', C_INK=tok('--ink')||'#121317', C_GOLD=tok('--gold')||'#d9b45b', C_ZERO=tok('--zero')||'#12804d';
+const RT=.845, RP=.515;
+let S=400, dpr=1, wheelAngle=0, ballAngle=null, ballR=RP;
+const phi=i=>-Math.PI/2+i*STEP;
+
+function disc(x,y,r,f){ ctx.beginPath(); ctx.arc(x,y,r,0,TAU); ctx.fillStyle=f; ctx.fill(); }
+function annulus(x,y,r1,r2,f){ ctx.beginPath(); ctx.arc(x,y,r1,0,TAU); ctx.arc(x,y,r2,0,TAU,true); ctx.fillStyle=f; ctx.fill(); }
+function radial(c,r1,r2,stops){ const g=ctx.createRadialGradient(c,c,r1,c,c,r2); stops.forEach(s=>g.addColorStop(s[0],s[1])); return g; }
+
+function draw(){
+  const s=S, c=s/2, R=s/2;
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,s,s);
+  // 나무 볼과 황금 테두리
+  annulus(c,c,R*.995,R*.93,radial(c,R*.93,R,[[0,'#4b2b19'],[.6,'#2c170d'],[1,'#150a05']]));
+  ctx.beginPath(); ctx.arc(c,c,R*.93,0,TAU); ctx.lineWidth=Math.max(1.5,R*.012); ctx.strokeStyle=C_GOLD; ctx.stroke();
+  // 볼 트랙
+  annulus(c,c,R*.925,R*.76,radial(c,R*.76,R*.925,[[0,'#2b1b10'],[.35,'#4a3321'],[.65,'#2e1e12'],[1,'#1a0f08']]));
+  // 경사면
+  annulus(c,c,R*.76,R*.70,radial(c,R*.70,R*.76,[[0,'#6e5d36'],[1,'#a08c55']]));
+  // 디플렉터
+  for(let k=0;k<8;k++){
+    ctx.save(); ctx.translate(c,c); ctx.rotate(k*Math.PI/4+Math.PI/8);
+    ctx.beginPath(); ctx.moveTo(R*.705,0); ctx.lineTo(R*.735,-R*.018); ctx.lineTo(R*.775,0); ctx.lineTo(R*.735,R*.018); ctx.closePath();
+    ctx.fillStyle=C_GOLD; ctx.fill(); ctx.lineWidth=1; ctx.strokeStyle='rgba(0,0,0,.45)'; ctx.stroke();
+    ctx.restore();
+  }
+  // 회전하는 휠
+  ctx.save(); ctx.translate(c,c); ctx.rotate(wheelAngle);
+  for(let i=0;i<38;i++){
+    const a0=phi(i)-STEP/2, a1=a0+STEP, col=colorOf(WHEEL[i]);
+    ctx.beginPath(); ctx.arc(0,0,R*.70,a0,a1); ctx.arc(0,0,R*.47,a1,a0,true); ctx.closePath();
+    ctx.fillStyle=col==='red'?C_RED:col==='black'?C_INK:C_ZERO; ctx.fill();
+  }
+  annulus(0,0,R*.56,R*.47,'rgba(0,0,0,.28)');
+  ctx.lineWidth=Math.max(1,R*.006); ctx.strokeStyle='#d8c58a';
+  for(let i=0;i<38;i++){
+    const a=phi(i)-STEP/2;
+    ctx.beginPath(); ctx.moveTo(Math.cos(a)*R*.47,Math.sin(a)*R*.47); ctx.lineTo(Math.cos(a)*R*.70,Math.sin(a)*R*.70); ctx.stroke();
+  }
+  ctx.fillStyle='#f5eedc'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  for(let i=0;i<38;i++){
+    const n=WHEEL[i], t=lab(n);
+    ctx.save(); ctx.rotate(phi(i)); ctx.translate(R*.635,0); ctx.rotate(Math.PI/2);
+    ctx.font='700 '+(R*(t.length>1&&n===37?.062:.072))+'px "Barlow Condensed", sans-serif';
+    ctx.fillText(t,0,0); ctx.restore();
+  }
+  ctx.beginPath(); ctx.arc(0,0,R*.47,0,TAU); ctx.lineWidth=Math.max(2,R*.014); ctx.strokeStyle=C_GOLD; ctx.stroke();
+  // 콘
+  disc(0,0,R*.465,radial(0,R*.1,R*.465,[[0,'#7a4e2b'],[.7,'#4a2c18'],[1,'#2a170d']]));
+  for(let k=0;k<4;k++){
+    ctx.save(); ctx.rotate(k*Math.PI/2);
+    ctx.beginPath(); ctx.moveTo(R*.12,0); ctx.lineTo(R*.40,0); ctx.lineWidth=R*.028; ctx.lineCap='round'; ctx.strokeStyle=C_GOLD; ctx.stroke();
+    disc(R*.40,0,R*.04,radial(0,0,0.01,[[0,'#fff3c4'],[1,'#c9a13f']]));
+    ctx.beginPath(); ctx.arc(R*.40,0,R*.04,0,TAU); ctx.fillStyle='#d9b45b'; ctx.fill();
+    ctx.restore();
+  }
+  ctx.beginPath(); ctx.arc(0,0,R*.14,0,TAU);
+  const tg=ctx.createRadialGradient(-R*.04,-R*.04,R*.01,0,0,R*.14); tg.addColorStop(0,'#fff0b8'); tg.addColorStop(.6,'#d9b45b'); tg.addColorStop(1,'#8c6a1c');
+  ctx.fillStyle=tg; ctx.fill();
+  disc(0,0,R*.05,'#fff7d6');
+  ctx.restore();
+  // 공
+  if(ballAngle!==null){
+    const bx=c+ballR*R*Math.cos(ballAngle), by=c+ballR*R*Math.sin(ballAngle), rb=Math.max(3.5,R*.03);
+    disc(bx+rb*.45,by+rb*.6,rb,'rgba(0,0,0,.4)');
+    const bg=ctx.createRadialGradient(bx-rb*.35,by-rb*.35,rb*.1,bx,by,rb);
+    bg.addColorStop(0,'#ffffff'); bg.addColorStop(.55,'#ddd8c8'); bg.addColorStop(1,'#8d8878');
+    disc(bx,by,rb,bg);
+  }
+}
+function fit(){
+  const r=cv.getBoundingClientRect(); const w=Math.max(200,Math.round(r.width));
+  dpr=Math.min(window.devicePixelRatio||1,2.5); S=w;
+  cv.width=Math.round(w*dpr); cv.height=Math.round(w*dpr); draw();
+}
+function radiusAt(u){
+  if(u<.52) return RT;
+  const v=(u-.52)/.48, s=v*v*(3-2*v);
+  let r=RT-(RT-RP)*s;
+  if(v>.62){ const w=(v-.62)/.38; r+=.045*(1-w)*Math.abs(Math.sin(w*Math.PI*3.2)); }
+  return r;
+}
+function animateSpin(idx){
+  return new Promise(resolve=>{
+    const T=reduced?2600:7200;
+    const w0=wheelAngle, Aw=(reduced?1.5:3)*TAU;
+    const b0=Math.random()*TAU, target=phi(idx);
+    let d=(b0-w0-Aw-target)%TAU; if(d<0) d+=TAU;
+    const Ab=d+(reduced?3:7)*TAU;
+    const t0=performance.now(); let lastK=null;
+    function frame(now){
+      const t=Math.min(now-t0,T), u=t/T;
+      wheelAngle=w0+Aw*(1-Math.pow(1-u,3));
+      ballAngle=b0-Ab*(1-Math.pow(1-u,2.2));
+      ballR=radiusAt(u);
+      draw();
+      const k=Math.floor((ballAngle-wheelAngle)/STEP);
+      if(u>.55&&lastK!==null&&k!==lastK) sfx.tick();
+      lastK=k;
+      if(t<T) requestAnimationFrame(frame);
+      else{
+        wheelAngle=wheelAngle%TAU; ballAngle=wheelAngle+target; ballR=RP; draw(); resolve();
+      }
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+/* ================= 스핀 ================= */
+function randInt(n){
+  try{
+    const lim=Math.floor(4294967296/n)*n, a=new Uint32Array(1); let x;
+    do{ crypto.getRandomValues(a); x=a[0]; }while(x>=lim);
+    return x%n;
+  }catch(e){ return Math.floor(Math.random()*n); }
+}
+const resNum=$('resNum'), resMain=$('resMain'), resSub=$('resSub'), resNet=$('resNet');
+const narrow=()=>window.matchMedia('(max-width: 939px)').matches;
+const KR={red:'레드',black:'블랙',green:'그린'};
+
+function setResult(cls,num,main,sub,net,netCls){
+  resNum.className='res-num '+(cls||''); resNum.textContent=num;
+  resMain.textContent=main; resSub.textContent=sub;
+  resNet.textContent=net||''; resNet.className='res-net '+(netCls||'');
+}
+function pop(el,text){ const p=mk('span','pop',el); p.textContent=text; setTimeout(()=>p.remove(),1800); }
+
+async function spin(){
+  if(spinning) return;
+  const v=validate(bets);
+  if(!v.ok){ flash(v.msg); return; }
+  spinning=true; document.body.classList.add('spinning');
+  lastLayout=new Map(bets); undo.length=0; hideDolly(); unhover();
+  hintBase='';
+  setResult('','…','베팅 마감','No more bets');
+  render();
+  if(narrow()) wheelWrap.scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'});
+  audio();
+  const idx=randInt(38);
+  await animateSpin(idx);
+  land(WHEEL[idx]);
+}
+
+function land(n){
+  sfx.land();
+  spins++; results.unshift(n); if(results.length>60) results.length=60;
+  const s=settle(bets,n);
+  bankroll+=s.won;
+  const col=colorOf(n);
+  const winCell=numEls.get(n);
+  if(winCell){ winCell.classList.add('hit'); mk('span','dolly',winCell); }
+  for(const row of s.detail){
+    const el=spotEls.get(row.key), st=el&&el._stack; if(!st) continue;
+    if(row.win>0){ st.classList.add('win'); pop(el,'+'+money(row.win)); }
+    else st.classList.add('lose');
+  }
+  const net=s.won-s.lost;
+  const attrs=(n===0||n===37)
+    ? '아웃사이드 베팅은 모두 집니다'
+    : [n%2?'홀수':'짝수', n<=18?'1–18':'19–36', ['1st 12','2nd 12','3rd 12'][Math.floor((n-1)/12)], '컬럼 '+(((n-1)%3)+1)].join(' · ');
+  const netTxt=net>0?'+'+money(net):net<0?'−'+money(-net):(s.won===0&&s.lost===0?'':'$0');
+  const detailTxt=(s.won||s.lost)?'당첨 +'+money(s.won)+' · 낙첨 −'+money(s.lost):'';
+  setResult(col,lab(n),lab(n)+' '+KR[col],attrs,detailTxt?detailTxt+'  (순손익 '+netTxt+')':'',net>0?'pos':net<0?'neg':'');
+  lastNetEl.textContent=netTxt||'—'; lastNetEl.className=net>0?'pos':net<0?'neg':'';
+  hintBase='직전 결과 '+lab(n)+' '+KR[col]+(netTxt?' · '+netTxt:'');
+  if(s.won>0) sfx.win(); else if(s.lost>0) sfx.lose();
+  renderHistory(); save(); render();
+  setTimeout(()=>{
+    for(const row of s.detail) if(row.win===0) bets.delete(row.key);
+    render();
+  },760);
+  setTimeout(()=>{
+    spinning=false; document.body.classList.remove('spinning'); setHint(); render();
+    if(narrow()) setTimeout(()=>{ if(!spinning) board.scrollIntoView({behavior:reduced?'auto':'smooth',block:'start'}); },900);
+  },980);
+}
+
+/* ================= 기록 ================= */
+const histEl=$('hist'), statsEl=$('stats');
+function renderHistory(){
+  histEl.replaceChildren();
+  results.slice(0,16).forEach((n,i)=>{ const d=mk('span','hdot '+colorOf(n)+(i===0?' first':''),histEl); d.textContent=lab(n); });
+  if(!results.length){ statsEl.textContent='아직 스핀 기록이 없습니다.'; return; }
+  let r=0,b=0,z=0,o=0,e=0; const cnt=new Map();
+  results.forEach(n=>{
+    const c=colorOf(n); if(c==='red') r++; else if(c==='black') b++; else z++;
+    if(n>0&&n<37){ if(n%2) o++; else e++; }
+    cnt.set(n,(cnt.get(n)||0)+1);
+  });
+  const top=Array.from(cnt).sort((a,b)=>b[1]-a[1])[0];
+  statsEl.textContent='최근 '+results.length+'회 · 레드 '+r+' · 블랙 '+b+' · 0/00 '+z+' · 홀 '+o+' · 짝 '+e+(top[1]>1?' · 최다 '+lab(top[0])+' ('+top[1]+'회)':'');
+}
+
+/* ================= 초기화 ================= */
+buildBoard(); buildTray();
+btns.undo.addEventListener('click',doUndo);
+btns.clear.addEventListener('click',doClear);
+btns.dbl.addEventListener('click',doDouble);
+btns.rebet.addEventListener('click',doRebet);
+btns.spin.addEventListener('click',spin);
+rebuyBtn.addEventListener('click',()=>{ bankroll=START; save(); render(); sfx.chip(); });
+$('snd').addEventListener('click',e=>{
+  soundOn=!soundOn; e.currentTarget.setAttribute('aria-pressed',String(soundOn));
+  e.currentTarget.textContent=soundOn?'소리 켬':'소리 끔';
+  if(soundOn) sfx.chip();
+});
+
+if(results.length){
+  const i=WHEEL.indexOf(results[0]);
+  ballAngle=wheelAngle+phi(i); ballR=RP;
+  const n=results[0], col=colorOf(n);
+  setResult(col,lab(n),'직전 결과 '+lab(n)+' '+KR[col],'Place your bets');
+}
+setHint(); render(); renderHistory();
+if('ResizeObserver' in window) new ResizeObserver(fit).observe(wheelWrap); else window.addEventListener('resize',fit);
+fit();
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(draw);
+})();
+</script>
+
+</body></html>
