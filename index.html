@@ -1,1618 +1,2362 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>GRAND ROYALE: 4-Max VIP Casino Texas Hold'em</title>
-<style>
-  :root {
-    --gold: #f5d061;
-    --gold-dark: #b38728;
-    --felt-center: #0f5e36;
-    --felt-edge: #052615;
-    --rail-wood: #2b1109;
-    --panel-glass: rgba(12, 16, 24, 0.88);
-    --red-suit: #e62e2e;
-    --black-suit: #141821;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-  body {
-    background: radial-gradient(circle at center, #1a121b 0%, #060709 100%);
-    color: #fff;
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* 상단 카지노 헤더 */
-  header {
-    height: 46px;
-    background: linear-gradient(90deg, #0b0d12 0%, #1a1f2c 50%, #0b0d12 100%);
-    border-bottom: 1px solid rgba(245, 208, 97, 0.35);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-    z-index: 30;
-  }
-  .brand-title {
-    font-size: 15px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    background: linear-gradient(180deg, #fff6d1 0%, #f5d061 50%, #b38728 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .header-info {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    font-size: 12px;
-  }
-  .badge-pill {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(245, 208, 97, 0.3);
-    padding: 4px 12px;
-    border-radius: 20px;
-    color: #cbd5e1;
-  }
-  .badge-pill b { color: var(--gold); }
-  .btn-top {
-    background: linear-gradient(180deg, #2b3346 0%, #171c28 100%);
-    color: var(--gold);
-    border: 1px solid var(--gold-dark);
-    padding: 5px 12px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-  .btn-top:hover { background: var(--gold); color: #000; }
-
-  /* 메인 카지노 아레나 */
-  #casino-stage {
-    flex: 1;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    perspective: 1200px;
-    padding-bottom: 95px;
-  }
-
-  /* 럭셔리 카지노 오벌 테이블 */
-  #poker-table {
-    position: relative;
-    width: min(92vw, 1080px);
-    height: min(64vh, 520px);
-    border-radius: 260px;
-    background:
-      radial-gradient(ellipse at center, rgba(255, 255, 255, 0.07) 0%, transparent 60%),
-      radial-gradient(ellipse at center, var(--felt-center) 0%, var(--felt-edge) 100%);
-    border: 24px solid var(--rail-wood);
-    box-shadow:
-      0 25px 60px rgba(0,0,0,0.95),
-      inset 0 0 50px rgba(0,0,0,0.85),
-      inset 0 0 0 4px var(--gold-dark),
-      0 0 0 3px #4a2315,
-      0 0 40px rgba(245, 208, 97, 0.12);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-
-  /* 테이블 내부 골드 베팅 라인 */
-  #poker-table::before {
-    content: "";
-    position: absolute;
-    inset: 28px;
-    border-radius: 230px;
-    border: 1.5px solid rgba(245, 208, 97, 0.25);
-    pointer-events: none;
-  }
-
-  /* 상단 카지노 전담 딜러 (Croupier) & 칩 트레이 */
-  #croupier-station {
-    position: absolute;
-    top: -46px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 15;
-  }
-  .croupier-avatar {
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #272c3a 0%, #0f1219 100%);
-    border: 2px solid var(--gold);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-  }
-  .croupier-banner {
-    margin-top: 4px;
-    background: rgba(10, 12, 18, 0.95);
-    border: 1px solid var(--gold-dark);
-    padding: 3px 14px;
-    border-radius: 12px;
-    font-size: 11px;
-    color: var(--gold);
-    font-weight: 700;
-    white-space: nowrap;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-  }
-
-  /* 중앙 보드 (번 카드 + 커뮤니티 카드 5장 + 메인/사이드 팟) */
-  #board-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    z-index: 10;
-  }
-
-  #pots-container {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .pot-pill {
-    background: rgba(0, 0, 0, 0.72);
-    border: 1.5px solid var(--gold);
-    padding: 5px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 900;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-  }
-  .pot-pill.side-pot {
-    border-color: #38bdf8;
-    font-size: 12px;
-    color: #bae6fd;
-  }
-
-  #community-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  /* 번 카드 슬롯 */
-  #burn-slot {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 10px;
-    position: relative;
-  }
-  .burn-label {
-    font-size: 9px;
-    color: rgba(245, 208, 97, 0.6);
-    margin-top: 4px;
-    font-weight: 700;
-    letter-spacing: 1px;
-  }
-  .burn-stack {
-    width: 40px;
-    height: 58px;
-    border: 1px dashed rgba(245, 208, 97, 0.35);
-    border-radius: 5px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .burn-card-mini {
-    position: absolute;
-    width: 34px;
-    height: 50px;
-    border-radius: 4px;
-    background: repeating-linear-gradient(45deg, #7f1d1d, #7f1d1d 4px, #991b1b 4px, #991b1b 8px);
-    border: 1.5px solid #f5d061;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.7);
-  }
-
-  /* 카드 슬롯 및 3D 플립 카드 */
-  .card-slot {
-    width: 64px;
-    height: 92px;
-    border-radius: 7px;
-    border: 1.5px dashed rgba(255, 255, 255, 0.22);
-    background: rgba(0, 0, 0, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-
-  .playing-card {
-    width: 62px;
-    height: 88px;
-    border-radius: 6px;
-    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-    border: 1px solid #cbd5e1;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.65);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 5px 6px;
-    position: relative;
-    font-weight: 900;
-    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s;
-    animation: dealIn 0.28s ease-out;
-  }
-  @keyframes dealIn {
-    from { opacity: 0; transform: translateY(-35px) scale(0.7); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  .playing-card.red { color: var(--red-suit); }
-  .playing-card.black { color: var(--black-suit); }
-
-  .playing-card.card-back {
-    background:
-      radial-gradient(circle at center, #f5d061 2px, transparent 3px),
-      repeating-linear-gradient(45deg, #881337 0px, #881337 6px, #4c0519 6px, #4c0519 12px);
-    border: 2px solid #f5d061;
-  }
-  .playing-card.card-back * { display: none; }
-
-  .playing-card.winner-glow {
-    transform: translateY(-10px) scale(1.06);
-    border: 2px solid #f5d061;
-    box-shadow: 0 0 22px #f5d061, 0 10px 20px rgba(0,0,0,0.8);
-    z-index: 5;
-  }
-  .playing-card.dimmed {
-    opacity: 0.42;
-    filter: grayscale(0.4);
-  }
-
-  .card-corner-top {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    line-height: 0.95;
-    font-size: 14px;
-  }
-  .card-corner-top small { font-size: 12px; }
-  .card-Pip-center {
-    font-size: 28px;
-    align-self: center;
-    line-height: 1;
-    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
-  }
-  .card-corner-bottom {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    line-height: 0.95;
-    font-size: 14px;
-    transform: rotate(180deg);
-  }
-
-  /* 4인 플레이어 시트 배치 */
-  .player-seat {
-    position: absolute;
-    width: 220px;
-    background: var(--panel-glass);
-    border: 1.5px solid rgba(255, 255, 255, 0.16);
-    border-radius: 14px;
-    padding: 10px 12px;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.85);
-    backdrop-filter: blur(8px);
-    transition: all 0.25s;
-    z-index: 20;
-  }
-  .player-seat.active-turn {
-    border-color: var(--gold);
-    box-shadow: 0 0 25px rgba(245, 208, 97, 0.65), inset 0 0 12px rgba(245, 208, 97, 0.2);
-    transform: scale(1.04);
-  }
-  .player-seat.folded {
-    opacity: 0.45;
-    filter: grayscale(0.75);
-  }
-  .player-seat.winner-seat {
-    border-color: #4ade80;
-    box-shadow: 0 0 30px rgba(74, 222, 128, 0.8);
-  }
-
-  /* 좌석별 좌표 (0: 하단 HERO, 1: 좌측 AI, 2: 상단 좌/우 또는 상단 AI, 3: 우측 AI) */
-  #seat-0 { bottom: -68px; left: 50%; transform: translateX(-50%); width: 270px; }
-  #seat-0.active-turn { transform: translateX(-50%) scale(1.04); }
-
-  #seat-1 { left: -65px; top: 50%; transform: translateY(-50%); }
-  #seat-1.active-turn { transform: translateY(-50%) scale(1.04); }
-
-  #seat-2 { top: -35px; left: 14%; }
-  #seat-3 { right: -65px; top: 50%; transform: translateY(-50%); }
-  #seat-3.active-turn { transform: translateY(-50%) scale(1.04); }
-
-  .seat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-  }
-  .seat-identity {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-  .seat-avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: #1e293b;
-    border: 1px solid var(--gold);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-  }
-  .seat-name {
-    font-size: 13px;
-    font-weight: 800;
-    color: #f8fafc;
-  }
-  .seat-style-tag {
-    font-size: 9px;
-    color: #94a3b8;
-    display: block;
-  }
-  .seat-stack {
-    font-size: 14px;
-    font-weight: 900;
-    color: var(--gold);
-  }
-
-  /* 포지션 배지 (BTN, SB, BB, UTG) */
-  .pos-badges {
-    display: flex;
-    gap: 4px;
-    position: absolute;
-    top: -11px;
-    right: 12px;
-  }
-  .pos-badge {
-    font-size: 10px;
-    font-weight: 900;
-    padding: 2px 7px;
-    border-radius: 10px;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
-  }
-  .pos-BTN { background: linear-gradient(180deg, #fff 0%, #cbd5e1 100%); color: #000; border: 1px solid #000; }
-  .pos-SB  { background: #3b82f6; color: #fff; }
-  .pos-BB  { background: #a855f7; color: #fff; }
-  .pos-UTG { background: #475569; color: #e2e8f0; }
-
-  .hole-cards-row {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    min-height: 76px;
-    align-items: center;
-  }
-  .seat-ai .playing-card {
-    width: 50px;
-    height: 72px;
-    padding: 4px;
-  }
-  .seat-ai .card-Pip-center { font-size: 20px; }
-  .seat-ai .card-corner-top, .seat-ai .card-corner-bottom { font-size: 11px; }
-
-  /* 플레이어 베팅 칩 표시 영역 */
-  .bet-chip-bubble {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.82);
-    border: 1.5px solid var(--gold);
-    border-radius: 16px;
-    padding: 3px 10px;
-    font-size: 12px;
-    font-weight: 900;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.7);
-    z-index: 25;
-  }
-  .chip-icon {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #ef4444 40%, #fff 42%, #dc2626 70%);
-    border: 1.5px dashed #fff;
-    display: inline-block;
-  }
-  #seat-0 .bet-chip-bubble { top: -38px; left: 50%; transform: translateX(-50%); }
-  #seat-1 .bet-chip-bubble { right: -105px; top: 50%; transform: translateY(-50%); }
-  #seat-2 .bet-chip-bubble { bottom: -36px; left: 50%; transform: translateX(-50%); }
-  #seat-3 .bet-chip-bubble { left: -105px; top: 50%; transform: translateY(-50%); }
-
-  .action-tag {
-    margin-top: 5px;
-    text-align: center;
-    font-size: 11px;
-    font-weight: 800;
-    padding: 2px 8px;
-    border-radius: 6px;
-    background: rgba(255,255,255,0.06);
-    color: #e2e8f0;
-  }
-  .action-tag.raise { background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
-  .action-tag.call  { background: rgba(59, 130, 246, 0.25); color: #93c5fd; border: 1px solid rgba(59,130,246,0.4); }
-  .action-tag.check { background: rgba(34, 197, 94, 0.22); color: #86efac; }
-  .action-tag.allin { background: linear-gradient(90deg, #f59e0b, #ef4444); color: #fff; animation: pulse 1s infinite; }
-
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.06); }
-  }
-
-  /* 하단 플레이어 컨트롤 덱 */
-  #control-dock {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 84px;
-    background: linear-gradient(180deg, rgba(10, 13, 20, 0.95) 0%, #05070b 100%);
-    border-top: 1px solid rgba(245, 208, 97, 0.35);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 24px;
-    z-index: 40;
-  }
-
-  .hand-strength-box {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 210px;
-  }
-  .hs-label { font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; }
-  .hs-value { font-size: 16px; font-weight: 900; color: var(--gold); }
-
-  .bet-slider-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(255,255,255,0.04);
-    padding: 8px 14px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .quick-bet-btn {
-    background: #1e293b;
-    color: #cbd5e1;
-    border: 1px solid #475569;
-    padding: 5px 9px;
-    border-radius: 5px;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .quick-bet-btn:hover:not(:disabled) { background: var(--gold); color: #000; border-color: var(--gold); }
-  .quick-bet-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-  input[type=range] {
-    width: 140px;
-    accent-color: var(--gold);
-    cursor: pointer;
-  }
-  #raise-amount-lbl {
-    font-size: 14px;
-    font-weight: 900;
-    color: var(--gold);
-    min-width: 70px;
-    text-align: right;
-  }
-
-  .action-buttons {
-    display: flex;
-    gap: 10px;
-  }
-  .act-btn {
-    min-width: 105px;
-    height: 46px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 900;
-    cursor: pointer;
-    border: none;
-    transition: transform 0.12s, filter 0.15s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    line-height: 1.1;
-  }
-  .act-btn small { font-size: 10px; font-weight: 700; opacity: 0.9; }
-  .act-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.12); }
-  .act-btn:disabled { opacity: 0.32; cursor: not-allowed; transform: none; }
-
-  .btn-fold { background: linear-gradient(180deg, #475569 0%, #1e293b 100%); color: #f8fafc; border: 1px solid #64748b; }
-  .btn-call { background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%); color: #fff; border: 1px solid #60a5fa; }
-  .btn-raise { background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%); color: #fff; border: 1px solid #f87171; }
-
-  /* 카지노 라이브 로그 창 */
-  #dealer-log {
-    position: fixed;
-    bottom: 94px;
-    left: 16px;
-    width: 265px;
-    max-height: 145px;
-    overflow-y: auto;
-    background: rgba(8, 10, 15, 0.82);
-    border: 1px solid rgba(245, 208, 97, 0.25);
-    border-radius: 8px;
-    padding: 8px 10px;
-    font-size: 11px;
-    line-height: 1.45;
-    color: #cbd5e1;
-    z-index: 35;
-  }
-  #dealer-log div { margin-bottom: 3px; }
-
-  /* 파티클 캔버스 */
-  #fx-canvas {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 50;
-  }
-
-  @media (max-width: 850px) {
-    #poker-table { width: 95vw; height: 55vh; border-width: 14px; }
-    .player-seat { width: 160px; padding: 6px 8px; }
-    #seat-0 { width: 220px; bottom: -58px; }
-    #seat-1 { left: -12px; }
-    #seat-3 { right: -12px; }
-    #dealer-log { display: none; }
-    .hand-strength-box { display: none; }
-    #control-dock { padding: 0 10px; justify-content: center; gap: 8px; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>포트리스 2 블루 - 웹 아케이드 에디션</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@500;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .font-title {
+            font-family: 'Black Han Sans', sans-serif;
+        }
+        .font-digital {
+            font-family: 'Orbitron', monospace;
+        }
+        /* Retro Metallic Dashboard Styling */
+        .fortress-panel {
+            background: linear-gradient(180deg, #3b4d6b 0%, #1e293b 50%, #0f172a 100%);
+            border-top: 3px solid #94a3b8;
+            border-bottom: 4px solid #020617;
+            border-left: 3px solid #64748b;
+            border-right: 3px solid #0f172a;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.25), 0 8px 25px rgba(0,0,0,0.8);
+        }
+        .inset-panel {
+            background: linear-gradient(180deg, #090d16 0%, #151e2e 100%);
+            border-top: 2px solid #020617;
+            border-left: 2px solid #020617;
+            border-right: 2px solid #334155;
+            border-bottom: 2px solid #475569;
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.9);
+        }
+        .gauge-bar-bg {
+            background: repeating-linear-gradient(
+                90deg,
+                rgba(255,255,255,0.06) 0px,
+                rgba(255,255,255,0.06) 8px,
+                transparent 8px,
+                transparent 16px
+            ), #090d16;
+        }
+        .arcade-btn {
+            background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
+            border: 2px solid #94a3b8;
+            border-bottom-color: #0f172a;
+            border-right-color: #0f172a;
+            transition: all 0.1s ease;
+        }
+        .arcade-btn:hover:not(:disabled) {
+            filter: brightness(1.18);
+            transform: translateY(-1px);
+        }
+        .arcade-btn:active:not(:disabled) {
+            transform: translateY(1px);
+            border-top-color: #0f172a;
+            border-left-color: #0f172a;
+        }
+        .arcade-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .item-slot {
+            background: linear-gradient(135deg, #1e293b 0%, #090d16 100%);
+            border: 2px solid #475569;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
+            transition: all 0.15s ease;
+        }
+        .item-slot:hover:not(.used) {
+            border-color: #facc15;
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.4), inset 0 2px 5px rgba(0,0,0,0.8);
+            transform: scale(1.04);
+        }
+        .item-slot.active-item {
+            border-color: #22c55e;
+            box-shadow: 0 0 14px rgba(34, 197, 94, 0.7), inset 0 0 8px rgba(34, 197, 94, 0.4);
+            animation: pulse-border 1s infinite alternate;
+        }
+        .item-slot.used {
+            opacity: 0.25;
+            filter: grayscale(1);
+            cursor: default;
+        }
+        @keyframes pulse-border {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.06); }
+        }
+        .tank-card {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid #334155;
+            transition: all 0.2s;
+        }
+        .tank-card:hover {
+            border-color: #60a5fa;
+            transform: translateY(-2px);
+        }
+        .tank-card.selected {
+            border-color: #facc15;
+            background: linear-gradient(180deg, #312e81 0%, #0f172a 100%);
+            box-shadow: 0 0 18px rgba(250, 204, 21, 0.35);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    </style>
 </head>
-<body>
-
-<canvas id="fx-canvas"></canvas>
-
-<header>
-  <div class="brand-title">♠ GRAND ROYALE 4-MAX HOLD'EM</div>
-  <div class="header-info">
-    <div class="badge-pill">HAND <b id="hdr-hand">#1</b></div>
-    <div class="badge-pill">BLINDS <b id="hdr-blinds">$10 / $20</b></div>
-    <div class="badge-pill">STREET <b id="hdr-street">PRE-FLOP</b></div>
-    <button class="btn-top" onclick="Game.rebuyAll()">💰 리바이 / 칩 충전 ($2,000)</button>
-    <button class="btn-top" onclick="Game.startNewHand()">⏭ 다음 핸드</button>
-  </div>
-</header>
-
-<div id="casino-stage">
-  <div id="poker-table">
-    <!-- 상단 카지노 전담 딜러 -->
-    <div id="croupier-station">
-      <div class="croupier-avatar">🤵</div>
-      <div class="croupier-banner" id="croupier-msg">카지노 VIP 테이블에 오신 것을 환영합니다.</div>
-    </div>
-
-    <!-- 중앙 보드: 메인팟/사이드팟 + 번카드 + 커뮤니티 5장 -->
-    <div id="board-center">
-      <div id="pots-container">
-        <div class="pot-pill">MAIN POT: $<span id="main-pot-val">0</span></div>
-      </div>
-
-      <div id="community-row">
-        <div id="burn-slot" title="카지노 룰: 플랍/턴/리버 오픈 전 맨 위 카드를 1장씩 번(Burn) 처리합니다">
-          <div class="burn-stack" id="burn-stack-box"></div>
-          <span class="burn-label">BURN (<span id="burn-count">0</span>/3)</span>
-        </div>
-        <div class="card-slot" id="comm-0"></div>
-        <div class="card-slot" id="comm-1"></div>
-        <div class="card-slot" id="comm-2"></div>
-        <div class="card-slot" id="comm-3"></div>
-        <div class="card-slot" id="comm-4"></div>
-      </div>
-    </div>
-
-    <!-- 4인의 플레이어 좌석 -->
-    <div class="player-seat" id="seat-0"></div>
-    <div class="player-seat seat-ai" id="seat-1"></div>
-    <div class="player-seat seat-ai" id="seat-2"></div>
-    <div class="player-seat seat-ai" id="seat-3"></div>
-  </div>
-</div>
-
-<div id="dealer-log"></div>
-
-<!-- 하단 베팅 컨트롤 바 -->
-<div id="control-dock">
-  <div class="hand-strength-box">
-    <span class="hs-label">내 현재 족보 (Best 5-Card Hand)</span>
-    <span class="hs-value" id="hero-hand-rank">-</span>
-  </div>
-
-  <div class="bet-slider-group">
-    <button class="quick-bet-btn" id="q-min" onclick="Game.setQuickBet('MIN')">MIN</button>
-    <button class="quick-bet-btn" id="q-half" onclick="Game.setQuickBet('HALF')">1/2 POT</button>
-    <button class="quick-bet-btn" id="q-pot" onclick="Game.setQuickBet('POT')">POT</button>
-    <button class="quick-bet-btn" id="q-allin" onclick="Game.setQuickBet('ALLIN')">ALL-IN</button>
-    <input type="range" id="bet-slider" min="20" max="2000" step="10" oninput="Game.onSliderChange(this.value)">
-    <span id="raise-amount-lbl">$40</span>
-  </div>
-
-  <div class="action-buttons">
-    <button class="act-btn btn-fold" id="btn-fold" onclick="Game.handleHeroAction('FOLD')" disabled>
-      FOLD <small>다이</small>
-    </button>
-    <button class="act-btn btn-call" id="btn-call" onclick="Game.handleHeroAction('CALL')" disabled>
-      <span id="lbl-call-main">CALL</span>
-      <small id="lbl-call-sub">$20</small>
-    </button>
-    <button class="act-btn btn-raise" id="btn-raise" onclick="Game.handleHeroAction('RAISE')" disabled>
-      <span id="lbl-raise-main">RAISE TO</span>
-      <small id="lbl-raise-sub">$40</small>
-    </button>
-  </div>
-</div>
-
-<script>
-/**
- * ============================================================================
- * [1. WEB AUDIO SYNTHESIZER (카지노 사운드 이펙트)]
- * ============================================================================
- */
-const Sound = {
-  ctx: null,
-  init() {
-    if (!this.ctx) {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AC();
-    }
-    if (this.ctx.state === 'suspended') this.ctx.resume();
-  },
-  playCard() {
-    try {
-      this.init();
-      const t = this.ctx.currentTime;
-      const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.06, this.ctx.sampleRate);
-      const data = buf.getChannelData(0);
-      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / 400);
-      const noise = this.ctx.createBufferSource();
-      noise.buffer = buf;
-      const filter = this.ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(1800, t);
-      const gain = this.ctx.createGain();
-      gain.gain.setValueAtTime(0.25, t);
-      noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
-      noise.start(t);
-    } catch (e) {}
-  },
-  playChip() {
-    try {
-      this.init();
-      const t = this.ctx.currentTime;
-      [2400, 3200].forEach((freq, idx) => {
-        const osc = this.ctx.createOscillator();
-        const g = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, t + idx * 0.03);
-        g.gain.setValueAtTime(0.15, t + idx * 0.03);
-        g.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.03 + 0.08);
-        osc.connect(g); g.connect(this.ctx.destination);
-        osc.start(t + idx * 0.03); osc.stop(t + idx * 0.03 + 0.08);
-      });
-    } catch (e) {}
-  },
-  playCheck() {
-    try {
-      this.init();
-      const t = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const g = this.ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(140, t);
-      osc.frequency.exponentialRampToValueAtTime(45, t + 0.09);
-      g.gain.setValueAtTime(0.3, t);
-      g.gain.linearRampToValueAtTime(0.01, t + 0.09);
-      osc.connect(g); g.connect(this.ctx.destination);
-      osc.start(t); osc.stop(t + 0.09);
-    } catch (e) {}
-  },
-  playWinFanfare() {
-    try {
-      this.init();
-      const notes = [523.25, 659.25, 783.99, 1046.50];
-      notes.forEach((f, i) => {
-        const t = this.ctx.currentTime + i * 0.09;
-        const osc = this.ctx.createOscillator();
-        const g = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(f, t);
-        g.gain.setValueAtTime(0.22, t);
-        g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
-        osc.connect(g); g.connect(this.ctx.destination);
-        osc.start(t); osc.stop(t + 0.35);
-      });
-    } catch (e) {}
-  }
-};
-
-/**
- * ============================================================================
- * [2. 7-CARD COMBINATORIAL HAND EVALUATOR (정밀 21개 조합 판정기)]
- * ============================================================================
- */
-const SUITS = ['♠', '♥', '♦', '♣'];
-const RANKS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-const RANK_STR = { 2:'2',3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',10:'10',11:'J',12:'Q',13:'K',14:'A' };
-
-const HandEvaluator = {
-  // 7장 중 최적의 5장 조합 탐색 (C(7,5) = 21)
-  evaluate7(cards) {
-    if (cards.length < 5) return { category: 0, score: 0, name: '하이 카드', best5: cards };
-    const combos = this.getCombinations(cards, 5);
-    let best = null;
-    for (const c5 of combos) {
-      const res = this.eval5(c5);
-      if (!best || res.score > best.score) best = res;
-    }
-    return best;
-  },
-
-  getCombinations(arr, k) {
-    const results = [];
-    function helper(start, combo) {
-      if (combo.length === k) {
-        results.push([...combo]);
-        return;
-      }
-      for (let i = start; i < arr.length; i++) {
-        combo.push(arr[i]);
-        helper(i + 1, combo);
-        combo.pop();
-      }
-    }
-    helper(0, []);
-    return results;
-  },
-
-  eval5(cards5) {
-    const sorted = [...cards5].sort((a, b) => b.rank - a.rank);
-    const ranks = sorted.map(c => c.rank);
-    const suits = sorted.map(c => c.suit);
-
-    const isFlush = suits.every(s => s === suits[0]);
-
-    // 스트레이트 체크 (A-2-3-4-5 휠 스트레이트 포함)
-    let isStraight = false;
-    let straightHigh = ranks[0];
-    const uniqueRanks = [...new Set(ranks)];
-    if (uniqueRanks.length === 5) {
-      if (ranks[0] - ranks[4] === 4) {
-        isStraight = true;
-      } else if (ranks[0] === 14 && ranks[1] === 5 && ranks[2] === 4 && ranks[3] === 3 && ranks[4] === 2) {
-        isStraight = true;
-        straightHigh = 5; // 5-high straight
-      }
-    }
-
-    // 빈도수 집계
-    const counts = {};
-    ranks.forEach(r => counts[r] = (counts[r] || 0) + 1);
-    const groups = Object.entries(counts)
-      .map(([r, cnt]) => ({ rank: Number(r), count: cnt }))
-      .sort((a, b) => b.count - a.count || b.rank - a.rank);
-
-    let category = 0;
-    let name = '';
-    let tieOrder = [];
-
-    if (isFlush && isStraight) {
-      category = (straightHigh === 14) ? 9 : 8;
-      name = (category === 9) ? '로열 플러시 (Royal Flush)' : `스트레이트 플러시 (${RANK_STR[straightHigh]} High)`;
-      tieOrder = [straightHigh];
-    } else if (groups[0].count === 4) {
-      category = 7;
-      name = `포카드 (Four of a Kind, ${RANK_STR[groups[0].rank]})`;
-      tieOrder = [groups[0].rank, groups[1].rank];
-    } else if (groups[0].count === 3 && groups[1].count === 2) {
-      category = 6;
-      name = `풀 하우스 (Full House, ${RANK_STR[groups[0].rank]} over ${RANK_STR[groups[1].rank]})`;
-      tieOrder = [groups[0].rank, groups[1].rank];
-    } else if (isFlush) {
-      category = 5;
-      name = `플러시 (Flush, ${RANK_STR[ranks[0]]} High)`;
-      tieOrder = ranks;
-    } else if (isStraight) {
-      category = 4;
-      name = `스트레이트 (Straight, ${RANK_STR[straightHigh]} High)`;
-      tieOrder = [straightHigh];
-    } else if (groups[0].count === 3) {
-      category = 3;
-      name = `트리플 (Three of a Kind, ${RANK_STR[groups[0].rank]})`;
-      tieOrder = [groups[0].rank, groups[1].rank, groups[2].rank];
-    } else if (groups[0].count === 2 && groups[1].count === 2) {
-      category = 2;
-      name = `투 페어 (Two Pair, ${RANK_STR[groups[0].rank]} & ${RANK_STR[groups[1].rank]})`;
-      tieOrder = [groups[0].rank, groups[1].rank, groups[2].rank];
-    } else if (groups[0].count === 2) {
-      category = 1;
-      name = `원 페어 (One Pair, ${RANK_STR[groups[0].rank]})`;
-      tieOrder = [groups[0].rank, groups[1].rank, groups[2].rank, groups[3].rank];
-    } else {
-      category = 0;
-      name = `하이 카드 (${RANK_STR[ranks[0]]} High)`;
-      tieOrder = ranks;
-    }
-
-    // 고유 비교 점수 산출 (15진법 가중치)
-    let score = category * Math.pow(15, 5);
-    for (let i = 0; i < tieOrder.length; i++) {
-      score += tieOrder[i] * Math.pow(15, 4 - i);
-    }
-
-    return { category, score, name, best5: sorted };
-  }
-};
-
-/**
- * ============================================================================
- * [3. PARTICLE GOLD COIN SHOWER FX]
- * ============================================================================
- */
-const FX = {
-  coins: [],
-  canvas: null,
-  ctx: null,
-  init() {
-    this.canvas = document.getElementById('fx-canvas');
-    this.ctx = this.canvas.getContext('2d');
-    this.resize();
-    window.addEventListener('resize', () => this.resize());
-    this.loop();
-  },
-  resize() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
-  },
-  burstCoins() {
-    for (let i = 0; i < 55; i++) {
-      this.coins.push({
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2 - 40,
-        vx: (Math.random() - 0.5) * 14,
-        vy: -Math.random() * 12 - 4,
-        r: 6 + Math.random() * 5,
-        alpha: 1
-      });
-    }
-  },
-  loop() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    for (let i = this.coins.length - 1; i >= 0; i--) {
-      const c = this.coins[i];
-      c.x += c.vx;
-      c.y += c.vy;
-      c.vy += 0.38;
-      c.alpha -= 0.012;
-      if (c.alpha <= 0) {
-        this.coins.splice(i, 1);
-        continue;
-      }
-      this.ctx.save();
-      this.ctx.globalAlpha = c.alpha;
-      this.ctx.fillStyle = '#f5d061';
-      this.ctx.strokeStyle = '#b38728';
-      this.ctx.lineWidth = 2;
-      this.ctx.beginPath();
-      this.ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
-      this.ctx.fill();
-      this.ctx.stroke();
-      this.ctx.restore();
-    }
-    requestAnimationFrame(() => this.loop());
-  }
-};
-
-/**
- * ============================================================================
- * [4. 4-MAX CASINO TEXAS HOLD'EM ENGINE]
- * ============================================================================
- */
-const Game = {
-  handNumber: 0,
-  sbAmount: 10,
-  bbAmount: 20,
-  buttonIndex: 0, // 0~3 순환
-
-  street: 'IDLE', // PREFLOP, FLOP, TURN, RIVER, SHOWDOWN
-  deck: [],
-  burnCards: [],
-  community: [],
-
-  currentHighestBet: 0,
-  minRaiseIncrement: 20,
-  activeSeatIndex: -1,
-  handInProgress: false,
-  winningCardIds: new Set(),
-
-  players: [
-    { id: 0, name: 'YOU (VIP)', style: 'Human Player', avatar: '😎', isAI: false, chips: 2000, hole: [], streetBet: 0, totalCommitted: 0, folded: false, allIn: false, acted: false, lastAction: '', pos: '' },
-    { id: 1, name: '빅토리아 (Victoria)', style: 'TAG Pro (타이트-어그레시브)', avatar: '👩‍💼', isAI: true, archetype: 'TAG', chips: 2000, hole: [], streetBet: 0, totalCommitted: 0, folded: false, allIn: false, acted: false, lastAction: '', pos: '' },
-    { id: 2, name: '렉스 (Rex)', style: 'LAG Shark (루즈-어그레시브)', avatar: '🦊', isAI: true, archetype: 'LAG', chips: 2000, hole: [], streetBet: 0, totalCommitted: 0, folded: false, allIn: false, acted: false, lastAction: '', pos: '' },
-    { id: 3, name: '첸 회장 (Mr. Chen)', style: 'Whale (하이롤러 콜러)', avatar: '🎩', isAI: true, archetype: 'WHALE', chips: 2000, hole: [], streetBet: 0, totalCommitted: 0, folded: false, allIn: false, acted: false, lastAction: '', pos: '' }
-  ],
-
-  init() {
-    FX.init();
-    this.buttonIndex = Math.floor(Math.random() * 4);
-    this.startNewHand();
-  },
-
-  log(msg) {
-    const box = document.getElementById('dealer-log');
-    const div = document.createElement('div');
-    div.innerHTML = msg;
-    box.prepend(div);
-  },
-
-  announce(msg) {
-    document.getElementById('croupier-msg').textContent = msg;
-  },
-
-  rebuyAll() {
-    this.players.forEach(p => {
-      if (p.chips < 500) p.chips = 2000;
-    });
-    this.log(`<span style="color:#f5d061">💰 카지노 케이지: 스택 부족 플레이어 $2,000 리바이 완료.</span>`);
-    if (!this.handInProgress) this.startNewHand();
-    else this.render();
-  },
-
-  buildDeck() {
-    this.deck = [];
-    for (const s of SUITS) {
-      for (const r of RANKS) {
-        this.deck.push({ id: `${r}${s}`, rank: r, suit: s });
-      }
-    }
-    // Fisher-Yates 셔플
-    for (let i = this.deck.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
-    }
-  },
-
-  startNewHand() {
-    // 파산 플레이어 자동 리바이
-    this.players.forEach(p => {
-      if (p.chips <= 0) {
-        p.chips = 2000;
-        this.log(`🔄 <b>${p.name}</b> $2,000 자동 리바이.`);
-      }
-    });
-
-    this.handNumber++;
-    this.buttonIndex = (this.buttonIndex + 1) % 4;
-    this.street = 'PREFLOP';
-    this.handInProgress = true;
-    this.winningCardIds.clear();
-    this.buildDeck();
-    this.burnCards = [];
-    this.community = [];
-
-    // 포지션 할당 (BTN -> SB -> BB -> UTG)
-    const posNames = ['BTN', 'SB', 'BB', 'UTG'];
-    this.players.forEach(p => {
-      p.hole = [];
-      p.streetBet = 0;
-      p.totalCommitted = 0;
-      p.folded = false;
-      p.allIn = false;
-      p.acted = false;
-      p.lastAction = '';
-      p.winner = false;
-    });
-
-    for (let offset = 0; offset < 4; offset++) {
-      const seatIdx = (this.buttonIndex + offset) % 4;
-      this.players[seatIdx].pos = posNames[offset];
-    }
-
-    const sbSeat = (this.buttonIndex + 1) % 4;
-    const bbSeat = (this.buttonIndex + 2) % 4;
-    const utgSeat = (this.buttonIndex + 3) % 4;
-
-    this.log(`<hr style="border-color:rgba(255,255,255,0.1);margin:4px 0;"><b>[Hand #${this.handNumber}]</b> 버튼: ${this.players[this.buttonIndex].name}`);
-
-    // 스몰/빅 블라인드 강제 포스팅
-    this.postBet(sbSeat, this.sbAmount, 'SB $' + this.sbAmount);
-    this.postBet(bbSeat, this.bbAmount, 'BB $' + this.bbAmount);
-
-    this.currentHighestBet = this.bbAmount;
-    this.minRaiseIncrement = this.bbAmount;
-
-    // 각 플레이어 홀카드 2장 딜링
-    for (let round = 0; round < 2; round++) {
-      for (let offset = 1; offset <= 4; offset++) {
-        const sIdx = (this.buttonIndex + offset) % 4;
-        this.players[sIdx].hole.push(this.deck.pop());
-      }
-    }
-    Sound.playCard();
-
-    // 프리플랍 첫 액션: UTG (button + 3)
-    this.activeSeatIndex = utgSeat;
-    this.announce(`프리플랍 베팅 시작 — ${this.players[this.activeSeatIndex].name} 차례`);
-    this.render();
-    this.processTurn();
-  },
-
-  postBet(seatIdx, amount, label) {
-    const p = this.players[seatIdx];
-    const actual = Math.min(p.chips, amount);
-    p.chips -= actual;
-    p.streetBet += actual;
-    p.totalCommitted += actual;
-    if (p.chips === 0) p.allIn = true;
-    if (label) p.lastAction = label;
-    Sound.playChip();
-  },
-
-  // 총 팟 및 사이드 팟 계산기 (카지노 공식 All-In 분리 알고리즘)
-  calculatePots() {
-    const contributors = this.players.filter(p => p.totalCommitted > 0);
-    if (contributors.length === 0) return [{ amount: 0, eligible: [] }];
-
-    // 올인한 플레이어들의 커밋 레벨을 오름차순 정렬
-    const levels = [...new Set(contributors.map(p => p.totalCommitted))].sort((a, b) => a - b);
-    const pots = [];
-    let prevLevel = 0;
-
-    for (const lvl of levels) {
-      const slice = lvl - prevLevel;
-      if (slice <= 0) continue;
-
-      let potAmount = 0;
-      const eligible = [];
-
-      this.players.forEach(p => {
-        const contrib = Math.min(lvl, p.totalCommitted) - Math.min(prevLevel, p.totalCommitted);
-        if (contrib > 0) {
-          potAmount += contrib;
-          if (!p.folded) eligible.push(p.id);
-        }
-      });
-
-      if (potAmount > 0) {
-        // 직전 팟과 유자격자 구성이 완전히 같으면 병합
-        if (pots.length > 0 && JSON.stringify(pots[pots.length - 1].eligible) === JSON.stringify(eligible)) {
-          pots[pots.length - 1].amount += potAmount;
-        } else {
-          pots.push({ amount: potAmount, eligible });
-        }
-      }
-      prevLevel = lvl;
-    }
-    return pots.length ? pots : [{ amount: 0, eligible: [] }];
-  },
-
-  getTotalPot() {
-    return this.players.reduce((sum, p) => sum + p.totalCommitted, 0);
-  },
-
-  // 현재 베팅 라운드 종료 여부 확인
-  isStreetComplete() {
-    const activePlayers = this.players.filter(p => !p.folded);
-    if (activePlayers.length <= 1) return true;
-
-    const canActPlayers = activePlayers.filter(p => !p.allIn);
-    // 모든 생존자가 올인이거나, 행동 가능한 모든 플레이어가 acted=true 이면서 최고 베팅액과 일치할 때
-    return canActPlayers.every(p => p.acted && p.streetBet === this.currentHighestBet);
-  },
-
-  processTurn() {
-    if (!this.handInProgress) return;
-
-    const activePlayers = this.players.filter(p => !p.folded);
-    if (activePlayers.length === 1) {
-      this.awardUncontested(activePlayers[0]);
-      return;
-    }
-
-    if (this.isStreetComplete()) {
-      this.advanceStreet();
-      return;
-    }
-
-    const current = this.players[this.activeSeatIndex];
-    if (current.folded || current.allIn) {
-      this.moveToNextSeat();
-      return;
-    }
-
-    this.render();
-
-    if (current.isAI) {
-      this.announce(`${current.name} (${current.pos}) 생각 중...`);
-      setTimeout(() => this.executeAITurn(current), 750);
-    } else {
-      this.announce(`당신의 차례입니다 (${current.pos}). 액션을 선택하세요.`);
-    }
-  },
-
-  moveToNextSeat() {
-    for (let i = 1; i <= 4; i++) {
-      const nextIdx = (this.activeSeatIndex + i) % 4;
-      const p = this.players[nextIdx];
-      if (!p.folded && !p.allIn) {
-        this.activeSeatIndex = nextIdx;
-        this.processTurn();
-        return;
-      }
-    }
-    this.advanceStreet();
-  },
-
-  // 플레이어 액션 처리
-  handleHeroAction(actionType) {
-    const hero = this.players[0];
-    if (this.activeSeatIndex !== 0 || !this.handInProgress) return;
-
-    const toCall = Math.max(0, this.currentHighestBet - hero.streetBet);
-
-    if (actionType === 'FOLD') {
-      hero.folded = true;
-      hero.acted = true;
-      hero.lastAction = 'FOLD';
-      this.log(`❌ <b>${hero.name}</b> 폴드.`);
-      Sound.playCard();
-    } else if (actionType === 'CALL') {
-      if (toCall === 0) {
-        hero.acted = true;
-        hero.lastAction = 'CHECK';
-        this.log(`✔️ <b>${hero.name}</b> 체크.`);
-        Sound.playCheck();
-      } else {
-        this.postBet(0, toCall, hero.chips <= toCall ? 'ALL-IN' : `CALL $${Math.min(hero.chips, toCall)}`);
-        hero.acted = true;
-        this.log(`📞 <b>${hero.name}</b> 콜 ($${Math.min(hero.chips + toCall, toCall)}).`);
-      }
-    } else if (actionType === 'RAISE') {
-      const sliderVal = Number(document.getElementById('bet-slider').value);
-      const targetTotalStreetBet = Math.min(hero.streetBet + hero.chips, sliderVal);
-      const added = targetTotalStreetBet - hero.streetBet;
-      const raiseDiff = targetTotalStreetBet - this.currentHighestBet;
-
-      if (raiseDiff > 0 && raiseDiff > this.minRaiseIncrement) {
-        this.minRaiseIncrement = raiseDiff;
-      }
-      if (targetTotalStreetBet > this.currentHighestBet) {
-        this.currentHighestBet = targetTotalStreetBet;
-        // 다른 생존 플레이어들의 acted 초기화 (재액션 기회 부여)
-        this.players.forEach(p => { if (p.id !== 0 && !p.folded && !p.allIn) p.acted = false; });
-      }
-
-      this.postBet(0, added, hero.chips === 0 ? 'ALL-IN' : `RAISE $${targetTotalStreetBet}`);
-      hero.acted = true;
-      this.log(`🔥 <b>${hero.name}</b> 레이즈 ➔ <b>$${targetTotalStreetBet}</b>`);
-    }
-
-    this.moveToNextSeat();
-  },
-
-  // AI 의사결정 엔진 (아키타입별 개성 반영)
-  executeAITurn(ai) {
-    if (!this.handInProgress) return;
-    const toCall = Math.max(0, this.currentHighestBet - ai.streetBet);
-    const pot = this.getTotalPot();
-
-    // 핸드 파워 평가 (0.0 ~ 1.0)
-    const strength = this.evaluateAIHandStrength(ai);
-
-    // 아키타입별 성향 보정
-    let aggression = 0.5;
-    let looseness = 0.5;
-    if (ai.archetype === 'TAG')   { aggression = 0.72; looseness = 0.38; }
-    if (ai.archetype === 'LAG')   { aggression = 0.85; looseness = 0.68; }
-    if (ai.archetype === 'WHALE') { aggression = 0.30; looseness = 0.82; }
-
-    const effectiveScore = strength + (Math.random() * 0.16 - 0.08);
-    const minRaiseTo = this.currentHighestBet + this.minRaiseIncrement;
-
-    // 1. 체크 가능한 상황 (toCall === 0)
-    if (toCall === 0) {
-      if (effectiveScore > (1.0 - aggression * 0.65) && ai.chips > this.bbAmount) {
-        const betSize = Math.min(
-          ai.streetBet + ai.chips,
-          Math.max(minRaiseTo, Math.round((pot * (0.5 + Math.random() * 0.35)) / 10) * 10)
-        );
-        const added = betSize - ai.streetBet;
-        this.minRaiseIncrement = Math.max(this.minRaiseIncrement, betSize - this.currentHighestBet);
-        this.currentHighestBet = betSize;
-        this.players.forEach(p => { if (p.id !== ai.id && !p.folded && !p.allIn) p.acted = false; });
-        this.postBet(ai.id, added, ai.chips === added ? 'ALL-IN' : `BET $${betSize}`);
-        ai.acted = true;
-        this.log(`🔥 <b>${ai.name}</b> 베팅 ➔ <b>$${betSize}</b>`);
-      } else {
-        ai.acted = true;
-        ai.lastAction = 'CHECK';
-        Sound.playCheck();
-        this.log(`✔️ <b>${ai.name}</b> 체크.`);
-      }
-      this.moveToNextSeat();
-      return;
-    }
-
-    // 2. 콜 비용이 존재하는 상황 (toCall > 0)
-    const potOdds = toCall / (pot + toCall);
-
-    if (effectiveScore > 0.76 && ai.chips > toCall + this.minRaiseIncrement && Math.random() < aggression) {
-      // 리레이즈 (3-Bet / Value Raise)
-      const raiseTo = Math.min(
-        ai.streetBet + ai.chips,
-        Math.max(minRaiseTo, Math.round((this.currentHighestBet * 2.5) / 10) * 10)
-      );
-      const added = raiseTo - ai.streetBet;
-      this.minRaiseIncrement = Math.max(this.minRaiseIncrement, raiseTo - this.currentHighestBet);
-      this.currentHighestBet = raiseTo;
-      this.players.forEach(p => { if (p.id !== ai.id && !p.folded && !p.allIn) p.acted = false; });
-      this.postBet(ai.id, added, ai.chips === added ? 'ALL-IN' : `RAISE $${raiseTo}`);
-      ai.acted = true;
-      this.log(`🔥 <b>${ai.name}</b> 레이즈 ➔ <b>$${raiseTo}</b>`);
-    } else if (effectiveScore >= potOdds * (1.15 - looseness * 0.55) || toCall <= this.bbAmount) {
-      // 콜
-      this.postBet(ai.id, toCall, ai.chips <= toCall ? 'ALL-IN' : `CALL $${Math.min(ai.chips, toCall)}`);
-      ai.acted = true;
-      this.log(`📞 <b>${ai.name}</b> 콜.`);
-    } else {
-      // 폴드
-      ai.folded = true;
-      ai.acted = true;
-      ai.lastAction = 'FOLD';
-      Sound.playCard();
-      this.log(`❌ <b>${ai.name}</b> 폴드.`);
-    }
-
-    this.moveToNextSeat();
-  },
-
-  evaluateAIHandStrength(ai) {
-    if (this.community.length === 0) {
-      // 프리플랍 첸(Chen) 근사식
-      const [c1, c2] = ai.hole;
-      const high = Math.max(c1.rank, c2.rank);
-      const low = Math.min(c1.rank, c2.rank);
-      let s = high / 14 * 0.45;
-      if (c1.rank === c2.rank) s += 0.35;
-      if (c1.suit === c2.suit) s += 0.08;
-      if (high - low === 1) s += 0.07;
-      return Math.min(0.98, s);
-    } else {
-      const evalRes = HandEvaluator.evaluate7([...ai.hole, ...this.community]);
-      // category 0(HighCard) ~ 9(RoyalFlush)
-      const base = [0.22, 0.48, 0.68, 0.78, 0.85, 0.89, 0.94, 0.98, 0.99, 1.0][evalRes.category];
-      return base;
-    }
-  },
-
-  // 다음 스트리트(번 카드 + 커뮤니티 카드 오픈) 진행
-  advanceStreet() {
-    this.players.forEach(p => {
-      p.streetBet = 0;
-      p.acted = false;
-      if (!p.folded && !p.allIn) p.lastAction = '';
-    });
-    this.currentHighestBet = 0;
-    this.minRaiseIncrement = this.bbAmount;
-
-    if (this.street === 'PREFLOP') {
-      this.street = 'FLOP';
-      this.burnCards.push(this.deck.pop()); // 번 카드 1장
-      this.community.push(this.deck.pop(), this.deck.pop(), this.deck.pop());
-      Sound.playCard();
-      this.log(`🃏 <b>[FLOP 오픈]</b> 딜러가 번 카드 1장을 버리고 플랍 3장을 공개합니다.`);
-    } else if (this.street === 'FLOP') {
-      this.street = 'TURN';
-      this.burnCards.push(this.deck.pop());
-      this.community.push(this.deck.pop());
-      Sound.playCard();
-      this.log(`🃏 <b>[TURN 오픈]</b> 딜러가 번 카드 1장을 버리고 4번째 카드를 공개합니다.`);
-    } else if (this.street === 'TURN') {
-      this.street = 'RIVER';
-      this.burnCards.push(this.deck.pop());
-      this.community.push(this.deck.pop());
-      Sound.playCard();
-      this.log(`🃏 <b>[RIVER 오픈]</b> 딜러가 번 카드 1장을 버리고 마지막 5번째 카드를 공개합니다.`);
-    } else if (this.street === 'RIVER') {
-      this.street = 'SHOWDOWN';
-      this.resolveShowdown();
-      return;
-    }
-
-    // 생존자 중 올인이 아닌 플레이어가 1명 이하라면 남은 보드를 자동 런아웃(All-in Runout)
-    const canAct = this.players.filter(p => !p.folded && !p.allIn);
-    if (canAct.length <= 1) {
-      this.render();
-      this.announce(`올인 런아웃(Runout) 진행 중...`);
-      setTimeout(() => this.advanceStreet(), 950);
-      return;
-    }
-
-    // 포스트플랍 첫 액션: 버튼 좌측 첫 생존자 (SB -> BB -> UTG -> BTN)
-    for (let offset = 1; offset <= 4; offset++) {
-      const idx = (this.buttonIndex + offset) % 4;
-      if (!this.players[idx].folded && !this.players[idx].allIn) {
-        this.activeSeatIndex = idx;
-        break;
-      }
-    }
-
-    this.render();
-    this.processTurn();
-  },
-
-  // 단독 생존 시 무투표 승리
-  awardUncontested(winner) {
-    this.handInProgress = false;
-    const totalPot = this.getTotalPot();
-    winner.chips += totalPot;
-    winner.winner = true;
-    winner.lastAction = `WIN +$${totalPot}`;
-    Sound.playWinFanfare();
-    if (winner.id === 0) FX.burstCoins();
-
-    this.announce(`🏆 ${winner.name} 폴드 승! 팟 $${totalPot} 획득!`);
-    this.log(`🏆 <b>${winner.name}</b> 무혈입성 승리 (+$${totalPot})`);
-    this.render();
-  },
-
-  // 쇼다운 및 메인/사이드 팟 개별 정산
-  resolveShowdown() {
-    this.handInProgress = false;
-    const pots = this.calculatePots();
-    const evalMap = {};
-
-    this.players.forEach(p => {
-      if (!p.folded) {
-        evalMap[p.id] = HandEvaluator.evaluate7([...p.hole, ...this.community]);
-      }
-    });
-
-    let summaryBanner = [];
-
-    pots.forEach((pot, idx) => {
-      const potName = (idx === 0) ? '메인 팟' : `사이드 팟 #${idx}`;
-      let bestScore = -1;
-      let winners = [];
-
-      pot.eligible.forEach(pid => {
-        const sc = evalMap[pid].score;
-        if (sc > bestScore) {
-          bestScore = sc;
-          winners = [this.players[pid]];
-        } else if (sc === bestScore) {
-          winners.push(this.players[pid]);
-        }
-      });
-
-      const share = Math.floor(pot.amount / winners.length);
-      const remainder = pot.amount % winners.length;
-
-      winners.forEach((w, wIdx) => {
-        const gain = share + (wIdx === 0 ? remainder : 0);
-        w.chips += gain;
-        w.winner = true;
-        const handInfo = evalMap[w.id];
-        w.lastAction = `${handInfo.name.split(' ')[0]} (+$${gain})`;
-        handInfo.best5.forEach(c => this.winningCardIds.add(c.id));
-
-        this.log(`🏆 <b>[${potName} $${pot.amount}]</b> <b>${w.name}</b> 승리! (${handInfo.name})`);
-        summaryBanner.push(`${w.name} ($${gain})`);
-        if (w.id === 0) FX.burstCoins();
-      });
-    });
-
-    Sound.playWinFanfare();
-    this.announce(`쇼다운 결과: ${summaryBanner.join(', ')} 승리!`);
-    this.render(true);
-  },
-
-  // 슬라이더 및 퀵 베팅 계산
-  setQuickBet(mode) {
-    const hero = this.players[0];
-    const slider = document.getElementById('bet-slider');
-    const minVal = Number(slider.min);
-    const maxVal = Number(slider.max);
-    const pot = this.getTotalPot();
-
-    let target = minVal;
-    if (mode === 'MIN') target = minVal;
-    else if (mode === 'HALF') target = Math.max(minVal, Math.round((this.currentHighestBet + pot * 0.5) / 10) * 10);
-    else if (mode === 'POT') target = Math.max(minVal, Math.round((this.currentHighestBet + pot) / 10) * 10);
-    else if (mode === 'ALLIN') target = maxVal;
-
-    target = Math.min(maxVal, Math.max(minVal, target));
-    slider.value = target;
-    this.onSliderChange(target);
-  },
-
-  onSliderChange(val) {
-    document.getElementById('raise-amount-lbl').textContent = `$${val}`;
-    document.getElementById('lbl-raise-sub').textContent = `$${val}`;
-  },
-
-  // 카드 HTML 생성 헬퍼
-  createCardHTML(card, faceUp = true) {
-    if (!faceUp) {
-      return `<div class="playing-card card-back"></div>`;
-    }
-    const isRed = (card.suit === '♥' || card.suit === '♦');
-    const isWin = this.winningCardIds.has(card.id);
-    const isDim = (this.winningCardIds.size > 0 && !isWin);
-
-    return `
-      <div class="playing-card ${isRed ? 'red' : 'black'} ${isWin ? 'winner-glow' : ''} ${isDim ? 'dimmed' : ''}">
-        <div class="card-corner-top">
-          <span>${RANK_STR[card.rank]}</span>
-          <small>${card.suit}</small>
-        </div>
-        <div class="card-Pip-center">${card.suit}</div>
-        <div class="card-corner-bottom">
-          <span>${RANK_STR[card.rank]}</span>
-          <small>${card.suit}</small>
-        </div>
-      </div>
-    `;
-  },
-
-  render(revealAll = false) {
-    // 상단 상태바
-    document.getElementById('hdr-hand').textContent = `#${this.handNumber}`;
-    document.getElementById('hdr-street').textContent = this.street;
-
-    // 번 카드 렌더링
-    document.getElementById('burn-count').textContent = this.burnCards.length;
-    const burnBox = document.getElementById('burn-stack-box');
-    burnBox.innerHTML = '';
-    this.burnCards.forEach((_, idx) => {
-      const b = document.createElement('div');
-      b.className = 'burn-card-mini';
-      b.style.transform = `translate(${idx * 3 - 3}px, ${idx * 2 - 2}px) rotate(${idx * 6 - 6}deg)`;
-      burnBox.appendChild(b);
-    });
-
-    // 메인 팟 & 사이드 팟 렌더링
-    const pots = this.calculatePots();
-    const potsBox = document.getElementById('pots-container');
-    potsBox.innerHTML = '';
-    pots.forEach((p, idx) => {
-      const div = document.createElement('div');
-      div.className = 'pot-pill' + (idx > 0 ? ' side-pot' : '');
-      div.innerHTML = `${idx === 0 ? 'MAIN POT' : 'SIDE POT #' + idx}: $<span>${p.amount}</span>`;
-      potsBox.appendChild(div);
-    });
-
-    // 커뮤니티 카드 5장 렌더링
-    for (let i = 0; i < 5; i++) {
-      const slot = document.getElementById(`comm-${i}`);
-      if (this.community[i]) {
-        slot.innerHTML = this.createCardHTML(this.community[i], true);
-      } else {
-        slot.innerHTML = '';
-      }
-    }
-
-    // 4인 좌석 렌더링
-    this.players.forEach((p, idx) => {
-      const seatEl = document.getElementById(`seat-${idx}`);
-      const isTurn = (this.handInProgress && this.activeSeatIndex === idx);
-      seatEl.className = `player-seat ${p.isAI ? 'seat-ai' : ''} ${isTurn ? 'active-turn' : ''} ${p.folded ? 'folded' : ''} ${p.winner ? 'winner-seat' : ''}`;
-
-      const showFace = (!p.isAI) || revealAll || (this.street === 'SHOWDOWN' && !p.folded);
-      const cardsHTML = p.hole.map(c => this.createCardHTML(c, showFace)).join('');
-
-      const betBubbleHTML = p.streetBet > 0 ? `
-        <div class="bet-chip-bubble">
-          <span class="chip-icon"></span> $${p.streetBet}
-        </div>
-      ` : '';
-
-      let actionClass = '';
-      if (p.lastAction.includes('RAISE') || p.lastAction.includes('BET')) actionClass = 'raise';
-      else if (p.lastAction.includes('CALL')) actionClass = 'call';
-      else if (p.lastAction.includes('CHECK')) actionClass = 'check';
-      else if (p.lastAction.includes('ALL-IN')) actionClass = 'allin';
-
-      seatEl.innerHTML = `
-        ${betBubbleHTML}
-        <div class="pos-badges">
-          <span class="pos-badge pos-${p.pos}">${p.pos === 'BTN' ? 'Ⓓ DEALER' : p.pos}</span>
-        </div>
-        <div class="seat-header">
-          <div class="seat-identity">
-            <div class="seat-avatar">${p.avatar}</div>
-            <div>
-              <span class="seat-name">${p.name}</span>
-              <span class="seat-style-tag">${p.style}</span>
+<body class="w-full h-screen select-none p-1 sm:p-3">
+
+    <div id="game-wrapper" class="relative w-full max-w-[1150px] h-full max-h-[820px] flex flex-col rounded-xl overflow-hidden shadow-2xl border-2 border-slate-600 bg-slate-950">
+
+        <!-- TOP HUD BAR -->
+        <div class="h-12 sm:h-14 fortress-panel px-3 flex items-center justify-between z-20 shrink-0">
+            <!-- Left: Title & Mode Info -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1 rounded border border-slate-600">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-400 animate-ping"></span>
+                    <span class="font-title text-base sm:text-xl tracking-wider bg-gradient-to-r from-yellow-300 via-amber-400 to-orange-400 bg-clip-text text-transparent">FORTRESS 2</span>
+                </div>
+                <span id="hud-mode-badge" class="text-xs sm:text-sm font-bold px-2 py-0.5 rounded bg-blue-900/80 text-blue-200 border border-blue-500/40">
+                    1P vs AI
+                </span>
+                <span id="turn-badge" class="hidden sm:inline-block text-xs font-bold px-2.5 py-0.5 rounded bg-emerald-900/80 text-emerald-300 border border-emerald-500/40">
+                    TURN 1
+                </span>
             </div>
-          </div>
-          <div class="seat-stack">$${p.chips.toLocaleString()}</div>
+
+            <!-- Center: Turn Owner & Digital Turn Timer -->
+            <div class="flex items-center gap-3">
+                <div id="active-player-banner" class="px-3 py-1 rounded inset-panel text-xs sm:text-sm font-bold text-yellow-300 flex items-center gap-2">
+                    <span id="active-player-dot" class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                    <span id="active-player-text">PLAYER 1 턴</span>
+                </div>
+                <div class="inset-panel px-3 py-0.5 rounded flex items-center gap-1.5 border border-slate-700">
+                    <span class="text-[10px] text-slate-400 font-bold">TIME</span>
+                    <span id="turn-timer-display" class="font-digital text-lg sm:text-2xl font-black text-amber-400 tracking-wider w-8 text-center">20</span>
+                </div>
+            </div>
+
+            <!-- Right: Controls & Sound Toggle -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <button id="btn-sound" onclick="toggleSound()" class="arcade-btn px-2.5 py-1 rounded text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1" title="사운드 켜기/끄기">
+                    <span id="sound-icon">🔊</span>
+                    <span class="hidden md:inline">효과음</span>
+                </button>
+                <button onclick="openSetupModal()" class="arcade-btn px-2.5 py-1 rounded text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-1">
+                    <span>⚙️</span>
+                    <span class="hidden sm:inline">모드/탱크 변경</span>
+                </button>
+            </div>
         </div>
-        <div class="hole-cards-row">${cardsHTML}</div>
-        <div class="action-tag ${actionClass}">${p.lastAction || (p.allIn ? 'ALL-IN' : '대기 중')}</div>
-      `;
-    });
 
-    // 내 현재 족보 실시간 안내
-    const hero = this.players[0];
-    if (hero.hole.length >= 2) {
-      const evalHero = HandEvaluator.evaluate7([...hero.hole, ...this.community]);
-      document.getElementById('hero-hand-rank').textContent = evalHero.name;
-    }
+        <!-- MAIN GAME CANVAS CONTAINER -->
+        <div id="canvas-container" class="relative flex-1 w-full bg-slate-900 overflow-hidden">
+            <canvas id="gameCanvas" class="w-full h-full block"></canvas>
 
-    // 하단 액션 버튼 활성화/비활성화 갱신
-    const isHeroTurn = (this.handInProgress && this.activeSeatIndex === 0 && !hero.folded && !hero.allIn);
-    const btnFold = document.getElementById('btn-fold');
-    const btnCall = document.getElementById('btn-call');
-    const btnRaise = document.getElementById('btn-raise');
-    const slider = document.getElementById('bet-slider');
+            <!-- Floating Top-Center Wind Indicator -->
+            <div class="absolute top-3 left-1/2 -translate-x-1/2 fortress-panel px-4 py-1.5 rounded-full flex items-center gap-3 pointer-events-none shadow-lg border border-slate-500/80">
+                <span class="text-[11px] font-bold text-sky-300 tracking-wider">WIND</span>
+                <div class="w-28 sm:w-36 h-3.5 inset-panel rounded-full relative overflow-hidden flex items-center">
+                    <!-- Center Marker -->
+                    <div class="w-[2px] h-full bg-white/60 absolute left-1/2 -translate-x-1/2 z-10"></div>
+                    <!-- Left / Right Wind Fill -->
+                    <div id="wind-bar-left" class="h-full bg-gradient-to-l from-cyan-400 to-blue-600 absolute right-1/2 top-0 transition-all duration-300" style="width: 0%;"></div>
+                    <div id="wind-bar-right" class="h-full bg-gradient-to-r from-cyan-400 to-rose-500 absolute left-1/2 top-0 transition-all duration-300" style="width: 0%;"></div>
+                </div>
+                <span id="wind-value-text" class="font-digital text-xs sm:text-sm font-bold text-yellow-300 w-12 text-right">0</span>
+            </div>
 
-    btnFold.disabled = !isHeroTurn;
-    btnCall.disabled = !isHeroTurn;
+            <!-- Floating Controls Help Pill (Top Left) -->
+            <div class="hidden lg:flex flex-col gap-1 absolute top-3 left-3 bg-slate-950/75 backdrop-blur-sm border border-slate-700/80 rounded-lg px-3 py-2 text-[11px] text-slate-300 pointer-events-none">
+                <div class="font-bold text-amber-400 mb-0.5">조작 가이드</div>
+                <div><kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-white">←</kbd> <kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-white">→</kbd> 지형 이동 (Move 소모)</div>
+                <div><kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-white">↑</kbd> <kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-white">↓</kbd> 포신 각도 조절</div>
+                <div><kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-600 text-yellow-300">Space</kbd> 누르고 있다가 떼서 발사</div>
+                <div><kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-cyan-300">Tab</kbd> 기본탄 / 특수탄 전환 | <kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-emerald-300">1~4</kbd> 아이템</div>
+            </div>
 
-    if (isHeroTurn) {
-      const toCall = Math.max(0, this.currentHighestBet - hero.streetBet);
-      if (toCall === 0) {
-        document.getElementById('lbl-call-main').textContent = 'CHECK';
-        document.getElementById('lbl-call-sub').textContent = '$0';
-      } else {
-        document.getElementById('lbl-call-main').textContent = (hero.chips <= toCall) ? 'ALL-IN CALL' : 'CALL';
-        document.getElementById('lbl-call-sub').textContent = `$${Math.min(hero.chips, toCall)}`;
-      }
+            <!-- Mobile / Touch On-Screen Controls Overlay -->
+            <div class="flex sm:hidden justify-between items-end absolute bottom-2 left-2 right-2 pointer-events-none">
+                <div class="grid grid-cols-3 gap-1 pointer-events-auto bg-slate-900/80 p-1.5 rounded-lg border border-slate-700">
+                    <div></div>
+                    <button id="touch-up" class="arcade-btn w-9 h-9 rounded flex items-center justify-center font-bold text-sm">▲</button>
+                    <div></div>
+                    <button id="touch-left" class="arcade-btn w-9 h-9 rounded flex items-center justify-center font-bold text-sm">◀</button>
+                    <button id="touch-down" class="arcade-btn w-9 h-9 rounded flex items-center justify-center font-bold text-sm">▼</button>
+                    <button id="touch-right" class="arcade-btn w-9 h-9 rounded flex items-center justify-center font-bold text-sm">▶</button>
+                </div>
+                <button id="touch-fire" class="pointer-events-auto arcade-btn px-5 py-3 rounded-xl font-title text-base bg-gradient-to-b from-red-500 to-red-800 border-red-300 text-white shadow-lg active:scale-95">
+                    HOLD FIRE
+                </button>
+            </div>
 
-      const maxTotalBet = hero.streetBet + hero.chips;
-      const minRaiseTarget = Math.min(maxTotalBet, this.currentHighestBet + this.minRaiseIncrement);
+            <!-- Big Center Turn / Event Toast Banner -->
+            <div id="center-toast" class="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 z-10">
+                <div id="center-toast-box" class="px-8 py-3 rounded-2xl bg-slate-950/90 border-2 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.5)] text-center transform scale-95 transition-transform duration-300">
+                    <div id="center-toast-sub" class="text-xs font-bold text-sky-400 tracking-widest uppercase">FORTRESS TURN</div>
+                    <div id="center-toast-main" class="font-title text-2xl sm:text-4xl text-yellow-300 tracking-wide mt-0.5">PLAYER 1 차례!</div>
+                </div>
+            </div>
+        </div>
 
-      if (maxTotalBet <= this.currentHighestBet) {
-        btnRaise.disabled = true;
-      } else {
-        btnRaise.disabled = false;
-        slider.min = minRaiseTarget;
-        slider.max = maxTotalBet;
-        slider.value = minRaiseTarget;
-        document.getElementById('lbl-raise-main').textContent = (this.currentHighestBet === 0) ? 'BET' : 'RAISE TO';
-        this.onSliderChange(minRaiseTarget);
-      }
-    } else {
-      btnRaise.disabled = true;
-    }
-  }
-};
+        <!-- CLASSIC FORTRESS 2 BOTTOM DASHBOARD -->
+        <div class="h-44 sm:h-48 fortress-panel p-2 sm:p-3 grid grid-cols-12 gap-2 sm:gap-3 shrink-0 z-20">
 
-window.addEventListener('DOMContentLoaded', () => Game.init());
-</script>
+            <!-- 1. Left Section: Angle Protractor & Tank Weapon Info (4 Cols) -->
+            <div class="col-span-5 sm:col-span-4 flex gap-2 items-center inset-panel p-2 rounded-lg">
+                <!-- Angle Gauge Canvas -->
+                <div class="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 flex items-center justify-center bg-slate-950 rounded-full border-2 border-slate-700 shadow-inner">
+                    <canvas id="angleGaugeCanvas" width="112" height="112" class="w-full h-full"></canvas>
+                    <div class="absolute bottom-1 inset-x-0 text-center pointer-events-none">
+                        <span id="angle-text-display" class="font-digital text-[11px] sm:text-xs font-bold text-emerald-400 bg-slate-950/90 px-1.5 rounded border border-emerald-500/30">45°</span>
+                    </div>
+                </div>
+
+                <!-- Tank Portrait & Weapon Type Selector -->
+                <div class="flex flex-col justify-between h-full flex-1 min-w-0 py-0.5">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span id="dash-player-name" class="text-xs font-black text-sky-400 truncate">PLAYER 1</span>
+                            <span id="dash-slope-text" class="text-[10px] font-digital text-slate-400">경사 0°</span>
+                        </div>
+                        <div id="dash-tank-name" class="font-title text-sm sm:text-base text-white truncate">캐논 (Cannon)</div>
+                    </div>
+
+                    <!-- Weapon W1 / W2 Toggle Button -->
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[10px] text-slate-400 font-bold">무기 선택 (Tab)</span>
+                        <div class="grid grid-cols-2 gap-1">
+                            <button id="btn-w1" onclick="selectWeapon(1)" class="px-1.5 py-1 rounded text-[11px] font-bold border border-yellow-400 bg-amber-600/40 text-yellow-200 truncate">
+                                1. 기본탄
+                            </button>
+                            <button id="btn-w2" onclick="selectWeapon(2)" class="px-1.5 py-1 rounded text-[11px] font-bold border border-slate-700 bg-slate-800/80 text-slate-300 truncate">
+                                2. 특수탄
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Center Section: HP, Move Gauge, Power Charging Bar (5 Cols) -->
+            <div class="col-span-7 sm:col-span-5 inset-panel p-2.5 rounded-lg flex flex-col justify-between">
+                <!-- HP Bar -->
+                <div class="flex items-center gap-2">
+                    <span class="w-12 text-[11px] font-black text-emerald-400 tracking-wider shrink-0">HP</span>
+                    <div class="flex-1 h-4 sm:h-5 gauge-bar-bg rounded border border-slate-700 relative overflow-hidden p-0.5">
+                        <div id="hp-bar-fill" class="h-full bg-gradient-to-r from-emerald-600 via-green-500 to-lime-400 rounded-sm transition-all duration-200" style="width: 100%;"></div>
+                        <span id="hp-bar-text" class="absolute inset-0 flex items-center justify-center font-digital text-[10px] sm:text-xs font-bold text-white drop-shadow">1000 / 1000</span>
+                    </div>
+                </div>
+
+                <!-- MOVE Bar -->
+                <div class="flex items-center gap-2">
+                    <span class="w-12 text-[11px] font-black text-sky-400 tracking-wider shrink-0">MOVE</span>
+                    <div class="flex-1 h-3.5 sm:h-4 gauge-bar-bg rounded border border-slate-700 relative overflow-hidden p-0.5">
+                        <div id="move-bar-fill" class="h-full bg-gradient-to-r from-blue-600 via-sky-500 to-cyan-300 rounded-sm transition-all duration-75" style="width: 100%;"></div>
+                        <span id="move-bar-text" class="absolute inset-0 flex items-center justify-center font-digital text-[10px] font-bold text-white drop-shadow">100%</span>
+                    </div>
+                </div>
+
+                <!-- POWER Bar (With Previous Shot Memory Marker) -->
+                <div class="flex flex-col gap-1">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] font-black text-rose-400 tracking-wider flex items-center gap-1">
+                            <span>POWER</span>
+                            <span class="text-[10px] text-slate-400 font-normal hidden md:inline">(Space 누르기)</span>
+                        </span>
+                        <span id="power-num-text" class="font-digital text-xs font-bold text-amber-300">0 / 100</span>
+                    </div>
+                    <div class="w-full h-6 sm:h-7 gauge-bar-bg rounded border-2 border-slate-600 relative overflow-visible p-0.5">
+                        <!-- Current Power Fill -->
+                        <div id="power-bar-fill" class="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 rounded-sm" style="width: 0%;"></div>
+
+                        <!-- 25%, 50%, 75% Ruler Notches -->
+                        <div class="absolute inset-y-0 left-1/4 w-[1px] bg-white/25 pointer-events-none"></div>
+                        <div class="absolute inset-y-0 left-1/2 w-[1px] bg-white/40 pointer-events-none"></div>
+                        <div class="absolute inset-y-0 left-3/4 w-[1px] bg-white/25 pointer-events-none"></div>
+
+                        <!-- Previous Shot Memory Marker (Triangle + Vertical Line) -->
+                        <div id="last-power-marker" class="hidden absolute top-0 bottom-0 w-[2px] bg-cyan-300 z-20 pointer-events-none shadow-[0_0_6px_#22d3ee]" style="left: 50%;">
+                            <div class="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[7px] border-t-cyan-300 -translate-x-[4px] -translate-y-[6px]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Right Section: Item Slots & Pass Turn (3 Cols on desktop, full row or compact on mobile) -->
+            <div class="col-span-12 sm:col-span-3 inset-panel p-2 rounded-lg flex sm:flex-col justify-between items-center gap-2">
+                <div class="w-full flex items-center justify-between px-1 hidden sm:flex">
+                    <span class="text-[11px] font-black text-amber-400 tracking-wider">ITEM SLOTS (1~4)</span>
+                    <span id="active-item-label" class="text-[10px] text-emerald-400 font-bold truncate">대기 중</span>
+                </div>
+
+                <!-- 4 Item Slots -->
+                <div id="item-slots-container" class="grid grid-cols-4 gap-1.5 w-full flex-1 items-center">
+                    <!-- Dynamically populated by JS -->
+                </div>
+
+                <!-- Pass Turn / Wind Guide -->
+                <div class="flex sm:w-full gap-1.5 shrink-0">
+                    <button onclick="skipCurrentTurn()" id="btn-pass-turn" class="arcade-btn w-full py-1 px-2 rounded text-xs font-bold text-slate-200 flex items-center justify-center gap-1">
+                        <span>⏭️</span>
+                        <span>턴 넘기기 (F8)</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TANK & MODE SELECTION MODAL -->
+        <div id="setup-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div class="fortress-panel w-full max-w-2xl rounded-2xl p-5 sm:p-6 border-2 border-slate-500 shadow-2xl flex flex-col gap-5 max-h-[92vh] overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+                    <div>
+                        <h1 class="font-title text-2xl sm:text-3xl bg-gradient-to-r from-yellow-300 via-amber-400 to-orange-500 bg-clip-text text-transparent">
+                            포트리스 2 블루 - 대기실
+                        </h1>
+                        <p class="text-xs sm:text-sm text-slate-300 mt-0.5">대전 모드와 탑승할 탱크 클래스를 선택하세요.</p>
+                    </div>
+                    <span class="text-xs font-digital px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-amber-400">VER 2.0 ARCADE</span>
+                </div>
+
+                <!-- Mode Selector -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold text-sky-300 uppercase tracking-wider">1. 게임 모드 선택</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="mode-ai-btn" onclick="setGameMode('AI')" class="tank-card selected p-3 rounded-xl flex items-center gap-3 text-left">
+                            <span class="text-2xl">🤖</span>
+                            <div>
+                                <div class="font-bold text-sm sm:text-base text-white">1P vs AI (인공지능 대전)</div>
+                                <div class="text-xs text-slate-400">바람과 탄도를 계산하는 포트리스 AI와 대결</div>
+                            </div>
+                        </button>
+                        <button id="mode-pvp-btn" onclick="setGameMode('PVP')" class="tank-card p-3 rounded-xl flex items-center gap-3 text-left">
+                            <span class="text-2xl">⚔️</span>
+                            <div>
+                                <div class="font-bold text-sm sm:text-base text-white">1P vs 2P (로컬 2인 대전)</div>
+                                <div class="text-xs text-slate-400">한 키보드로 친구와 번갈아 가며 대결</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Player 1 Tank Selection -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold text-emerald-300 uppercase tracking-wider">2. PLAYER 1 탱크 선택 (블루팀)</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" id="p1-tank-list">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Player 2 / AI Tank Selection -->
+                <div class="flex flex-col gap-2">
+                    <label id="p2-select-label" class="text-xs font-bold text-rose-300 uppercase tracking-wider">3. AI 상대 탱크 선택 (레드팀)</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" id="p2-tank-list">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Map Theme Selection -->
+                <div class="flex items-center justify-between inset-panel p-3 rounded-xl">
+                    <div class="text-xs sm:text-sm font-bold text-slate-200">🗺️ 지형 스타일 (번지 및 크레이터 파괴 가능)</div>
+                    <select id="map-style-select" class="bg-slate-800 text-amber-300 font-bold text-xs sm:text-sm px-3 py-1.5 rounded border border-slate-600 focus:outline-none">
+                        <option value="valley">더블 밸리 (고전 능선 지형)</option>
+                        <option value="island">스카이 아일랜드 (번지 특화 고지대)</option>
+                        <option value="canyon">크림슨 캐년 (험준한 협곡)</option>
+                    </select>
+                </div>
+
+                <button onclick="startNewMatch()" class="arcade-btn w-full py-3.5 rounded-xl font-title text-xl tracking-wider bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 text-slate-950 border-yellow-300 shadow-[0_0_20px_rgba(245,158,11,0.5)]">
+                    🚀 게임 시작 (BATTLE START)
+                </button>
+            </div>
+        </div>
+
+        <!-- GAME OVER MODAL -->
+        <div id="gameover-modal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div class="fortress-panel w-full max-w-md rounded-2xl p-6 border-2 border-yellow-400 text-center flex flex-col items-center gap-4 shadow-[0_0_40px_rgba(250,204,21,0.4)]">
+                <div class="text-5xl animate-bounce">🏆</div>
+                <div>
+                    <div class="text-xs font-digital text-sky-400 tracking-widest uppercase">MATCH RESULT</div>
+                    <h2 id="winner-title" class="font-title text-3xl sm:text-4xl text-yellow-300 mt-1">PLAYER 1 승리!</h2>
+                    <p id="winner-reason" class="text-sm text-slate-300 mt-1">정확한 포격으로 적 탱크를 격파했습니다!</p>
+                </div>
+                <div id="match-stats-box" class="w-full inset-panel p-3 rounded-xl text-xs text-slate-300 flex justify-around">
+                    <div>총 진행 턴: <span id="stat-turns" class="font-bold text-white">5</span></div>
+                    <div>남은 체력: <span id="stat-hp" class="font-bold text-emerald-400">650</span></div>
+                </div>
+                <div class="flex gap-3 w-full mt-2">
+                    <button onclick="startNewMatch()" class="arcade-btn flex-1 py-3 rounded-xl font-title text-lg bg-gradient-to-b from-emerald-500 to-emerald-700 text-white border-emerald-300">
+                        🔄 즉시 재대결
+                    </button>
+                    <button onclick="openSetupModal()" class="arcade-btn flex-1 py-3 rounded-xl font-title text-lg text-amber-300">
+                        ⚙️ 대기실로
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /**
+         * ============================================================================
+         * 1. WEB AUDIO SYNTHESIZER (No external audio files needed)
+         * ============================================================================
+         */
+        class FortressSoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+                this.chargeOsc = null;
+                this.chargeGain = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playMoveTick() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(110, now);
+                osc.frequency.exponentialRampToValueAtTime(65, now + 0.04);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.04);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.045);
+            }
+
+            playAngleTick() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(620, now);
+                gain.gain.setValueAtTime(0.04, now);
+                gain.gain.linearRampToValueAtTime(0.005, now + 0.025);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.03);
+            }
+
+            startCharging() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx || this.chargeOsc) return;
+                const now = this.ctx.currentTime;
+                this.chargeOsc = this.ctx.createOscillator();
+                this.chargeGain = this.ctx.createGain();
+                this.chargeOsc.type = 'sawtooth';
+                this.chargeOsc.frequency.setValueAtTime(180, now);
+                this.chargeGain.gain.setValueAtTime(0.06, now);
+                this.chargeOsc.connect(this.chargeGain);
+                this.chargeGain.connect(this.ctx.destination);
+                this.chargeOsc.start(now);
+            }
+
+            updateChargingPitch(powerRatio) {
+                if (this.chargeOsc && this.ctx) {
+                    this.chargeOsc.frequency.setValueAtTime(180 + powerRatio * 520, this.ctx.currentTime);
+                }
+            }
+
+            stopCharging() {
+                if (this.chargeOsc) {
+                    try {
+                        this.chargeOsc.stop();
+                        this.chargeOsc.disconnect();
+                    } catch (e) {}
+                    this.chargeOsc = null;
+                    this.chargeGain = null;
+                }
+            }
+
+            playFire(type = 'cannon') {
+                this.stopCharging();
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                if (type === 'laser') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(920, now);
+                    osc.frequency.exponentialRampToValueAtTime(160, now + 0.28);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
+                } else {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(240, now);
+                    osc.frequency.exponentialRampToValueAtTime(45, now + 0.25);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                }
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+
+            playExplosion(radius = 40) {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const duration = Math.min(0.8, 0.25 + radius * 0.006);
+
+                // White Noise Burst + Lowpass Filter for Boom
+                const bufferSize = this.ctx.sampleRate * duration;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(400, now);
+                filter.frequency.exponentialRampToValueAtTime(60, now + duration);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.38, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start(now);
+                noise.stop(now + duration);
+            }
+
+            playItemUse() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.5];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+                    gain.gain.setValueAtTime(0.12, now + idx * 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.008, now + idx * 0.05 + 0.12);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.05);
+                    osc.stop(now + idx * 0.05 + 0.13);
+                });
+            }
+
+            playTurnStart() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(587.33, now + 0.09);
+                gain.gain.setValueAtTime(0.14, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.26);
+            }
+        }
+
+        const sound = new FortressSoundEngine();
+
+        function toggleSound() {
+            sound.enabled = !sound.enabled;
+            document.getElementById('sound-icon').textContent = sound.enabled ? '🔊' : '🔇';
+        }
+
+        /**
+         * ============================================================================
+         * 2. TANK CLASSES & ITEM DEFINITIONS (Korean Fortress 2 Authentic Specs)
+         * ============================================================================
+         */
+        const TANK_CLASSES = {
+            cannon: {
+                id: 'cannon',
+                name: '캐논 (Cannon)',
+                badge: '중화기 지형파괴형',
+                desc: '강력한 단발 화력과 거대한 지형 파괴력(번지 유도)을 가진 정통 헤비 탱크',
+                hp: 1000,
+                moveMax: 110,
+                colorPrimary: '#ef4444',
+                colorSecondary: '#991b1b',
+                w1: {
+                    name: '검콩 (대구경포)',
+                    damage: 250,
+                    crater: 48,
+                    count: 1,
+                    spread: 0,
+                    style: 'blackball'
+                },
+                w2: {
+                    name: '빨콩 (정밀고폭탄)',
+                    damage: 310,
+                    crater: 30,
+                    count: 1,
+                    spread: 0,
+                    style: 'redball'
+                }
+            },
+            multi: {
+                id: 'multi',
+                name: '멀티미사일 (Multi)',
+                badge: '다연장 광역화력형',
+                desc: '다수의 미사일을 동시 발사하여 넓은 범위를 초토화하는 기동형 미사일 탱크',
+                hp: 950,
+                moveMax: 135,
+                colorPrimary: '#10b981',
+                colorSecondary: '#065f46',
+                w1: {
+                    name: '3연장 미사일',
+                    damage: 105,
+                    crater: 26,
+                    count: 3,
+                    spread: 0.065,
+                    style: 'missile'
+                },
+                w2: {
+                    name: '9연발 집중포화',
+                    damage: 44,
+                    crater: 16,
+                    count: 9,
+                    spread: 0.13,
+                    style: 'swarm'
+                }
+            },
+            supertank: {
+                id: 'supertank',
+                name: '슈탱 (Super Tank)',
+                badge: '유도탄 & 관통레이저',
+                desc: '적 탱크를 자동 추적하는 유도 미사일과 바람의 영향을 덜 받는 플라즈마 포 보유',
+                hp: 1050,
+                moveMax: 130,
+                colorPrimary: '#f59e0b',
+                colorSecondary: '#92400e',
+                w1: {
+                    name: '듀얼 플라즈마',
+                    damage: 145,
+                    crater: 28,
+                    count: 2,
+                    spread: 0.035,
+                    style: 'laser'
+                },
+                w2: {
+                    name: '호밍 유도탄',
+                    damage: 215,
+                    crater: 32,
+                    count: 1,
+                    spread: 0,
+                    homing: true,
+                    style: 'homing'
+                }
+            }
+        };
+
+        const DEFAULT_ITEMS = [
+            { id: 'double', key: '1', name: '더블파이어', icon: '🔥', desc: '이번 턴 2회 연속 발사' },
+            { id: 'power',  key: '2', name: '파워업탄',   icon: '💥', desc: '데미지 및 지형파괴 +35%' },
+            { id: 'teleport', key: '3', name: '이동탄',   icon: '🌀', desc: '탄착 지점으로 탱크 순간이동' },
+            { id: 'repair', key: '4', name: '수리킷',     icon: '🔧', desc: '즉시 체력 +300 회복' }
+        ];
+
+        /**
+         * ============================================================================
+         * 3. GAME STATE & PROCEDURAL DESTRUCTIBLE TERRAIN ENGINE
+         * ============================================================================
+         */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const angleCanvas = document.getElementById('angleGaugeCanvas');
+        const angleCtx = angleCanvas.getContext('2d');
+
+        // Fixed internal logical resolution for crisp physics & pixel terrain
+        const WORLD_W = 1200;
+        const WORLD_H = 600;
+        canvas.width = WORLD_W;
+        canvas.height = WORLD_H;
+
+        // Offscreen Terrain Canvas for pixel-level craters & overhangs
+        const terrainCanvas = document.createElement('canvas');
+        terrainCanvas.width = WORLD_W;
+        terrainCanvas.height = WORLD_H;
+        const terrainCtx = terrainCanvas.getContext('2d', { willReadFrequently: true });
+        let terrainMask = new Uint8Array(WORLD_W * WORLD_H); // 1 = solid ground, 0 = air
+
+        let gameMode = 'AI'; // 'AI' or 'PVP'
+        let selectedP1Class = 'cannon';
+        let selectedP2Class = 'multi';
+        let selectedMapStyle = 'valley';
+
+        let tanks = [];
+        let projectiles = [];
+        let particles = [];
+        let floatingTexts = [];
+        let clouds = [];
+        let stars = [];
+
+        let currentTurnIndex = 0;
+        let turnNumber = 1;
+        let wind = 0; // -15 to +15
+        let turnTimer = 20;
+        let turnTimerInterval = null;
+        let gameState = 'SETUP'; // 'SETUP', 'AIMING', 'CHARGING', 'FIRING', 'SETTLING', 'AI_THINKING', 'GAMEOVER'
+
+        // Input state
+        const keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false, Space: false };
+        let isCharging = false;
+        let currentPower = 0;
+        let chargeDirection = 1;
+        let waterWaveOffset = 0;
+        let screenShake = 0;
+
+        // Initialize Setup Modal Cards
+        function renderSetupCards() {
+            const p1List = document.getElementById('p1-tank-list');
+            const p2List = document.getElementById('p2-tank-list');
+            p1List.innerHTML = '';
+            p2List.innerHTML = '';
+
+            Object.values(TANK_CLASSES).forEach(tc => {
+                // P1 Card
+                const c1 = document.createElement('button');
+                c1.className = `tank-card p-3 rounded-xl text-left flex flex-col justify-between gap-1.5 ${selectedP1Class === tc.id ? 'selected' : ''}`;
+                c1.onclick = () => { selectedP1Class = tc.id; renderSetupCards(); };
+                c1.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-title text-base text-white">${tc.name}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 border border-slate-600">${tc.badge}</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 leading-snug">${tc.desc}</p>
+                    <div class="text-[10px] text-sky-300 font-bold mt-1">기본: ${tc.w1.name} / 특수: ${tc.w2.name}</div>
+                `;
+                p1List.appendChild(c1);
+
+                // P2 Card
+                const c2 = document.createElement('button');
+                c2.className = `tank-card p-3 rounded-xl text-left flex flex-col justify-between gap-1.5 ${selectedP2Class === tc.id ? 'selected' : ''}`;
+                c2.onclick = () => { selectedP2Class = tc.id; renderSetupCards(); };
+                c2.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-title text-base text-white">${tc.name}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-rose-300 border border-slate-600">${tc.badge}</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 leading-snug">${tc.desc}</p>
+                    <div class="text-[10px] text-rose-300 font-bold mt-1">기본: ${tc.w1.name} / 특수: ${tc.w2.name}</div>
+                `;
+                p2List.appendChild(c2);
+            });
+        }
+
+        function setGameMode(mode) {
+            gameMode = mode;
+            document.getElementById('mode-ai-btn').classList.toggle('selected', mode === 'AI');
+            document.getElementById('mode-pvp-btn').classList.toggle('selected', mode === 'PVP');
+            document.getElementById('p2-select-label').textContent =
+                mode === 'AI' ? '3. AI 상대 탱크 선택 (레드팀)' : '3. PLAYER 2 탱크 선택 (레드팀)';
+        }
+
+        function openSetupModal() {
+            renderSetupCards();
+            document.getElementById('gameover-modal').classList.add('hidden');
+            document.getElementById('setup-modal').classList.remove('hidden');
+        }
+
+        /**
+         * Generate Procedural Destructible Terrain
+         */
+        function generateTerrain(style = 'valley') {
+            terrainCtx.clearRect(0, 0, WORLD_W, WORLD_H);
+            terrainMask.fill(0);
+
+            const heights = new Float32Array(WORLD_W);
+            const seed1 = Math.random() * 10;
+            const seed2 = Math.random() * 10;
+
+            for (let x = 0; x < WORLD_W; x++) {
+                const nx = x / WORLD_W;
+                let h = 360;
+
+                if (style === 'valley') {
+                    // Classic hills and central valley
+                    h = 340
+                        + Math.sin(nx * Math.PI * 2.5 + seed1) * 75
+                        + Math.cos(nx * Math.PI * 5.5 + seed2) * 32
+                        - Math.sin(nx * Math.PI) * 45;
+                } else if (style === 'island') {
+                    // High plateaus with steep bungee drops
+                    h = 275
+                        + Math.sin(nx * Math.PI * 3 + seed1) * 65
+                        + Math.sin(nx * Math.PI * 9) * 18;
+                } else if (style === 'canyon') {
+                    // Rugged jagged canyon
+                    h = 320
+                        + Math.cos(nx * Math.PI * 4 + seed1) * 90
+                        + Math.sin(nx * Math.PI * 10 + seed2) * 25;
+                }
+
+                heights[x] = Math.max(170, Math.min(WORLD_H - 95, Math.floor(h)));
+            }
+
+            // Draw rock strata & topsoil into terrainCanvas
+            const grad = terrainCtx.createLinearGradient(0, 150, 0, WORLD_H);
+            if (style === 'canyon') {
+                grad.addColorStop(0, '#c2410c');
+                grad.addColorStop(0.3, '#9a3412');
+                grad.addColorStop(0.7, '#7c2d12');
+                grad.addColorStop(1, '#431407');
+            } else if (style === 'island') {
+                grad.addColorStop(0, '#4ade80');
+                grad.addColorStop(0.15, '#ca8a04');
+                grad.addColorStop(0.5, '#64748b');
+                grad.addColorStop(1, '#1e293b');
+            } else {
+                grad.addColorStop(0, '#65a30d');
+                grad.addColorStop(0.12, '#854d0e');
+                grad.addColorStop(0.55, '#57534e');
+                grad.addColorStop(1, '#292524');
+            }
+
+            terrainCtx.fillStyle = grad;
+            terrainCtx.beginPath();
+            terrainCtx.moveTo(0, WORLD_H);
+            for (let x = 0; x < WORLD_W; x++) {
+                if (style === 'island' && (x < 65 || x > WORLD_W - 65 || (x > 545 && x < 655))) {
+                    heights[x] = WORLD_H + 10; // Bungee abyss gaps!
+                }
+                terrainCtx.lineTo(x, heights[x]);
+            }
+            terrainCtx.lineTo(WORLD_W, WORLD_H);
+            terrainCtx.closePath();
+            terrainCtx.fill();
+
+            // Add subtle horizontal rock texture stripes
+            terrainCtx.globalCompositeOperation = 'source-atop';
+            for (let y = 160; y < WORLD_H; y += 14) {
+                terrainCtx.fillStyle = y % 28 === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.08)';
+                terrainCtx.fillRect(0, y, WORLD_W, 5);
+            }
+
+            // Draw bright grass/top crust rim
+            terrainCtx.lineWidth = 6;
+            terrainCtx.strokeStyle = style === 'canyon' ? '#fb923c' : '#84cc16';
+            terrainCtx.beginPath();
+            for (let x = 0; x < WORLD_W; x++) {
+                if (heights[x] >= WORLD_H) continue;
+                if (x === 0 || heights[x - 1] >= WORLD_H) {
+                    terrainCtx.moveTo(x, heights[x]);
+                } else {
+                    terrainCtx.lineTo(x, heights[x]);
+                }
+            }
+            terrainCtx.stroke();
+            terrainCtx.globalCompositeOperation = 'source-over';
+
+            // Populate fast 1D collision mask from alpha channel
+            const imgData = terrainCtx.getImageData(0, 0, WORLD_W, WORLD_H).data;
+            for (let i = 0; i < WORLD_W * WORLD_H; i++) {
+                terrainMask[i] = imgData[i * 4 + 3] > 90 ? 1 : 0;
+            }
+        }
+
+        function isSolid(x, y) {
+            const ix = Math.floor(x);
+            const iy = Math.floor(y);
+            if (ix < 0 || ix >= WORLD_W || iy >= WORLD_H) return false;
+            if (iy < 0) return false;
+            return terrainMask[iy * WORLD_W + ix] === 1;
+        }
+
+        function getSurfaceY(x, startY = 0) {
+            const ix = Math.max(0, Math.min(WORLD_W - 1, Math.floor(x)));
+            const sy = Math.max(0, Math.floor(startY));
+            for (let y = sy; y < WORLD_H; y++) {
+                if (terrainMask[y * WORLD_W + ix] === 1) return y;
+            }
+            return WORLD_H + 50; // Abyss
+        }
+
+        /**
+         * Carve Circular Crater in Both Visual Canvas & Collision Bitmap
+         */
+        function carveCrater(cx, cy, radius) {
+            const r = Math.floor(radius);
+            // Scorched rim ring on terrainCanvas
+            terrainCtx.save();
+            terrainCtx.globalCompositeOperation = 'source-atop';
+            terrainCtx.beginPath();
+            terrainCtx.arc(cx, cy, r + 5, 0, Math.PI * 2);
+            terrainCtx.fillStyle = 'rgba(20, 15, 10, 0.65)';
+            terrainCtx.fill();
+            terrainCtx.restore();
+
+            // Punch hole
+            terrainCtx.save();
+            terrainCtx.globalCompositeOperation = 'destination-out';
+            terrainCtx.beginPath();
+            terrainCtx.arc(cx, cy, r, 0, Math.PI * 2);
+            terrainCtx.fill();
+            terrainCtx.restore();
+
+            // Update binary collision mask
+            const rSq = r * r;
+            const minX = Math.max(0, Math.floor(cx - r));
+            const maxX = Math.min(WORLD_W - 1, Math.ceil(cx + r));
+            const minY = Math.max(0, Math.floor(cy - r));
+            const maxY = Math.min(WORLD_H - 1, Math.ceil(cy + r));
+
+            for (let y = minY; y <= maxY; y++) {
+                const dy = y - cy;
+                const rowOffset = y * WORLD_W;
+                for (let x = minX; x <= maxX; x++) {
+                    const dx = x - cx;
+                    if (dx * dx + dy * dy <= rSq) {
+                        terrainMask[rowOffset + x] = 0;
+                    }
+                }
+            }
+        }
+
+        /**
+         * ============================================================================
+         * 4. TANK ENTITY CLASS (Slope alignment, movement gauge, items, aiming)
+         * ============================================================================
+         */
+        class Tank {
+            constructor(id, name, team, classKey, x, facingRight, isAI = false) {
+                const spec = TANK_CLASSES[classKey];
+                this.id = id;
+                this.name = name;
+                this.team = team; // 1 = Blue, 2 = Red
+                this.classKey = classKey;
+                this.spec = spec;
+                this.isAI = isAI;
+
+                this.x = x;
+                this.y = 100;
+                this.vy = 0;
+                this.radius = 15;
+
+                this.hp = spec.hp;
+                this.maxHp = spec.hp;
+                this.moveRemaining = spec.moveMax;
+                this.maxMove = spec.moveMax;
+
+                this.facingRight = facingRight;
+                this.slopeAngle = 0; // Terrain tilt in radians
+                this.aimAngle = 45;  // Relative barrel elevation in degrees (5° to 85°)
+                this.lastPower = 0;  // Remembers previous shot power (0-100)
+                this.selectedWeapon = 1; // 1 or 2
+
+                // Clone 4 standard items
+                this.items = DEFAULT_ITEMS.map(item => ({ ...item, used: false }));
+                this.activeItem = null; // 'double', 'power', 'teleport'
+                this.extraShotPending = false;
+                this.alive = true;
+            }
+
+            snapToGround() {
+                const surfY = getSurfaceY(this.x, 0);
+                this.y = surfY - 2;
+                this.updateSlope();
+            }
+
+            updateSlope() {
+                const span = 10;
+                const leftY = getSurfaceY(this.x - span, Math.max(0, this.y - 35));
+                const rightY = getSurfaceY(this.x + span, Math.max(0, this.y - 35));
+                if (leftY < WORLD_H && rightY < WORLD_H) {
+                    const angle = Math.atan2(rightY - leftY, span * 2);
+                    // Clamp visual slope so tank doesn't flip upside down
+                    this.slopeAngle = Math.max(-0.65, Math.min(0.65, angle));
+                } else {
+                    this.slopeAngle = 0;
+                }
+            }
+
+            /**
+             * World firing angle in radians
+             */
+            getWorldBarrelAngleRad() {
+                const elevRad = (this.aimAngle * Math.PI) / 180;
+                if (this.facingRight) {
+                    return this.slopeAngle - elevRad;
+                } else {
+                    return Math.PI + this.slopeAngle + elevRad;
+                }
+            }
+
+            /**
+             * True world firing angle in degrees for HUD display
+             */
+            getDisplayAngleDeg() {
+                const slopeDeg = Math.round((this.slopeAngle * 180) / Math.PI) * (this.facingRight ? -1 : 1);
+                return Math.round(this.aimAngle + slopeDeg);
+            }
+
+            updatePhysics() {
+                if (!this.alive) return false;
+
+                // Check if ground beneath tank was destroyed (fall with gravity!)
+                if (!isSolid(this.x, this.y + 2)) {
+                    this.vy += 0.35;
+                    this.y += this.vy;
+
+                    // Hit ground while falling
+                    for (let step = 0; step < Math.ceil(this.vy); step++) {
+                        if (isSolid(this.x, this.y + 1)) {
+                            this.y = Math.floor(this.y);
+                            this.vy = 0;
+                            this.updateSlope();
+                            break;
+                        }
+                    }
+
+                    // Bungee / Fall into water abyss!
+                    if (this.y > WORLD_H - 18) {
+                        this.hp = 0;
+                        this.alive = false;
+                        spawnFloatingText(this.x, WORLD_H - 45, '번지 낙사! (BUNGEE!)', '#38bdf8', 22);
+                        spawnExplosionVisual(this.x, WORLD_H - 20, 35, '#38bdf8');
+                        sound.playExplosion(45);
+                        checkGameOver();
+                        return false;
+                    }
+                    return true; // Still falling
+                } else {
+                    this.vy = 0;
+                    // Smoothly climb small pixel steps
+                    while (isSolid(this.x, this.y - 1) && this.y > 10) {
+                        this.y--;
+                    }
+                    this.updateSlope();
+                    return false;
+                }
+            }
+
+            moveHorizontal(dir) {
+                if (!this.alive || this.moveRemaining <= 0) return;
+                this.facingRight = dir > 0;
+                const nextX = this.x + dir * 1.4;
+                if (nextX < 22 || nextX > WORLD_W - 22) return;
+
+                // Check if slope is climbable (max step height 10px)
+                let climbY = this.y;
+                let blocked = false;
+                if (isSolid(nextX, climbY)) {
+                    let foundAir = false;
+                    for (let up = 1; up <= 11; up++) {
+                        if (!isSolid(nextX, climbY - up)) {
+                            climbY -= up;
+                            foundAir = true;
+                            break;
+                        }
+                    }
+                    if (!foundAir) blocked = true;
+                } else {
+                    // Step down slope smoothly
+                    for (let down = 1; down <= 12; down++) {
+                        if (isSolid(nextX, climbY + down)) {
+                            climbY += down - 1;
+                            break;
+                        }
+                    }
+                }
+
+                if (!blocked) {
+                    this.x = nextX;
+                    this.y = climbY;
+                    this.moveRemaining = Math.max(0, this.moveRemaining - 0.8);
+                    this.updateSlope();
+                    if (Math.random() < 0.35) sound.playMoveTick();
+                    updateDashboardUI();
+                }
+            }
+
+            draw(ctx, isCurrentTurn) {
+                if (!this.alive) return;
+
+                ctx.save();
+                ctx.translate(this.x, this.y - 8);
+                ctx.rotate(this.slopeAngle);
+
+                // Active Turn Pulsing Aura
+                if (isCurrentTurn && (gameState === 'AIMING' || gameState === 'CHARGING')) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 26 + Math.sin(Date.now() * 0.008) * 3, 0, Math.PI * 2);
+                    ctx.strokeStyle = this.team === 1 ? 'rgba(56, 189, 248, 0.45)' : 'rgba(251, 113, 133, 0.45)';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // Draw Barrel (Rotated relative to tank body)
+                const localElev = (this.aimAngle * Math.PI) / 180;
+                const barrelAngle = this.facingRight ? -localElev : Math.PI + localElev;
+
+                ctx.save();
+                ctx.translate(0, -6);
+                ctx.rotate(barrelAngle);
+
+                // Barrel Graphics per Class
+                if (this.classKey === 'cannon') {
+                    ctx.fillStyle = '#1e293b';
+                    ctx.strokeStyle = '#94a3b8';
+                    ctx.lineWidth = 1.5;
+                    ctx.fillRect(0, -4, 24, 8);
+                    ctx.strokeRect(0, -4, 24, 8);
+                    // Muzzle tip
+                    ctx.fillStyle = '#ef4444';
+                    ctx.fillRect(20, -5, 5, 10);
+                } else if (this.classKey === 'multi') {
+                    ctx.fillStyle = '#065f46';
+                    ctx.strokeStyle = '#6ee7b7';
+                    ctx.lineWidth = 1.5;
+                    ctx.fillRect(0, -6, 20, 12);
+                    ctx.strokeRect(0, -6, 20, 12);
+                } else {
+                    // Super Tank futuristic twin rail
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.fillRect(0, -4, 23, 3);
+                    ctx.fillRect(0, 1, 23, 3);
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.fillRect(18, -3, 6, 6);
+                }
+                ctx.restore();
+
+                // Draw Tank Treads (Caterpillar)
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(-17, 1, 34, 9, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                // Tread wheels
+                ctx.fillStyle = '#94a3b8';
+                for (let wx = -12; wx <= 12; wx += 6) {
+                    ctx.beginPath();
+                    ctx.arc(wx, 5.5, 2.2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Draw Tank Hull & Turret Dome
+                const hullGrad = ctx.createLinearGradient(0, -14, 0, 4);
+                hullGrad.addColorStop(0, this.spec.colorPrimary);
+                hullGrad.addColorStop(1, this.spec.colorSecondary);
+                ctx.fillStyle = hullGrad;
+                ctx.strokeStyle = '#f8fafc';
+                ctx.lineWidth = 1.5;
+
+                ctx.beginPath();
+                ctx.roundRect(-14, -6, 28, 9, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                // Turret dome
+                ctx.beginPath();
+                ctx.arc(0, -6, 9, Math.PI, 0);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Team Emblem Star/Stripe
+                ctx.fillStyle = '#fef08a';
+                ctx.beginPath();
+                ctx.arc(this.facingRight ? 3 : -3, -9, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+
+                // Draw Aiming Crosshair Reticle if Current Player
+                if (isCurrentTurn && (gameState === 'AIMING' || gameState === 'CHARGING')) {
+                    const worldAngle = this.getWorldBarrelAngleRad();
+                    const cx = this.x + Math.cos(worldAngle) * 52;
+                    const cy = (this.y - 14) + Math.sin(worldAngle) * 52;
+
+                    ctx.save();
+                    ctx.strokeStyle = '#facc15';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+                    ctx.moveTo(cx - 10, cy);
+                    ctx.lineTo(cx + 10, cy);
+                    ctx.moveTo(cx, cy - 10);
+                    ctx.lineTo(cx, cy + 10);
+                    ctx.stroke();
+                    ctx.restore();
+
+                    // Bouncing Arrow Above Active Tank
+                    const bounce = Math.sin(Date.now() * 0.01) * 5;
+                    ctx.save();
+                    ctx.fillStyle = '#facc15';
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y - 52 + bounce);
+                    ctx.lineTo(this.x - 7, this.y - 64 + bounce);
+                    ctx.lineTo(this.x + 7, this.y - 64 + bounce);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Overhead Nameplate & Mini HP Bar (Fortress 2 Style)
+                const barW = 46;
+                const barH = 5;
+                const bx = this.x - barW / 2;
+                const by = this.y - 42;
+
+                ctx.save();
+                ctx.font = 'bold 11px "Noto Sans KR"';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#000';
+                ctx.fillText(this.name, this.x + 1, by - 4);
+                ctx.fillStyle = this.team === 1 ? '#38bdf8' : '#fb7185';
+                ctx.fillText(this.name, this.x, by - 5);
+
+                // HP Background
+                ctx.fillStyle = 'rgba(0,0,0,0.75)';
+                ctx.fillRect(bx - 1, by - 1, barW + 2, barH + 2);
+
+                const hpRatio = Math.max(0, this.hp / this.maxHp);
+                ctx.fillStyle = hpRatio > 0.5 ? '#22c55e' : hpRatio > 0.25 ? '#f59e0b' : '#ef4444';
+                ctx.fillRect(bx, by, barW * hpRatio, barH);
+                ctx.restore();
+            }
+        }
+
+        /**
+         * ============================================================================
+         * 5. PROJECTILES, PARTICLES & FLOATING DAMAGE NUMBERS
+         * ============================================================================
+         */
+        class Projectile {
+            constructor(owner, x, y, vx, vy, weaponSpec, itemModifier) {
+                this.owner = owner;
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.weaponSpec = weaponSpec;
+                this.itemModifier = itemModifier; // 'power', 'teleport', etc.
+                this.trail = [];
+                this.age = 0;
+                this.active = true;
+            }
+
+            update() {
+                if (!this.active) return;
+                this.age++;
+
+                // Save trail coordinates
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > 16) this.trail.shift();
+
+                // Sub-step integration for accurate collision
+                const steps = 3;
+                for (let s = 0; s < steps; s++) {
+                    this.x += this.vx / steps;
+                    this.y += this.vy / steps;
+
+                    // Gravity & Wind acceleration
+                    const windFactor = this.weaponSpec.style === 'laser' ? 0.0018 : 0.0034;
+                    this.vx += (wind * windFactor) / steps;
+                    this.vy += 0.22 / steps;
+
+                    // Super Tank Homing Missile behavior (activates on downward arc near enemy)
+                    if (this.weaponSpec.homing && this.vy > -1 && this.age > 18) {
+                        const target = tanks.find(t => t.alive && t.id !== this.owner.id);
+                        if (target) {
+                            const dx = target.x - this.x;
+                            const dy = (target.y - 10) - this.y;
+                            const dist = Math.hypot(dx, dy);
+                            if (dist < 260) {
+                                this.vx += (dx / dist) * 0.09;
+                                this.vy += (dy / dist) * 0.09;
+                            }
+                        }
+                    }
+
+                    // Out of horizontal bounds or fell into water
+                    if (this.x < -40 || this.x > WORLD_W + 40 || this.y > WORLD_H) {
+                        this.active = false;
+                        return;
+                    }
+
+                    // Check Direct Hit on any Tank
+                    for (const t of tanks) {
+                        if (!t.alive) continue;
+                        if (this.age < 7 && t.id === this.owner.id) continue; // Don't self-collide on muzzle exit
+                        const dist = Math.hypot(this.x - t.x, this.y - (t.y - 10));
+                        if (dist <= t.radius + 4) {
+                            this.detonate(this.x, this.y);
+                            return;
+                        }
+                    }
+
+                    // Check Terrain Pixel Hit
+                    if (this.y >= 0 && isSolid(this.x, this.y)) {
+                        this.detonate(this.x, this.y);
+                        return;
+                    }
+                }
+            }
+
+            detonate(ix, iy) {
+                this.active = false;
+
+                // Teleport Ball Item Logic (이동탄)
+                if (this.itemModifier === 'teleport') {
+                    this.owner.x = Math.max(25, Math.min(WORLD_W - 25, ix));
+                    this.owner.y = iy - 12;
+                    this.owner.updateSlope();
+                    spawnExplosionVisual(ix, iy, 28, '#38bdf8');
+                    spawnFloatingText(ix, iy - 25, '순간이동!', '#38bdf8', 18);
+                    sound.playItemUse();
+                    return;
+                }
+
+                const powerMult = this.itemModifier === 'power' ? 1.35 : 1.0;
+                const craterRadius = Math.round(this.weaponSpec.crater * powerMult);
+                const maxDamage = Math.round(this.weaponSpec.damage * powerMult);
+
+                // 1. Carve Circular Crater in Terrain
+                carveCrater(ix, iy, craterRadius);
+
+                // 2. Visual & Audio Explosion
+                const color = this.itemModifier === 'power' ? '#f43f5e' :
+                              this.weaponSpec.style === 'laser' ? '#38bdf8' :
+                              this.weaponSpec.style === 'redball' ? '#ef4444' : '#f59e0b';
+                spawnExplosionVisual(ix, iy, craterRadius, color);
+                sound.playExplosion(craterRadius);
+                screenShake = Math.min(14, Math.floor(craterRadius / 3.5));
+
+                // 3. Calculate Splash Damage to Tanks
+                const splashRadius = craterRadius * 1.45 + 14;
+                tanks.forEach(t => {
+                    if (!t.alive) return;
+                    const dist = Math.hypot(t.x - ix, (t.y - 10) - iy);
+                    if (dist <= splashRadius) {
+                        const falloff = Math.max(0.2, 1 - (dist / splashRadius) * 0.85);
+                        const dmg = Math.max(1, Math.round(maxDamage * falloff));
+                        t.hp = Math.max(0, t.hp - dmg);
+
+                        // Knockback impulse
+                        const angle = Math.atan2((t.y - 10) - iy, t.x - ix);
+                        t.vy = Math.min(t.vy, -2.5);
+
+                        spawnFloatingText(
+                            t.x + (Math.random() * 20 - 10),
+                            t.y - 48,
+                            `-${dmg}`,
+                            dmg >= 200 ? '#f43f5e' : '#facc15',
+                            dmg >= 200 ? 22 : 17
+                        );
+
+                        if (t.hp <= 0) {
+                            t.alive = false;
+                            spawnExplosionVisual(t.x, t.y - 10, 50, '#ef4444');
+                            spawnFloatingText(t.x, t.y - 70, '격파! (DESTROYED)', '#ef4444', 22);
+                        }
+                    }
+                });
+
+                updateDashboardUI();
+            }
+
+            draw(ctx) {
+                if (!this.active) return;
+
+                // Draw smoke/energy trail
+                for (let i = 0; i < this.trail.length; i++) {
+                    const pt = this.trail[i];
+                    const alpha = (i / this.trail.length) * 0.55;
+                    ctx.fillStyle = this.itemModifier === 'teleport'
+                        ? `rgba(56, 189, 248, ${alpha})`
+                        : this.weaponSpec.style === 'laser' || this.weaponSpec.style === 'homing'
+                        ? `rgba(56, 189, 248, ${alpha})`
+                        : `rgba(226, 232, 240, ${alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(pt.x, pt.y, 2 + (i / this.trail.length) * 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Draw Projectile Shell
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(Math.atan2(this.vy, this.vx));
+
+                if (this.itemModifier === 'teleport') {
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (this.weaponSpec.style === 'blackball') {
+                    // Classic Cannon Black Ball (검콩)
+                    ctx.fillStyle = '#1e293b';
+                    ctx.strokeStyle = '#f8fafc';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 6.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                } else if (this.weaponSpec.style === 'redball') {
+                    // Classic Cannon Red Ball (빨콩)
+                    ctx.fillStyle = '#ef4444';
+                    ctx.strokeStyle = '#fef08a';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                } else if (this.weaponSpec.style === 'laser') {
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.shadowColor = '#38bdf8';
+                    ctx.shadowBlur = 8;
+                    ctx.beginPath();
+                    ctx.roundRect(-8, -3, 16, 6, 3);
+                    ctx.fill();
+                } else {
+                    // Missile / Homing Warhead
+                    ctx.fillStyle = this.weaponSpec.homing ? '#f59e0b' : '#f8fafc';
+                    ctx.beginPath();
+                    ctx.moveTo(8, 0);
+                    ctx.lineTo(-6, -4);
+                    ctx.lineTo(-6, 4);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+
+        function spawnExplosionVisual(x, y, radius, mainColor) {
+            // Core flash
+            particles.push({
+                x, y, vx: 0, vy: 0,
+                r: radius * 1.15,
+                maxR: radius * 1.35,
+                alpha: 1,
+                color: '#fef08a',
+                type: 'flash'
+            });
+
+            // Flying debris & fire sparks
+            const count = Math.min(45, Math.floor(radius * 0.85));
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1.5 + Math.random() * (radius * 0.14);
+                particles.push({
+                    x, y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 1.5,
+                    r: 2.5 + Math.random() * 4,
+                    alpha: 1,
+                    color: i % 3 === 0 ? '#fef08a' : i % 2 === 0 ? mainColor : '#78350f',
+                    type: 'spark'
+                });
+            }
+        }
+
+        function spawnFloatingText(x, y, text, color = '#facc15', size = 18) {
+            floatingTexts.push({
+                x, y,
+                vy: -1.2,
+                text,
+                color,
+                size,
+                alpha: 1.0,
+                life: 65
+            });
+        }
+
+        /**
+         * ============================================================================
+         * 6. TURN SYSTEM, WIND GENERATOR, ITEMS & AI SOLVER
+         * ============================================================================
+         */
+        function startNewMatch() {
+            selectedMapStyle = document.getElementById('map-style-select').value;
+            document.getElementById('setup-modal').classList.add('hidden');
+            document.getElementById('gameover-modal').classList.add('hidden');
+            document.getElementById('hud-mode-badge').textContent = gameMode === 'AI' ? '1P vs AI' : '1P vs 2P';
+
+            generateTerrain(selectedMapStyle);
+
+            // Spawn Clouds & Background Stars
+            clouds = Array.from({ length: 6 }, () => ({
+                x: Math.random() * WORLD_W,
+                y: 45 + Math.random() * 110,
+                w: 70 + Math.random() * 60,
+                speed: 0.15 + Math.random() * 0.25
+            }));
+            stars = Array.from({ length: 45 }, () => ({
+                x: Math.random() * WORLD_W,
+                y: Math.random() * 240,
+                size: Math.random() * 2 + 0.5
+            }));
+
+            // Spawn Tanks on Opposite Sides
+            const p1X = 160 + Math.floor(Math.random() * 110);
+            const p2X = WORLD_W - 160 - Math.floor(Math.random() * 110);
+
+            const t1 = new Tank(1, 'PLAYER 1', 1, selectedP1Class, p1X, true, false);
+            const t2 = new Tank(2, gameMode === 'AI' ? 'FORTRESS AI' : 'PLAYER 2', 2, selectedP2Class, p2X, false, gameMode === 'AI');
+
+            t1.snapToGround();
+            t2.snapToGround();
+
+            tanks = [t1, t2];
+            projectiles = [];
+            particles = [];
+            floatingTexts = [];
+            currentTurnIndex = 0;
+            turnNumber = 1;
+            wind = Math.floor(Math.random() * 15) - 7;
+
+            beginTurn();
+        }
+
+        function getCurrentTank() {
+            return tanks[currentTurnIndex];
+        }
+
+        function beginTurn() {
+            if (checkGameOver()) return;
+
+            const activeTank = getCurrentTank();
+            activeTank.moveRemaining = activeTank.maxMove;
+            activeTank.activeItem = null;
+            isCharging = false;
+            currentPower = 0;
+
+            // Slightly shift wind each turn
+            const deltaWind = Math.floor(Math.random() * 9) - 4;
+            wind = Math.max(-15, Math.min(15, wind + deltaWind));
+
+            updateWindUI();
+            updateDashboardUI();
+            renderItemSlots();
+
+            document.getElementById('turn-badge').textContent = `TURN ${turnNumber}`;
+            document.getElementById('active-player-text').textContent = `${activeTank.name} 턴`;
+            document.getElementById('active-player-dot').className =
+                `w-2.5 h-2.5 rounded-full ${activeTank.team === 1 ? 'bg-sky-400' : 'bg-rose-500'}`;
+
+            showCenterToast(`${activeTank.name} 차례!`, `WIND ${wind > 0 ? '+' + wind : wind}`);
+            sound.playTurnStart();
+
+            // Start 20s Turn Countdown
+            clearInterval(turnTimerInterval);
+            turnTimer = 20;
+            document.getElementById('turn-timer-display').textContent = turnTimer;
+            turnTimerInterval = setInterval(() => {
+                if (gameState !== 'AIMING' && gameState !== 'CHARGING' && gameState !== 'AI_THINKING') return;
+                turnTimer--;
+                document.getElementById('turn-timer-display').textContent = Math.max(0, turnTimer);
+                if (turnTimer <= 0) {
+                    clearInterval(turnTimerInterval);
+                    if (isCharging) {
+                        releaseAndFire();
+                    } else {
+                        spawnFloatingText(activeTank.x, activeTank.y - 50, '시간 초과!', '#fb7185', 18);
+                        advanceTurn();
+                    }
+                }
+            }, 1000);
+
+            if (activeTank.isAI) {
+                gameState = 'AI_THINKING';
+                setTimeout(() => executeAITurn(activeTank), 1100);
+            } else {
+                gameState = 'AIMING';
+            }
+        }
+
+        function advanceTurn() {
+            clearInterval(turnTimerInterval);
+            const activeTank = getCurrentTank();
+
+            // Check if Double Fire triggers an immediate second shot
+            if (activeTank && activeTank.alive && activeTank.extraShotPending) {
+                activeTank.extraShotPending = false;
+                isCharging = false;
+                currentPower = 0;
+                updateDashboardUI();
+                showCenterToast('더블파이어 발동!', '추가 발사 찬스!');
+                if (activeTank.isAI) {
+                    gameState = 'AI_THINKING';
+                    setTimeout(() => executeAITurn(activeTank), 900);
+                } else {
+                    gameState = 'AIMING';
+                }
+                return;
+            }
+
+            currentTurnIndex = (currentTurnIndex + 1) % tanks.length;
+            if (currentTurnIndex === 0) turnNumber++;
+            beginTurn();
+        }
+
+        function skipCurrentTurn() {
+            if (gameState !== 'AIMING') return;
+            const t = getCurrentTank();
+            t.extraShotPending = false;
+            spawnFloatingText(t.x, t.y - 45, '턴 패스 (SKIP)', '#94a3b8', 16);
+            advanceTurn();
+        }
+
+        /**
+         * Fire Projectiles from Current Tank with Power (5-100)
+         */
+        function fireTankWeapon(tank, powerPercent) {
+            clearInterval(turnTimerInterval);
+            gameState = 'FIRING';
+
+            tank.lastPower = powerPercent;
+            const wSpec = tank.selectedWeapon === 1 ? tank.spec.w1 : tank.spec.w2;
+            const worldAngle = tank.getWorldBarrelAngleRad();
+            const speed = (powerPercent / 100) * 19.5 + 1.5;
+
+            const muzzleX = tank.x + Math.cos(worldAngle) * 24;
+            const muzzleY = (tank.y - 14) + Math.sin(worldAngle) * 24;
+
+            // Teleport item overrides projectile count to 1
+            const count = tank.activeItem === 'teleport' ? 1 : wSpec.count;
+            const spread = wSpec.spread || 0;
+
+            for (let i = 0; i < count; i++) {
+                const offsetAngle = count === 1 ? 0 : (i - (count - 1) / 2) * spread;
+                const finalAngle = worldAngle + offsetAngle;
+                const speedJitter = count > 3 ? (1 + (Math.random() - 0.5) * 0.08) : 1;
+
+                const vx = Math.cos(finalAngle) * speed * speedJitter;
+                const vy = Math.sin(finalAngle) * speed * speedJitter;
+
+                projectiles.push(new Projectile(tank, muzzleX, muzzleY, vx, vy, wSpec, tank.activeItem));
+            }
+
+            sound.playFire(wSpec.style);
+            tank.activeItem = null;
+            updateDashboardUI();
+        }
+
+        /**
+         * AI Ballistic Trajectory Solver (Simulates wind + gravity to find best angle & power)
+         */
+        function executeAITurn(aiTank) {
+            if (!aiTank.alive || gameState !== 'AI_THINKING') return;
+            const target = tanks.find(t => t.alive && t.id !== aiTank.id);
+            if (!target) return;
+
+            // Face target
+            aiTank.facingRight = target.x > aiTank.x;
+
+            // Optionally move a bit for better positioning
+            const moveSteps = Math.floor(Math.random() * 14) - 6;
+            for (let i = 0; i < Math.abs(moveSteps); i++) {
+                aiTank.moveHorizontal(moveSteps > 0 ? 1 : -1);
+            }
+            aiTank.facingRight = target.x > aiTank.x;
+
+            // AI Item Selection
+            if (aiTank.hp < 450) {
+                const rep = aiTank.items.find(it => it.id === 'repair' && !it.used);
+                if (rep) useItemSlot('repair');
+            } else if (Math.random() < 0.45) {
+                const offItems = aiTank.items.filter(it => (it.id === 'double' || it.id === 'power') && !it.used);
+                if (offItems.length > 0) {
+                    useItemSlot(offItems[Math.floor(Math.random() * offItems.length)].id);
+                }
+            }
+
+            // Choose weapon 1 or 2
+            aiTank.selectedWeapon = Math.random() < 0.38 ? 2 : 1;
+
+            // Simulate trajectories to find best angle & power
+            let bestAngle = 48;
+            let bestPower = 60;
+            let minMissDist = Infinity;
+
+            const candidateAngles = [35, 42, 50, 58, 65, 72];
+            const windFactor = (aiTank.selectedWeapon === 1 ? aiTank.spec.w1 : aiTank.spec.w2).style === 'laser' ? 0.0018 : 0.0034;
+
+            for (const testAngle of candidateAngles) {
+                aiTank.aimAngle = testAngle;
+                const worldRad = aiTank.getWorldBarrelAngleRad();
+
+                for (let p = 22; p <= 96; p += 2) {
+                    const spd = (p / 100) * 19.5 + 1.5;
+                    let sx = aiTank.x + Math.cos(worldRad) * 24;
+                    let sy = (aiTank.y - 14) + Math.sin(worldRad) * 24;
+                    let svx = Math.cos(worldRad) * spd;
+                    let svy = Math.sin(worldRad) * spd;
+
+                    for (let t = 0; t < 180; t++) {
+                        sx += svx;
+                        sy += svy;
+                        svx += wind * windFactor;
+                        svy += 0.22;
+
+                        const d = Math.hypot(sx - target.x, sy - (target.y - 10));
+                        if (d < minMissDist) {
+                            minMissDist = d;
+                            bestAngle = testAngle;
+                            bestPower = p;
+                        }
+                        if (sy > WORLD_H || (sy > 0 && isSolid(sx, sy))) break;
+                    }
+                }
+            }
+
+            // Add slight human-like imperfection (+/- 2.5% power)
+            aiTank.aimAngle = bestAngle;
+            const finalPower = Math.max(15, Math.min(99, bestPower + (Math.random() * 5 - 2.5)));
+            updateDashboardUI();
+
+            setTimeout(() => {
+                if (gameState !== 'AI_THINKING') return;
+                fireTankWeapon(aiTank, Math.round(finalPower));
+            }, 650);
+        }
+
+        /**
+         * ============================================================================
+         * 7. DASHBOARD UI, ANGLE PROTRACTOR & ITEM CONTROLS
+         * ============================================================================
+         */
+        function selectWeapon(num) {
+            if (gameState !== 'AIMING') return;
+            const t = getCurrentTank();
+            if (!t || t.isAI) return;
+            t.selectedWeapon = num;
+            sound.playAngleTick();
+            updateDashboardUI();
+        }
+
+        function renderItemSlots() {
+            const container = document.getElementById('item-slots-container');
+            container.innerHTML = '';
+            const t = getCurrentTank();
+            if (!t) return;
+
+            t.items.forEach((item, idx) => {
+                const btn = document.createElement('button');
+                const isActive = t.activeItem === item.id || (item.id === 'double' && t.extraShotPending);
+                btn.className = `item-slot h-12 sm:h-14 rounded-lg flex flex-col items-center justify-center relative p-1 ${item.used ? 'used' : ''} ${isActive ? 'active-item' : ''}`;
+                btn.onclick = () => {
+                    if (gameState === 'AIMING' && !t.isAI) useItemSlot(item.id);
+                };
+                btn.title = `${item.name}: ${item.desc}`;
+                btn.innerHTML = `
+                    <span class="absolute top-0.5 left-1 font-digital text-[9px] text-slate-400">${idx + 1}</span>
+                    <span class="text-base sm:text-lg leading-none">${item.icon}</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-slate-200 truncate w-full text-center mt-0.5">${item.name}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function useItemSlot(itemId) {
+            const t = getCurrentTank();
+            if (!t || !t.alive) return;
+            const slot = t.items.find(it => it.id === itemId);
+            if (!slot || slot.used) return;
+
+            if (itemId === 'repair') {
+                slot.used = true;
+                const heal = 300;
+                t.hp = Math.min(t.maxHp, t.hp + heal);
+                spawnFloatingText(t.x, t.y - 50, `+${heal} 수리 완료!`, '#4ade80', 19);
+                sound.playItemUse();
+            } else if (itemId === 'double') {
+                if (t.extraShotPending) return;
+                slot.used = true;
+                t.extraShotPending = true;
+                spawnFloatingText(t.x, t.y - 50, '더블파이어 장착!', '#facc15', 18);
+                sound.playItemUse();
+            } else {
+                // Power or Teleport
+                if (t.activeItem) return;
+                slot.used = true;
+                t.activeItem = itemId;
+                spawnFloatingText(t.x, t.y - 50, `${slot.name} 장착!`, '#38bdf8', 18);
+                sound.playItemUse();
+            }
+
+            renderItemSlots();
+            updateDashboardUI();
+        }
+
+        function updateWindUI() {
+            const maxWind = 15;
+            const pct = Math.min(100, (Math.abs(wind) / maxWind) * 100);
+            const leftBar = document.getElementById('wind-bar-left');
+            const rightBar = document.getElementById('wind-bar-right');
+            const textEl = document.getElementById('wind-value-text');
+
+            if (wind < 0) {
+                leftBar.style.width = `${pct / 2}%`;
+                rightBar.style.width = '0%';
+                textEl.textContent = `◀ ${Math.abs(wind)}`;
+            } else if (wind > 0) {
+                leftBar.style.width = '0%';
+                rightBar.style.width = `${pct / 2}%`;
+                textEl.textContent = `${wind} ▶`;
+            } else {
+                leftBar.style.width = '0%';
+                rightBar.style.width = '0%';
+                textEl.textContent = '0';
+            }
+        }
+
+        function updateDashboardUI() {
+            const t = getCurrentTank();
+            if (!t) return;
+
+            document.getElementById('dash-player-name').textContent = t.name;
+            document.getElementById('dash-player-name').className =
+                `text-xs font-black truncate ${t.team === 1 ? 'text-sky-400' : 'text-rose-400'}`;
+            document.getElementById('dash-tank-name').textContent = t.spec.name;
+
+            const slopeDeg = Math.round((t.slopeAngle * 180) / Math.PI);
+            document.getElementById('dash-slope-text').textContent = `경사 ${slopeDeg > 0 ? '+' + slopeDeg : slopeDeg}°`;
+
+            // Weapon Buttons
+            const b1 = document.getElementById('btn-w1');
+            const b2 = document.getElementById('btn-w2');
+            b1.textContent = `1. ${t.spec.w1.name}`;
+            b2.textContent = `2. ${t.spec.w2.name}`;
+
+            if (t.selectedWeapon === 1) {
+                b1.className = 'px-1.5 py-1 rounded text-[11px] font-bold border border-yellow-400 bg-amber-500/30 text-yellow-200 truncate';
+                b2.className = 'px-1.5 py-1 rounded text-[11px] font-bold border border-slate-700 bg-slate-800/80 text-slate-400 truncate';
+            } else {
+                b1.className = 'px-1.5 py-1 rounded text-[11px] font-bold border border-slate-700 bg-slate-800/80 text-slate-400 truncate';
+                b2.className = 'px-1.5 py-1 rounded text-[11px] font-bold border border-yellow-400 bg-amber-500/30 text-yellow-200 truncate';
+            }
+
+            // HP Bar
+            const hpPct = Math.max(0, (t.hp / t.maxHp) * 100);
+            document.getElementById('hp-bar-fill').style.width = `${hpPct}%`;
+            document.getElementById('hp-bar-text').textContent = `${t.hp} / ${t.maxHp}`;
+
+            // Move Bar
+            const movePct = Math.max(0, Math.round((t.moveRemaining / t.maxMove) * 100));
+            document.getElementById('move-bar-fill').style.width = `${movePct}%`;
+            document.getElementById('move-bar-text').textContent = `${movePct}%`;
+
+            // Power Bar & Last Power Memory Marker
+            document.getElementById('power-bar-fill').style.width = `${currentPower}%`;
+            document.getElementById('power-num-text').textContent = `${Math.round(currentPower)} / 100`;
+
+            const marker = document.getElementById('last-power-marker');
+            if (t.lastPower > 0) {
+                marker.classList.remove('hidden');
+                marker.style.left = `${t.lastPower}%`;
+            } else {
+                marker.classList.add('hidden');
+            }
+
+            // Active Item Label
+            const itemLabel = document.getElementById('active-item-label');
+            if (t.activeItem === 'power') itemLabel.textContent = '파워업탄 장착중';
+            else if (t.activeItem === 'teleport') itemLabel.textContent = '이동탄 장착중';
+            else if (t.extraShotPending) itemLabel.textContent = '더블파이어 활성';
+            else itemLabel.textContent = '대기 중';
+
+            // Angle Protractor Canvas
+            drawAngleProtractor(t);
+        }
+
+        function drawAngleProtractor(tank) {
+            const w = angleCanvas.width;
+            const h = angleCanvas.height;
+            const cx = w / 2;
+            const cy = h / 2 + 6;
+            const r = 42;
+
+            angleCtx.clearRect(0, 0, w, h);
+
+            // Outer Radar Ring
+            angleCtx.strokeStyle = '#334155';
+            angleCtx.lineWidth = 1.5;
+            angleCtx.beginPath();
+            angleCtx.arc(cx, cy, r, 0, Math.PI * 2);
+            angleCtx.stroke();
+
+            // Crosshairs
+            angleCtx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+            angleCtx.beginPath();
+            angleCtx.moveTo(cx - r, cy);
+            angleCtx.lineTo(cx + r, cy);
+            angleCtx.moveTo(cx, cy - r);
+            angleCtx.lineTo(cx, cy + r);
+            angleCtx.stroke();
+
+            // Tank Slope Horizon Line (Tilted by terrain slope)
+            angleCtx.save();
+            angleCtx.translate(cx, cy);
+            angleCtx.rotate(tank.slopeAngle);
+
+            // Valid Aiming Sector Fan (5° to 85°)
+            angleCtx.fillStyle = 'rgba(34, 197, 94, 0.18)';
+            angleCtx.beginPath();
+            angleCtx.moveTo(0, 0);
+            if (tank.facingRight) {
+                angleCtx.arc(0, 0, r - 2, -(85 * Math.PI) / 180, -(5 * Math.PI) / 180);
+            } else {
+                angleCtx.arc(0, 0, r - 2, Math.PI + (5 * Math.PI) / 180, Math.PI + (85 * Math.PI) / 180);
+            }
+            angleCtx.closePath();
+            angleCtx.fill();
+
+            // Tank Horizon Base Line
+            angleCtx.strokeStyle = '#60a5fa';
+            angleCtx.lineWidth = 2;
+            angleCtx.beginPath();
+            angleCtx.moveTo(-r + 6, 0);
+            angleCtx.lineTo(r - 6, 0);
+            angleCtx.stroke();
+            angleCtx.restore();
+
+            // Actual World Firing Vector Line
+            const worldRad = tank.getWorldBarrelAngleRad();
+            angleCtx.strokeStyle = '#facc15';
+            angleCtx.lineWidth = 2.5;
+            angleCtx.beginPath();
+            angleCtx.moveTo(cx, cy);
+            angleCtx.lineTo(cx + Math.cos(worldRad) * r, cy + Math.sin(worldRad) * r);
+            angleCtx.stroke();
+
+            // Center Pivot Dot
+            angleCtx.fillStyle = '#f8fafc';
+            angleCtx.beginPath();
+            angleCtx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+            angleCtx.fill();
+
+            document.getElementById('angle-text-display').textContent = `${tank.aimAngle}° (${tank.getDisplayAngleDeg()}°)`;
+        }
+
+        function showCenterToast(mainText, subText = 'FORTRESS 2') {
+            const toast = document.getElementById('center-toast');
+            const box = document.getElementById('center-toast-box');
+            document.getElementById('center-toast-main').textContent = mainText;
+            document.getElementById('center-toast-sub').textContent = subText;
+
+            toast.classList.remove('opacity-0');
+            box.classList.remove('scale-95');
+            box.classList.add('scale-100');
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                box.classList.remove('scale-100');
+                box.classList.add('scale-95');
+            }, 1350);
+        }
+
+        function checkGameOver() {
+            const aliveTanks = tanks.filter(t => t.alive);
+            if (aliveTanks.length <= 1 && gameState !== 'SETUP') {
+                gameState = 'GAMEOVER';
+                clearInterval(turnTimerInterval);
+                sound.stopCharging();
+
+                const modal = document.getElementById('gameover-modal');
+                const title = document.getElementById('winner-title');
+                const reason = document.getElementById('winner-reason');
+
+                if (aliveTanks.length === 1) {
+                    const winner = aliveTanks[0];
+                    title.textContent = `${winner.name} 승리!`;
+                    reason.textContent = `${winner.spec.name}의 정밀한 포격으로 승리를 쟁취했습니다!`;
+                    document.getElementById('stat-hp').textContent = `${winner.hp} HP`;
+                } else {
+                    title.textContent = '무승부 (DRAW)!';
+                    reason.textContent = '양측 탱크가 동시에 파괴되었습니다!';
+                    document.getElementById('stat-hp').textContent = '0 HP';
+                }
+
+                document.getElementById('stat-turns').textContent = `${turnNumber} 턴`;
+                setTimeout(() => modal.classList.remove('hidden'), 900);
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * ============================================================================
+         * 8. KEYBOARD & TOUCH INPUT HANDLERS
+         * ============================================================================
+         */
+        window.addEventListener('keydown', (e) => {
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+                e.preventDefault();
+            }
+
+            const t = getCurrentTank();
+            if (!t || t.isAI) return;
+
+            if (e.code in keys) keys[e.code] = true;
+
+            if (gameState === 'AIMING') {
+                if (e.code === 'Tab') {
+                    e.preventDefault();
+                    selectWeapon(t.selectedWeapon === 1 ? 2 : 1);
+                } else if (e.key === '1') useItemSlot('double');
+                else if (e.key === '2') useItemSlot('power');
+                else if (e.key === '3') useItemSlot('teleport');
+                else if (e.key === '4') useItemSlot('repair');
+                else if (e.code === 'F8') skipCurrentTurn();
+                else if (e.code === 'Space' && !isCharging) {
+                    gameState = 'CHARGING';
+                    isCharging = true;
+                    currentPower = 0;
+                    chargeDirection = 1;
+                    sound.startCharging();
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code in keys) keys[e.code] = false;
+            if (e.code === 'Space' && isCharging) {
+                releaseAndFire();
+            }
+        });
+
+        function releaseAndFire() {
+            if (!isCharging) return;
+            isCharging = false;
+            sound.stopCharging();
+            const t = getCurrentTank();
+            if (t && t.alive) {
+                const firePower = Math.max(8, Math.round(currentPower));
+                fireTankWeapon(t, firePower);
+            }
+        }
+
+        // Bind Mobile Touch Controls
+        function bindTouchControls() {
+            const bindHold = (id, keyName) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; });
+                el.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+                el.addEventListener('mousedown', () => keys[keyName] = true);
+                el.addEventListener('mouseup', () => keys[keyName] = false);
+            };
+            bindHold('touch-left', 'ArrowLeft');
+            bindHold('touch-right', 'ArrowRight');
+            bindHold('touch-up', 'ArrowUp');
+            bindHold('touch-down', 'ArrowDown');
+
+            const fireBtn = document.getElementById('touch-fire');
+            if (fireBtn) {
+                const startFire = (e) => {
+                    e.preventDefault();
+                    const t = getCurrentTank();
+                    if (gameState === 'AIMING' && t && !t.isAI && !isCharging) {
+                        gameState = 'CHARGING';
+                        isCharging = true;
+                        currentPower = 0;
+                        chargeDirection = 1;
+                        sound.startCharging();
+                    }
+                };
+                const endFire = (e) => {
+                    e.preventDefault();
+                    if (isCharging) releaseAndFire();
+                };
+                fireBtn.addEventListener('touchstart', startFire);
+                fireBtn.addEventListener('touchend', endFire);
+                fireBtn.addEventListener('mousedown', startFire);
+                fireBtn.addEventListener('mouseup', endFire);
+            }
+        }
+        bindTouchControls();
+
+        /**
+         * ============================================================================
+         * 9. MAIN 60FPS GAME LOOP & RENDERING PIPELINE
+         * ============================================================================
+         */
+        let lastAngleTickTime = 0;
+
+        function updateGame() {
+            const activeTank = getCurrentTank();
+
+            // 1. Handle Player Input During AIMING / CHARGING
+            if (activeTank && !activeTank.isAI && activeTank.alive) {
+                if (gameState === 'AIMING') {
+                    if (keys.ArrowLeft) activeTank.moveHorizontal(-1);
+                    if (keys.ArrowRight) activeTank.moveHorizontal(1);
+
+                    let angleChanged = false;
+                    if (keys.ArrowUp && activeTank.aimAngle < 85) {
+                        activeTank.aimAngle = Math.min(85, activeTank.aimAngle + 0.65);
+                        angleChanged = true;
+                    }
+                    if (keys.ArrowDown && activeTank.aimAngle > 5) {
+                        activeTank.aimAngle = Math.max(5, activeTank.aimAngle - 0.65);
+                        angleChanged = true;
+                    }
+                    if (angleChanged) {
+                        const now = Date.now();
+                        if (now - lastAngleTickTime > 55) {
+                            sound.playAngleTick();
+                            lastAngleTickTime = now;
+                        }
+                        updateDashboardUI();
+                    }
+                } else if (gameState === 'CHARGING' && isCharging) {
+                    currentPower += 1.35 * chargeDirection;
+                    if (currentPower >= 100) {
+                        currentPower = 100;
+                        chargeDirection = -1;
+                    } else if (currentPower <= 5) {
+                        currentPower = 5;
+                        chargeDirection = 1;
+                    }
+                    sound.updateChargingPitch(currentPower / 100);
+                    updateDashboardUI();
+                }
+            }
+
+            // 2. Update Tank Gravity / Falling Physics
+            let anyTankFalling = false;
+            for (const t of tanks) {
+                if (t.updatePhysics()) anyTankFalling = true;
+            }
+
+            // 3. Update Active Projectiles
+            if (projectiles.length > 0) {
+                for (const p of projectiles) p.update();
+                projectiles = projectiles.filter(p => p.active);
+
+                if (projectiles.length === 0 && gameState === 'FIRING') {
+                    gameState = 'SETTLING';
+                }
+            }
+
+            // 4. Transition from SETTLING to next turn once tanks stop falling
+            if (gameState === 'SETTLING' && !anyTankFalling && projectiles.length === 0) {
+                if (!checkGameOver()) {
+                    gameState = 'TRANSITION';
+                    setTimeout(() => advanceTurn(), 550);
+                }
+            }
+
+            // 5. Update Clouds
+            for (const c of clouds) {
+                c.x += wind * 0.08 + c.speed * (wind >= 0 ? 1 : -1);
+                if (c.x > WORLD_W + 100) c.x = -100;
+                if (c.x < -100) c.x = WORLD_W + 100;
+            }
+
+            // 6. Update Explosion Particles
+            for (const pt of particles) {
+                if (pt.type === 'flash') {
+                    pt.r += (pt.maxR - pt.r) * 0.3;
+                    pt.alpha -= 0.08;
+                } else {
+                    pt.x += pt.vx;
+                    pt.y += pt.vy;
+                    pt.vy += 0.18;
+                    pt.alpha -= 0.022;
+                }
+            }
+            particles = particles.filter(pt => pt.alpha > 0);
+
+            // 7. Update Floating Damage Texts
+            for (const ft of floatingTexts) {
+                ft.y += ft.vy;
+                ft.life--;
+                if (ft.life < 20) ft.alpha = ft.life / 20;
+            }
+            floatingTexts = floatingTexts.filter(ft => ft.life > 0);
+
+            if (screenShake > 0) screenShake *= 0.85;
+            if (screenShake < 0.4) screenShake = 0;
+            waterWaveOffset += 0.05;
+        }
+
+        function drawGame() {
+            ctx.save();
+            if (screenShake > 0) {
+                const dx = (Math.random() - 0.5) * screenShake * 2;
+                const dy = (Math.random() - 0.5) * screenShake * 2;
+                ctx.translate(dx, dy);
+            }
+
+            // 1. Vibrant Sky Gradient
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, WORLD_H);
+            if (selectedMapStyle === 'canyon') {
+                skyGrad.addColorStop(0, '#1e1b4b');
+                skyGrad.addColorStop(0.55, '#7c2d12');
+                skyGrad.addColorStop(1, '#f97316');
+            } else if (selectedMapStyle === 'island') {
+                skyGrad.addColorStop(0, '#0284c7');
+                skyGrad.addColorStop(0.6, '#38bdf8');
+                skyGrad.addColorStop(1, '#bae6fd');
+            } else {
+                skyGrad.addColorStop(0, '#090d16');
+                skyGrad.addColorStop(0.45, '#1e3a8a');
+                skyGrad.addColorStop(1, '#3b82f6');
+            }
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+
+            // 2. Background Stars
+            if (selectedMapStyle !== 'island') {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+                for (const s of stars) {
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // 3. Distant Mountain Silhouette
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+            ctx.beginPath();
+            ctx.moveTo(0, WORLD_H);
+            for (let x = 0; x <= WORLD_W; x += 120) {
+                const peak = 290 + Math.sin(x * 0.01) * 55;
+                ctx.lineTo(x, peak);
+            }
+            ctx.lineTo(WORLD_W, WORLD_H);
+            ctx.closePath();
+            ctx.fill();
+
+            // 4. Drifting Clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+            for (const c of clouds) {
+                ctx.beginPath();
+                ctx.roundRect(c.x, c.y, c.w, 22, 11);
+                ctx.fill();
+            }
+
+            // 5. Destructible Terrain Layer
+            ctx.drawImage(terrainCanvas, 0, 0);
+
+            // 6. Tanks
+            const activeTank = getCurrentTank();
+            for (const t of tanks) {
+                t.draw(ctx, activeTank && t.id === activeTank.id);
+            }
+
+            // 7. Projectiles
+            for (const p of projectiles) {
+                p.draw(ctx);
+            }
+
+            // 8. Explosion Particles
+            for (const pt of particles) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, pt.alpha);
+                ctx.fillStyle = pt.color;
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // 9. Bottom Bungee Water Abyss Waves
+            const waterGrad = ctx.createLinearGradient(0, WORLD_H - 26, 0, WORLD_H);
+            waterGrad.addColorStop(0, 'rgba(14, 165, 233, 0.78)');
+            waterGrad.addColorStop(1, 'rgba(3, 105, 161, 0.96)');
+            ctx.fillStyle = waterGrad;
+            ctx.beginPath();
+            ctx.moveTo(0, WORLD_H);
+            for (let x = 0; x <= WORLD_W; x += 20) {
+                const wy = WORLD_H - 18 + Math.sin(x * 0.03 + waterWaveOffset) * 4;
+                ctx.lineTo(x, wy);
+            }
+            ctx.lineTo(WORLD_W, WORLD_H);
+            ctx.closePath();
+            ctx.fill();
+
+            // 10. Floating Damage & Event Numbers
+            for (const ft of floatingTexts) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, ft.alpha);
+                ctx.font = `900 ${ft.size}px "Noto Sans KR"`;
+                ctx.textAlign = 'center';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 4;
+                ctx.strokeText(ft.text, ft.x, ft.y);
+                ctx.fillStyle = ft.color;
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.restore();
+            }
+
+            ctx.restore();
+        }
+
+        function gameLoop() {
+            updateGame();
+            drawGame();
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.onload = function () {
+            renderSetupCards();
+            generateTerrain('valley');
+            requestAnimationFrame(gameLoop);
+        };
+    </script>
 </body>
 </html>
