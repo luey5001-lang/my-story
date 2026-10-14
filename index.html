@@ -1,1449 +1,1599 @@
+
+Gemini
+
+계획 단계
+
+새 채팅
+라이브러리
+이미지
+예약됨
+학생
+
+더보기
+새 노트북
+인간의 욕구를 기반으로 하는 애니어그램
+내 구글드라이브 DOC 자료를 전체적으로 정리해 볼까 관련 분야 별로 나눠서 챕터 별로 분류 별로 한눈에 볼수 있게 핵심 정리 할수 잇어 ?
+Untitled notebook
+HTML5 레트로 너구리 게임 제작
+스팀덱 1인 게임 개발 전략
+GIT연습
+체계적 자산 형성 로드맵
+극단적 절식이 지방간에 미치는 위험
+이세계 회귀, 마물에게 안 보이는 능력
+이세계 전이 웹소설 공동 창작
+자동차 등록증 원부 조회 할수 있어 ?
+알콜성 장염이 왔는데, 이부부르펜 계열의 약을 먹으면 증상이 완화 되나?
+Gemini 4 Argon 출시 및 스펙 소개
+오디오엔진 S8 대역폭 그래프
+대화 기록 기반의 자기성찰적 답변
+호르몬 유형별 여성 체형 특징
+S500 벌크트레일러 일괄 매물 작성
+PC 휴지통 파일 확인
+현대차2우B 7% 배당률 목표 주가
+국민성장펀드 계약금액 설정 가이드
+100만 원 채권 만기 수령액 계산
+183cm의 건강한 적정 체중
+유튜브 턱선 리프팅 영상 팩트체크
+대화로 분석한 인지 및 정서적 특성
+증명사진 빛반사 제거 및 라인 정리
+학습 노트북 제작 요청
+4인용 텍사스 홀뎀 웹게임 제작
+월 500만원 가계부 및 노후 자금 분석
+실질 10억 배당주 은퇴 플랜 현실성 검토
+글로벌 AI 활용 인구 통계 시각화
+81가지 인간 욕구 애니어그램 체계 분석
+Gemini와의 대화
+자동차 등록증 원부 조회 할수 있어 ?
+
+개인정보 보호 및 본인인증(간편인증·공동인증서 등) 절차 때문에 제가 직접 정부 시스템에서 실시간으로 열람할 수는 없지만, 공식 온라인 민원 포털을 통해 바로 조회·발급하시거나 기존에 저장해 두신 문서를 찾는 방식으로 도와드릴 수 있습니다:
+
+자동차등록원부 조회 및 발급: 정부24 자동차 등록원부 발급·열람 또는 자동차365 등록원부 발급·열람신청 페이지에서 차량번호와 소유자 정보를 입력하고 본인인증을 거치면 무료로 갑부(소유권·검사·압류 등)와 을부(저당권 내역)를 열람·발급할 수 있습니다.
+
+자동차등록증 조회 및 재발급: 정부24 자동차등록증 재발급 신청 또는 자동차365 자동차등록증 재발급신청에서 소유자 본인인증 후 신청 및 열람이 가능합니다.
+
+저장된 사본 찾기 또는 브라우저 이동: 이전에 이메일이나 드라이브에 저장해 두신 등록증·원부 파일을 찾아드릴까요, 아니면 브라우저로 해당 신청 페이지까지 바로 이동해 드릴까요?
+
+HTML로 옛날 게임 너구리 만들어줘
+
+1982년 고전 아케이드 게임 너구리(Ponpoko)를 브라우저에서 바로 즐길 수 있도록 단일 HTML5 파일로 제작했습니다:
+
+HTML 아이콘
+ponpoko_game
+ HTML 
+핵심 게임 구성: 5층 벽돌 발판과 낭떠러지 구간, 층간 이동 사다리, 깜빡이는 압정(송곳), 보너스 점수나 초록 뱀이 나오는 물음표(?) 항아리, 상단 BONUS 타이머 게이지와 아기 너구리 HUD를 원작 감성 그대로 담았습니다.
+
+조작 방법: 키보드 방향키(←, ↑, ↓, → 또는 W, A, S, D)로 이동 및 사다리 타기를 하고, SPACE 또는 Z 키로 점프합니다(방향키와 함께 누르면 롱점프, 제자리에서 누르면 수직 점프). 화면 하단의 가상 오락실 패드로 마우스나 모바일 터치 플레이도 가능합니다.
+
+사운드 및 스테이지: Web Audio API 기반 8비트 배경음악과 효과음(점프, 과일 획득, 항아리 오픈, 클리어 팡파르)이 포함되어 있으며, 스테이지의 모든 과일과 채소를 모으면 남은 보너스 점수를 합산해 다음 스테이지로 넘어갑니다.
+
+원하시는 스테이지 난이도 조절이나 추가 아이템이 있으면 편하게 말씀해 주세요!
+
+
+
+
+
+Gemini는 AI이며 인물 등에 관한 정보 제공 시 실수를 할 수 있습니다. 개인 정보 보호 및 Gemini새 창에서 열기
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>텍사스 홀뎀 포커 (Texas Hold'em)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&family=Cinzel:wght@700&display=swap" rel="stylesheet">
-  <style>
-    * {
-      box-sizing: border-box;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    body {
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: radial-gradient(circle at 50% 40%, #151e2b 0%, #090d14 100%);
-      overflow-x: hidden;
-    }
-    .cinzel {
-      font-family: 'Cinzel', serif;
-    }
-    /* Poker Table Felt with wood border & felt depth */
-    .poker-table-rim {
-      background: linear-gradient(135deg, #422513 0%, #201108 50%, #422513 100%);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 2px 5px rgba(255, 215, 0, 0.2);
-    }
-    .poker-felt {
-      background: radial-gradient(ellipse at 50% 50%, #0d703b 0%, #095029 55%, #05331a 100%);
-      box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.7);
-    }
-    .poker-inner-line {
-      border: 2px dashed rgba(255, 215, 0, 0.25);
-    }
-    /* Card Styles & Animations */
-    .playing-card {
-      perspective: 1000px;
-      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
-    }
-    .playing-card:hover {
-      transform: translateY(-4px);
-    }
-    .card-highlight {
-      box-shadow: 0 0 15px 4px #fbbf24 !important;
-      border: 2px solid #fef08a !important;
-      animation: pulse-gold 1.5s infinite alternate;
-    }
-    @keyframes pulse-gold {
-      from { transform: translateY(-4px) scale(1.02); box-shadow: 0 0 10px 2px #f59e0b; }
-      to { transform: translateY(-4px) scale(1.06); box-shadow: 0 0 22px 6px #fde047; }
-    }
-    /* Turn Indicator Pulse */
-    .active-seat {
-      box-shadow: 0 0 25px 5px rgba(34, 197, 94, 0.65);
-      border-color: #4ade80 !important;
-      animation: turn-pulse 1.8s infinite ease-in-out;
-    }
-    @keyframes turn-pulse {
-      0%, 100% { border-color: #22c55e; box-shadow: 0 0 15px 3px rgba(34, 197, 94, 0.4); }
-      50% { border-color: #86efac; box-shadow: 0 0 28px 8px rgba(34, 197, 94, 0.85); }
-    }
-    /* Chip Badge */
-    .chip-badge {
-      background: radial-gradient(circle, #f59e0b 20%, #b45309 100%);
-      border: 2px dashed #fef3c7;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-    }
-    /* Custom Scrollbar for Hand Log */
-    #log-container::-webkit-scrollbar {
-      width: 4px;
-    }
-    #log-container::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.2);
-    }
-    #log-container::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>추억의 오락실 게임 - 너구리 (PONPOKO 1982)</title>
+<style>
+  :root {
+    --bg-cabinet: #0c0d14;
+    --panel-bg: #161824;
+    --border-neon: #ffaa00;
+    --cyan-neon: #00f0ff;
+    --red-neon: #ff3355;
+    --green-neon: #00e676;
+    --text-light: #f8f9fa;
+  }
+
+  * {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  body {
+    margin: 0;
+    padding: 12px;
+    background: radial-gradient(circle at center, #1b1e2f 0%, #090a10 100%);
+    color: var(--text-light);
+    font-family: 'Courier New', 'Malgun Gothic', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .arcade-wrapper {
+    width: 100%;
+    max-width: 780px;
+    background: var(--panel-bg);
+    border: 4px solid var(--border-neon);
+    border-radius: 16px;
+    box-shadow: 0 0 28px rgba(255, 170, 0, 0.28), inset 0 0 20px rgba(0, 0, 0, 0.8);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .marquee {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, #2a1000, #4d1d00, #2a1000);
+    border: 2px solid #ffcc33;
+    border-radius: 8px;
+    padding: 8px 14px;
+  }
+
+  .marquee-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .marquee-title h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #ffd700;
+    text-shadow: 2px 2px 0 #d90429, 0 0 10px rgba(255, 215, 0, 0.6);
+  }
+
+  .badge-year {
+    background: #d90429;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .top-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-util {
+    background: #23273a;
+    color: #fff;
+    border: 1.5px solid var(--cyan-neon);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-util:hover {
+    background: var(--cyan-neon);
+    color: #000;
+  }
+
+  .btn-util.active {
+    background: var(--green-neon);
+    border-color: var(--green-neon);
+    color: #000;
+  }
+
+  .screen-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #000;
+    border: 4px solid #30344c;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
+  }
+
+  /* Subtle CRT Scanline effect */
+  .screen-container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      rgba(18, 16, 16, 0) 50%, 
+      rgba(0, 0, 0, 0.25) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+  }
+
+  .controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    background: #10121b;
+    border: 1px solid #2b3048;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: #b8c1ec;
+  }
+
+  .key-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .kbd {
+    background: #252a40;
+    border: 1px solid #525b88;
+    border-bottom-width: 3px;
+    border-radius: 4px;
+    padding: 2px 7px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+
+  /* Touch / Mouse Virtual Arcade Pad */
+  .touch-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    gap: 12px;
+  }
+
+  .dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 48px);
+    grid-template-rows: repeat(2, 44px);
+    gap: 6px;
+  }
+
+  .pad-btn {
+    background: #252a40;
+    border: 2px solid #4a5484;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    touch-action: manipulation;
+    box-shadow: 0 3px 0 #131624;
+  }
+
+  .pad-btn:active, .pad-btn.pressed {
+    transform: translateY(2px);
+    background: var(--cyan-neon);
+    color: #000;
+    border-color: #fff;
+  }
+
+  .action-btns {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .jump-btn {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ff5577, #c9002b);
+    border: 3px solid #ff99aa;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #700018, 0 0 15px rgba(255, 51, 85, 0.4);
+    touch-action: manipulation;
+  }
+
+  .jump-btn:active, .jump-btn.pressed {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #700018;
+    filter: brightness(1.15);
+  }
+
+  @media (max-width: 600px) {
+    .marquee-title h1 { font-size: 1.05rem; }
+    .controls-bar { font-size: 0.74rem; }
+  }
+</style>
 </head>
-<body class="min-h-screen text-slate-100 flex flex-col justify-between p-2 md:p-4 select-none">
+<body>
 
-  <header class="w-full max-w-6xl mx-auto flex items-center justify-between px-2 py-1 bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-800 shadow-lg">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 to-yellow-400 flex items-center justify-center shadow-md font-black text-slate-950 cinzel text-lg">
-        ♠
-      </div>
-      <div>
-        <h1 class="text-base md:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-          텍사스 홀뎀 <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">4인 테이블</span>
-        </h1>
-        <p class="text-[10px] md:text-xs text-slate-400">당신 vs 3인 AI (철수, 영희, 민수)</p>
-      </div>
+<div class="arcade-wrapper">
+  <div class="marquee">
+    <div class="marquee-title">
+      <h1>🦝 너구리 (PONPOKO)</h1>
+      <span class="badge-year">1982 ARCADE</span>
     </div>
-
-    <!-- Hand stage & top stats -->
-    <div class="hidden sm:flex items-center gap-3 bg-slate-950/70 px-4 py-1.5 rounded-xl border border-slate-800">
-      <div class="text-center">
-        <span class="text-[10px] text-slate-400 block">핸드 번호</span>
-        <span id="stat-hand-count" class="text-xs font-bold text-amber-400">#1</span>
-      </div>
-      <div class="h-5 w-[1px] bg-slate-800"></div>
-      <div class="text-center">
-        <span class="text-[10px] text-slate-400 block">블라인드 (SB/BB)</span>
-        <span class="text-xs font-bold text-emerald-400">$10 / $20</span>
-      </div>
-      <div class="h-5 w-[1px] bg-slate-800"></div>
-      <div class="text-center">
-        <span class="text-[10px] text-slate-400 block">현재 단계</span>
-        <span id="stat-stage-badge" class="text-xs font-extrabold text-blue-400">대기 중</span>
-      </div>
-    </div>
-
-    <!-- Utility Buttons -->
-    <div class="flex items-center gap-2">
-      <button id="btn-sound" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm border border-slate-700 transition" title="사운드 토글">
-        🔊
-      </button>
-      <button id="btn-rules" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition flex items-center gap-1">
-        📖 족보 안내
-      </button>
-      <button id="btn-log-toggle" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition">
-        📜 로그
-      </button>
-    </div>
-  </header>
-
-  <main class="w-full max-w-6xl mx-auto flex-1 flex flex-col justify-center items-center my-2 relative">
-    
-    <!-- Oval Table Outer Shell -->
-    <div class="w-full relative aspect-[16/9] max-h-[640px] poker-table-rim rounded-[90px] md:rounded-[150px] p-4 md:p-6 shadow-2xl flex items-center justify-center">
-      
-      <!-- Inner Felt Cloth -->
-      <div class="w-full h-full poker-felt rounded-[75px] md:rounded-[130px] relative flex flex-col items-center justify-between p-3 md:p-6 overflow-hidden">
-        
-        <!-- Table Inscription Lines -->
-        <div class="absolute inset-4 md:inset-8 poker-inner-line rounded-[65px] md:rounded-[115px] pointer-events-none"></div>
-
-        <!-- ================= TOP SEAT: BOT 2 (영희) ================= -->
-        <div class="z-10 flex flex-col items-center -mt-1 md:-mt-2">
-          <div id="seat-2" class="relative flex items-center gap-2 md:gap-3 bg-slate-900/90 border-2 border-slate-700 rounded-2xl px-3 py-2 shadow-xl backdrop-blur-md transition-all duration-300">
-            <!-- Position Badges -->
-            <div id="badge-dealer-2" class="hidden absolute -top-3 -left-2 w-6 h-6 rounded-full bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow border border-white">D</div>
-            <div id="badge-blind-2" class="hidden absolute -top-3 -right-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow">SB</div>
-            <!-- Avatar & Profile -->
-            <div class="text-2xl md:text-3xl">👩‍💼</div>
-            <div>
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs md:text-sm font-bold text-slate-100">영희 (AI)</span>
-                <span class="text-[9px] px-1 rounded bg-rose-900/60 text-rose-300 border border-rose-700/50">어그레시브</span>
-              </div>
-              <div class="text-xs font-black text-amber-400" id="chips-2">$1,000</div>
-            </div>
-            <!-- Hole Cards Container -->
-            <div id="cards-2" class="flex gap-1 ml-2"></div>
-          </div>
-          <!-- Action Bubble & Current Bet -->
-          <div class="flex items-center gap-2 mt-1 min-h-[24px]">
-            <span id="action-2" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-white shadow-md border border-slate-600"></span>
-            <span id="bet-pill-2" class="hidden text-[11px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow-md"></span>
-          </div>
-        </div>
-
-        <!-- ================= CENTER TABLE: COMMUNITY CARDS & POT ================= -->
-        <div class="z-10 flex flex-col items-center justify-center w-full my-auto">
-          <!-- Main Pot Badge -->
-          <div class="flex items-center gap-2 bg-slate-950/80 px-4 py-1.5 rounded-full border border-amber-500/40 shadow-2xl mb-3">
-            <span class="text-xs font-semibold text-amber-300 tracking-wider">TOTAL POT</span>
-            <div class="flex items-center gap-1">
-              <span class="w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center text-[10px] text-slate-900 font-bold">$</span>
-              <span id="pot-amount" class="text-base md:text-xl font-black text-amber-400 tracking-tight">$0</span>
-            </div>
-          </div>
-
-          <!-- Community Cards (Flop 3, Turn 1, River 1) -->
-          <div class="flex items-center justify-center gap-1.5 md:gap-3 p-2 bg-black/30 rounded-2xl border border-white/10 backdrop-blur-sm min-h-[78px] md:min-h-[105px]">
-            <div id="community-card-0" class="w-11 h-16 md:w-16 md:h-24 rounded-lg bg-emerald-950/40 border border-dashed border-emerald-500/30 flex items-center justify-center text-emerald-500/40 font-bold text-xs">1</div>
-            <div id="community-card-1" class="w-11 h-16 md:w-16 md:h-24 rounded-lg bg-emerald-950/40 border border-dashed border-emerald-500/30 flex items-center justify-center text-emerald-500/40 font-bold text-xs">2</div>
-            <div id="community-card-2" class="w-11 h-16 md:w-16 md:h-24 rounded-lg bg-emerald-950/40 border border-dashed border-emerald-500/30 flex items-center justify-center text-emerald-500/40 font-bold text-xs">3</div>
-            <div id="community-card-3" class="w-11 h-16 md:w-16 md:h-24 rounded-lg bg-emerald-950/40 border border-dashed border-emerald-500/30 flex items-center justify-center text-emerald-500/40 font-bold text-xs">턴</div>
-            <div id="community-card-4" class="w-11 h-16 md:w-16 md:h-24 rounded-lg bg-emerald-950/40 border border-dashed border-emerald-500/30 flex items-center justify-center text-emerald-500/40 font-bold text-xs">리버</div>
-          </div>
-
-          <!-- Round Status Announcement Pill -->
-          <div id="center-message" class="mt-2 text-xs md:text-sm font-bold text-amber-200 bg-slate-900/80 px-3 py-1 rounded-full border border-amber-500/30 shadow transition opacity-100">
-            게임을 시작하려면 아래 버튼을 누르세요
-          </div>
-        </div>
-
-        <!-- ================= FLANK SEATS: BOT 1 (LEFT) & BOT 3 (RIGHT) ================= -->
-        <div class="w-full flex justify-between items-center absolute inset-x-3 md:inset-x-8 top-1/2 -translate-y-1/2 pointer-events-none">
-          
-          <!-- LEFT SEAT: BOT 1 (철수) -->
-          <div class="pointer-events-auto flex flex-col items-start">
-            <div id="seat-1" class="relative flex items-center gap-2 bg-slate-900/90 border-2 border-slate-700 rounded-2xl px-2.5 py-2 shadow-xl backdrop-blur-md transition-all duration-300">
-              <div id="badge-dealer-1" class="hidden absolute -top-3 -left-2 w-6 h-6 rounded-full bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow border border-white">D</div>
-              <div id="badge-blind-1" class="hidden absolute -top-3 -right-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow">BB</div>
-              <div class="text-2xl md:text-3xl">👨‍💻</div>
-              <div>
-                <div class="flex items-center gap-1">
-                  <span class="text-xs md:text-sm font-bold text-slate-100">철수 (AI)</span>
-                  <span class="text-[9px] px-1 rounded bg-blue-900/60 text-blue-300 border border-blue-700/50">타이트</span>
-                </div>
-                <div class="text-xs font-black text-amber-400" id="chips-1">$1,000</div>
-              </div>
-              <div id="cards-1" class="flex gap-1 ml-1"></div>
-            </div>
-            <!-- Action & Bet -->
-            <div class="flex items-center gap-1.5 mt-1 min-h-[24px]">
-              <span id="action-1" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-white shadow border border-slate-600"></span>
-              <span id="bet-pill-1" class="hidden text-[11px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow"></span>
-            </div>
-          </div>
-
-          <!-- RIGHT SEAT: BOT 3 (민수) -->
-          <div class="pointer-events-auto flex flex-col items-end">
-            <div id="seat-3" class="relative flex items-center gap-2 bg-slate-900/90 border-2 border-slate-700 rounded-2xl px-2.5 py-2 shadow-xl backdrop-blur-md transition-all duration-300">
-              <div id="badge-dealer-3" class="hidden absolute -top-3 -right-2 w-6 h-6 rounded-full bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow border border-white">D</div>
-              <div id="badge-blind-3" class="hidden absolute -top-3 -left-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow">SB</div>
-              <div id="cards-3" class="flex gap-1 mr-1"></div>
-              <div>
-                <div class="flex items-center gap-1 justify-end">
-                  <span class="text-[9px] px-1 rounded bg-emerald-900/60 text-emerald-300 border border-emerald-700/50">밸런스</span>
-                  <span class="text-xs md:text-sm font-bold text-slate-100">민수 (AI)</span>
-                </div>
-                <div class="text-xs font-black text-amber-400 text-right" id="chips-3">$1,000</div>
-              </div>
-              <div class="text-2xl md:text-3xl">🤠</div>
-            </div>
-            <!-- Action & Bet -->
-            <div class="flex items-center gap-1.5 mt-1 min-h-[24px]">
-              <span id="bet-pill-3" class="hidden text-[11px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow"></span>
-              <span id="action-3" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-white shadow border border-slate-600"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ================= BOTTOM SEAT: USER (PLAYER) ================= -->
-        <div class="z-10 flex flex-col items-center -mb-2 md:-mb-3">
-          <!-- Action & Bet for User -->
-          <div class="flex items-center gap-2 mb-1 min-h-[24px]">
-            <span id="action-0" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-white shadow border border-slate-600"></span>
-            <span id="bet-pill-0" class="hidden text-[11px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow"></span>
-          </div>
-
-          <div id="seat-0" class="relative flex items-center gap-3 bg-slate-900/95 border-2 border-emerald-500/60 rounded-2xl px-4 py-2.5 shadow-2xl backdrop-blur-md transition-all duration-300">
-            <div id="badge-dealer-0" class="hidden absolute -top-3 -left-2 w-6 h-6 rounded-full bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow border border-white">D</div>
-            <div id="badge-blind-0" class="hidden absolute -top-3 -right-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow">BB</div>
-            
-            <div class="text-3xl md:text-4xl">👑</div>
-            <div>
-              <div class="flex items-center gap-1.5">
-                <span class="text-sm md:text-base font-extrabold text-white">나 (플레이어)</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">USER</span>
-              </div>
-              <div class="text-sm md:text-base font-black text-emerald-400" id="chips-0">$1,000</div>
-              <!-- Real-time Hand strength hint -->
-              <div id="user-hand-rating" class="text-[11px] font-bold text-amber-300 mt-0.5">-</div>
-            </div>
-
-            <!-- Player Hole Cards (Large) -->
-            <div id="cards-0" class="flex gap-2 ml-2"></div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </main>
-
-  <footer class="w-full max-w-4xl mx-auto bg-slate-900/95 border border-slate-800 rounded-2xl p-2.5 md:p-3 shadow-2xl backdrop-blur-md">
-    
-    <!-- Next Hand / New Game Bar (when round is finished or inactive) -->
-    <div id="panel-deal" class="flex items-center justify-between gap-3">
-      <div class="text-xs md:text-sm text-slate-300">
-        <span class="font-bold text-amber-400">새로운 핸드 준비 완료!</span> 카드를 분배하고 플레이를 시작하세요.
-      </div>
-      <div class="flex gap-2">
-        <button id="btn-rebuy" class="hidden px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs md:text-sm shadow transition">
-          💰 칩 충전 (+$1,000)
-        </button>
-        <button id="btn-start-hand" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm md:text-base shadow-lg transition transform active:scale-95 flex items-center gap-1.5">
-          <span>🃏 카드 분배 (딜)</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Active Betting Controls Bar (shown on player turn) -->
-    <div id="panel-actions" class="hidden flex flex-col md:flex-row items-center gap-2.5">
-      
-      <!-- Fold & Check/Call Buttons -->
-      <div class="flex items-center gap-2 w-full md:w-auto">
-        <button id="btn-fold" class="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 active:scale-95 text-white font-bold text-xs md:text-sm shadow-md transition border border-rose-400/40">
-          폴드 (다이)
-        </button>
-        <button id="btn-check-call" class="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-extrabold text-xs md:text-sm shadow-md transition border border-blue-400/40 min-w-[100px]">
-          체크
-        </button>
-      </div>
-
-      <!-- Divider -->
-      <div class="hidden md:block h-8 w-[1px] bg-slate-800 mx-1"></div>
-
-      <!-- Raise Controls: Slider & Presets -->
-      <div class="flex-1 flex flex-col md:flex-row items-center gap-2 w-full">
-        <!-- Quick Preset Buttons -->
-        <div class="flex items-center gap-1 w-full md:w-auto">
-          <button id="btn-preset-min" class="flex-1 md:flex-none px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700">Min</button>
-          <button id="btn-preset-half" class="flex-1 md:flex-none px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700">1/2 팟</button>
-          <button id="btn-preset-pot" class="flex-1 md:flex-none px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700">팟</button>
-          <button id="btn-preset-allin" class="flex-1 md:flex-none px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-slate-950 font-black text-xs">올인</button>
-        </div>
-
-        <!-- Range Slider with Value Display -->
-        <div class="flex items-center gap-2 w-full flex-1">
-          <input type="range" id="raise-slider" min="20" max="1000" step="10" value="40" class="w-full accent-amber-500 cursor-pointer">
-          <button id="btn-raise" class="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 active:scale-95 text-slate-950 font-black text-xs md:text-sm whitespace-nowrap shadow-lg min-w-[120px]">
-            레이즈 <span id="raise-amount-label">$40</span>
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </footer>
-
-  <!-- Hand Rankings Modal -->
-  <div id="modal-rules" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 shadow-2xl max-h-[85vh] overflow-y-auto">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <h3 class="text-base font-bold text-amber-400 flex items-center gap-2">
-          📖 텍사스 홀뎀 족보 (높은 순서)
-        </h3>
-        <button id="btn-close-rules" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
-      </div>
-      <div class="space-y-2.5 mt-3 text-xs text-slate-300">
-        <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex justify-between items-center">
-          <span class="font-extrabold text-amber-300">1. 로열 스트레이트 플러시</span>
-          <span class="text-slate-400">같은 무늬 A, K, Q, J, 10</span>
-        </div>
-        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
-          <span class="font-bold text-white">2. 스트레이트 플러시</span>
-          <span class="text-slate-400">같은 무늬 연속된 숫자 5장</span>
-        </div>
-        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
-          <span class="font-bold text-white">3. 포카드 (Four of a Kind)</span>
-          <span class="text-slate-400">같은 숫자 4장</span>
-        </div>
-        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
-          <span class="font-bold text-white">4. 풀하우스 (Full House)</span>
-          <span class="text-slate-400">트리플(3장) + 원페어(2장)</span>
-        </div>
-        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
-          <span class="font-bold text-white">5. 플러시 (Flush)</span>
-          <span class="text-slate-400">숫자 상관없이 같은 무늬 5장</span>
-        </div>
-        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
-          <span class="font-bold text-white">6. 스트레이트 (Straight)</span>
-          <span class="text-slate-400">무늬 상관없이 연속된 숫자 5장</span>
-        </div>
-        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
-          <span class="font-bold text-white">7. 트리플 (Three of a Kind)</span>
-          <span class="text-slate-400">같은 숫자 3장</span>
-        </div>
-        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
-          <span class="font-bold text-white">8. 투페어 (Two Pair)</span>
-          <span class="text-slate-400">같은 숫자 2장씩 2쌍</span>
-        </div>
-        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
-          <span class="font-bold text-white">9. 원페어 (One Pair)</span>
-          <span class="text-slate-400">같은 숫자 2장 1쌍</span>
-        </div>
-        <div class="p-2.5 rounded-xl bg-slate-800/80 flex justify-between items-center">
-          <span class="font-bold text-white">10. 하이 카드 (High Card)</span>
-          <span class="text-slate-400">아무 족보도 없을 때 가장 높은 숫자</span>
-        </div>
-      </div>
+    <div class="top-actions">
+      <button id="btnSound" class="btn-util active" type="button">🔊 사운드 ON</button>
+      <button id="btnPause" class="btn-util" type="button">⏸ 일시정지</button>
+      <button id="btnRestart" class="btn-util" type="button">🔄 처음부터</button>
     </div>
   </div>
 
-  <!-- Hand History Log Drawer -->
-  <div id="modal-log" class="hidden fixed bottom-16 right-4 z-40 w-80 md:w-96 bg-slate-900/95 border border-slate-700 rounded-2xl shadow-2xl p-3 backdrop-blur-md">
-    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-      <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-        📜 게임 진행 기록
-      </h3>
-      <button id="btn-close-log" class="text-slate-400 hover:text-white text-xs">닫기</button>
-    </div>
-    <div id="log-container" class="h-56 overflow-y-auto space-y-1 mt-2 text-[11px] pr-1"></div>
+  <div class="screen-container">
+    <canvas id="gameCanvas" width="640" height="480"></canvas>
   </div>
 
-  <script>
-    /* Audio System using Web Audio API (Synthesized SFX without external dependencies) */
-    const SoundManager = {
-      ctx: null,
-      enabled: true,
+  <div class="controls-bar">
+    <div class="key-group">
+      <span>이동/사다리:</span>
+      <span class="kbd">←</span><span class="kbd">↑</span><span class="kbd">↓</span><span class="kbd">→</span>
+      <span>또는</span>
+      <span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span>
+    </div>
+    <div class="key-group">
+      <span>점프:</span>
+      <span class="kbd">SPACE</span><span>/</span><span class="kbd">Z</span>
+      <span>(이동키+점프: 롱점프)</span>
+    </div>
+    <div class="key-group">
+      <span>규칙: 모든 🍎과일·채소를 모으면 클리어! 🏺항아리는 보너스 또는 🐍뱀이 나옵니다.</span>
+    </div>
+  </div>
 
-      init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (AudioContext) this.ctx = new AudioContext();
-        }
-      },
+  <div class="touch-controls">
+    <div class="dpad">
+      <div></div>
+      <button class="pad-btn" data-key="ArrowUp" type="button">▲</button>
+      <div></div>
+      <button class="pad-btn" data-key="ArrowLeft" type="button">◀</button>
+      <button class="pad-btn" data-key="ArrowDown" type="button">▼</button>
+      <button class="pad-btn" data-key="ArrowRight" type="button">▶</button>
+    </div>
+    <div class="action-btns">
+      <button class="jump-btn" data-key="Space" type="button">JUMP</button>
+    </div>
+  </div>
+</div>
 
-      playDeal() {
-        if (!this.enabled || !this.ctx) return;
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(450, now);
-        osc.frequency.exponentialRampToValueAtTime(150, now + 0.08);
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.08);
-      },
+<script>
+(() => {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
 
-      playChip() {
-        if (!this.enabled || !this.ctx) return;
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1200, now);
-        osc.frequency.exponentialRampToValueAtTime(600, now + 0.05);
-        gain.gain.setValueAtTime(0.25, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.05);
-      },
-
-      playCheck() {
-        if (!this.enabled || !this.ctx) return;
-        [0, 0.09].forEach(offset => {
-          const now = this.ctx.currentTime + offset;
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(180, now);
-          gain.gain.setValueAtTime(0.3, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.04);
-        });
-      },
-
-      playFold() {
-        if (!this.enabled || !this.ctx) return;
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(250, now);
-        osc.frequency.exponentialRampToValueAtTime(80, now + 0.15);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.15);
-      },
-
-      playWin() {
-        if (!this.enabled || !this.ctx) return;
-        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-        notes.forEach((freq, idx) => {
-          const now = this.ctx.currentTime + (idx * 0.1);
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, now);
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.25);
-        });
-      }
-    };
-
-    const SUITS = [
-      { id: 's', symbol: '♠', color: 'text-slate-900', label: '스페이드' },
-      { id: 'h', symbol: '♥', color: 'text-rose-600', label: '하트' },
-      { id: 'd', symbol: '♦', color: 'text-blue-600', label: '다이아' },
-      { id: 'c', symbol: '♣', color: 'text-emerald-700', label: '클로버' }
-    ];
-
-    const RANK_LABELS = {
-      2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10',
-      11: 'J', 12: 'Q', 13: 'K', 14: 'A'
-    };
-
-    const HAND_RANKS = {
-      HIGH_CARD: 1,
-      ONE_PAIR: 2,
-      TWO_PAIR: 3,
-      THREE_OF_A_KIND: 4,
-      STRAIGHT: 5,
-      FLUSH: 6,
-      FULL_HOUSE: 7,
-      FOUR_OF_A_KIND: 8,
-      STRAIGHT_FLUSH: 9,
-      ROYAL_FLUSH: 10
-    };
-
-    const HAND_NAMES_KR = {
-      1: '하이 카드',
-      2: '원페어',
-      3: '투페어',
-      4: '트리플',
-      5: '스트레이트',
-      6: '플러시',
-      7: '풀하우스',
-      8: '포카드',
-      9: '스트레이트 플러시',
-      10: '로열 스트레이트 플러시'
-    };
-
-    function createDeck() {
-      const deck = [];
-      for (const suit of SUITS) {
-        for (let rank = 2; rank <= 14; rank++) {
-          deck.push({ rank, suit: suit.id, symbol: suit.symbol, color: suit.color });
-        }
-      }
-      return deck;
+  // --- Web Audio API Retro Synthesizer ---
+  class RetroSound {
+    constructor() {
+      this.enabled = true;
+      this.ctx = null;
+      this.bgmTimer = null;
+      this.bgmNoteIdx = 0;
+      // Classic jaunty Ponpoko-style 8-bit melody loop
+      this.melody = [
+        [523.25, 0.13], [659.25, 0.13], [783.99, 0.13], [659.25, 0.13],
+        [880.00, 0.18], [783.99, 0.18], [659.25, 0.13], [523.25, 0.13],
+        [587.33, 0.13], [698.46, 0.13], [880.00, 0.13], [698.46, 0.13],
+        [783.99, 0.26], [0, 0.10],
+        [523.25, 0.13], [659.25, 0.13], [783.99, 0.13], [987.77, 0.16],
+        [1046.50, 0.22], [880.00, 0.15], [783.99, 0.15], [659.25, 0.15],
+        [587.33, 0.14], [659.25, 0.14], [523.25, 0.28], [0, 0.12]
+      ];
     }
 
-    function shuffleDeck(deck) {
-      for (let i = deck.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
+    init() {
+      if (!this.ctx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) this.ctx = new AudioCtx();
       }
-      return deck;
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
     }
 
-    /* Combination helper C(n, k) */
-    function getCombinations(array, k) {
-      const results = [];
-      function backtrack(start, combo) {
-        if (combo.length === k) {
-          results.push([...combo]);
+    tone(freq, duration, type = 'square', vol = 0.08, slideTo = null) {
+      if (!this.enabled) return;
+      this.init();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      if (slideTo) {
+        osc.frequency.exponentialRampToValueAtTime(Math.max(20, slideTo), now + duration);
+      }
+      gain.gain.setValueAtTime(vol, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + duration);
+    }
+
+    playJump() {
+      this.tone(280, 0.18, 'square', 0.09, 680);
+    }
+
+    playStep() {
+      this.tone(160 + (Math.random() * 40), 0.04, 'triangle', 0.04);
+    }
+
+    playClimb() {
+      this.tone(340, 0.045, 'square', 0.04, 420);
+    }
+
+    playFruit() {
+      this.tone(587.33, 0.08, 'square', 0.1);
+      setTimeout(() => this.tone(880, 0.14, 'square', 0.1), 70);
+      setTimeout(() => this.tone(1174.66, 0.18, 'square', 0.1), 140);
+    }
+
+    playBonusPot() {
+      [523, 659, 784, 1046, 1318].forEach((f, i) => {
+        setTimeout(() => this.tone(f, 0.09, 'square', 0.09), i * 55);
+      });
+    }
+
+    playSnakePot() {
+      this.tone(420, 0.25, 'sawtooth', 0.1, 130);
+    }
+
+    playDie() {
+      this.tone(500, 0.45, 'sawtooth', 0.12, 95);
+      setTimeout(() => this.tone(240, 0.4, 'square', 0.12, 70), 320);
+    }
+
+    playStageClear() {
+      const fanfare = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50];
+      const durs = [0.12, 0.12, 0.12, 0.22, 0.12, 0.35];
+      let delay = 0;
+      fanfare.forEach((f, idx) => {
+        setTimeout(() => this.tone(f, durs[idx], 'square', 0.11), delay * 1000);
+        delay += durs[idx] + 0.03;
+      });
+    }
+
+    startBGM(getState) {
+      this.stopBGM();
+      const tick = () => {
+        if (!this.enabled) {
+          this.bgmTimer = setTimeout(tick, 200);
           return;
         }
-        for (let i = start; i < array.length; i++) {
-          combo.push(array[i]);
-          backtrack(i + 1, combo);
-          combo.pop();
-        }
-      }
-      backtrack(0, []);
-      return results;
-    }
-
-    /* Evaluates exactly 5 cards and returns { tier, ranks, name, cards } */
-    function evaluate5Cards(cards) {
-      const sorted = [...cards].sort((a, b) => b.rank - a.rank);
-      const ranks = sorted.map(c => c.rank);
-      const isFlush = sorted.every(c => c.suit === sorted[0].suit);
-
-      // Check for straight
-      let isStraight = false;
-      let straightHigh = 0;
-      const uniqueRanks = [...new Set(ranks)];
-
-      if (uniqueRanks.length === 5) {
-        if (uniqueRanks[0] - uniqueRanks[4] === 4) {
-          isStraight = true;
-          straightHigh = uniqueRanks[0];
-        } else if (
-          uniqueRanks[0] === 14 &&
-          uniqueRanks[1] === 5 &&
-          uniqueRanks[2] === 4 &&
-          uniqueRanks[3] === 3 &&
-          uniqueRanks[4] === 2
-        ) {
-          // Ace-low straight A-2-3-4-5
-          isStraight = true;
-          straightHigh = 5;
-        }
-      }
-
-      // Count rank occurrences
-      const counts = {};
-      for (const r of ranks) counts[r] = (counts[r] || 0) + 1;
-      const freqList = Object.keys(counts)
-        .map(r => ({ rank: Number(r), count: counts[r] }))
-        .sort((a, b) => b.count - a.count || b.rank - a.rank);
-
-      // 1. Royal / Straight Flush
-      if (isFlush && isStraight) {
-        if (straightHigh === 14) {
-          return { tier: HAND_RANKS.ROYAL_FLUSH, score: [10, 14], name: HAND_NAMES_KR[10], cards: sorted };
-        }
-        return { tier: HAND_RANKS.STRAIGHT_FLUSH, score: [9, straightHigh], name: `${RANK_LABELS[straightHigh]} ${HAND_NAMES_KR[9]}`, cards: sorted };
-      }
-
-      // 2. Four of a Kind
-      if (freqList[0].count === 4) {
-        return { tier: HAND_RANKS.FOUR_OF_A_KIND, score: [8, freqList[0].rank, freqList[1].rank], name: `${RANK_LABELS[freqList[0].rank]} ${HAND_NAMES_KR[8]}`, cards: sorted };
-      }
-
-      // 3. Full House
-      if (freqList[0].count === 3 && freqList[1].count === 2) {
-        return { tier: HAND_RANKS.FULL_HOUSE, score: [7, freqList[0].rank, freqList[1].rank], name: `${RANK_LABELS[freqList[0].rank]} & ${RANK_LABELS[freqList[1].rank]} ${HAND_NAMES_KR[7]}`, cards: sorted };
-      }
-
-      // 4. Flush
-      if (isFlush) {
-        return { tier: HAND_RANKS.FLUSH, score: [6, ...ranks], name: `${RANK_LABELS[ranks[0]]} 하이 ${HAND_NAMES_KR[6]}`, cards: sorted };
-      }
-
-      // 5. Straight
-      if (isStraight) {
-        return { tier: HAND_RANKS.STRAIGHT, score: [5, straightHigh], name: `${RANK_LABELS[straightHigh]} 하이 ${HAND_NAMES_KR[5]}`, cards: sorted };
-      }
-
-      // 6. Three of a Kind
-      if (freqList[0].count === 3) {
-        return { tier: HAND_RANKS.THREE_OF_A_KIND, score: [4, freqList[0].rank, freqList[1].rank, freqList[2].rank], name: `${RANK_LABELS[freqList[0].rank]} ${HAND_NAMES_KR[4]}`, cards: sorted };
-      }
-
-      // 7. Two Pair
-      if (freqList[0].count === 2 && freqList[1].count === 2) {
-        return { tier: HAND_RANKS.TWO_PAIR, score: [3, freqList[0].rank, freqList[1].rank, freqList[2].rank], name: `${RANK_LABELS[freqList[0].rank]} & ${RANK_LABELS[freqList[1].rank]} ${HAND_NAMES_KR[3]}`, cards: sorted };
-      }
-
-      // 8. One Pair
-      if (freqList[0].count === 2) {
-        return { tier: HAND_RANKS.ONE_PAIR, score: [2, freqList[0].rank, freqList[1].rank, freqList[2].rank, freqList[3].rank], name: `${RANK_LABELS[freqList[0].rank]} ${HAND_NAMES_KR[2]}`, cards: sorted };
-      }
-
-      // 9. High Card
-      return { tier: HAND_RANKS.HIGH_CARD, score: [1, ...ranks], name: `${RANK_LABELS[ranks[0]]} ${HAND_NAMES_KR[1]}`, cards: sorted };
-    }
-
-    /* Compares two hand scores lexicographically */
-    function compareHandScores(scoreA, scoreB) {
-      for (let i = 0; i < Math.max(scoreA.length, scoreB.length); i++) {
-        const valA = scoreA[i] || 0;
-        const valB = scoreB[i] || 0;
-        if (valA > valB) return 1;
-        if (valA < valB) return -1;
-      }
-      return 0;
-    }
-
-    /* Evaluates best 5 cards from 5 to 7 cards */
-    function evaluateBestHand(cards) {
-      if (cards.length < 5) {
-        // Less than 5 cards: partial evaluation
-        if (cards.length === 2) {
-          if (cards[0].rank === cards[1].rank) {
-            return { tier: HAND_RANKS.ONE_PAIR, name: `포켓 ${RANK_LABELS[cards[0].rank]} 페어`, cards };
+        const st = getState();
+        if (st === 'PLAYING') {
+          const [freq, dur] = this.melody[this.bgmNoteIdx];
+          this.bgmNoteIdx = (this.bgmNoteIdx + 1) % this.melody.length;
+          if (freq > 0) {
+            this.tone(freq, dur * 0.85, 'square', 0.035);
           }
-          const high = Math.max(cards[0].rank, cards[1].rank);
-          return { tier: HAND_RANKS.HIGH_CARD, name: `${RANK_LABELS[high]} 하이`, cards };
+          this.bgmTimer = setTimeout(tick, dur * 1000);
+        } else {
+          this.bgmTimer = setTimeout(tick, 200);
         }
-        return { tier: 0, name: '분배 중...', cards };
-      }
-
-      const combos = getCombinations(cards, 5);
-      let best = null;
-
-      for (const combo of combos) {
-        const evaluated = evaluate5Cards(combo);
-        if (!best || compareHandScores(evaluated.score, best.score) > 0) {
-          best = evaluated;
-        }
-      }
-      return best;
+      };
+      this.bgmTimer = setTimeout(tick, 200);
     }
 
-    const STAGES = {
-      IDLE: '대기',
-      PREFLOP: '프리플랍',
-      FLOP: '플랍',
-      TURN: '턴',
-      RIVER: '리버',
-      SHOWDOWN: '쇼다운'
-    };
+    stopBGM() {
+      if (this.bgmTimer) clearTimeout(this.bgmTimer);
+      this.bgmTimer = null;
+    }
+  }
 
-    const GameState = {
-      handNumber: 1,
-      players: [
-        { id: 0, name: '나 (플레이어)', isBot: false, chips: 1000, currentBet: 0, totalBet: 0, cards: [], folded: false, allIn: false, style: 'user' },
-        { id: 1, name: '철수', isBot: true, chips: 1000, currentBet: 0, totalBet: 0, cards: [], folded: false, allIn: false, style: 'tight' },
-        { id: 2, name: '영희', isBot: true, chips: 1000, currentBet: 0, totalBet: 0, cards: [], folded: false, allIn: false, style: 'aggressive' },
-        { id: 3, name: '민수', isBot: true, chips: 1000, currentBet: 0, totalBet: 0, cards: [], folded: false, allIn: false, style: 'balanced' },
+  const sfx = new RetroSound();
+
+  // --- Stage Layout Definitions (5 Authentic Retro Floors per Stage) ---
+  // Floor Y coordinates (player feet rest at floor.y)
+  // Floors from bottom (0) to top (4):
+  // y = 440, 368, 296, 224, 152
+  const FLOOR_YS = [440, 368, 296, 224, 152];
+
+  const STAGES = [
+    // STAGE 1: Classic introduction with gaps, tacks, ladders, fruits, and pots
+    {
+      segments: [
+        // Floor 0 (Bottom)
+        { floor: 0, x1: 20, x2: 620 },
+        // Floor 1
+        { floor: 1, x1: 20, x2: 265 },
+        { floor: 1, x1: 315, x2: 620 },
+        // Floor 2
+        { floor: 2, x1: 20, x2: 195 },
+        { floor: 2, x1: 245, x2: 435 },
+        { floor: 2, x1: 485, x2: 620 },
+        // Floor 3
+        { floor: 3, x1: 20, x2: 345 },
+        { floor: 3, x1: 395, x2: 620 },
+        // Floor 4 (Top)
+        { floor: 4, x1: 20, x2: 270 },
+        { floor: 4, x1: 325, x2: 620 }
       ],
-      dealerIdx: 0,
-      sbIdx: 1,
-      bbIdx: 2,
-      currentTurnIdx: null,
-      currentStage: 'IDLE',
-      deck: [],
-      communityCards: [],
-      pot: 0,
-      currentHighestBet: 0,
-      minRaise: 20,
-      actionCloserIdx: null,
-      sbAmount: 10,
-      bbAmount: 20,
-      isActionLocked: false,
-    };
+      ladders: [
+        { x: 540, f1: 0, f2: 1 },
+        { x: 110, f1: 1, f2: 2 },
+        { x: 370, f1: 1, f2: 2 },
+        { x: 280, f1: 2, f2: 3 },
+        { x: 550, f1: 2, f2: 3 },
+        { x: 140, f1: 3, f2: 4 },
+        { x: 470, f1: 3, f2: 4 }
+      ],
+      tacks: [
+        { floor: 0, x: 240 },
+        { floor: 0, x: 410 },
+        { floor: 1, x: 440 },
+        { floor: 2, x: 330 },
+        { floor: 3, x: 215 },
+        { floor: 4, x: 410 }
+      ],
+      fruits: [
+        { floor: 0, x: 325, type: 'apple', pts: 100 },
+        { floor: 1, x: 185, type: 'banana', pts: 200 },
+        { floor: 1, x: 585, type: 'carrot', pts: 200 },
+        { floor: 2, x: 65, type: 'cherry', pts: 300 },
+        { floor: 2, x: 525, type: 'apple', pts: 300 },
+        { floor: 3, x: 70, type: 'mushroom', pts: 400 },
+        { floor: 4, x: 220, type: 'banana', pts: 500 },
+        { floor: 4, x: 575, type: 'crown', pts: 800 }
+      ],
+      pots: [
+        { floor: 1, x: 80, outcome: 'bonus' },
+        { floor: 2, x: 395, outcome: 'snake' },
+        { floor: 3, x: 495, outcome: 'bonus' },
+        { floor: 4, x: 85, outcome: 'snake' }
+      ],
+      enemies: [
+        { floor: 1, x: 360, minX: 325, maxX: 590, vx: 1.15, kind: 'monster' },
+        { floor: 3, x: 180, minX: 35, maxX: 330, vx: 1.3, kind: 'monster' }
+      ]
+    },
 
-    function renderCard(card, faceUp = true, highlight = false) {
-      if (!faceUp) {
-        return `
-          <div class="playing-card w-8 h-12 md:w-12 md:h-16 rounded-md bg-gradient-to-br from-red-800 to-red-950 border border-white/20 shadow-md flex items-center justify-center">
-            <div class="w-6 h-10 md:w-9 md:h-13 rounded-sm border border-dashed border-red-400/40 flex items-center justify-center text-red-300 text-xs font-black">
-              ✦
-            </div>
-          </div>
-        `;
-      }
+    // STAGE 2: More broken bridges and faster patrols
+    {
+      segments: [
+        { floor: 0, x1: 20, x2: 290 },
+        { floor: 0, x1: 345, x2: 620 },
+        { floor: 1, x1: 20, x2: 180 },
+        { floor: 1, x1: 235, x2: 415 },
+        { floor: 1, x1: 470, x2: 620 },
+        { floor: 2, x1: 20, x2: 300 },
+        { floor: 2, x1: 355, x2: 620 },
+        { floor: 3, x1: 20, x2: 210 },
+        { floor: 3, x1: 265, x2: 450 },
+        { floor: 3, x1: 505, x2: 620 },
+        { floor: 4, x1: 20, x2: 295 },
+        { floor: 4, x1: 350, x2: 620 }
+      ],
+      ladders: [
+        { x: 140, f1: 0, f2: 1 },
+        { x: 520, f1: 0, f2: 1 },
+        { x: 270, f1: 1, f2: 2 },
+        { x: 80,  f1: 2, f2: 3 },
+        { x: 560, f1: 2, f2: 3 },
+        { x: 310, f1: 3, f2: 4 },
+        { x: 540, f1: 3, f2: 4 }
+      ],
+      tacks: [
+        { floor: 0, x: 210 },
+        { floor: 0, x: 430 },
+        { floor: 1, x: 335 },
+        { floor: 2, x: 185 },
+        { floor: 2, x: 465 },
+        { floor: 3, x: 380 },
+        { floor: 4, x: 195 },
+        { floor: 4, x: 440 }
+      ],
+      fruits: [
+        { floor: 0, x: 580, type: 'apple', pts: 200 },
+        { floor: 1, x: 60, type: 'carrot', pts: 200 },
+        { floor: 1, x: 585, type: 'banana', pts: 300 },
+        { floor: 2, x: 240, type: 'cherry', pts: 300 },
+        { floor: 2, x: 400, type: 'mushroom', pts: 400 },
+        { floor: 3, x: 165, type: 'apple', pts: 400 },
+        { floor: 4, x: 75, type: 'banana', pts: 600 },
+        { floor: 4, x: 585, type: 'crown', pts: 1000 }
+      ],
+      pots: [
+        { floor: 1, x: 290, outcome: 'snake' },
+        { floor: 2, x: 515, outcome: 'bonus' },
+        { floor: 3, x: 335, outcome: 'snake' },
+        { floor: 4, x: 250, outcome: 'bonus' }
+      ],
+      enemies: [
+        { floor: 1, x: 250, minX: 245, maxX: 405, vx: 1.35, kind: 'monster' },
+        { floor: 2, x: 90,  minX: 35,  maxX: 285, vx: 1.45, kind: 'monster' },
+        { floor: 4, x: 390, minX: 360, maxX: 600, vx: 1.5, kind: 'monster' }
+      ]
+    },
 
-      const suitObj = SUITS.find(s => s.id === card.suit);
-      const isRed = card.suit === 'h' || card.suit === 'd';
-      const colorClass = isRed ? 'text-rose-600' : 'text-slate-900';
-      const highlightClass = highlight ? 'card-highlight' : '';
-
-      return `
-        <div class="playing-card ${highlightClass} w-8 h-12 md:w-12 md:h-16 bg-white rounded-md border border-slate-300 shadow-md flex flex-col justify-between p-1">
-          <div class="flex items-center justify-between text-[10px] md:text-xs font-black leading-none ${colorClass}">
-            <span>${RANK_LABELS[card.rank]}</span>
-            <span class="text-[9px] md:text-[11px]">${suitObj.symbol}</span>
-          </div>
-          <div class="text-center text-xs md:text-base leading-none ${colorClass}">
-            ${suitObj.symbol}
-          </div>
-          <div class="flex items-center justify-between text-[10px] md:text-xs font-black leading-none rotate-180 ${colorClass}">
-            <span>${RANK_LABELS[card.rank]}</span>
-            <span class="text-[9px] md:text-[11px]">${suitObj.symbol}</span>
-          </div>
-        </div>
-      `;
+    // STAGE 3: High-challenge symmetrical tower layout
+    {
+      segments: [
+        { floor: 0, x1: 20, x2: 620 },
+        { floor: 1, x1: 20, x2: 190 },
+        { floor: 1, x1: 245, x2: 395 },
+        { floor: 1, x1: 450, x2: 620 },
+        { floor: 2, x1: 20, x2: 260 },
+        { floor: 2, x1: 380, x2: 620 },
+        { floor: 3, x1: 20, x2: 190 },
+        { floor: 3, x1: 245, x2: 395 },
+        { floor: 3, x1: 450, x2: 620 },
+        { floor: 4, x1: 20, x2: 285 },
+        { floor: 4, x1: 355, x2: 620 }
+      ],
+      ladders: [
+        { x: 95,  f1: 0, f2: 1 },
+        { x: 545, f1: 0, f2: 1 },
+        { x: 155, f1: 1, f2: 2 },
+        { x: 485, f1: 1, f2: 2 },
+        { x: 80,  f1: 2, f2: 3 },
+        { x: 560, f1: 2, f2: 3 },
+        { x: 270, f1: 3, f2: 4 },
+        { x: 370, f1: 3, f2: 4 }
+      ],
+      tacks: [
+        { floor: 0, x: 220 },
+        { floor: 0, x: 320 },
+        { floor: 0, x: 420 },
+        { floor: 1, x: 320 },
+        { floor: 2, x: 205 },
+        { floor: 2, x: 435 },
+        { floor: 3, x: 135 },
+        { floor: 3, x: 505 },
+        { floor: 4, x: 170 },
+        { floor: 4, x: 470 }
+      ],
+      fruits: [
+        { floor: 0, x: 270, type: 'cherry', pts: 300 },
+        { floor: 0, x: 370, type: 'cherry', pts: 300 },
+        { floor: 1, x: 50,  type: 'apple', pts: 300 },
+        { floor: 1, x: 590, type: 'banana', pts: 300 },
+        { floor: 2, x: 240, type: 'mushroom', pts: 500 },
+        { floor: 2, x: 400, type: 'carrot', pts: 500 },
+        { floor: 3, x: 320, type: 'banana', pts: 600 },
+        { floor: 4, x: 60,  type: 'crown', pts: 1000 },
+        { floor: 4, x: 580, type: 'crown', pts: 1000 }
+      ],
+      pots: [
+        { floor: 1, x: 275, outcome: 'bonus' },
+        { floor: 1, x: 365, outcome: 'snake' },
+        { floor: 3, x: 55,  outcome: 'snake' },
+        { floor: 3, x: 585, outcome: 'bonus' }
+      ],
+      enemies: [
+        { floor: 0, x: 480, minX: 120, maxX: 520, vx: -1.5, kind: 'monster' },
+        { floor: 2, x: 110, minX: 35,  maxX: 245, vx: 1.55, kind: 'monster' },
+        { floor: 2, x: 510, minX: 395, maxX: 605, vx: -1.55, kind: 'monster' },
+        { floor: 4, x: 410, minX: 365, maxX: 600, vx: 1.65, kind: 'monster' }
+      ]
     }
+  ];
 
-    function logMessage(text, color = 'text-slate-300') {
-      const container = document.getElementById('log-container');
-      const time = new Date().toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const entry = document.createElement('div');
-      entry.className = `py-0.5 border-b border-slate-800/50 flex gap-1.5 ${color}`;
-      entry.innerHTML = `<span class="text-[9px] text-slate-500 font-mono">${time}</span> <span>${text}</span>`;
-      container.appendChild(entry);
-      container.scrollTop = container.scrollHeight;
-    }
+  // --- Game State ---
+  let state = 'TITLE'; // TITLE, PLAYING, PAUSED, DYING, STAGE_CLEAR, GAME_OVER
+  let score = 0;
+  let highScore = 10000;
+  let lives = 3;
+  let stageNum = 1;
+  let bonusTimer = 5000;
+  let maxBonusTimer = 5000;
+  let stateTimer = 0;
+  let frameCount = 0;
 
-    function setCenterStatus(msg) {
-      const el = document.getElementById('center-message');
-      el.textContent = msg;
-    }
+  let segments = [];
+  let ladders = [];
+  let tacks = [];
+  let fruits = [];
+  let pots = [];
+  let enemies = [];
+  let popups = [];
+  let particles = [];
 
-    function updateTableUI() {
-      // Pot & Stage updates
-      document.getElementById('pot-amount').textContent = `$${GameState.pot.toLocaleString()}`;
-      document.getElementById('stat-hand-count').textContent = `#${GameState.handNumber}`;
-      document.getElementById('stat-stage-badge').textContent = STAGES[GameState.currentStage] || GameState.currentStage;
+  const keys = {
+    left: false,
+    right: false,
+    up: false,
+    down: false,
+    jump: false
+  };
+  let jumpJustPressed = false;
 
-      // Update Community cards
-      for (let i = 0; i < 5; i++) {
-        const slot = document.getElementById(`community-card-${i}`);
-        const card = GameState.communityCards[i];
-        if (card) {
-          slot.outerHTML = `<div id="community-card-${i}">${renderCard(card, true, card.highlight)}</div>`;
-        } else {
-          slot.className = "w-11 h-16 md:w-16 md:h-24 rounded-lg bg-emerald-950/40 border border-dashed border-emerald-500/30 flex items-center justify-center text-emerald-500/40 font-bold text-xs";
-          slot.textContent = i < 3 ? `${i+1}` : (i === 3 ? '턴' : '리버');
-        }
-      }
+  const player = {
+    x: 55,
+    y: FLOOR_YS[0],
+    vx: 0,
+    vy: 0,
+    dir: 1,
+    floor: 0,
+    onLadder: false,
+    currentLadder: null,
+    jumping: false,
+    jumpFrame: 0,
+    jumpTotalFrames: 24,
+    jumpStartX: 0,
+    jumpStartY: 0,
+    jumpVx: 0,
+    animTick: 0
+  };
 
-      // Update Each Player Seat
-      GameState.players.forEach(p => {
-        const seatEl = document.getElementById(`seat-${p.id}`);
-        const chipsEl = document.getElementById(`chips-${p.id}`);
-        const cardsEl = document.getElementById(`cards-${p.id}`);
-        const betPill = document.getElementById(`bet-pill-${p.id}`);
+  function cloneStage(stageIndex) {
+    const template = STAGES[(stageIndex - 1) % STAGES.length];
+    const speedScale = 1 + Math.floor((stageIndex - 1) / STAGES.length) * 0.2;
 
-        chipsEl.textContent = `$${p.chips.toLocaleString()}`;
+    segments = template.segments.map(s => ({ ...s, y: FLOOR_YS[s.floor] }));
+    ladders = template.ladders.map(l => ({
+      ...l,
+      yBottom: FLOOR_YS[l.f1],
+      yTop: FLOOR_YS[l.f2]
+    }));
+    tacks = template.tacks.map(t => ({ ...t, y: FLOOR_YS[t.floor] }));
+    fruits = template.fruits.map(f => ({ ...f, y: FLOOR_YS[f.floor], collected: false }));
+    pots = template.pots.map(p => ({ ...p, y: FLOOR_YS[p.floor], opened: false }));
+    enemies = template.enemies.map(e => ({
+      ...e,
+      y: FLOOR_YS[e.floor],
+      vx: e.vx * speedScale,
+      dir: e.vx >= 0 ? 1 : -1
+    }));
+    popups = [];
+    particles = [];
+    maxBonusTimer = 5000;
+    bonusTimer = 5000;
+  }
 
-        // Active turn outline
-        if (GameState.currentTurnIdx === p.id && !p.folded && !p.allIn) {
-          seatEl.classList.add('active-seat');
-        } else {
-          seatEl.classList.remove('active-seat');
-        }
+  function resetPlayerPosition() {
+    player.x = 55;
+    player.y = FLOOR_YS[0];
+    player.vx = 0;
+    player.vy = 0;
+    player.dir = 1;
+    player.floor = 0;
+    player.onLadder = false;
+    player.currentLadder = null;
+    player.jumping = false;
+    player.jumpFrame = 0;
+    player.animTick = 0;
+  }
 
-        // Folded visual opacity
-        if (p.folded) {
-          seatEl.style.opacity = '0.4';
-        } else {
-          seatEl.style.opacity = '1';
-        }
+  function startNewGame() {
+    score = 0;
+    lives = 3;
+    stageNum = 1;
+    cloneStage(stageNum);
+    resetPlayerPosition();
+    state = 'PLAYING';
+    sfx.init();
+    sfx.startBGM(() => state);
+  }
 
-        // Dealer & Blind badges
-        const dBadge = document.getElementById(`badge-dealer-${p.id}`);
-        const bBadge = document.getElementById(`badge-blind-${p.id}`);
-        
-        if (GameState.dealerIdx === p.id) {
-          dBadge.classList.remove('hidden');
-        } else {
-          dBadge.classList.add('hidden');
-        }
+  function addPopup(x, y, text, color = '#ffff00') {
+    popups.push({ x, y, text, color, life: 45 });
+  }
 
-        if (GameState.sbIdx === p.id) {
-          bBadge.classList.remove('hidden');
-          bBadge.textContent = 'SB';
-          bBadge.className = 'absolute -top-3 -right-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow bg-blue-600 border border-blue-400';
-        } else if (GameState.bbIdx === p.id) {
-          bBadge.classList.remove('hidden');
-          bBadge.textContent = 'BB';
-          bBadge.className = 'absolute -top-3 -right-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow bg-purple-600 border border-purple-400';
-        } else {
-          bBadge.classList.add('hidden');
-        }
-
-        // Current round bet pill
-        if (p.currentBet > 0) {
-          betPill.classList.remove('hidden');
-          betPill.textContent = `$${p.currentBet}`;
-        } else {
-          betPill.classList.add('hidden');
-        }
-
-        // Hole cards display
-        if (p.cards.length === 2) {
-          const isShowdown = GameState.currentStage === 'SHOWDOWN';
-          const showFace = p.id === 0 || isShowdown;
-          cardsEl.innerHTML = p.cards.map(c => renderCard(c, showFace, c.highlight)).join('');
-        } else {
-          cardsEl.innerHTML = '';
-        }
+  function addBurst(x, y, color) {
+    for (let i = 0; i < 12; i++) {
+      const angle = (Math.PI * 2 * i) / 12;
+      const spd = 1.5 + Math.random() * 2.2;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd - 0.8,
+        color,
+        life: 24 + Math.random() * 10
       });
+    }
+  }
 
-      // User Hand helper estimation
-      const user = GameState.players[0];
-      const ratingEl = document.getElementById('user-hand-rating');
-      if (user.cards.length === 2 && !user.folded) {
-        const pool = [...user.cards, ...GameState.communityCards];
-        const evalRes = evaluateBestHand(pool);
-        ratingEl.textContent = `족보: ${evalRes.name}`;
-      } else {
-        ratingEl.textContent = user.folded ? '폴드됨' : '-';
-      }
+  function isSupportedAt(x, floorIdx) {
+    const pad = 6;
+    return segments.some(
+      s => s.floor === floorIdx && x >= s.x1 - pad && x <= s.x2 + pad
+    );
+  }
 
-      // Rebuy button visibility if user busted
-      const rebuyBtn = document.getElementById('btn-rebuy');
-      if (user.chips <= 0 && GameState.currentStage === 'IDLE') {
-        rebuyBtn.classList.remove('hidden');
-      } else {
-        rebuyBtn.classList.add('hidden');
-      }
+  function findSegmentAt(x, floorIdx) {
+    return segments.find(s => s.floor === floorIdx && x >= s.x1 && x <= s.x2);
+  }
+
+  function killPlayer() {
+    if (state !== 'PLAYING') return;
+    state = 'DYING';
+    stateTimer = 75;
+    sfx.playDie();
+    addBurst(player.x, player.y - 14, '#ff4466');
+  }
+
+  // --- Update Loop ---
+  function update() {
+    frameCount++;
+
+    // Update popups & particles always
+    for (let i = popups.length - 1; i >= 0; i--) {
+      popups[i].y -= 0.7;
+      popups[i].life--;
+      if (popups[i].life <= 0) popups.splice(i, 1);
+    }
+    for (let i = particles.length - 1; i >= 0; i--) {
+      particles[i].x += particles[i].vx;
+      particles[i].y += particles[i].vy;
+      particles[i].vy += 0.12;
+      particles[i].life--;
+      if (particles[i].life <= 0) particles.splice(i, 1);
     }
 
-    function showActionTag(playerId, text, type = 'normal') {
-      const el = document.getElementById(`action-${playerId}`);
-      el.textContent = text;
-      el.classList.remove('hidden');
-
-      if (type === 'fold') {
-        el.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-600 text-white shadow-md border border-rose-400';
-      } else if (type === 'raise' || type === 'allin') {
-        el.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow-md border border-amber-300';
-      } else if (type === 'call') {
-        el.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-md border border-blue-400';
-      } else {
-        el.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-700 text-white shadow-md border border-slate-500';
+    if (state === 'TITLE' || state === 'GAME_OVER') {
+      if (jumpJustPressed) {
+        jumpJustPressed = false;
+        startNewGame();
       }
-
-      setTimeout(() => {
-        el.classList.add('hidden');
-      }, 2500);
+      return;
     }
 
-    function updateBetControls() {
-      const user = GameState.players[0];
-      const actionsPanel = document.getElementById('panel-actions');
-      const dealPanel = document.getElementById('panel-deal');
+    if (state === 'PAUSED') {
+      jumpJustPressed = false;
+      return;
+    }
 
-      if (GameState.currentTurnIdx === 0 && !user.folded && !user.allIn && GameState.currentStage !== 'SHOWDOWN' && GameState.currentStage !== 'IDLE') {
-        actionsPanel.classList.remove('hidden');
-        dealPanel.classList.add('hidden');
-
-        const callAmount = GameState.currentHighestBet - user.currentBet;
-        const callBtn = document.getElementById('btn-check-call');
-
-        if (callAmount <= 0) {
-          callBtn.textContent = '체크 (Check)';
-          callBtn.className = 'flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-xs md:text-sm shadow-md transition border border-emerald-400/40 min-w-[110px]';
+    if (state === 'DYING') {
+      player.y += 3.5;
+      stateTimer--;
+      if (stateTimer <= 0) {
+        lives--;
+        if (lives <= 0) {
+          state = 'GAME_OVER';
         } else {
-          const effectiveCall = Math.min(callAmount, user.chips);
-          callBtn.textContent = `콜 (Call) $${effectiveCall}`;
-          callBtn.className = 'flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-extrabold text-xs md:text-sm shadow-md transition border border-blue-400/40 min-w-[110px]';
-        }
-
-        // Configure Raise slider
-        const minLegalRaise = Math.max(GameState.currentHighestBet + GameState.minRaise, GameState.bbAmount);
-        const slider = document.getElementById('raise-slider');
-        const minVal = Math.min(minLegalRaise, user.chips + user.currentBet);
-        const maxVal = user.chips + user.currentBet;
-
-        slider.min = minVal;
-        slider.max = maxVal;
-        slider.value = minVal;
-        updateRaiseLabel(minVal);
-
-        const raiseBtn = document.getElementById('btn-raise');
-        if (user.chips <= callAmount) {
-          // Cannot raise, only call/all-in
-          raiseBtn.disabled = true;
-          raiseBtn.classList.add('opacity-50');
-        } else {
-          raiseBtn.disabled = false;
-          raiseBtn.classList.remove('opacity-50');
-        }
-      } else {
-        actionsPanel.classList.add('hidden');
-        if (GameState.currentStage === 'IDLE' || GameState.currentStage === 'SHOWDOWN') {
-          dealPanel.classList.remove('hidden');
-        } else {
-          dealPanel.classList.add('hidden');
+          resetPlayerPosition();
+          state = 'PLAYING';
         }
       }
+      jumpJustPressed = false;
+      return;
     }
 
-    function updateRaiseLabel(val) {
-      document.getElementById('raise-amount-label').textContent = `$${Number(val).toLocaleString()}`;
+    if (state === 'STAGE_CLEAR') {
+      if (bonusTimer > 0) {
+        const step = Math.min(100, bonusTimer);
+        bonusTimer -= step;
+        score += step;
+        if (score > highScore) highScore = score;
+        if (frameCount % 3 === 0) sfx.tone(880, 0.03, 'square', 0.05);
+      } else {
+        stateTimer--;
+        if (stateTimer <= 0) {
+          stageNum++;
+          cloneStage(stageNum);
+          resetPlayerPosition();
+          state = 'PLAYING';
+        }
+      }
+      jumpJustPressed = false;
+      return;
     }
 
-    function evaluateBotDecision(bot) {
-      const callCost = GameState.currentHighestBet - bot.currentBet;
-      const holeAndCommunity = [...bot.cards, ...GameState.communityCards];
-      const handEval = evaluateBestHand(holeAndCommunity);
+    // --- STATE === 'PLAYING' ---
+    if (frameCount % 6 === 0 && bonusTimer > 0) {
+      bonusTimer = Math.max(0, bonusTimer - 10);
+    }
 
-      // Preflop heuristic
-      if (GameState.currentStage === 'PREFLOP') {
-        const c1 = bot.cards[0].rank;
-        const c2 = bot.cards[1].rank;
-        const isPair = c1 === c2;
-        const highRank = Math.max(c1, c2);
-        const isSuited = bot.cards[0].suit === bot.cards[1].suit;
+    // 1. Player Movement & Ladder / Jump Logic
+    const moveSpeed = 2.6;
+    const climbSpeed = 2.2;
 
-        // Premium hands (AA, KK, QQ, JJ, AK)
-        if ((isPair && highRank >= 10) || (highRank === 14 && Math.min(c1, c2) >= 12)) {
-          // Strong raise
-          return { action: 'raise', amount: Math.min(bot.chips + bot.currentBet, GameState.currentHighestBet + GameState.bbAmount * 2) };
+    if (player.jumping) {
+      player.jumpFrame++;
+      player.x += player.jumpVx;
+      player.x = Math.max(26, Math.min(614, player.x));
+
+      // Parabolic arc height (max 34px high)
+      const progress = player.jumpFrame / player.jumpTotalFrames;
+      const arc = 4 * 34 * progress * (1 - progress);
+      player.y = player.jumpStartY - arc;
+
+      if (player.jumpFrame >= player.jumpTotalFrames) {
+        player.jumping = false;
+        player.y = player.jumpStartY;
+        if (!isSupportedAt(player.x, player.floor)) {
+          killPlayer();
+          return;
+        }
+      }
+    } else if (player.onLadder) {
+      const lad = player.currentLadder;
+      player.x = lad.x;
+      if (keys.up) {
+        player.y -= climbSpeed;
+        player.animTick++;
+        if (player.animTick % 7 === 0) sfx.playClimb();
+      } else if (keys.down) {
+        player.y += climbSpeed;
+        player.animTick++;
+        if (player.animTick % 7 === 0) sfx.playClimb();
+      }
+
+      if (player.y <= lad.yTop) {
+        player.y = lad.yTop;
+        player.floor = lad.f2;
+        player.onLadder = false;
+        player.currentLadder = null;
+      } else if (player.y >= lad.yBottom) {
+        player.y = lad.yBottom;
+        player.floor = lad.f1;
+        player.onLadder = false;
+        player.currentLadder = null;
+      }
+    } else {
+      // Walking on floor
+      // Check ladder attachment first
+      if (keys.up) {
+        const upLad = ladders.find(
+          l => l.f1 === player.floor && Math.abs(l.x - player.x) <= 14
+        );
+        if (upLad) {
+          player.onLadder = true;
+          player.currentLadder = upLad;
+          player.x = upLad.x;
+          player.y -= 2;
+        }
+      } else if (keys.down) {
+        const downLad = ladders.find(
+          l => l.f2 === player.floor && Math.abs(l.x - player.x) <= 14
+        );
+        if (downLad) {
+          player.onLadder = true;
+          player.currentLadder = downLad;
+          player.x = downLad.x;
+          player.y += 2;
+        }
+      }
+
+      if (!player.onLadder) {
+        let moving = false;
+        if (keys.left) {
+          player.x -= moveSpeed;
+          player.dir = -1;
+          moving = true;
+        } else if (keys.right) {
+          player.x += moveSpeed;
+          player.dir = 1;
+          moving = true;
+        }
+        player.x = Math.max(26, Math.min(614, player.x));
+
+        if (moving) {
+          player.animTick++;
+          if (player.animTick % 8 === 0) sfx.playStep();
         }
 
-        // Playable hands (Medium pair, suited broadway)
-        if (isPair || (highRank >= 11) || (isSuited && highRank >= 10)) {
-          if (callCost <= GameState.bbAmount * 3) {
-            return { action: callCost === 0 ? 'check' : 'call' };
+        // Jump initiation
+        if (jumpJustPressed) {
+          player.jumping = true;
+          player.jumpFrame = 0;
+          player.jumpStartX = player.x;
+          player.jumpStartY = FLOOR_YS[player.floor];
+          // Classic Ponpoko: directional jump vs vertical hop
+          if (keys.left) {
+            player.jumpVx = -3.15;
+            player.dir = -1;
+          } else if (keys.right) {
+            player.jumpVx = 3.15;
+            player.dir = 1;
+          } else {
+            player.jumpVx = 0;
           }
-          // Fold to huge preflop bet unless aggressive
-          return bot.style === 'aggressive' && Math.random() < 0.4 ? { action: 'call' } : { action: 'fold' };
+          sfx.playJump();
         }
 
-        // Weak hands
-        if (callCost === 0) return { action: 'check' };
-        if (callCost <= GameState.bbAmount && Math.random() < 0.5) return { action: 'call' };
-        return { action: 'fold' };
-      }
-
-      // Postflop heuristic (Flop, Turn, River)
-      const potOdds = callCost / (GameState.pot + callCost || 1);
-      const tier = handEval.tier;
-
-      // Aggressive / Bluff factor
-      const bluffChance = bot.style === 'aggressive' ? 0.22 : 0.08;
-      const isBluffing = Math.random() < bluffChance;
-
-      // High Hands (Full house or better)
-      if (tier >= HAND_RANKS.FULL_HOUSE) {
-        return { action: 'raise', amount: Math.min(bot.chips + bot.currentBet, GameState.currentHighestBet + Math.max(GameState.minRaise, Math.floor(GameState.pot * 0.75))) };
-      }
-
-      // Strong Hands (Flush, Straight, Three of a kind)
-      if (tier >= HAND_RANKS.THREE_OF_A_KIND) {
-        if (Math.random() < 0.65) {
-          return { action: 'raise', amount: Math.min(bot.chips + bot.currentBet, GameState.currentHighestBet + Math.max(GameState.minRaise, Math.floor(GameState.pot * 0.5))) };
-        }
-        return { action: callCost === 0 ? 'check' : 'call' };
-      }
-
-      // Medium Hands (Two pair, One high pair)
-      if (tier >= HAND_RANKS.ONE_PAIR) {
-        if (callCost === 0) {
-          // 40% chance to bet small
-          if (Math.random() < 0.4) {
-            return { action: 'raise', amount: Math.min(bot.chips + bot.currentBet, GameState.currentHighestBet + GameState.bbAmount) };
-          }
-          return { action: 'check' };
-        }
-        // Call if cost is reasonable compared to pot
-        if (callCost <= GameState.pot * 0.6 || potOdds < 0.35) {
-          return { action: 'call' };
-        }
-        return { action: 'fold' };
-      }
-
-      // Trash Hand (High card)
-      if (callCost === 0) return { action: 'check' };
-      if (isBluffing && GameState.pot > 0 && Math.random() < 0.3) {
-        return { action: 'raise', amount: Math.min(bot.chips + bot.currentBet, GameState.currentHighestBet + GameState.bbAmount) };
-      }
-      return { action: 'fold' };
-    }
-
-    function startNewHand() {
-      SoundManager.init();
-      
-      // Check if user has chips
-      if (GameState.players[0].chips <= 0) {
-        setCenterStatus('칩이 부족합니다! 칩 충전 버튼을 누르세요.');
-        return;
-      }
-
-      // Rebuy bots if busted
-      GameState.players.forEach(p => {
-        if (p.isBot && p.chips <= 0) {
-          p.chips = 1000;
-          logMessage(`💰 ${p.name}님이 칩을 리바이하였습니다 ($1,000)`, 'text-purple-400');
-        }
-      });
-
-      // Increment hand and rotate dealer
-      GameState.handNumber++;
-      GameState.dealerIdx = (GameState.dealerIdx + 1) % 4;
-      GameState.sbIdx = (GameState.dealerIdx + 1) % 4;
-      GameState.bbIdx = (GameState.dealerIdx + 2) % 4;
-
-      // Reset round state
-      GameState.deck = shuffleDeck(createDeck());
-      GameState.communityCards = [];
-      GameState.pot = 0;
-      GameState.currentHighestBet = 0;
-      GameState.minRaise = GameState.bbAmount;
-      GameState.currentStage = 'PREFLOP';
-
-      GameState.players.forEach(p => {
-        p.cards = [];
-        p.currentBet = 0;
-        p.totalBet = 0;
-        p.folded = false;
-        p.allIn = false;
-      });
-
-      logMessage(`--- 새로운 핸드 #${GameState.handNumber} 시작 (딜러: ${GameState.players[GameState.dealerIdx].name}) ---`, 'text-amber-400 font-bold');
-
-      // Post Blinds
-      const sbPlayer = GameState.players[GameState.sbIdx];
-      const bbPlayer = GameState.players[GameState.bbIdx];
-
-      applyBet(sbPlayer, GameState.sbAmount, '스몰 블라인드');
-      applyBet(bbPlayer, GameState.bbAmount, '빅 블라인드');
-      GameState.currentHighestBet = GameState.bbAmount;
-
-      // Deal 2 hole cards to each
-      for (let i = 0; i < 2; i++) {
-        GameState.players.forEach(p => {
-          p.cards.push(GameState.deck.pop());
-        });
-      }
-      SoundManager.playDeal();
-
-      // Action starts left of Big Blind (UTG)
-      const firstActionIdx = (GameState.bbIdx + 1) % 4;
-      GameState.currentTurnIdx = firstActionIdx;
-      GameState.actionCloserIdx = firstActionIdx;
-
-      setCenterStatus('프리플랍 배팅 진행 중...');
-      updateTableUI();
-      updateBetControls();
-
-      // Run turn loop
-      processTurn();
-    }
-
-    function applyBet(player, amount, label) {
-      const actualBet = Math.min(amount, player.chips);
-      player.chips -= actualBet;
-      player.currentBet += actualBet;
-      player.totalBet += actualBet;
-      GameState.pot += actualBet;
-
-      if (player.chips === 0) {
-        player.allIn = true;
-      }
-      SoundManager.playChip();
-    }
-
-    function processTurn() {
-      if (checkOnlyOnePlayerLeft()) return;
-
-      const activePlayers = GameState.players.filter(p => !p.folded && !p.allIn);
-      const nonFolded = GameState.players.filter(p => !p.folded);
-
-      // Check if betting round has concluded
-      if (isRoundComplete()) {
-        advanceStage();
-        return;
-      }
-
-      const curr = GameState.players[GameState.currentTurnIdx];
-
-      // Skip folded or all-in players
-      if (curr.folded || curr.allIn) {
-        nextTurn();
-        return;
-      }
-
-      updateTableUI();
-      updateBetControls();
-
-      if (curr.isBot) {
-        GameState.isActionLocked = true;
-        setCenterStatus(`${curr.name}님의 생각 중...`);
-        setTimeout(() => {
-          executeBotTurn(curr);
-        }, 900 + Math.random() * 500);
-      } else {
-        GameState.isActionLocked = false;
-        setCenterStatus('당신의 차례입니다. 액션을 선택하세요.');
-      }
-    }
-
-    function isRoundComplete() {
-      const activeUnfolded = GameState.players.filter(p => !p.folded);
-      if (activeUnfolded.length <= 1) return true;
-
-      // All active players must have matched currentHighestBet (or be all-in)
-      const eligibleToAct = GameState.players.filter(p => !p.folded && !p.allIn);
-      if (eligibleToAct.length === 0) return true;
-
-      // Check if everyone called the highest bet
-      const allMatched = eligibleToAct.every(p => p.currentBet === GameState.currentHighestBet);
-      return allMatched && (GameState.currentTurnIdx === GameState.actionCloserIdx);
-    }
-
-    function nextTurn() {
-      GameState.currentTurnIdx = (GameState.currentTurnIdx + 1) % 4;
-      processTurn();
-    }
-
-    function executeBotTurn(bot) {
-      const decision = evaluateBotDecision(bot);
-
-      if (decision.action === 'fold') {
-        bot.folded = true;
-        SoundManager.playFold();
-        showActionTag(bot.id, '폴드', 'fold');
-        logMessage(`${bot.name}님이 폴드하였습니다.`, 'text-rose-400');
-      } else if (decision.action === 'check') {
-        SoundManager.playCheck();
-        showActionTag(bot.id, '체크', 'normal');
-        logMessage(`${bot.name}님이 체크하였습니다.`);
-      } else if (decision.action === 'call') {
-        const callAmount = GameState.currentHighestBet - bot.currentBet;
-        applyBet(bot, callAmount);
-        showActionTag(bot.id, `콜 $${bot.currentBet}`, 'call');
-        logMessage(`${bot.name}님이 콜하였습니다. ($${callAmount})`);
-      } else if (decision.action === 'raise') {
-        const raiseTarget = decision.amount;
-        const addAmount = raiseTarget - bot.currentBet;
-        applyBet(bot, addAmount);
-        GameState.minRaise = raiseTarget - GameState.currentHighestBet;
-        GameState.currentHighestBet = raiseTarget;
-        GameState.actionCloserIdx = bot.id; // reopen betting
-        showActionTag(bot.id, `레이즈 $${raiseTarget}`, 'raise');
-        logMessage(`${bot.name}님이 $${raiseTarget}로 레이즈하였습니다!`, 'text-amber-400 font-bold');
-      }
-
-      nextTurn();
-    }
-
-    function handleUserFold() {
-      if (GameState.isActionLocked) return;
-      const user = GameState.players[0];
-      user.folded = true;
-      SoundManager.playFold();
-      showActionTag(0, '폴드', 'fold');
-      logMessage(`나(플레이어)님이 폴드하였습니다.`, 'text-rose-400 font-bold');
-      nextTurn();
-    }
-
-    function handleUserCheckCall() {
-      if (GameState.isActionLocked) return;
-      const user = GameState.players[0];
-      const callDiff = GameState.currentHighestBet - user.currentBet;
-
-      if (callDiff <= 0) {
-        SoundManager.playCheck();
-        showActionTag(0, '체크', 'normal');
-        logMessage(`나(플레이어)님이 체크하였습니다.`);
-      } else {
-        applyBet(user, callDiff);
-        showActionTag(0, `콜 $${user.currentBet}`, 'call');
-        logMessage(`나(플레이어)님이 $${callDiff}을 콜하였습니다.`);
-      }
-      nextTurn();
-    }
-
-    function handleUserRaise() {
-      if (GameState.isActionLocked) return;
-      const user = GameState.players[0];
-      const targetRaise = Number(document.getElementById('raise-slider').value);
-      const needed = targetRaise - user.currentBet;
-
-      if (needed <= 0 || user.chips <= 0) return;
-
-      applyBet(user, needed);
-      GameState.minRaise = targetRaise - GameState.currentHighestBet;
-      GameState.currentHighestBet = targetRaise;
-      GameState.actionCloserIdx = 0; // Action resets to user
-
-      const isAllIn = user.chips === 0;
-      showActionTag(0, isAllIn ? `올인! $${targetRaise}` : `레이즈 $${targetRaise}`, 'raise');
-      logMessage(`나(플레이어)님이 $${targetRaise}로 레이즈하였습니다!`, 'text-amber-400 font-extrabold');
-      nextTurn();
-    }
-
-    function advanceStage() {
-      // Gather bets into center
-      GameState.players.forEach(p => p.currentBet = 0);
-      GameState.currentHighestBet = 0;
-      GameState.minRaise = GameState.bbAmount;
-
-      const nonFolded = GameState.players.filter(p => !p.folded);
-      const activeUnallin = nonFolded.filter(p => !p.allIn);
-
-      // If everyone except at most 1 is all-in, fast deal remaining cards
-      const canBet = activeUnallin.length > 1;
-
-      if (GameState.currentStage === 'PREFLOP') {
-        GameState.currentStage = 'FLOP';
-        // Burn 1 card, deal 3 flop cards
-        GameState.deck.pop();
-        GameState.communityCards.push(GameState.deck.pop(), GameState.deck.pop(), GameState.deck.pop());
-        SoundManager.playDeal();
-        logMessage(`--- [플랍] 커뮤니티 카드 3장 오픈 ---`, 'text-blue-300 font-semibold');
-      } else if (GameState.currentStage === 'FLOP') {
-        GameState.currentStage = 'TURN';
-        GameState.deck.pop();
-        GameState.communityCards.push(GameState.deck.pop());
-        SoundManager.playDeal();
-        logMessage(`--- [턴] 커뮤니티 카드 4번째 오픈 ---`, 'text-blue-300 font-semibold');
-      } else if (GameState.currentStage === 'TURN') {
-        GameState.currentStage = 'RIVER';
-        GameState.deck.pop();
-        GameState.communityCards.push(GameState.deck.pop());
-        SoundManager.playDeal();
-        logMessage(`--- [리버] 마지막 커뮤니티 카드 오픈 ---`, 'text-blue-300 font-semibold');
-      } else if (GameState.currentStage === 'RIVER') {
-        handleShowdown();
-        return;
-      }
-
-      // First to act postflop is first non-folded player left of dealer
-      let nextActor = (GameState.dealerIdx + 1) % 4;
-      while (GameState.players[nextActor].folded || (canBet && GameState.players[nextActor].allIn)) {
-        nextActor = (nextActor + 1) % 4;
-      }
-
-      GameState.currentTurnIdx = nextActor;
-      GameState.actionCloserIdx = nextActor;
-
-      updateTableUI();
-      updateBetControls();
-
-      if (!canBet) {
-        // Run out cards smoothly
-        setCenterStatus('모든 플레이어 올인 완료! 커뮤니티 카드를 공개합니다.');
-        setTimeout(() => {
-          advanceStage();
-        }, 1200);
-      } else {
-        processTurn();
-      }
-    }
-
-    function checkOnlyOnePlayerLeft() {
-      const active = GameState.players.filter(p => !p.folded);
-      if (active.length === 1) {
-        const winner = active[0];
-        winner.chips += GameState.pot;
-        SoundManager.playWin();
-        logMessage(`🏆 [단독 생존] 모두 폴드하여 ${winner.name}님이 팟 $${GameState.pot.toLocaleString()}을 획득하였습니다!`, 'text-emerald-400 font-extrabold');
-        setCenterStatus(`모두 폴드하여 ${winner.name}님 승리! (+$${GameState.pot})`);
-        
-        GameState.pot = 0;
-        GameState.currentStage = 'IDLE';
-        GameState.currentTurnIdx = null;
-        updateTableUI();
-        updateBetControls();
-        return true;
-      }
-      return false;
-    }
-
-    function handleShowdown() {
-      GameState.currentStage = 'SHOWDOWN';
-      GameState.currentTurnIdx = null;
-      setCenterStatus('쇼다운! 패를 비교합니다.');
-
-      const contenders = GameState.players.filter(p => !p.folded);
-      logMessage(`--- [쇼다운] ${contenders.length}명의 핸드 공개 ---`, 'text-yellow-400 font-bold');
-
-      // Evaluate each contender's 7-card hand
-      const evaluations = contenders.map(player => {
-        const sevenCards = [...player.cards, ...GameState.communityCards];
-        const best = evaluateBestHand(sevenCards);
-        return { player, best };
-      });
-
-      evaluations.forEach(ev => {
-        logMessage(`🔎 ${ev.player.name}: ${ev.best.name}`, 'text-slate-300');
-      });
-
-      // Find winner(s)
-      let winningEval = evaluations[0];
-      let winners = [winningEval];
-
-      for (let i = 1; i < evaluations.length; i++) {
-        const cmp = compareHandScores(evaluations[i].best.score, winningEval.best.score);
-        if (cmp > 0) {
-          winningEval = evaluations[i];
-          winners = [evaluations[i]];
-        } else if (cmp === 0) {
-          winners.push(evaluations[i]);
+        // Check if walked into a gap!
+        if (!player.jumping && !isSupportedAt(player.x, player.floor)) {
+          killPlayer();
+          return;
         }
       }
+    }
 
-      // Highlight winning 5 cards
-      winningEval.best.cards.forEach(bestCard => {
-        // Highlight in community cards
-        GameState.communityCards.forEach(c => {
-          if (c.rank === bestCard.rank && c.suit === bestCard.suit) c.highlight = true;
-        });
-        // Highlight in winner's hole cards
-        winners.forEach(w => {
-          w.player.cards.forEach(c => {
-            if (c.rank === bestCard.rank && c.suit === bestCard.suit) c.highlight = true;
+    jumpJustPressed = false;
+
+    // 2. Collect Fruits
+    for (const f of fruits) {
+      if (!f.collected && Math.abs(player.x - f.x) < 18 && Math.abs(player.y - f.y) < 22) {
+        f.collected = true;
+        score += f.pts;
+        if (score > highScore) highScore = score;
+        sfx.playFruit();
+        addPopup(f.x, f.y - 20, `+${f.pts}`, '#00ffcc');
+        addBurst(f.x, f.y - 12, '#ffdd00');
+      }
+    }
+
+    // Check Stage Clear
+    if (fruits.every(f => f.collected)) {
+      state = 'STAGE_CLEAR';
+      stateTimer = 85;
+      sfx.playStageClear();
+      addPopup(320, 220, 'STAGE CLEAR!', '#00ff88');
+      return;
+    }
+
+    // 3. Open Mystery Pots
+    for (const p of pots) {
+      if (!p.opened && Math.abs(player.x - p.x) < 17 && Math.abs(player.y - p.y) < 18) {
+        p.opened = true;
+        if (p.outcome === 'bonus') {
+          const bonusPts = 500;
+          score += bonusPts;
+          if (score > highScore) highScore = score;
+          sfx.playBonusPot();
+          addPopup(p.x, p.y - 22, `BONUS +${bonusPts}!`, '#ffd700');
+          addBurst(p.x, p.y - 12, '#00f0ff');
+        } else {
+          sfx.playSnakePot();
+          addPopup(p.x, p.y - 22, '🐍 뱀 출현!', '#ff4466');
+          const seg = findSegmentAt(p.x, p.floor) || { x1: 30, x2: 610 };
+          enemies.push({
+            floor: p.floor,
+            x: p.x + player.dir * 28,
+            y: p.y,
+            minX: seg.x1 + 12,
+            maxX: seg.x2 - 12,
+            vx: player.dir * 1.45,
+            dir: player.dir,
+            kind: 'snake',
+            grace: 35 // brief grace period so player can jump away
           });
-        });
-      });
-
-      // Distribute Pot
-      const share = Math.floor(GameState.pot / winners.length);
-      winners.forEach(w => {
-        w.player.chips += share;
-      });
-
-      SoundManager.playWin();
-
-      if (winners.length === 1) {
-        const w = winners[0];
-        setCenterStatus(`🏆 ${w.player.name} 승리! [${w.best.name}] (+$${GameState.pot})`);
-        logMessage(`🎉 [승자] ${w.player.name}님이 ${w.best.name}으로 팟 $${GameState.pot.toLocaleString()}을 차지했습니다!`, 'text-emerald-400 font-black');
-      } else {
-        const names = winners.map(w => w.player.name).join(', ');
-        setCenterStatus(`🤝 무승부! [${winningEval.best.name}] ($${share} 분배)`);
-        logMessage(`🤝 [타이] ${names}님이 팟을 분배받았습니다. (각 $${share})`, 'text-blue-300 font-bold');
+        }
       }
-
-      GameState.pot = 0;
-      updateTableUI();
-      updateBetControls();
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      // Sound toggle
-      const soundBtn = document.getElementById('btn-sound');
-      soundBtn.addEventListener('click', () => {
-        SoundManager.init();
-        SoundManager.enabled = !SoundManager.enabled;
-        soundBtn.textContent = SoundManager.enabled ? '🔊' : '🔇';
-      });
+    // 4. Check Tacks Collision (only hits when feet are near floor level)
+    for (const t of tacks) {
+      if (t.floor === player.floor && !player.onLadder) {
+        const feetHeight = FLOOR_YS[player.floor] - player.y;
+        if (Math.abs(player.x - t.x) < 10 && feetHeight < 10) {
+          killPlayer();
+          return;
+        }
+      }
+    }
 
-      // Modals
-      const rulesModal = document.getElementById('modal-rules');
-      document.getElementById('btn-rules').addEventListener('click', () => rulesModal.classList.remove('hidden'));
-      document.getElementById('btn-close-rules').addEventListener('click', () => rulesModal.classList.add('hidden'));
+    // 5. Update Enemies & Check Enemy Collision
+    for (const e of enemies) {
+      e.x += e.vx;
+      if (e.x <= e.minX) {
+        e.x = e.minX;
+        e.vx = Math.abs(e.vx);
+        e.dir = 1;
+      } else if (e.x >= e.maxX) {
+        e.x = e.maxX;
+        e.vx = -Math.abs(e.vx);
+        e.dir = -1;
+      }
+      if (e.grace && e.grace > 0) e.grace--;
 
-      const logModal = document.getElementById('modal-log');
-      document.getElementById('btn-log-toggle').addEventListener('click', () => {
-        logModal.classList.toggle('hidden');
-      });
-      document.getElementById('btn-close-log').addEventListener('click', () => logModal.classList.add('hidden'));
+      if (!e.grace && Math.abs(player.x - e.x) < 15 && Math.abs(player.y - e.y) < 15) {
+        killPlayer();
+        return;
+      }
+    }
+  }
 
-      // Rebuy
-      document.getElementById('btn-rebuy').addEventListener('click', () => {
-        GameState.players[0].chips += 1000;
-        SoundManager.playChip();
-        logMessage('💰 나(플레이어)님이 칩을 리바이했습니다 (+$1,000)', 'text-emerald-400 font-bold');
-        updateTableUI();
-      });
+  // --- Drawing Routines ---
+  function drawBrickSegment(s) {
+    const h = 12;
+    const y = s.y;
+    ctx.fillStyle = '#c83e2b';
+    ctx.fillRect(s.x1, y, s.x2 - s.x1, h);
 
-      // Start Hand Button
-      document.getElementById('btn-start-hand').addEventListener('click', startNewHand);
+    // Top highlight line
+    ctx.fillStyle = '#ff8566';
+    ctx.fillRect(s.x1, y, s.x2 - s.x1, 2);
 
-      // Betting Action Buttons
-      document.getElementById('btn-fold').addEventListener('click', handleUserFold);
-      document.getElementById('btn-check-call').addEventListener('click', handleUserCheckCall);
-      document.getElementById('btn-raise').addEventListener('click', handleUserRaise);
+    // Brick mortar pattern
+    ctx.fillStyle = '#5a160c';
+    ctx.fillRect(s.x1, y + 6, s.x2 - s.x1, 1.5);
+    for (let bx = s.x1; bx < s.x2; bx += 16) {
+      ctx.fillRect(bx, y, 2, 6);
+      if (bx + 8 < s.x2) {
+        ctx.fillRect(bx + 8, y + 6, 2, 6);
+      }
+    }
+  }
 
-      // Raise slider & Presets
-      const raiseSlider = document.getElementById('raise-slider');
-      raiseSlider.addEventListener('input', (e) => updateRaiseLabel(e.target.value));
+  function drawLadder(l) {
+    const w = 22;
+    const xLeft = l.x - w / 2;
+    const xRight = l.x + w / 2;
+    ctx.fillStyle = '#00d8ff';
+    ctx.fillRect(xLeft, l.yTop, 3, l.yBottom - l.yTop);
+    ctx.fillRect(xRight - 3, l.yTop, 3, l.yBottom - l.yTop);
 
-      document.getElementById('btn-preset-min').addEventListener('click', () => {
-        const minVal = Number(raiseSlider.min);
-        raiseSlider.value = minVal;
-        updateRaiseLabel(minVal);
-      });
+    ctx.fillStyle = '#88f4ff';
+    for (let ry = l.yTop + 8; ry < l.yBottom; ry += 10) {
+      ctx.fillRect(xLeft + 3, ry, w - 6, 2.5);
+    }
+  }
 
-      document.getElementById('btn-preset-half').addEventListener('click', () => {
-        const target = Math.min(Number(raiseSlider.max), Math.max(Number(raiseSlider.min), Math.floor(GameState.pot / 2) + GameState.currentHighestBet));
-        raiseSlider.value = target;
-        updateRaiseLabel(target);
-      });
+  function drawTack(t) {
+    const x = t.x;
+    const y = t.y;
+    // Blinking yellow/cyan retro spike
+    ctx.fillStyle = (frameCount % 16 < 8) ? '#ffff00' : '#ff3366';
+    ctx.beginPath();
+    ctx.moveTo(x - 7, y);
+    ctx.lineTo(x - 3, y - 9);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x + 3, y - 9);
+    ctx.lineTo(x + 7, y);
+    ctx.closePath();
+    ctx.fill();
+  }
 
-      document.getElementById('btn-preset-pot').addEventListener('click', () => {
-        const target = Math.min(Number(raiseSlider.max), Math.max(Number(raiseSlider.min), GameState.pot + GameState.currentHighestBet));
-        raiseSlider.value = target;
-        updateRaiseLabel(target);
-      });
+  function drawFruit(f) {
+    if (f.collected) return;
+    const x = f.x;
+    const y = f.y - 12 + Math.sin(frameCount * 0.1 + f.x) * 2;
 
-      document.getElementById('btn-preset-allin').addEventListener('click', () => {
-        const maxVal = Number(raiseSlider.max);
-        raiseSlider.value = maxVal;
-        updateRaiseLabel(maxVal);
-      });
+    ctx.save();
+    if (f.type === 'apple') {
+      ctx.fillStyle = '#ff2a4b';
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#00e676';
+      ctx.fillRect(x - 1, y - 12, 3, 4);
+    } else if (f.type === 'banana') {
+      ctx.strokeStyle = '#ffea00';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.arc(x, y - 2, 8, 0.2 * Math.PI, 0.85 * Math.PI);
+      ctx.stroke();
+    } else if (f.type === 'carrot') {
+      ctx.fillStyle = '#ff7b00';
+      ctx.beginPath();
+      ctx.moveTo(x - 6, y - 7);
+      ctx.lineTo(x + 6, y - 7);
+      ctx.lineTo(x, y + 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#00e676';
+      ctx.fillRect(x - 3, y - 11, 6, 4);
+    } else if (f.type === 'cherry') {
+      ctx.fillStyle = '#ff1744';
+      ctx.beginPath();
+      ctx.arc(x - 4, y + 3, 5, 0, Math.PI * 2);
+      ctx.arc(x + 5, y + 3, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#00e676';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x - 4, y - 1);
+      ctx.lineTo(x, y - 9);
+      ctx.lineTo(x + 5, y - 1);
+      ctx.stroke();
+    } else if (f.type === 'mushroom') {
+      ctx.fillStyle = '#f5e6ca';
+      ctx.fillRect(x - 4, y, 8, 7);
+      ctx.fillStyle = '#ff4081';
+      ctx.beginPath();
+      ctx.arc(x, y, 9, Math.PI, 0);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x - 4, y - 5, 3, 3);
+      ctx.fillRect(x + 2, y - 6, 3, 3);
+    } else {
+      // Crown / Golden Bell
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath();
+      ctx.moveTo(x - 8, y + 6);
+      ctx.lineTo(x - 8, y - 5);
+      ctx.lineTo(x - 3, y);
+      ctx.lineTo(x, y - 8);
+      ctx.lineTo(x + 3, y);
+      ctx.lineTo(x + 8, y - 5);
+      ctx.lineTo(x + 8, y + 6);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
 
-      // Initial visual setup
-      updateTableUI();
-      logMessage('♠ 텍사스 홀뎀 포커 게임에 오신 것을 환영합니다! 딜 버튼을 눌러 시작하세요.', 'text-emerald-300 font-bold');
-    });
-  </script>
+  function drawPot(p) {
+    if (p.opened) return;
+    const x = p.x;
+    const y = p.y;
+    ctx.save();
+    // Classic pink/magenta Ponpoko jar with '?'
+    ctx.fillStyle = '#ff66cc';
+    ctx.beginPath();
+    ctx.arc(x, y - 10, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ff99dd';
+    ctx.fillRect(x - 6, y - 21, 12, 4);
+    ctx.fillStyle = '#111';
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('?', x, y - 6);
+    ctx.restore();
+  }
+
+  function drawEnemy(e) {
+    const x = e.x;
+    const y = e.y;
+    ctx.save();
+    if (e.kind === 'snake') {
+      if (e.grace && e.grace % 4 < 2) ctx.globalAlpha = 0.45;
+      ctx.fillStyle = '#00e676';
+      const wave = Math.sin(frameCount * 0.3) * 2;
+      ctx.fillRect(x - 10, y - 8 + wave, 20, 6);
+      ctx.fillStyle = '#ffff00';
+      ctx.fillRect(e.dir > 0 ? x + 6 : x - 10, y - 11, 5, 5);
+      // Red tongue
+      ctx.fillStyle = '#ff1744';
+      ctx.fillRect(e.dir > 0 ? x + 11 : x - 14, y - 9, 4, 2);
+    } else {
+      // Classic red/purple patrolling forest spirit
+      const bounce = (frameCount % 14 < 7) ? 0 : -2;
+      ctx.fillStyle = '#ff3366';
+      ctx.beginPath();
+      ctx.arc(x, y - 11 + bounce, 9, Math.PI, 0);
+      ctx.lineTo(x + 9, y + bounce);
+      ctx.lineTo(x - 9, y + bounce);
+      ctx.closePath();
+      ctx.fill();
+
+      // Eyes
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x - 5 + e.dir * 2, y - 13 + bounce, 3, 4);
+      ctx.fillRect(x + 2 + e.dir * 2, y - 13 + bounce, 3, 4);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(x - 4 + e.dir * 2, y - 12 + bounce, 2, 2);
+      ctx.fillRect(x + 3 + e.dir * 2, y - 12 + bounce, 2, 2);
+    }
+    ctx.restore();
+  }
+
+  function drawRaccoon(x, y, dir, animTick, isJumping, isOnLadder, isDying, scale = 1) {
+    ctx.save();
+    ctx.translate(x, y);
+    if (isDying) {
+      ctx.rotate(frameCount * 0.25);
+    }
+    ctx.scale(dir * scale, scale);
+
+    const stepOffset = (!isJumping && (animTick % 8 < 4)) ? 2 : 0;
+
+    // Striped Raccoon Tail (behind body)
+    ctx.fillStyle = '#d9822b';
+    ctx.fillRect(-16, -14, 9, 8);
+    ctx.fillStyle = '#3d1e05';
+    ctx.fillRect(-14, -14, 3, 8);
+    ctx.fillRect(-9, -14, 2, 8);
+
+    // Body
+    ctx.fillStyle = '#e08e36';
+    ctx.fillRect(-8, -18, 16, 13);
+    // Belly
+    ctx.fillStyle = '#ffe0b2';
+    ctx.fillRect(-4, -15, 9, 9);
+
+    // Head
+    ctx.fillStyle = '#e08e36';
+    ctx.fillRect(-9, -29, 18, 12);
+
+    // Ears
+    ctx.fillStyle = '#7a3e08';
+    ctx.fillRect(-8, -33, 5, 4);
+    ctx.fillRect(3, -33, 5, 4);
+
+    // Characteristic Dark Raccoon Eye Mask
+    ctx.fillStyle = '#2b1503';
+    ctx.fillRect(-6, -26, 14, 5);
+
+    // Bright Eyes
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(2, -25, 4, 3);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(4, -25, 2, 3);
+
+    // Nose/Snout
+    ctx.fillStyle = '#ffe0b2';
+    ctx.fillRect(6, -22, 5, 4);
+    ctx.fillStyle = '#111';
+    ctx.fillRect(9, -22, 2, 2);
+
+    // Legs & Feet
+    ctx.fillStyle = '#5c2c06';
+    if (isJumping) {
+      ctx.fillRect(-7, -6, 5, 4);
+      ctx.fillRect(3, -7, 5, 4);
+    } else if (isOnLadder) {
+      const climbShift = (animTick % 6 < 3) ? -2 : 2;
+      ctx.fillRect(-6, -5 + climbShift, 5, 5);
+      ctx.fillRect(2, -5 - climbShift, 5, 5);
+    } else {
+      ctx.fillRect(-6, -5, 5, 5 - stepOffset);
+      ctx.fillRect(2, -5, 5, 5 - (2 - stepOffset));
+    }
+
+    ctx.restore();
+  }
+
+  function drawHUD() {
+    // Top black header
+    ctx.fillStyle = '#05060a';
+    ctx.fillRect(0, 0, 640, 74);
+    ctx.strokeStyle = '#333b5c';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 74);
+    ctx.lineTo(640, 74);
+    ctx.stroke();
+
+    ctx.font = 'bold 16px "Courier New", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#ff3366';
+    ctx.fillText('1UP', 22, 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(String(score).padStart(6, '0'), 66, 24);
+
+    ctx.fillStyle = '#00f0ff';
+    ctx.fillText('HIGH', 175, 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(String(highScore).padStart(6, '0'), 228, 24);
+
+    ctx.fillStyle = '#ffd700';
+    ctx.fillText(`STAGE ${String(stageNum).padStart(2, '0')}`, 345, 24);
+
+    // Lives display (mini raccoons)
+    ctx.fillStyle = '#a5b4fc';
+    ctx.fillText('LIFE:', 475, 24);
+    for (let i = 0; i < lives; i++) {
+      drawRaccoon(545 + i * 26, 27, 1, 0, false, false, false, 0.58);
+    }
+
+    // BONUS timer gauge bar
+    ctx.fillStyle = '#ffaa00';
+    ctx.font = 'bold 14px "Courier New", monospace';
+    ctx.fillText('BONUS', 22, 54);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(String(bonusTimer).padStart(4, '0'), 78, 54);
+
+    // Bar frame
+    const barX = 135;
+    const barY = 42;
+    const barW = 360;
+    const barH = 14;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(barX, barY, barW, barH);
+
+    const ratio = Math.max(0, bonusTimer / maxBonusTimer);
+    ctx.fillStyle = ratio > 0.3 ? '#00e676' : '#ff1744';
+    ctx.fillRect(barX + 2, barY + 2, (barW - 4) * ratio, barH - 4);
+
+    // Baby Raccoon cheering on top right of HUD
+    drawRaccoon(605, 64, -1, Math.floor(frameCount / 6), false, false, false, 0.65);
+    ctx.fillStyle = '#ff99cc';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('아기너구리', 530, 54);
+  }
+
+  function render() {
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawHUD();
+
+    // Draw Ladders
+    for (const l of ladders) drawLadder(l);
+
+    // Draw Floor Brick Segments
+    for (const s of segments) drawBrickSegment(s);
+
+    // Draw Tacks
+    for (const t of tacks) drawTack(t);
+
+    // Draw Pots
+    for (const p of pots) drawPot(p);
+
+    // Draw Fruits
+    for (const f of fruits) drawFruit(f);
+
+    // Draw Enemies
+    for (const e of enemies) drawEnemy(e);
+
+    // Draw Player Raccoon
+    drawRaccoon(
+      player.x,
+      player.y,
+      player.dir,
+      player.animTick,
+      player.jumping,
+      player.onLadder,
+      state === 'DYING',
+      1
+    );
+
+    // Particles
+    for (const pt of particles) {
+      ctx.fillStyle = pt.color;
+      ctx.fillRect(pt.x - 2, pt.y - 2, 4, 4);
+    }
+
+    // Floating Score Popups
+    ctx.font = 'bold 14px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    for (const pop of popups) {
+      ctx.fillStyle = pop.color;
+      ctx.fillText(pop.text, pop.x, pop.y);
+    }
+
+    // Overlays for Title / Pause / Game Over / Stage Clear
+    if (state === 'TITLE') {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.78)';
+      ctx.fillRect(60, 125, 520, 270);
+      ctx.strokeStyle = '#ffaa00';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(60, 125, 520, 270);
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ffd700';
+      ctx.font = 'bold 34px "Malgun Gothic", monospace';
+      ctx.fillText('🦝 추억의 게임 너구리', 320, 185);
+
+      ctx.fillStyle = '#00f0ff';
+      ctx.font = 'bold 16px "Courier New", monospace';
+      ctx.fillText('PONPOKO (1982 RETRO ARCADE)', 320, 218);
+
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = '15px "Malgun Gothic", sans-serif';
+      ctx.fillText('압정과 뱀을 피해 스테이지의 모든 과일을 모으세요!', 320, 262);
+      ctx.fillText('방향키(←↑↓→)로 이동/사다리 타기, SPACE 키로 점프합니다.', 320, 290);
+
+      if (Math.floor(frameCount / 22) % 2 === 0) {
+        ctx.fillStyle = '#00e676';
+        ctx.font = 'bold 20px "Malgun Gothic", monospace';
+        ctx.fillText('[ SPACE 또는 JUMP 버튼을 눌러 시작! ]', 320, 350);
+      }
+    } else if (state === 'PAUSED') {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.fillRect(180, 200, 280, 100);
+      ctx.strokeStyle = '#00f0ff';
+      ctx.strokeRect(180, 200, 280, 100);
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 26px "Malgun Gothic", monospace';
+      ctx.fillText('일시정지 (PAUSED)', 320, 260);
+    } else if (state === 'GAME_OVER') {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.82)';
+      ctx.fillRect(120, 165, 400, 180);
+      ctx.strokeStyle = '#ff3355';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(120, 165, 400, 180);
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ff3355';
+      ctx.font = 'bold 34px "Courier New", monospace';
+      ctx.fillText('GAME OVER', 320, 225);
+
+      ctx.fillStyle = '#ffd700';
+      ctx.font = 'bold 18px "Malgun Gothic", monospace';
+      ctx.fillText(`최종 점수: ${score}점`, 320, 268);
+
+      if (Math.floor(frameCount / 22) % 2 === 0) {
+        ctx.fillStyle = '#00f0ff';
+        ctx.font = 'bold 16px "Malgun Gothic", monospace';
+        ctx.fillText('SPACE 또는 JUMP 버튼으로 다시 도전!', 320, 315);
+      }
+    }
+  }
+
+  function loop() {
+    update();
+    render();
+    requestAnimationFrame(loop);
+  }
+
+  // --- Input Handlers ---
+  function handleKey(code, isDown) {
+    if (code === 'ArrowLeft' || code === 'KeyA') keys.left = isDown;
+    if (code === 'ArrowRight' || code === 'KeyD') keys.right = isDown;
+    if (code === 'ArrowUp' || code === 'KeyW') keys.up = isDown;
+    if (code === 'ArrowDown' || code === 'KeyS') keys.down = isDown;
+    if (code === 'Space' || code === 'KeyZ' || code === 'Enter') {
+      if (isDown && !keys.jump) {
+        jumpJustPressed = true;
+      }
+      keys.jump = isDown;
+    }
+  }
+
+  window.addEventListener('keydown', e => {
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space'].includes(e.code)) {
+      e.preventDefault();
+    }
+    handleKey(e.code, true);
+  });
+
+  window.addEventListener('keyup', e => {
+    handleKey(e.code, false);
+  });
+
+  // Virtual Touch/Mouse Buttons
+  document.querySelectorAll('[data-key]').forEach(btn => {
+    const code = btn.getAttribute('data-key');
+    const press = e => {
+      e.preventDefault();
+      btn.classList.add('pressed');
+      handleKey(code, true);
+    };
+    const release = e => {
+      e.preventDefault();
+      btn.classList.remove('pressed');
+      handleKey(code, false);
+    };
+    btn.addEventListener('mousedown', press);
+    btn.addEventListener('mouseup', release);
+    btn.addEventListener('mouseleave', release);
+    btn.addEventListener('touchstart', press, { passive: false });
+    btn.addEventListener('touchend', release, { passive: false });
+  });
+
+  // Top Utility Buttons
+  const btnSound = document.getElementById('btnSound');
+  btnSound.addEventListener('click', () => {
+    sfx.enabled = !sfx.enabled;
+    btnSound.textContent = sfx.enabled ? '🔊 사운드 ON' : '🔇 사운드 OFF';
+    btnSound.classList.toggle('active', sfx.enabled);
+  });
+
+  const btnPause = document.getElementById('btnPause');
+  btnPause.addEventListener('click', () => {
+    if (state === 'PLAYING') {
+      state = 'PAUSED';
+      btnPause.textContent = '▶ 계속하기';
+    } else if (state === 'PAUSED') {
+      state = 'PLAYING';
+      btnPause.textContent = '⏸ 일시정지';
+    }
+  });
+
+  const btnRestart = document.getElementById('btnRestart');
+  btnRestart.addEventListener('click', () => {
+    btnPause.textContent = '⏸ 일시정지';
+    startNewGame();
+  });
+
+  // Click on canvas to start when on TITLE or GAME_OVER
+  canvas.addEventListener('click', () => {
+    if (state === 'TITLE' || state === 'GAME_OVER') {
+      startNewGame();
+    }
+  });
+
+  // Initialize Stage 1 preview on Title screen
+  cloneStage(1);
+  resetPlayerPosition();
+  requestAnimationFrame(loop);
+})();
+</script>
 </body>
 </html>
+ponpoko_game.html
+ponpoko_game.html 항목을 표시하는 중입니다.
