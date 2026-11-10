@@ -30,6 +30,7 @@ body{
   margin:0;background:var(--bg);color:var(--text);
   font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
   font-size:15px;line-height:1.6;letter-spacing:-.01em;
+  word-break:keep-all;
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
 }
@@ -85,7 +86,7 @@ h1 .grad{
   -webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 0 28px rgba(139,92,246,.35));
 }
-.lede{margin:0 0 26px;max-width:580px;color:#b9b9c9;font-size:clamp(14px,1.7vw,16px);line-height:1.75}
+.lede{margin:0 0 26px;max-width:580px;color:#b9b9c9;font-size:clamp(14px,1.7vw,16px);line-height:1.75;overflow-wrap:break-word}
 .lede b{color:#fff;font-weight:700}
 
 .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:34px}
@@ -291,7 +292,7 @@ main{padding:8px 0 90px}
 }
 .desc{
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-  overflow:hidden;margin-top:3px;
+  overflow:hidden;margin-top:3px;overflow-wrap:break-word;
   font-size:11.8px;line-height:1.5;color:#9292a6;
 }
 .meta{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:10.5px;color:#7b7b90;font-family:'Orbitron','Noto Sans KR',sans-serif;letter-spacing:.02em}
@@ -433,15 +434,15 @@ footer .brand{
         <div role="listitem"><b>34</b><span>Games</span></div>
         <div role="listitem"><b>54</b><span>Commits</span></div>
         <div role="listitem"><b>4</b><span>Categories</span></div>
-        <div role="listitem"><b>2026.07</b><span>Since</span></div>
+        <div role="listitem"><b>2026</b><span>Since</span></div>
       </div>
     </div>
   </header>
 
   <div class="ticker" aria-hidden="true">
     <div class="ticker-track">
-      <span class="ticker-seq">🎡 라스베이거스 룰렛 <span class="tk-dot">◆</span> 🃏 그랜드 로얄 VIP 홀덤 <span class="tk-dot">◆</span> ♠️ 텍사스 홀덤 4인 <span class="tk-dot">◆</span> ♦️ 텍사스 홀덤 1:1 헤즈업 <span class="tk-dot">◆</span> 🎩 텍사스 홀덤 v17 <span class="tk-dot">◆</span> 🀄 MUD 바카라: 가변 배팅 <span class="tk-dot">◆</span> 🎰 네온 잭팟 슬롯 <span class="tk-dot">◆</span> 🥇 마카오 골드 슬롯 Pro <span class="tk-dot">◆</span> 👾 LUCKY 8-BIT SLOT <span class="tk-dot">◆</span> 🔥 Ultra Fever 777 <span class="tk-dot">◆</span> 🎟️ 즉석 복권 시뮬레이터 <span class="tk-dot">◆</span> 🍀 슈퍼 로또 6/45 <span class="tk-dot">◆</span> 🎯 슈퍼 로또 1/814 부스트 <span class="tk-dot">◆</span> 🦝 너구리 PONPOKO 1982 <span class="tk-dot">◆</span> 🐾 아르곤 너구리 2 <span class="tk-dot">◆</span> 🕹️ 원버튼 너구리 <span class="tk-dot">◆</span> 🏃 너구리 달리기 &amp; 점프 <span class="tk-dot">◆</span> 🛸 갤러그 1981 <span class="tk-dot">◆</span> 👽 갤럭시안 <span class="tk-dot">◆</span> 🧱 알카노이드 <span class="tk-dot">◆</span> 🔫 던전 슬레이어 FPS <span class="tk-dot">◆</span> 🚀 스타 커맨더 3D <span class="tk-dot">◆</span> 🏰 포트리스 2 블루 <span class="tk-dot">◆</span> 🗡️ MUD 텍스트 던전 v2.0 <span class="tk-dot">◆</span> 🛠️ MUD 대장간 마스터 v3.5 <span class="tk-dot">◆</span> 💸 MUD 대장간: 자본주의의 노예 <span class="tk-dot">◆</span> ⚔️ MUD: 끝없는 굴레와 상성 <span class="tk-dot">◆</span> ✨ 가챠: 영웅 소환 <span class="tk-dot">◆</span> 🔮 가챠 RPG: 어둠의 소환사 <span class="tk-dot">◆</span> 🌟 스타 카드 마스터 <span class="tk-dot">◆</span> 🐉 삼국지: 군웅할거 <span class="tk-dot">◆</span> 🔮 만세력 계산기 <span class="tk-dot">◆</span> 💻 HACK_MAN 해커 행맨 <span class="tk-dot">◆</span> 🔢 동적 카운터 <span class="tk-dot">◆</span>  </span>
-      <span class="ticker-seq">🎡 라스베이거스 룰렛 <span class="tk-dot">◆</span> 🃏 그랜드 로얄 VIP 홀덤 <span class="tk-dot">◆</span> ♠️ 텍사스 홀덤 4인 <span class="tk-dot">◆</span> ♦️ 텍사스 홀덤 1:1 헤즈업 <span class="tk-dot">◆</span> 🎩 텍사스 홀덤 v17 <span class="tk-dot">◆</span> 🀄 MUD 바카라: 가변 배팅 <span class="tk-dot">◆</span> 🎰 네온 잭팟 슬롯 <span class="tk-dot">◆</span> 🥇 마카오 골드 슬롯 Pro <span class="tk-dot">◆</span> 👾 LUCKY 8-BIT SLOT <span class="tk-dot">◆</span> 🔥 Ultra Fever 777 <span class="tk-dot">◆</span> 🎟️ 즉석 복권 시뮬레이터 <span class="tk-dot">◆</span> 🍀 슈퍼 로또 6/45 <span class="tk-dot">◆</span> 🎯 슈퍼 로또 1/814 부스트 <span class="tk-dot">◆</span> 🦝 너구리 PONPOKO 1982 <span class="tk-dot">◆</span> 🐾 아르곤 너구리 2 <span class="tk-dot">◆</span> 🕹️ 원버튼 너구리 <span class="tk-dot">◆</span> 🏃 너구리 달리기 &amp; 점프 <span class="tk-dot">◆</span> 🛸 갤러그 1981 <span class="tk-dot">◆</span> 👽 갤럭시안 <span class="tk-dot">◆</span> 🧱 알카노이드 <span class="tk-dot">◆</span> 🔫 던전 슬레이어 FPS <span class="tk-dot">◆</span> 🚀 스타 커맨더 3D <span class="tk-dot">◆</span> 🏰 포트리스 2 블루 <span class="tk-dot">◆</span> 🗡️ MUD 텍스트 던전 v2.0 <span class="tk-dot">◆</span> 🛠️ MUD 대장간 마스터 v3.5 <span class="tk-dot">◆</span> 💸 MUD 대장간: 자본주의의 노예 <span class="tk-dot">◆</span> ⚔️ MUD: 끝없는 굴레와 상성 <span class="tk-dot">◆</span> ✨ 가챠: 영웅 소환 <span class="tk-dot">◆</span> 🔮 가챠 RPG: 어둠의 소환사 <span class="tk-dot">◆</span> 🌟 스타 카드 마스터 <span class="tk-dot">◆</span> 🐉 삼국지: 군웅할거 <span class="tk-dot">◆</span> 🔮 만세력 계산기 <span class="tk-dot">◆</span> 💻 HACK_MAN 해커 행맨 <span class="tk-dot">◆</span> 🔢 동적 카운터 <span class="tk-dot">◆</span>  </span>
+      <span class="ticker-seq">🎡 라스베이거스 룰렛 <span class="tk-dot">◆</span> 🃏 그랜드 로얄 VIP 홀덤 <span class="tk-dot">◆</span> ♠️ 텍사스 홀덤 4인 <span class="tk-dot">◆</span> ♦️ 텍사스 홀덤 1:1 헤즈업 <span class="tk-dot">◆</span> 🎩 텍사스 홀덤 v17 <span class="tk-dot">◆</span> 🀄 MUD 바카라: 가변 배팅 <span class="tk-dot">◆</span> 🎰 네온 잭팟 슬롯 <span class="tk-dot">◆</span> 🥇 마카오 골드 슬롯 Pro <span class="tk-dot">◆</span> 👾 LUCKY 8-BIT SLOT <span class="tk-dot">◆</span> 🔥 Ultra Fever 777 <span class="tk-dot">◆</span> 🎟️ 즉석 복권 시뮬레이터 <span class="tk-dot">◆</span> 🍀 슈퍼 로또 6/45 <span class="tk-dot">◆</span> 🎯 슈퍼 로또 1/814 부스트 <span class="tk-dot">◆</span> 🦝 너구리 PONPOKO 1982 <span class="tk-dot">◆</span> 🐾 아르곤 너구리 2 <span class="tk-dot">◆</span> 🕹️ 원버튼 너구리 <span class="tk-dot">◆</span> 🏃 너구리 달리기 &amp; 점프 <span class="tk-dot">◆</span> 🛸 갤러그 1981 <span class="tk-dot">◆</span> 👽 갤럭시안 <span class="tk-dot">◆</span> 🧱 알카노이드 <span class="tk-dot">◆</span> 🔫 던전 슬레이어 FPS <span class="tk-dot">◆</span> 🚀 스타 커맨더 3D <span class="tk-dot">◆</span> 🏰 포트리스 2 블루 <span class="tk-dot">◆</span> 🗡️ MUD 텍스트 던전 v2.0 <span class="tk-dot">◆</span> 🛠️ MUD 대장간 마스터 v3.5 <span class="tk-dot">◆</span> 💸 MUD 대장간: 자본주의의 노예 <span class="tk-dot">◆</span> 🌀 MUD: 끝없는 굴레와 상성 <span class="tk-dot">◆</span> ✨ 가챠: 영웅 소환 <span class="tk-dot">◆</span> 🔮 가챠 RPG: 어둠의 소환사 <span class="tk-dot">◆</span> 🌟 스타 카드 마스터 <span class="tk-dot">◆</span> 🐉 삼국지: 군웅할거 <span class="tk-dot">◆</span> 🔮 만세력 계산기 <span class="tk-dot">◆</span> 💻 HACK_MAN 해커 행맨 <span class="tk-dot">◆</span> 🔢 동적 카운터 <span class="tk-dot">◆</span>  </span>
+      <span class="ticker-seq">🎡 라스베이거스 룰렛 <span class="tk-dot">◆</span> 🃏 그랜드 로얄 VIP 홀덤 <span class="tk-dot">◆</span> ♠️ 텍사스 홀덤 4인 <span class="tk-dot">◆</span> ♦️ 텍사스 홀덤 1:1 헤즈업 <span class="tk-dot">◆</span> 🎩 텍사스 홀덤 v17 <span class="tk-dot">◆</span> 🀄 MUD 바카라: 가변 배팅 <span class="tk-dot">◆</span> 🎰 네온 잭팟 슬롯 <span class="tk-dot">◆</span> 🥇 마카오 골드 슬롯 Pro <span class="tk-dot">◆</span> 👾 LUCKY 8-BIT SLOT <span class="tk-dot">◆</span> 🔥 Ultra Fever 777 <span class="tk-dot">◆</span> 🎟️ 즉석 복권 시뮬레이터 <span class="tk-dot">◆</span> 🍀 슈퍼 로또 6/45 <span class="tk-dot">◆</span> 🎯 슈퍼 로또 1/814 부스트 <span class="tk-dot">◆</span> 🦝 너구리 PONPOKO 1982 <span class="tk-dot">◆</span> 🐾 아르곤 너구리 2 <span class="tk-dot">◆</span> 🕹️ 원버튼 너구리 <span class="tk-dot">◆</span> 🏃 너구리 달리기 &amp; 점프 <span class="tk-dot">◆</span> 🛸 갤러그 1981 <span class="tk-dot">◆</span> 👽 갤럭시안 <span class="tk-dot">◆</span> 🧱 알카노이드 <span class="tk-dot">◆</span> 🔫 던전 슬레이어 FPS <span class="tk-dot">◆</span> 🚀 스타 커맨더 3D <span class="tk-dot">◆</span> 🏰 포트리스 2 블루 <span class="tk-dot">◆</span> 🗡️ MUD 텍스트 던전 v2.0 <span class="tk-dot">◆</span> 🛠️ MUD 대장간 마스터 v3.5 <span class="tk-dot">◆</span> 💸 MUD 대장간: 자본주의의 노예 <span class="tk-dot">◆</span> 🌀 MUD: 끝없는 굴레와 상성 <span class="tk-dot">◆</span> ✨ 가챠: 영웅 소환 <span class="tk-dot">◆</span> 🔮 가챠 RPG: 어둠의 소환사 <span class="tk-dot">◆</span> 🌟 스타 카드 마스터 <span class="tk-dot">◆</span> 🐉 삼국지: 군웅할거 <span class="tk-dot">◆</span> 🔮 만세력 계산기 <span class="tk-dot">◆</span> 💻 HACK_MAN 해커 행맨 <span class="tk-dot">◆</span> 🔢 동적 카운터 <span class="tk-dot">◆</span>  </span>
     </div>
   </div>
 
@@ -451,7 +452,7 @@ footer .brand{
           <button class="chip is-active" data-cat="all" type="button" aria-pressed="true">전체<span class="chip-n">34</span></button>
           <button class="chip" data-cat="casino" type="button" aria-pressed="false">🎰 카지노 &amp; 보드<span class="chip-n">13</span></button>
           <button class="chip" data-cat="arcade" type="button" aria-pressed="false">🕹️ 레트로 아케이드<span class="chip-n">10</span></button>
-          <button class="chip" data-cat="rpg" type="button" aria-pressed="false">⚔️ MUD &amp; 텍스트 RPG<span class="chip-n">8</span></button>
+          <button class="chip" data-cat="rpg" type="button" aria-pressed="false">🧙 MUD &amp; 텍스트 RPG<span class="chip-n">8</span></button>
           <button class="chip" data-cat="etc" type="button" aria-pressed="false">🔮 유틸 &amp; 기타<span class="chip-n">3</span></button>
       </div>
       <div class="search">
@@ -734,7 +735,7 @@ footer .brand{
       </section>
       <section class="cat" data-cat="rpg" aria-labelledby="h-rpg">
         <div class="cat-head">
-          <div class="cat-title"><span class="cat-emoji" aria-hidden="true">⚔️</span><h2 id="h-rpg">MUD &amp; 텍스트 RPG</h2><span class="cat-count">8</span></div>
+          <div class="cat-title"><span class="cat-emoji" aria-hidden="true">🧙</span><h2 id="h-rpg">MUD &amp; 텍스트 RPG</h2><span class="cat-count">8</span></div>
           <p class="cat-desc">던전 탐험 · 대장간 · 가챠 · 삼국지</p>
         </div>
         <div class="grid">
@@ -772,7 +773,7 @@ footer .brand{
           <span class="chev" aria-hidden="true">›</span>
         </a>
         <a class="card" href="games/27-elemental-mud-rpg.html" data-cat="rpg" data-key="mud: 끝없는 굴레와 상성 3속성 상성 대결과 무한 성장. 새 무기를 고르며 끝없이 파밍한다. mud rpg 가위바위보 성장 mud" aria-label="MUD: 끝없는 굴레와 상성 플레이하기">
-          <span class="thumb" aria-hidden="true"><span class="emoji">⚔️</span><span class="thumb-grid"></span></span>
+          <span class="thumb" aria-hidden="true"><span class="emoji">🌀</span><span class="thumb-grid"></span></span>
           <span class="body">
             <span class="card-head"><span class="series">MUD</span></span>
             <span class="title">MUD: 끝없는 굴레와 상성</span>
