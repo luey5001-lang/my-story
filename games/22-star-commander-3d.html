@@ -752,11 +752,12 @@
 
 <!-- arcade gallery back link -->
 <style>
-#arcade-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 6px);left:6px;z-index:2147483647;display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 8px;border-radius:999px;background:rgba(8,8,12,.55);border:1px solid rgba(255,255,255,.2);color:#fff !important;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif !important;text-decoration:none !important;letter-spacing:.01em;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 3px 12px rgba(0,0,0,.35);opacity:.6;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
-#arcade-back:hover,#arcade-back:focus-visible,#arcade-back:active{opacity:1;transform:translateY(-1px)}
+#arcade-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 6px);left:6px;z-index:2147483647;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:32px;padding:0 11px 0 9px;border-radius:999px;background:rgba(8,8,12,.6);border:1px solid rgba(255,255,255,.22);color:#fff !important;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif !important;text-decoration:none !important;letter-spacing:.01em;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 3px 12px rgba(0,0,0,.35);opacity:.66;transition:opacity .2s,transform .2s,background .2s;-webkit-tap-highlight-color:transparent}
+#arcade-back:hover,#arcade-back:focus-visible,#arcade-back:active{opacity:1;transform:translateY(-1px);background:rgba(8,8,12,.85)}
+@media (max-width:600px){#arcade-back{width:34px;height:34px;padding:0;font-size:15px;opacity:.72}#arcade-back .lbl{display:none}}
 @media print{#arcade-back{display:none}}
 </style>
-<a id="arcade-back" href="../index.html" aria-label="미니게임 갤러리로 돌아가기">‹ 갤러리</a>
+<a id="arcade-back" href="../index.html" aria-label="미니게임 갤러리로 돌아가기" title="미니게임 갤러리로 돌아가기">←<span class="lbl">갤러리</span></a>
 
 </body>
 </html>
