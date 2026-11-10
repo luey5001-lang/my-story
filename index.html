@@ -285,8 +285,9 @@ main{padding:8px 0 90px}
   box-shadow:0 0 12px rgba(255,95,162,.55);
 }
 .title{
-  display:block;font-size:15px;font-weight:800;line-height:1.32;letter-spacing:-.015em;color:#fff;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  font-size:15px;font-weight:800;line-height:1.32;letter-spacing:-.015em;color:#fff;
+  overflow:hidden;
 }
 .desc{
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
@@ -339,6 +340,8 @@ footer .brand{
   .search{order:2;flex:1 1 100%}
   .search .kbd{display:none}
   .inner{padding:0 16px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats div{padding:12px 14px}
 }
 @media (min-width:960px){
   .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
@@ -357,7 +360,7 @@ footer .brand{
   .thumb-grid{background-size:16px 16px;opacity:.45}
   .emoji{font-size:50px;filter:drop-shadow(0 10px 22px rgba(0,0,0,.55))}
   .body{padding:15px 16px 17px}
-  .title{font-size:16.5px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:0}
+  .title{font-size:16.5px;min-height:2.64em}
   .desc{font-size:12.2px;min-height:37px}
   .meta{font-size:10px}
   .meta .tag{display:inline-block}
@@ -420,7 +423,7 @@ footer .brand{
         <div role="listitem"><b>34</b><span>Games</span></div>
         <div role="listitem"><b>54</b><span>Commits</span></div>
         <div role="listitem"><b>4</b><span>Categories</span></div>
-        <div role="listitem"><b>2026.07.08</b><span>Since</span></div>
+        <div role="listitem"><b>{{FIRST_SHORT}}</b><span>Since</span></div>
       </div>
     </div>
   </header>
