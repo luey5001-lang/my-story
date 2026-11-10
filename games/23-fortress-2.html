@@ -1,0 +1,2371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>포트리스 2 블루 - 웹 아케이드 에디션</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@500;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .font-title {
+            font-family: 'Black Han Sans', sans-serif;
+        }
+        .font-digital {
+            font-family: 'Orbitron', monospace;
+        }
+        /* Retro Metallic Dashboard Styling */
+        .fortress-panel {
+            background: linear-gradient(180deg, #3b4d6b 0%, #1e293b 50%, #0f172a 100%);
+            border-top: 3px solid #94a3b8;
+            border-bottom: 4px solid #020617;
+            border-left: 3px solid #64748b;
+            border-right: 3px solid #0f172a;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.25), 0 8px 25px rgba(0,0,0,0.8);
+        }
+        .inset-panel {
+            background: linear-gradient(180deg, #090d16 0%, #151e2e 100%);
+            border-top: 2px solid #020617;
+            border-left: 2px solid #020617;
+            border-right: 2px solid #334155;
+            border-bottom: 2px solid #475569;
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.9);
+        }
+        .gauge-bar-bg {
+            background: repeating-linear-gradient(
+                90deg,
+                rgba(255,255,255,0.06) 0px,
+                rgba(255,255,255,0.06) 8px,
+                transparent 8px,
+                transparent 16px
+            ), #090d16;
+        }
+        .arcade-btn {
+            background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
+            border: 2px solid #94a3b8;
+            border-bottom-color: #0f172a;
+            border-right-color: #0f172a;
+            transition: all 0.1s ease;
+        }
+        .arcade-btn:hover:not(:disabled) {
+            filter: brightness(1.18);
+            transform: translateY(-1px);
+        }
+        .arcade-btn:active:not(:disabled) {
+            transform: translateY(1px);
+            border-top-color: #0f172a;
+            border-left-color: #0f172a;
+        }
+        .arcade-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .item-slot {
+            background: linear-gradient(135deg, #1e293b 0%, #090d16 100%);
+            border: 2px solid #475569;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
+            transition: all 0.15s ease;
+        }
+        .item-slot:hover:not(.used) {
+            border-color: #facc15;
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.4), inset 0 2px 5px rgba(0,0,0,0.8);
+            transform: scale(1.04);
+        }
+        .item-slot.active-item {
+            border-color: #22c55e;
+            box-shadow: 0 0 14px rgba(34, 197, 94, 0.7), inset 0 0 8px rgba(34, 197, 94, 0.4);
+            animation: pulse-border 1s infinite alternate;
+        }
+        .item-slot.used {
+            opacity: 0.25;
+            filter: grayscale(1);
+            cursor: default;
+        }
+        @keyframes pulse-border {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.06); }
+        }
+        .tank-card {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid #334155;
+            transition: all 0.2s;
+        }
+        .tank-card:hover {
+            border-color: #60a5fa;
+            transform: translateY(-2px);
+        }
+        .tank-card.selected {
+            border-color: #facc15;
+            background: linear-gradient(180deg, #312e81 0%, #0f172a 100%);
+            box-shadow: 0 0 18px rgba(250, 204, 21, 0.35);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    </style>
+</head>
+<body class="w-full h-screen select-none p-1 sm:p-3">
+
+    <div id="game-wrapper" class="relative w-full max-w-[1150px] h-full max-h-[820px] flex flex-col rounded-xl overflow-hidden shadow-2xl border-2 border-slate-600 bg-slate-950">
+
+        <!-- TOP HUD BAR -->
+        <div class="h-12 sm:h-14 fortress-panel px-3 flex items-center justify-between z-20 shrink-0">
+            <!-- Left: Title & Mode Info -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1 rounded border border-slate-600">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-400 animate-ping"></span>
+                    <span class="font-title text-base sm:text-xl tracking-wider bg-gradient-to-r from-yellow-300 via-amber-400 to-orange-400 bg-clip-text text-transparent">FORTRESS 2</span>
+                </div>
+                <span id="hud-mode-badge" class="text-xs sm:text-sm font-bold px-2 py-0.5 rounded bg-blue-900/80 text-blue-200 border border-blue-500/40">
+                    1P vs AI
+                </span>
+                <span id="turn-badge" class="hidden sm:inline-block text-xs font-bold px-2.5 py-0.5 rounded bg-emerald-900/80 text-emerald-300 border border-emerald-500/40">
+                    TURN 1
+                </span>
+            </div>
+
+            <!-- Center: Turn Owner & Digital Turn Timer -->
+            <div class="flex items-center gap-3">
+                <div id="active-player-banner" class="px-3 py-1 rounded inset-panel text-xs sm:text-sm font-bold text-yellow-300 flex items-center gap-2">
+                    <span id="active-player-dot" class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                    <span id="active-player-text">PLAYER 1 턴</span>
+                </div>
+                <div class="inset-panel px-3 py-0.5 rounded flex items-center gap-1.5 border border-slate-700">
+                    <span class="text-[10px] text-slate-400 font-bold">TIME</span>
+                    <span id="turn-timer-display" class="font-digital text-lg sm:text-2xl font-black text-amber-400 tracking-wider w-8 text-center">20</span>
+                </div>
+            </div>
+
+            <!-- Right: Controls & Sound Toggle -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <button id="btn-sound" onclick="toggleSound()" class="arcade-btn px-2.5 py-1 rounded text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1" title="사운드 켜기/끄기">
+                    <span id="sound-icon">🔊</span>
+                    <span class="hidden md:inline">효과음</span>
+                </button>
+                <button onclick="openSetupModal()" class="arcade-btn px-2.5 py-1 rounded text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-1">
+                    <span>⚙️</span>
+                    <span class="hidden sm:inline">모드/탱크 변경</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN GAME CANVAS CONTAINER -->
+        <div id="canvas-container" class="relative flex-1 w-full bg-slate-900 overflow-hidden">
+            <canvas id="gameCanvas" class="w-full h-full block"></canvas>
+
+            <!-- Floating Top-Center Wind Indicator -->
+            <div class="absolute top-3 left-1/2 -translate-x-1/2 fortress-panel px-4 py-1.5 rounded-full flex items-center gap-3 pointer-events-none shadow-lg border border-slate-500/80">
+                <span class="text-[11px] font-bold text-sky-300 tracking-wider">WIND</span>
+                <div class="w-28 sm:w-36 h-3.5 inset-panel rounded-full relative overflow-hidden flex items-center">
+                    <!-- Center Marker -->
+                    <div class="w-[2px] h-full bg-white/60 absolute left-1/2 -translate-x-1/2 z-10"></div>
+                    <!-- Left / Right Wind Fill -->
+                    <div id="wind-bar-left" class="h-full bg-gradient-to-l from-cyan-400 to-blue-600 absolute right-1/2 top-0 transition-all duration-300" style="width: 0%;"></div>
+                    <div id="wind-bar-right" class="h-full bg-gradient-to-r from-cyan-400 to-rose-500 absolute left-1/2 top-0 transition-all duration-300" style="width: 0%;"></div>
+                </div>
+                <span id="wind-value-text" class="font-digital text-xs sm:text-sm font-bold text-yellow-300 w-12 text-right">0</span>
+            </div>
+
+            <!-- Floating Controls Help Pill (Top Left) -->
+            <div class="hidden lg:flex flex-col gap-1 absolute top-3 left-3 bg-slate-950/75 backdrop-blur-sm border border-slate-700/80 rounded-lg px-3 py-2 text-[11px] text-slate-300 pointer-events-none">
+                <div class="font-bold text-amber-400 mb-0.5">조작 가이드</div>
+                <div><kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-white">←</kbd> <kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-white">→</kbd> 지형 이동 (Move 소모)</div>
+                <div><kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-white">↑</kbd> <kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-white">↓</kbd> 포신 각도 조절</div>
+                <div><kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-600 text-yellow-300">Space</kbd> 누르고 있다가 떼서 발사</div>
+                <div><kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-cyan-300">Tab</kbd> 기본탄 / 특수탄 전환 | <kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-600 text-emerald-300">1~4</kbd> 아이템</div>
+            </div>
+
+            <!-- Mobile / Touch On-Screen Controls Overlay -->
+            <div class="flex sm:hidden justify-between items-end absolute bottom-2 left-2 right-2 pointer-events-none">
+                <div class="grid grid-cols-3 gap-1 pointer-events-auto bg-slate-900/80 p-1.5 rounded-lg border border-slate-700">
+                    <div></div>
+                    <button id="touch-up" class="arcade-btn w-9 h-9 rounded flex items-center justify-center font-bold text-sm">▲</button>
+                    <div></div>
+                    <button id="touch-left" class="arcade-btn w-9 h-9 rounded flex items-center justify-center font-bold text-sm">◀</button>
+                    <button id="touch-down" class="arcade-btn w-9 h-9 rounded flex items-center justify-center font-bold text-sm">▼</button>
+                    <button id="touch-right" class="arcade-btn w-9 h-9 rounded flex items-center justify-center font-bold text-sm">▶</button>
+                </div>
+                <button id="touch-fire" class="pointer-events-auto arcade-btn px-5 py-3 rounded-xl font-title text-base bg-gradient-to-b from-red-500 to-red-800 border-red-300 text-white shadow-lg active:scale-95">
+                    HOLD FIRE
+                </button>
+            </div>
+
+            <!-- Big Center Turn / Event Toast Banner -->
+            <div id="center-toast" class="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 z-10">
+                <div id="center-toast-box" class="px-8 py-3 rounded-2xl bg-slate-950/90 border-2 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.5)] text-center transform scale-95 transition-transform duration-300">
+                    <div id="center-toast-sub" class="text-xs font-bold text-sky-400 tracking-widest uppercase">FORTRESS TURN</div>
+                    <div id="center-toast-main" class="font-title text-2xl sm:text-4xl text-yellow-300 tracking-wide mt-0.5">PLAYER 1 차례!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CLASSIC FORTRESS 2 BOTTOM DASHBOARD -->
+        <div class="h-44 sm:h-48 fortress-panel p-2 sm:p-3 grid grid-cols-12 gap-2 sm:gap-3 shrink-0 z-20">
+
+            <!-- 1. Left Section: Angle Protractor & Tank Weapon Info (4 Cols) -->
+            <div class="col-span-5 sm:col-span-4 flex gap-2 items-center inset-panel p-2 rounded-lg">
+                <!-- Angle Gauge Canvas -->
+                <div class="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 flex items-center justify-center bg-slate-950 rounded-full border-2 border-slate-700 shadow-inner">
+                    <canvas id="angleGaugeCanvas" width="112" height="112" class="w-full h-full"></canvas>
+                    <div class="absolute bottom-1 inset-x-0 text-center pointer-events-none">
+                        <span id="angle-text-display" class="font-digital text-[11px] sm:text-xs font-bold text-emerald-400 bg-slate-950/90 px-1.5 rounded border border-emerald-500/30">45°</span>
+                    </div>
+                </div>
+
+                <!-- Tank Portrait & Weapon Type Selector -->
+                <div class="flex flex-col justify-between h-full flex-1 min-w-0 py-0.5">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span id="dash-player-name" class="text-xs font-black text-sky-400 truncate">PLAYER 1</span>
+                            <span id="dash-slope-text" class="text-[10px] font-digital text-slate-400">경사 0°</span>
+                        </div>
+                        <div id="dash-tank-name" class="font-title text-sm sm:text-base text-white truncate">캐논 (Cannon)</div>
+                    </div>
+
+                    <!-- Weapon W1 / W2 Toggle Button -->
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[10px] text-slate-400 font-bold">무기 선택 (Tab)</span>
+                        <div class="grid grid-cols-2 gap-1">
+                            <button id="btn-w1" onclick="selectWeapon(1)" class="px-1.5 py-1 rounded text-[11px] font-bold border border-yellow-400 bg-amber-600/40 text-yellow-200 truncate">
+                                1. 기본탄
+                            </button>
+                            <button id="btn-w2" onclick="selectWeapon(2)" class="px-1.5 py-1 rounded text-[11px] font-bold border border-slate-700 bg-slate-800/80 text-slate-300 truncate">
+                                2. 특수탄
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Center Section: HP, Move Gauge, Power Charging Bar (5 Cols) -->
+            <div class="col-span-7 sm:col-span-5 inset-panel p-2.5 rounded-lg flex flex-col justify-between">
+                <!-- HP Bar -->
+                <div class="flex items-center gap-2">
+                    <span class="w-12 text-[11px] font-black text-emerald-400 tracking-wider shrink-0">HP</span>
+                    <div class="flex-1 h-4 sm:h-5 gauge-bar-bg rounded border border-slate-700 relative overflow-hidden p-0.5">
+                        <div id="hp-bar-fill" class="h-full bg-gradient-to-r from-emerald-600 via-green-500 to-lime-400 rounded-sm transition-all duration-200" style="width: 100%;"></div>
+                        <span id="hp-bar-text" class="absolute inset-0 flex items-center justify-center font-digital text-[10px] sm:text-xs font-bold text-white drop-shadow">1000 / 1000</span>
+                    </div>
+                </div>
+
+                <!-- MOVE Bar -->
+                <div class="flex items-center gap-2">
+                    <span class="w-12 text-[11px] font-black text-sky-400 tracking-wider shrink-0">MOVE</span>
+                    <div class="flex-1 h-3.5 sm:h-4 gauge-bar-bg rounded border border-slate-700 relative overflow-hidden p-0.5">
+                        <div id="move-bar-fill" class="h-full bg-gradient-to-r from-blue-600 via-sky-500 to-cyan-300 rounded-sm transition-all duration-75" style="width: 100%;"></div>
+                        <span id="move-bar-text" class="absolute inset-0 flex items-center justify-center font-digital text-[10px] font-bold text-white drop-shadow">100%</span>
+                    </div>
+                </div>
+
+                <!-- POWER Bar (With Previous Shot Memory Marker) -->
+                <div class="flex flex-col gap-1">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] font-black text-rose-400 tracking-wider flex items-center gap-1">
+                            <span>POWER</span>
+                            <span class="text-[10px] text-slate-400 font-normal hidden md:inline">(Space 누르기)</span>
+                        </span>
+                        <span id="power-num-text" class="font-digital text-xs font-bold text-amber-300">0 / 100</span>
+                    </div>
+                    <div class="w-full h-6 sm:h-7 gauge-bar-bg rounded border-2 border-slate-600 relative overflow-visible p-0.5">
+                        <!-- Current Power Fill -->
+                        <div id="power-bar-fill" class="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 rounded-sm" style="width: 0%;"></div>
+
+                        <!-- 25%, 50%, 75% Ruler Notches -->
+                        <div class="absolute inset-y-0 left-1/4 w-[1px] bg-white/25 pointer-events-none"></div>
+                        <div class="absolute inset-y-0 left-1/2 w-[1px] bg-white/40 pointer-events-none"></div>
+                        <div class="absolute inset-y-0 left-3/4 w-[1px] bg-white/25 pointer-events-none"></div>
+
+                        <!-- Previous Shot Memory Marker (Triangle + Vertical Line) -->
+                        <div id="last-power-marker" class="hidden absolute top-0 bottom-0 w-[2px] bg-cyan-300 z-20 pointer-events-none shadow-[0_0_6px_#22d3ee]" style="left: 50%;">
+                            <div class="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[7px] border-t-cyan-300 -translate-x-[4px] -translate-y-[6px]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Right Section: Item Slots & Pass Turn (3 Cols on desktop, full row or compact on mobile) -->
+            <div class="col-span-12 sm:col-span-3 inset-panel p-2 rounded-lg flex sm:flex-col justify-between items-center gap-2">
+                <div class="w-full flex items-center justify-between px-1 hidden sm:flex">
+                    <span class="text-[11px] font-black text-amber-400 tracking-wider">ITEM SLOTS (1~4)</span>
+                    <span id="active-item-label" class="text-[10px] text-emerald-400 font-bold truncate">대기 중</span>
+                </div>
+
+                <!-- 4 Item Slots -->
+                <div id="item-slots-container" class="grid grid-cols-4 gap-1.5 w-full flex-1 items-center">
+                    <!-- Dynamically populated by JS -->
+                </div>
+
+                <!-- Pass Turn / Wind Guide -->
+                <div class="flex sm:w-full gap-1.5 shrink-0">
+                    <button onclick="skipCurrentTurn()" id="btn-pass-turn" class="arcade-btn w-full py-1 px-2 rounded text-xs font-bold text-slate-200 flex items-center justify-center gap-1">
+                        <span>⏭️</span>
+                        <span>턴 넘기기 (F8)</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TANK & MODE SELECTION MODAL -->
+        <div id="setup-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div class="fortress-panel w-full max-w-2xl rounded-2xl p-5 sm:p-6 border-2 border-slate-500 shadow-2xl flex flex-col gap-5 max-h-[92vh] overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+                    <div>
+                        <h1 class="font-title text-2xl sm:text-3xl bg-gradient-to-r from-yellow-300 via-amber-400 to-orange-500 bg-clip-text text-transparent">
+                            포트리스 2 블루 - 대기실
+                        </h1>
+                        <p class="text-xs sm:text-sm text-slate-300 mt-0.5">대전 모드와 탑승할 탱크 클래스를 선택하세요.</p>
+                    </div>
+                    <span class="text-xs font-digital px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-amber-400">VER 2.0 ARCADE</span>
+                </div>
+
+                <!-- Mode Selector -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold text-sky-300 uppercase tracking-wider">1. 게임 모드 선택</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="mode-ai-btn" onclick="setGameMode('AI')" class="tank-card selected p-3 rounded-xl flex items-center gap-3 text-left">
+                            <span class="text-2xl">🤖</span>
+                            <div>
+                                <div class="font-bold text-sm sm:text-base text-white">1P vs AI (인공지능 대전)</div>
+                                <div class="text-xs text-slate-400">바람과 탄도를 계산하는 포트리스 AI와 대결</div>
+                            </div>
+                        </button>
+                        <button id="mode-pvp-btn" onclick="setGameMode('PVP')" class="tank-card p-3 rounded-xl flex items-center gap-3 text-left">
+                            <span class="text-2xl">⚔️</span>
+                            <div>
+                                <div class="font-bold text-sm sm:text-base text-white">1P vs 2P (로컬 2인 대전)</div>
+                                <div class="text-xs text-slate-400">한 키보드로 친구와 번갈아 가며 대결</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Player 1 Tank Selection -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold text-emerald-300 uppercase tracking-wider">2. PLAYER 1 탱크 선택 (블루팀)</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" id="p1-tank-list">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Player 2 / AI Tank Selection -->
+                <div class="flex flex-col gap-2">
+                    <label id="p2-select-label" class="text-xs font-bold text-rose-300 uppercase tracking-wider">3. AI 상대 탱크 선택 (레드팀)</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" id="p2-tank-list">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Map Theme Selection -->
+                <div class="flex items-center justify-between inset-panel p-3 rounded-xl">
+                    <div class="text-xs sm:text-sm font-bold text-slate-200">🗺️ 지형 스타일 (번지 및 크레이터 파괴 가능)</div>
+                    <select id="map-style-select" class="bg-slate-800 text-amber-300 font-bold text-xs sm:text-sm px-3 py-1.5 rounded border border-slate-600 focus:outline-none">
+                        <option value="valley">더블 밸리 (고전 능선 지형)</option>
+                        <option value="island">스카이 아일랜드 (번지 특화 고지대)</option>
+                        <option value="canyon">크림슨 캐년 (험준한 협곡)</option>
+                    </select>
+                </div>
+
+                <button onclick="startNewMatch()" class="arcade-btn w-full py-3.5 rounded-xl font-title text-xl tracking-wider bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 text-slate-950 border-yellow-300 shadow-[0_0_20px_rgba(245,158,11,0.5)]">
+                    🚀 게임 시작 (BATTLE START)
+                </button>
+            </div>
+        </div>
+
+        <!-- GAME OVER MODAL -->
+        <div id="gameover-modal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div class="fortress-panel w-full max-w-md rounded-2xl p-6 border-2 border-yellow-400 text-center flex flex-col items-center gap-4 shadow-[0_0_40px_rgba(250,204,21,0.4)]">
+                <div class="text-5xl animate-bounce">🏆</div>
+                <div>
+                    <div class="text-xs font-digital text-sky-400 tracking-widest uppercase">MATCH RESULT</div>
+                    <h2 id="winner-title" class="font-title text-3xl sm:text-4xl text-yellow-300 mt-1">PLAYER 1 승리!</h2>
+                    <p id="winner-reason" class="text-sm text-slate-300 mt-1">정확한 포격으로 적 탱크를 격파했습니다!</p>
+                </div>
+                <div id="match-stats-box" class="w-full inset-panel p-3 rounded-xl text-xs text-slate-300 flex justify-around">
+                    <div>총 진행 턴: <span id="stat-turns" class="font-bold text-white">5</span></div>
+                    <div>남은 체력: <span id="stat-hp" class="font-bold text-emerald-400">650</span></div>
+                </div>
+                <div class="flex gap-3 w-full mt-2">
+                    <button onclick="startNewMatch()" class="arcade-btn flex-1 py-3 rounded-xl font-title text-lg bg-gradient-to-b from-emerald-500 to-emerald-700 text-white border-emerald-300">
+                        🔄 즉시 재대결
+                    </button>
+                    <button onclick="openSetupModal()" class="arcade-btn flex-1 py-3 rounded-xl font-title text-lg text-amber-300">
+                        ⚙️ 대기실로
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /**
+         * ============================================================================
+         * 1. WEB AUDIO SYNTHESIZER (No external audio files needed)
+         * ============================================================================
+         */
+        class FortressSoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+                this.chargeOsc = null;
+                this.chargeGain = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playMoveTick() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(110, now);
+                osc.frequency.exponentialRampToValueAtTime(65, now + 0.04);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.04);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.045);
+            }
+
+            playAngleTick() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(620, now);
+                gain.gain.setValueAtTime(0.04, now);
+                gain.gain.linearRampToValueAtTime(0.005, now + 0.025);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.03);
+            }
+
+            startCharging() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx || this.chargeOsc) return;
+                const now = this.ctx.currentTime;
+                this.chargeOsc = this.ctx.createOscillator();
+                this.chargeGain = this.ctx.createGain();
+                this.chargeOsc.type = 'sawtooth';
+                this.chargeOsc.frequency.setValueAtTime(180, now);
+                this.chargeGain.gain.setValueAtTime(0.06, now);
+                this.chargeOsc.connect(this.chargeGain);
+                this.chargeGain.connect(this.ctx.destination);
+                this.chargeOsc.start(now);
+            }
+
+            updateChargingPitch(powerRatio) {
+                if (this.chargeOsc && this.ctx) {
+                    this.chargeOsc.frequency.setValueAtTime(180 + powerRatio * 520, this.ctx.currentTime);
+                }
+            }
+
+            stopCharging() {
+                if (this.chargeOsc) {
+                    try {
+                        this.chargeOsc.stop();
+                        this.chargeOsc.disconnect();
+                    } catch (e) {}
+                    this.chargeOsc = null;
+                    this.chargeGain = null;
+                }
+            }
+
+            playFire(type = 'cannon') {
+                this.stopCharging();
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                if (type === 'laser') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(920, now);
+                    osc.frequency.exponentialRampToValueAtTime(160, now + 0.28);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
+                } else {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(240, now);
+                    osc.frequency.exponentialRampToValueAtTime(45, now + 0.25);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                }
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+
+            playExplosion(radius = 40) {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const duration = Math.min(0.8, 0.25 + radius * 0.006);
+
+                // White Noise Burst + Lowpass Filter for Boom
+                const bufferSize = this.ctx.sampleRate * duration;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(400, now);
+                filter.frequency.exponentialRampToValueAtTime(60, now + duration);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.38, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start(now);
+                noise.stop(now + duration);
+            }
+
+            playItemUse() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.5];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+                    gain.gain.setValueAtTime(0.12, now + idx * 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.008, now + idx * 0.05 + 0.12);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.05);
+                    osc.stop(now + idx * 0.05 + 0.13);
+                });
+            }
+
+            playTurnStart() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(587.33, now + 0.09);
+                gain.gain.setValueAtTime(0.14, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.26);
+            }
+        }
+
+        const sound = new FortressSoundEngine();
+
+        function toggleSound() {
+            sound.enabled = !sound.enabled;
+            document.getElementById('sound-icon').textContent = sound.enabled ? '🔊' : '🔇';
+        }
+
+        /**
+         * ============================================================================
+         * 2. TANK CLASSES & ITEM DEFINITIONS (Korean Fortress 2 Authentic Specs)
+         * ============================================================================
+         */
+        const TANK_CLASSES = {
+            cannon: {
+                id: 'cannon',
+                name: '캐논 (Cannon)',
+                badge: '중화기 지형파괴형',
+                desc: '강력한 단발 화력과 거대한 지형 파괴력(번지 유도)을 가진 정통 헤비 탱크',
+                hp: 1000,
+                moveMax: 110,
+                colorPrimary: '#ef4444',
+                colorSecondary: '#991b1b',
+                w1: {
+                    name: '검콩 (대구경포)',
+                    damage: 250,
+                    crater: 48,
+                    count: 1,
+                    spread: 0,
+                    style: 'blackball'
+                },
+                w2: {
+                    name: '빨콩 (정밀고폭탄)',
+                    damage: 310,
+                    crater: 30,
+                    count: 1,
+                    spread: 0,
+                    style: 'redball'
+                }
+            },
+            multi: {
+                id: 'multi',
+                name: '멀티미사일 (Multi)',
+                badge: '다연장 광역화력형',
+                desc: '다수의 미사일을 동시 발사하여 넓은 범위를 초토화하는 기동형 미사일 탱크',
+                hp: 950,
+                moveMax: 135,
+                colorPrimary: '#10b981',
+                colorSecondary: '#065f46',
+                w1: {
+                    name: '3연장 미사일',
+                    damage: 105,
+                    crater: 26,
+                    count: 3,
+                    spread: 0.065,
+                    style: 'missile'
+                },
+                w2: {
+                    name: '9연발 집중포화',
+                    damage: 44,
+                    crater: 16,
+                    count: 9,
+                    spread: 0.13,
+                    style: 'swarm'
+                }
+            },
+            supertank: {
+                id: 'supertank',
+                name: '슈탱 (Super Tank)',
+                badge: '유도탄 & 관통레이저',
+                desc: '적 탱크를 자동 추적하는 유도 미사일과 바람의 영향을 덜 받는 플라즈마 포 보유',
+                hp: 1050,
+                moveMax: 130,
+                colorPrimary: '#f59e0b',
+                colorSecondary: '#92400e',
+                w1: {
+                    name: '듀얼 플라즈마',
+                    damage: 145,
+                    crater: 28,
+                    count: 2,
+                    spread: 0.035,
+                    style: 'laser'
+                },
+                w2: {
+                    name: '호밍 유도탄',
+                    damage: 215,
+                    crater: 32,
+                    count: 1,
+                    spread: 0,
+                    homing: true,
+                    style: 'homing'
+                }
+            }
+        };
+
+        const DEFAULT_ITEMS = [
+            { id: 'double', key: '1', name: '더블파이어', icon: '🔥', desc: '이번 턴 2회 연속 발사' },
+            { id: 'power',  key: '2', name: '파워업탄',   icon: '💥', desc: '데미지 및 지형파괴 +35%' },
+            { id: 'teleport', key: '3', name: '이동탄',   icon: '🌀', desc: '탄착 지점으로 탱크 순간이동' },
+            { id: 'repair', key: '4', name: '수리킷',     icon: '🔧', desc: '즉시 체력 +300 회복' }
+        ];
+
+        /**
+         * ============================================================================
+         * 3. GAME STATE & PROCEDURAL DESTRUCTIBLE TERRAIN ENGINE
+         * ============================================================================
+         */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const angleCanvas = document.getElementById('angleGaugeCanvas');
+        const angleCtx = angleCanvas.getContext('2d');
+
+        // Fixed internal logical resolution for crisp physics & pixel terrain
+        const WORLD_W = 1200;
+        const WORLD_H = 600;
+        canvas.width = WORLD_W;
+        canvas.height = WORLD_H;
+
+        // Offscreen Terrain Canvas for pixel-level craters & overhangs
+        const terrainCanvas = document.createElement('canvas');
+        terrainCanvas.width = WORLD_W;
+        terrainCanvas.height = WORLD_H;
+        const terrainCtx = terrainCanvas.getContext('2d', { willReadFrequently: true });
+        let terrainMask = new Uint8Array(WORLD_W * WORLD_H); // 1 = solid ground, 0 = air
+
+        let gameMode = 'AI'; // 'AI' or 'PVP'
+        let selectedP1Class = 'cannon';
+        let selectedP2Class = 'multi';
+        let selectedMapStyle = 'valley';
+
+        let tanks = [];
+        let projectiles = [];
+        let particles = [];
+        let floatingTexts = [];
+        let clouds = [];
+        let stars = [];
+
+        let currentTurnIndex = 0;
+        let turnNumber = 1;
+        let wind = 0; // -15 to +15
+        let turnTimer = 20;
+        let turnTimerInterval = null;
+        let gameState = 'SETUP'; // 'SETUP', 'AIMING', 'CHARGING', 'FIRING', 'SETTLING', 'AI_THINKING', 'GAMEOVER'
+
+        // Input state
+        const keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false, Space: false };
+        let isCharging = false;
+        let currentPower = 0;
+        let chargeDirection = 1;
+        let waterWaveOffset = 0;
+        let screenShake = 0;
+
+        // Initialize Setup Modal Cards
+        function renderSetupCards() {
+            const p1List = document.getElementById('p1-tank-list');
+            const p2List = document.getElementById('p2-tank-list');
+            p1List.innerHTML = '';
+            p2List.innerHTML = '';
+
+            Object.values(TANK_CLASSES).forEach(tc => {
+                // P1 Card
+                const c1 = document.createElement('button');
+                c1.className = `tank-card p-3 rounded-xl text-left flex flex-col justify-between gap-1.5 ${selectedP1Class === tc.id ? 'selected' : ''}`;
+                c1.onclick = () => { selectedP1Class = tc.id; renderSetupCards(); };
+                c1.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-title text-base text-white">${tc.name}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 border border-slate-600">${tc.badge}</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 leading-snug">${tc.desc}</p>
+                    <div class="text-[10px] text-sky-300 font-bold mt-1">기본: ${tc.w1.name} / 특수: ${tc.w2.name}</div>
+                `;
+                p1List.appendChild(c1);
+
+                // P2 Card
+                const c2 = document.createElement('button');
+                c2.className = `tank-card p-3 rounded-xl text-left flex flex-col justify-between gap-1.5 ${selectedP2Class === tc.id ? 'selected' : ''}`;
+                c2.onclick = () => { selectedP2Class = tc.id; renderSetupCards(); };
+                c2.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-title text-base text-white">${tc.name}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-rose-300 border border-slate-600">${tc.badge}</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 leading-snug">${tc.desc}</p>
+                    <div class="text-[10px] text-rose-300 font-bold mt-1">기본: ${tc.w1.name} / 특수: ${tc.w2.name}</div>
+                `;
+                p2List.appendChild(c2);
+            });
+        }
+
+        function setGameMode(mode) {
+            gameMode = mode;
+            document.getElementById('mode-ai-btn').classList.toggle('selected', mode === 'AI');
+            document.getElementById('mode-pvp-btn').classList.toggle('selected', mode === 'PVP');
+            document.getElementById('p2-select-label').textContent =
+                mode === 'AI' ? '3. AI 상대 탱크 선택 (레드팀)' : '3. PLAYER 2 탱크 선택 (레드팀)';
+        }
+
+        function openSetupModal() {
+            renderSetupCards();
+            document.getElementById('gameover-modal').classList.add('hidden');
+            document.getElementById('setup-modal').classList.remove('hidden');
+        }
+
+        /**
+         * Generate Procedural Destructible Terrain
+         */
+        function generateTerrain(style = 'valley') {
+            terrainCtx.clearRect(0, 0, WORLD_W, WORLD_H);
+            terrainMask.fill(0);
+
+            const heights = new Float32Array(WORLD_W);
+            const seed1 = Math.random() * 10;
+            const seed2 = Math.random() * 10;
+
+            for (let x = 0; x < WORLD_W; x++) {
+                const nx = x / WORLD_W;
+                let h = 360;
+
+                if (style === 'valley') {
+                    // Classic hills and central valley
+                    h = 340
+                        + Math.sin(nx * Math.PI * 2.5 + seed1) * 75
+                        + Math.cos(nx * Math.PI * 5.5 + seed2) * 32
+                        - Math.sin(nx * Math.PI) * 45;
+                } else if (style === 'island') {
+                    // High plateaus with steep bungee drops
+                    h = 275
+                        + Math.sin(nx * Math.PI * 3 + seed1) * 65
+                        + Math.sin(nx * Math.PI * 9) * 18;
+                } else if (style === 'canyon') {
+                    // Rugged jagged canyon
+                    h = 320
+                        + Math.cos(nx * Math.PI * 4 + seed1) * 90
+                        + Math.sin(nx * Math.PI * 10 + seed2) * 25;
+                }
+
+                heights[x] = Math.max(170, Math.min(WORLD_H - 95, Math.floor(h)));
+            }
+
+            // Draw rock strata & topsoil into terrainCanvas
+            const grad = terrainCtx.createLinearGradient(0, 150, 0, WORLD_H);
+            if (style === 'canyon') {
+                grad.addColorStop(0, '#c2410c');
+                grad.addColorStop(0.3, '#9a3412');
+                grad.addColorStop(0.7, '#7c2d12');
+                grad.addColorStop(1, '#431407');
+            } else if (style === 'island') {
+                grad.addColorStop(0, '#4ade80');
+                grad.addColorStop(0.15, '#ca8a04');
+                grad.addColorStop(0.5, '#64748b');
+                grad.addColorStop(1, '#1e293b');
+            } else {
+                grad.addColorStop(0, '#65a30d');
+                grad.addColorStop(0.12, '#854d0e');
+                grad.addColorStop(0.55, '#57534e');
+                grad.addColorStop(1, '#292524');
+            }
+
+            terrainCtx.fillStyle = grad;
+            terrainCtx.beginPath();
+            terrainCtx.moveTo(0, WORLD_H);
+            for (let x = 0; x < WORLD_W; x++) {
+                if (style === 'island' && (x < 65 || x > WORLD_W - 65 || (x > 545 && x < 655))) {
+                    heights[x] = WORLD_H + 10; // Bungee abyss gaps!
+                }
+                terrainCtx.lineTo(x, heights[x]);
+            }
+            terrainCtx.lineTo(WORLD_W, WORLD_H);
+            terrainCtx.closePath();
+            terrainCtx.fill();
+
+            // Add subtle horizontal rock texture stripes
+            terrainCtx.globalCompositeOperation = 'source-atop';
+            for (let y = 160; y < WORLD_H; y += 14) {
+                terrainCtx.fillStyle = y % 28 === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.08)';
+                terrainCtx.fillRect(0, y, WORLD_W, 5);
+            }
+
+            // Draw bright grass/top crust rim
+            terrainCtx.lineWidth = 6;
+            terrainCtx.strokeStyle = style === 'canyon' ? '#fb923c' : '#84cc16';
+            terrainCtx.beginPath();
+            for (let x = 0; x < WORLD_W; x++) {
+                if (heights[x] >= WORLD_H) continue;
+                if (x === 0 || heights[x - 1] >= WORLD_H) {
+                    terrainCtx.moveTo(x, heights[x]);
+                } else {
+                    terrainCtx.lineTo(x, heights[x]);
+                }
+            }
+            terrainCtx.stroke();
+            terrainCtx.globalCompositeOperation = 'source-over';
+
+            // Populate fast 1D collision mask from alpha channel
+            const imgData = terrainCtx.getImageData(0, 0, WORLD_W, WORLD_H).data;
+            for (let i = 0; i < WORLD_W * WORLD_H; i++) {
+                terrainMask[i] = imgData[i * 4 + 3] > 90 ? 1 : 0;
+            }
+        }
+
+        function isSolid(x, y) {
+            const ix = Math.floor(x);
+            const iy = Math.floor(y);
+            if (ix < 0 || ix >= WORLD_W || iy >= WORLD_H) return false;
+            if (iy < 0) return false;
+            return terrainMask[iy * WORLD_W + ix] === 1;
+        }
+
+        function getSurfaceY(x, startY = 0) {
+            const ix = Math.max(0, Math.min(WORLD_W - 1, Math.floor(x)));
+            const sy = Math.max(0, Math.floor(startY));
+            for (let y = sy; y < WORLD_H; y++) {
+                if (terrainMask[y * WORLD_W + ix] === 1) return y;
+            }
+            return WORLD_H + 50; // Abyss
+        }
+
+        /**
+         * Carve Circular Crater in Both Visual Canvas & Collision Bitmap
+         */
+        function carveCrater(cx, cy, radius) {
+            const r = Math.floor(radius);
+            // Scorched rim ring on terrainCanvas
+            terrainCtx.save();
+            terrainCtx.globalCompositeOperation = 'source-atop';
+            terrainCtx.beginPath();
+            terrainCtx.arc(cx, cy, r + 5, 0, Math.PI * 2);
+            terrainCtx.fillStyle = 'rgba(20, 15, 10, 0.65)';
+            terrainCtx.fill();
+            terrainCtx.restore();
+
+            // Punch hole
+            terrainCtx.save();
+            terrainCtx.globalCompositeOperation = 'destination-out';
+            terrainCtx.beginPath();
+            terrainCtx.arc(cx, cy, r, 0, Math.PI * 2);
+            terrainCtx.fill();
+            terrainCtx.restore();
+
+            // Update binary collision mask
+            const rSq = r * r;
+            const minX = Math.max(0, Math.floor(cx - r));
+            const maxX = Math.min(WORLD_W - 1, Math.ceil(cx + r));
+            const minY = Math.max(0, Math.floor(cy - r));
+            const maxY = Math.min(WORLD_H - 1, Math.ceil(cy + r));
+
+            for (let y = minY; y <= maxY; y++) {
+                const dy = y - cy;
+                const rowOffset = y * WORLD_W;
+                for (let x = minX; x <= maxX; x++) {
+                    const dx = x - cx;
+                    if (dx * dx + dy * dy <= rSq) {
+                        terrainMask[rowOffset + x] = 0;
+                    }
+                }
+            }
+        }
+
+        /**
+         * ============================================================================
+         * 4. TANK ENTITY CLASS (Slope alignment, movement gauge, items, aiming)
+         * ============================================================================
+         */
+        class Tank {
+            constructor(id, name, team, classKey, x, facingRight, isAI = false) {
+                const spec = TANK_CLASSES[classKey];
+                this.id = id;
+                this.name = name;
+                this.team = team; // 1 = Blue, 2 = Red
+                this.classKey = classKey;
+                this.spec = spec;
+                this.isAI = isAI;
+
+                this.x = x;
+                this.y = 100;
+                this.vy = 0;
+                this.radius = 15;
+
+                this.hp = spec.hp;
+                this.maxHp = spec.hp;
+                this.moveRemaining = spec.moveMax;
+                this.maxMove = spec.moveMax;
+
+                this.facingRight = facingRight;
+                this.slopeAngle = 0; // Terrain tilt in radians
+                this.aimAngle = 45;  // Relative barrel elevation in degrees (5° to 85°)
+                this.lastPower = 0;  // Remembers previous shot power (0-100)
+                this.selectedWeapon = 1; // 1 or 2
+
+                // Clone 4 standard items
+                this.items = DEFAULT_ITEMS.map(item => ({ ...item, used: false }));
+                this.activeItem = null; // 'double', 'power', 'teleport'
+                this.extraShotPending = false;
+                this.alive = true;
+            }
+
+            snapToGround() {
+                const surfY = getSurfaceY(this.x, 0);
+                this.y = surfY - 2;
+                this.updateSlope();
+            }
+
+            updateSlope() {
+                const span = 10;
+                const leftY = getSurfaceY(this.x - span, Math.max(0, this.y - 35));
+                const rightY = getSurfaceY(this.x + span, Math.max(0, this.y - 35));
+                if (leftY < WORLD_H && rightY < WORLD_H) {
+                    const angle = Math.atan2(rightY - leftY, span * 2);
+                    // Clamp visual slope so tank doesn't flip upside down
+                    this.slopeAngle = Math.max(-0.65, Math.min(0.65, angle));
+                } else {
+                    this.slopeAngle = 0;
+                }
+            }
+
+            /**
+             * World firing angle in radians
+             */
+            getWorldBarrelAngleRad() {
+                const elevRad = (this.aimAngle * Math.PI) / 180;
+                if (this.facingRight) {
+                    return this.slopeAngle - elevRad;
+                } else {
+                    return Math.PI + this.slopeAngle + elevRad;
+                }
+            }
+
+            /**
+             * True world firing angle in degrees for HUD display
+             */
+            getDisplayAngleDeg() {
+                const slopeDeg = Math.round((this.slopeAngle * 180) / Math.PI) * (this.facingRight ? -1 : 1);
+                return Math.round(this.aimAngle + slopeDeg);
+            }
+
+            updatePhysics() {
+                if (!this.alive) return false;
+
+                // Check if ground beneath tank was destroyed (fall with gravity!)
+                if (!isSolid(this.x, this.y + 2)) {
+                    this.vy += 0.35;
+                    this.y += this.vy;
+
+                    // Hit ground while falling
+                    for (let step = 0; step < Math.ceil(this.vy); step++) {
+                        if (isSolid(this.x, this.y + 1)) {
+                            this.y = Math.floor(this.y);
+                            this.vy = 0;
+                            this.updateSlope();
+                            break;
+                        }
+                    }
+
+                    // Bungee / Fall into water abyss!
+                    if (this.y > WORLD_H - 18) {
+                        this.hp = 0;
+                        this.alive = false;
+                        spawnFloatingText(this.x, WORLD_H - 45, '번지 낙사! (BUNGEE!)', '#38bdf8', 22);
+                        spawnExplosionVisual(this.x, WORLD_H - 20, 35, '#38bdf8');
+                        sound.playExplosion(45);
+                        checkGameOver();
+                        return false;
+                    }
+                    return true; // Still falling
+                } else {
+                    this.vy = 0;
+                    // Smoothly climb small pixel steps
+                    while (isSolid(this.x, this.y - 1) && this.y > 10) {
+                        this.y--;
+                    }
+                    this.updateSlope();
+                    return false;
+                }
+            }
+
+            moveHorizontal(dir) {
+                if (!this.alive || this.moveRemaining <= 0) return;
+                this.facingRight = dir > 0;
+                const nextX = this.x + dir * 1.4;
+                if (nextX < 22 || nextX > WORLD_W - 22) return;
+
+                // Check if slope is climbable (max step height 10px)
+                let climbY = this.y;
+                let blocked = false;
+                if (isSolid(nextX, climbY)) {
+                    let foundAir = false;
+                    for (let up = 1; up <= 11; up++) {
+                        if (!isSolid(nextX, climbY - up)) {
+                            climbY -= up;
+                            foundAir = true;
+                            break;
+                        }
+                    }
+                    if (!foundAir) blocked = true;
+                } else {
+                    // Step down slope smoothly
+                    for (let down = 1; down <= 12; down++) {
+                        if (isSolid(nextX, climbY + down)) {
+                            climbY += down - 1;
+                            break;
+                        }
+                    }
+                }
+
+                if (!blocked) {
+                    this.x = nextX;
+                    this.y = climbY;
+                    this.moveRemaining = Math.max(0, this.moveRemaining - 0.8);
+                    this.updateSlope();
+                    if (Math.random() < 0.35) sound.playMoveTick();
+                    updateDashboardUI();
+                }
+            }
+
+            draw(ctx, isCurrentTurn) {
+                if (!this.alive) return;
+
+                ctx.save();
+                ctx.translate(this.x, this.y - 8);
+                ctx.rotate(this.slopeAngle);
+
+                // Active Turn Pulsing Aura
+                if (isCurrentTurn && (gameState === 'AIMING' || gameState === 'CHARGING')) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 26 + Math.sin(Date.now() * 0.008) * 3, 0, Math.PI * 2);
+                    ctx.strokeStyle = this.team === 1 ? 'rgba(56, 189, 248, 0.45)' : 'rgba(251, 113, 133, 0.45)';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // Draw Barrel (Rotated relative to tank body)
+                const localElev = (this.aimAngle * Math.PI) / 180;
+                const barrelAngle = this.facingRight ? -localElev : Math.PI + localElev;
+
+                ctx.save();
+                ctx.translate(0, -6);
+                ctx.rotate(barrelAngle);
+
+                // Barrel Graphics per Class
+                if (this.classKey === 'cannon') {
+                    ctx.fillStyle = '#1e293b';
+                    ctx.strokeStyle = '#94a3b8';
+                    ctx.lineWidth = 1.5;
+                    ctx.fillRect(0, -4, 24, 8);
+                    ctx.strokeRect(0, -4, 24, 8);
+                    // Muzzle tip
+                    ctx.fillStyle = '#ef4444';
+                    ctx.fillRect(20, -5, 5, 10);
+                } else if (this.classKey === 'multi') {
+                    ctx.fillStyle = '#065f46';
+                    ctx.strokeStyle = '#6ee7b7';
+                    ctx.lineWidth = 1.5;
+                    ctx.fillRect(0, -6, 20, 12);
+                    ctx.strokeRect(0, -6, 20, 12);
+                } else {
+                    // Super Tank futuristic twin rail
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.fillRect(0, -4, 23, 3);
+                    ctx.fillRect(0, 1, 23, 3);
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.fillRect(18, -3, 6, 6);
+                }
+                ctx.restore();
+
+                // Draw Tank Treads (Caterpillar)
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(-17, 1, 34, 9, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                // Tread wheels
+                ctx.fillStyle = '#94a3b8';
+                for (let wx = -12; wx <= 12; wx += 6) {
+                    ctx.beginPath();
+                    ctx.arc(wx, 5.5, 2.2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Draw Tank Hull & Turret Dome
+                const hullGrad = ctx.createLinearGradient(0, -14, 0, 4);
+                hullGrad.addColorStop(0, this.spec.colorPrimary);
+                hullGrad.addColorStop(1, this.spec.colorSecondary);
+                ctx.fillStyle = hullGrad;
+                ctx.strokeStyle = '#f8fafc';
+                ctx.lineWidth = 1.5;
+
+                ctx.beginPath();
+                ctx.roundRect(-14, -6, 28, 9, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                // Turret dome
+                ctx.beginPath();
+                ctx.arc(0, -6, 9, Math.PI, 0);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Team Emblem Star/Stripe
+                ctx.fillStyle = '#fef08a';
+                ctx.beginPath();
+                ctx.arc(this.facingRight ? 3 : -3, -9, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+
+                // Draw Aiming Crosshair Reticle if Current Player
+                if (isCurrentTurn && (gameState === 'AIMING' || gameState === 'CHARGING')) {
+                    const worldAngle = this.getWorldBarrelAngleRad();
+                    const cx = this.x + Math.cos(worldAngle) * 52;
+                    const cy = (this.y - 14) + Math.sin(worldAngle) * 52;
+
+                    ctx.save();
+                    ctx.strokeStyle = '#facc15';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+                    ctx.moveTo(cx - 10, cy);
+                    ctx.lineTo(cx + 10, cy);
+                    ctx.moveTo(cx, cy - 10);
+                    ctx.lineTo(cx, cy + 10);
+                    ctx.stroke();
+                    ctx.restore();
+
+                    // Bouncing Arrow Above Active Tank
+                    const bounce = Math.sin(Date.now() * 0.01) * 5;
+                    ctx.save();
+                    ctx.fillStyle = '#facc15';
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y - 52 + bounce);
+                    ctx.lineTo(this.x - 7, this.y - 64 + bounce);
+                    ctx.lineTo(this.x + 7, this.y - 64 + bounce);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Overhead Nameplate & Mini HP Bar (Fortress 2 Style)
+                const barW = 46;
+                const barH = 5;
+                const bx = this.x - barW / 2;
+                const by = this.y - 42;
+
+                ctx.save();
+                ctx.font = 'bold 11px "Noto Sans KR"';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#000';
+                ctx.fillText(this.name, this.x + 1, by - 4);
+                ctx.fillStyle = this.team === 1 ? '#38bdf8' : '#fb7185';
+                ctx.fillText(this.name, this.x, by - 5);
+
+                // HP Background
+                ctx.fillStyle = 'rgba(0,0,0,0.75)';
+                ctx.fillRect(bx - 1, by - 1, barW + 2, barH + 2);
+
+                const hpRatio = Math.max(0, this.hp / this.maxHp);
+                ctx.fillStyle = hpRatio > 0.5 ? '#22c55e' : hpRatio > 0.25 ? '#f59e0b' : '#ef4444';
+                ctx.fillRect(bx, by, barW * hpRatio, barH);
+                ctx.restore();
+            }
+        }
+
+        /**
+         * ============================================================================
+         * 5. PROJECTILES, PARTICLES & FLOATING DAMAGE NUMBERS
+         * ============================================================================
+         */
+        class Projectile {
+            constructor(owner, x, y, vx, vy, weaponSpec, itemModifier) {
+                this.owner = owner;
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.weaponSpec = weaponSpec;
+                this.itemModifier = itemModifier; // 'power', 'teleport', etc.
+                this.trail = [];
+                this.age = 0;
+                this.active = true;
+            }
+
+            update() {
+                if (!this.active) return;
+                this.age++;
+
+                // Save trail coordinates
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > 16) this.trail.shift();
+
+                // Sub-step integration for accurate collision
+                const steps = 3;
+                for (let s = 0; s < steps; s++) {
+                    this.x += this.vx / steps;
+                    this.y += this.vy / steps;
+
+                    // Gravity & Wind acceleration
+                    const windFactor = this.weaponSpec.style === 'laser' ? 0.0018 : 0.0034;
+                    this.vx += (wind * windFactor) / steps;
+                    this.vy += 0.22 / steps;
+
+                    // Super Tank Homing Missile behavior (activates on downward arc near enemy)
+                    if (this.weaponSpec.homing && this.vy > -1 && this.age > 18) {
+                        const target = tanks.find(t => t.alive && t.id !== this.owner.id);
+                        if (target) {
+                            const dx = target.x - this.x;
+                            const dy = (target.y - 10) - this.y;
+                            const dist = Math.hypot(dx, dy);
+                            if (dist < 260) {
+                                this.vx += (dx / dist) * 0.09;
+                                this.vy += (dy / dist) * 0.09;
+                            }
+                        }
+                    }
+
+                    // Out of horizontal bounds or fell into water
+                    if (this.x < -40 || this.x > WORLD_W + 40 || this.y > WORLD_H) {
+                        this.active = false;
+                        return;
+                    }
+
+                    // Check Direct Hit on any Tank
+                    for (const t of tanks) {
+                        if (!t.alive) continue;
+                        if (this.age < 7 && t.id === this.owner.id) continue; // Don't self-collide on muzzle exit
+                        const dist = Math.hypot(this.x - t.x, this.y - (t.y - 10));
+                        if (dist <= t.radius + 4) {
+                            this.detonate(this.x, this.y);
+                            return;
+                        }
+                    }
+
+                    // Check Terrain Pixel Hit
+                    if (this.y >= 0 && isSolid(this.x, this.y)) {
+                        this.detonate(this.x, this.y);
+                        return;
+                    }
+                }
+            }
+
+            detonate(ix, iy) {
+                this.active = false;
+
+                // Teleport Ball Item Logic (이동탄)
+                if (this.itemModifier === 'teleport') {
+                    this.owner.x = Math.max(25, Math.min(WORLD_W - 25, ix));
+                    this.owner.y = iy - 12;
+                    this.owner.updateSlope();
+                    spawnExplosionVisual(ix, iy, 28, '#38bdf8');
+                    spawnFloatingText(ix, iy - 25, '순간이동!', '#38bdf8', 18);
+                    sound.playItemUse();
+                    return;
+                }
+
+                const powerMult = this.itemModifier === 'power' ? 1.35 : 1.0;
+                const craterRadius = Math.round(this.weaponSpec.crater * powerMult);
+                const maxDamage = Math.round(this.weaponSpec.damage * powerMult);
+
+                // 1. Carve Circular Crater in Terrain
+                carveCrater(ix, iy, craterRadius);
+
+                // 2. Visual & Audio Explosion
+                const color = this.itemModifier === 'power' ? '#f43f5e' :
+                              this.weaponSpec.style === 'laser' ? '#38bdf8' :
+                              this.weaponSpec.style === 'redball' ? '#ef4444' : '#f59e0b';
+                spawnExplosionVisual(ix, iy, craterRadius, color);
+                sound.playExplosion(craterRadius);
+                screenShake = Math.min(14, Math.floor(craterRadius / 3.5));
+
+                // 3. Calculate Splash Damage to Tanks
+                const splashRadius = craterRadius * 1.45 + 14;
+                tanks.forEach(t => {
+                    if (!t.alive) return;
+                    const dist = Math.hypot(t.x - ix, (t.y - 10) - iy);
+                    if (dist <= splashRadius) {
+                        const falloff = Math.max(0.2, 1 - (dist / splashRadius) * 0.85);
+                        const dmg = Math.max(1, Math.round(maxDamage * falloff));
+                        t.hp = Math.max(0, t.hp - dmg);
+
+                        // Knockback impulse
+                        const angle = Math.atan2((t.y - 10) - iy, t.x - ix);
+                        t.vy = Math.min(t.vy, -2.5);
+
+                        spawnFloatingText(
+                            t.x + (Math.random() * 20 - 10),
+                            t.y - 48,
+                            `-${dmg}`,
+                            dmg >= 200 ? '#f43f5e' : '#facc15',
+                            dmg >= 200 ? 22 : 17
+                        );
+
+                        if (t.hp <= 0) {
+                            t.alive = false;
+                            spawnExplosionVisual(t.x, t.y - 10, 50, '#ef4444');
+                            spawnFloatingText(t.x, t.y - 70, '격파! (DESTROYED)', '#ef4444', 22);
+                        }
+                    }
+                });
+
+                updateDashboardUI();
+            }
+
+            draw(ctx) {
+                if (!this.active) return;
+
+                // Draw smoke/energy trail
+                for (let i = 0; i < this.trail.length; i++) {
+                    const pt = this.trail[i];
+                    const alpha = (i / this.trail.length) * 0.55;
+                    ctx.fillStyle = this.itemModifier === 'teleport'
+                        ? `rgba(56, 189, 248, ${alpha})`
+                        : this.weaponSpec.style === 'laser' || this.weaponSpec.style === 'homing'
+                        ? `rgba(56, 189, 248, ${alpha})`
+                        : `rgba(226, 232, 240, ${alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(pt.x, pt.y, 2 + (i / this.trail.length) * 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Draw Projectile Shell
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(Math.atan2(this.vy, this.vx));
+
+                if (this.itemModifier === 'teleport') {
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (this.weaponSpec.style === 'blackball') {
+                    // Classic Cannon Black Ball (검콩)
+                    ctx.fillStyle = '#1e293b';
+                    ctx.strokeStyle = '#f8fafc';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 6.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                } else if (this.weaponSpec.style === 'redball') {
+                    // Classic Cannon Red Ball (빨콩)
+                    ctx.fillStyle = '#ef4444';
+                    ctx.strokeStyle = '#fef08a';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                } else if (this.weaponSpec.style === 'laser') {
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.shadowColor = '#38bdf8';
+                    ctx.shadowBlur = 8;
+                    ctx.beginPath();
+                    ctx.roundRect(-8, -3, 16, 6, 3);
+                    ctx.fill();
+                } else {
+                    // Missile / Homing Warhead
+                    ctx.fillStyle = this.weaponSpec.homing ? '#f59e0b' : '#f8fafc';
+                    ctx.beginPath();
+                    ctx.moveTo(8, 0);
+                    ctx.lineTo(-6, -4);
+                    ctx.lineTo(-6, 4);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+
+        function spawnExplosionVisual(x, y, radius, mainColor) {
+            // Core flash
+            particles.push({
+                x, y, vx: 0, vy: 0,
+                r: radius * 1.15,
+                maxR: radius * 1.35,
+                alpha: 1,
+                color: '#fef08a',
+                type: 'flash'
+            });
+
+            // Flying debris & fire sparks
+            const count = Math.min(45, Math.floor(radius * 0.85));
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1.5 + Math.random() * (radius * 0.14);
+                particles.push({
+                    x, y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 1.5,
+                    r: 2.5 + Math.random() * 4,
+                    alpha: 1,
+                    color: i % 3 === 0 ? '#fef08a' : i % 2 === 0 ? mainColor : '#78350f',
+                    type: 'spark'
+                });
+            }
+        }
+
+        function spawnFloatingText(x, y, text, color = '#facc15', size = 18) {
+            floatingTexts.push({
+                x, y,
+                vy: -1.2,
+                text,
+                color,
+                size,
+                alpha: 1.0,
+                life: 65
+            });
+        }
+
+        /**
+         * ============================================================================
+         * 6. TURN SYSTEM, WIND GENERATOR, ITEMS & AI SOLVER
+         * ============================================================================
+         */
+        function startNewMatch() {
+            selectedMapStyle = document.getElementById('map-style-select').value;
+            document.getElementById('setup-modal').classList.add('hidden');
+            document.getElementById('gameover-modal').classList.add('hidden');
+            document.getElementById('hud-mode-badge').textContent = gameMode === 'AI' ? '1P vs AI' : '1P vs 2P';
+
+            generateTerrain(selectedMapStyle);
+
+            // Spawn Clouds & Background Stars
+            clouds = Array.from({ length: 6 }, () => ({
+                x: Math.random() * WORLD_W,
+                y: 45 + Math.random() * 110,
+                w: 70 + Math.random() * 60,
+                speed: 0.15 + Math.random() * 0.25
+            }));
+            stars = Array.from({ length: 45 }, () => ({
+                x: Math.random() * WORLD_W,
+                y: Math.random() * 240,
+                size: Math.random() * 2 + 0.5
+            }));
+
+            // Spawn Tanks on Opposite Sides
+            const p1X = 160 + Math.floor(Math.random() * 110);
+            const p2X = WORLD_W - 160 - Math.floor(Math.random() * 110);
+
+            const t1 = new Tank(1, 'PLAYER 1', 1, selectedP1Class, p1X, true, false);
+            const t2 = new Tank(2, gameMode === 'AI' ? 'FORTRESS AI' : 'PLAYER 2', 2, selectedP2Class, p2X, false, gameMode === 'AI');
+
+            t1.snapToGround();
+            t2.snapToGround();
+
+            tanks = [t1, t2];
+            projectiles = [];
+            particles = [];
+            floatingTexts = [];
+            currentTurnIndex = 0;
+            turnNumber = 1;
+            wind = Math.floor(Math.random() * 15) - 7;
+
+            beginTurn();
+        }
+
+        function getCurrentTank() {
+            return tanks[currentTurnIndex];
+        }
+
+        function beginTurn() {
+            if (checkGameOver()) return;
+
+            const activeTank = getCurrentTank();
+            activeTank.moveRemaining = activeTank.maxMove;
+            activeTank.activeItem = null;
+            isCharging = false;
+            currentPower = 0;
+
+            // Slightly shift wind each turn
+            const deltaWind = Math.floor(Math.random() * 9) - 4;
+            wind = Math.max(-15, Math.min(15, wind + deltaWind));
+
+            updateWindUI();
+            updateDashboardUI();
+            renderItemSlots();
+
+            document.getElementById('turn-badge').textContent = `TURN ${turnNumber}`;
+            document.getElementById('active-player-text').textContent = `${activeTank.name} 턴`;
+            document.getElementById('active-player-dot').className =
+                `w-2.5 h-2.5 rounded-full ${activeTank.team === 1 ? 'bg-sky-400' : 'bg-rose-500'}`;
+
+            showCenterToast(`${activeTank.name} 차례!`, `WIND ${wind > 0 ? '+' + wind : wind}`);
+            sound.playTurnStart();
+
+            // Start 20s Turn Countdown
+            clearInterval(turnTimerInterval);
+            turnTimer = 20;
+            document.getElementById('turn-timer-display').textContent = turnTimer;
+            turnTimerInterval = setInterval(() => {
+                if (gameState !== 'AIMING' && gameState !== 'CHARGING' && gameState !== 'AI_THINKING') return;
+                turnTimer--;
+                document.getElementById('turn-timer-display').textContent = Math.max(0, turnTimer);
+                if (turnTimer <= 0) {
+                    clearInterval(turnTimerInterval);
+                    if (isCharging) {
+                        releaseAndFire();
+                    } else {
+                        spawnFloatingText(activeTank.x, activeTank.y - 50, '시간 초과!', '#fb7185', 18);
+                        advanceTurn();
+                    }
+                }
+            }, 1000);
+
+            if (activeTank.isAI) {
+                gameState = 'AI_THINKING';
+                setTimeout(() => executeAITurn(activeTank), 1100);
+            } else {
+                gameState = 'AIMING';
+            }
+        }
+
+        function advanceTurn() {
+            clearInterval(turnTimerInterval);
+            const activeTank = getCurrentTank();
+
+            // Check if Double Fire triggers an immediate second shot
+            if (activeTank && activeTank.alive && activeTank.extraShotPending) {
+                activeTank.extraShotPending = false;
+                isCharging = false;
+                currentPower = 0;
+                updateDashboardUI();
+                showCenterToast('더블파이어 발동!', '추가 발사 찬스!');
+                if (activeTank.isAI) {
+                    gameState = 'AI_THINKING';
+                    setTimeout(() => executeAITurn(activeTank), 900);
+                } else {
+                    gameState = 'AIMING';
+                }
+                return;
+            }
+
+            currentTurnIndex = (currentTurnIndex + 1) % tanks.length;
+            if (currentTurnIndex === 0) turnNumber++;
+            beginTurn();
+        }
+
+        function skipCurrentTurn() {
+            if (gameState !== 'AIMING') return;
+            const t = getCurrentTank();
+            t.extraShotPending = false;
+            spawnFloatingText(t.x, t.y - 45, '턴 패스 (SKIP)', '#94a3b8', 16);
+            advanceTurn();
+        }
+
+        /**
+         * Fire Projectiles from Current Tank with Power (5-100)
+         */
+        function fireTankWeapon(tank, powerPercent) {
+            clearInterval(turnTimerInterval);
+            gameState = 'FIRING';
+
+            tank.lastPower = powerPercent;
+            const wSpec = tank.selectedWeapon === 1 ? tank.spec.w1 : tank.spec.w2;
+            const worldAngle = tank.getWorldBarrelAngleRad();
+            const speed = (powerPercent / 100) * 19.5 + 1.5;
+
+            const muzzleX = tank.x + Math.cos(worldAngle) * 24;
+            const muzzleY = (tank.y - 14) + Math.sin(worldAngle) * 24;
+
+            // Teleport item overrides projectile count to 1
+            const count = tank.activeItem === 'teleport' ? 1 : wSpec.count;
+            const spread = wSpec.spread || 0;
+
+            for (let i = 0; i < count; i++) {
+                const offsetAngle = count === 1 ? 0 : (i - (count - 1) / 2) * spread;
+                const finalAngle = worldAngle + offsetAngle;
+                const speedJitter = count > 3 ? (1 + (Math.random() - 0.5) * 0.08) : 1;
+
+                const vx = Math.cos(finalAngle) * speed * speedJitter;
+                const vy = Math.sin(finalAngle) * speed * speedJitter;
+
+                projectiles.push(new Projectile(tank, muzzleX, muzzleY, vx, vy, wSpec, tank.activeItem));
+            }
+
+            sound.playFire(wSpec.style);
+            tank.activeItem = null;
+            updateDashboardUI();
+        }
+
+        /**
+         * AI Ballistic Trajectory Solver (Simulates wind + gravity to find best angle & power)
+         */
+        function executeAITurn(aiTank) {
+            if (!aiTank.alive || gameState !== 'AI_THINKING') return;
+            const target = tanks.find(t => t.alive && t.id !== aiTank.id);
+            if (!target) return;
+
+            // Face target
+            aiTank.facingRight = target.x > aiTank.x;
+
+            // Optionally move a bit for better positioning
+            const moveSteps = Math.floor(Math.random() * 14) - 6;
+            for (let i = 0; i < Math.abs(moveSteps); i++) {
+                aiTank.moveHorizontal(moveSteps > 0 ? 1 : -1);
+            }
+            aiTank.facingRight = target.x > aiTank.x;
+
+            // AI Item Selection
+            if (aiTank.hp < 450) {
+                const rep = aiTank.items.find(it => it.id === 'repair' && !it.used);
+                if (rep) useItemSlot('repair');
+            } else if (Math.random() < 0.45) {
+                const offItems = aiTank.items.filter(it => (it.id === 'double' || it.id === 'power') && !it.used);
+                if (offItems.length > 0) {
+                    useItemSlot(offItems[Math.floor(Math.random() * offItems.length)].id);
+                }
+            }
+
+            // Choose weapon 1 or 2
+            aiTank.selectedWeapon = Math.random() < 0.38 ? 2 : 1;
+
+            // Simulate trajectories to find best angle & power
+            let bestAngle = 48;
+            let bestPower = 60;
+            let minMissDist = Infinity;
+
+            const candidateAngles = [35, 42, 50, 58, 65, 72];
+            const windFactor = (aiTank.selectedWeapon === 1 ? aiTank.spec.w1 : aiTank.spec.w2).style === 'laser' ? 0.0018 : 0.0034;
+
+            for (const testAngle of candidateAngles) {
+                aiTank.aimAngle = testAngle;
+                const worldRad = aiTank.getWorldBarrelAngleRad();
+
+                for (let p = 22; p <= 96; p += 2) {
+                    const spd = (p / 100) * 19.5 + 1.5;
+                    let sx = aiTank.x + Math.cos(worldRad) * 24;
+                    let sy = (aiTank.y - 14) + Math.sin(worldRad) * 24;
+                    let svx = Math.cos(worldRad) * spd;
+                    let svy = Math.sin(worldRad) * spd;
+
+                    for (let t = 0; t < 180; t++) {
+                        sx += svx;
+                        sy += svy;
+                        svx += wind * windFactor;
+                        svy += 0.22;
+
+                        const d = Math.hypot(sx - target.x, sy - (target.y - 10));
+                        if (d < minMissDist) {
+                            minMissDist = d;
+                            bestAngle = testAngle;
+                            bestPower = p;
+                        }
+                        if (sy > WORLD_H || (sy > 0 && isSolid(sx, sy))) break;
+                    }
+                }
+            }
+
+            // Add slight human-like imperfection (+/- 2.5% power)
+            aiTank.aimAngle = bestAngle;
+            const finalPower = Math.max(15, Math.min(99, bestPower + (Math.random() * 5 - 2.5)));
+            updateDashboardUI();
+
+            setTimeout(() => {
+                if (gameState !== 'AI_THINKING') return;
+                fireTankWeapon(aiTank, Math.round(finalPower));
+            }, 650);
+        }
+
+        /**
+         * ============================================================================
+         * 7. DASHBOARD UI, ANGLE PROTRACTOR & ITEM CONTROLS
+         * ============================================================================
+         */
+        function selectWeapon(num) {
+            if (gameState !== 'AIMING') return;
+            const t = getCurrentTank();
+            if (!t || t.isAI) return;
+            t.selectedWeapon = num;
+            sound.playAngleTick();
+            updateDashboardUI();
+        }
+
+        function renderItemSlots() {
+            const container = document.getElementById('item-slots-container');
+            container.innerHTML = '';
+            const t = getCurrentTank();
+            if (!t) return;
+
+            t.items.forEach((item, idx) => {
+                const btn = document.createElement('button');
+                const isActive = t.activeItem === item.id || (item.id === 'double' && t.extraShotPending);
+                btn.className = `item-slot h-12 sm:h-14 rounded-lg flex flex-col items-center justify-center relative p-1 ${item.used ? 'used' : ''} ${isActive ? 'active-item' : ''}`;
+                btn.onclick = () => {
+                    if (gameState === 'AIMING' && !t.isAI) useItemSlot(item.id);
+                };
+                btn.title = `${item.name}: ${item.desc}`;
+                btn.innerHTML = `
+                    <span class="absolute top-0.5 left-1 font-digital text-[9px] text-slate-400">${idx + 1}</span>
+                    <span class="text-base sm:text-lg leading-none">${item.icon}</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-slate-200 truncate w-full text-center mt-0.5">${item.name}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function useItemSlot(itemId) {
+            const t = getCurrentTank();
+            if (!t || !t.alive) return;
+            const slot = t.items.find(it => it.id === itemId);
+            if (!slot || slot.used) return;
+
+            if (itemId === 'repair') {
+                slot.used = true;
+                const heal = 300;
+                t.hp = Math.min(t.maxHp, t.hp + heal);
+                spawnFloatingText(t.x, t.y - 50, `+${heal} 수리 완료!`, '#4ade80', 19);
+                sound.playItemUse();
+            } else if (itemId === 'double') {
+                if (t.extraShotPending) return;
+                slot.used = true;
+                t.extraShotPending = true;
+                spawnFloatingText(t.x, t.y - 50, '더블파이어 장착!', '#facc15', 18);
+                sound.playItemUse();
+            } else {
+                // Power or Teleport
+                if (t.activeItem) return;
+                slot.used = true;
+                t.activeItem = itemId;
+                spawnFloatingText(t.x, t.y - 50, `${slot.name} 장착!`, '#38bdf8', 18);
+                sound.playItemUse();
+            }
+
+            renderItemSlots();
+            updateDashboardUI();
+        }
+
+        function updateWindUI() {
+            const maxWind = 15;
+            const pct = Math.min(100, (Math.abs(wind) / maxWind) * 100);
+            const leftBar = document.getElementById('wind-bar-left');
+            const rightBar = document.getElementById('wind-bar-right');
+            const textEl = document.getElementById('wind-value-text');
+
+            if (wind < 0) {
+                leftBar.style.width = `${pct / 2}%`;
+                rightBar.style.width = '0%';
+                textEl.textContent = `◀ ${Math.abs(wind)}`;
+            } else if (wind > 0) {
+                leftBar.style.width = '0%';
+                rightBar.style.width = `${pct / 2}%`;
+                textEl.textContent = `${wind} ▶`;
+            } else {
+                leftBar.style.width = '0%';
+                rightBar.style.width = '0%';
+                textEl.textContent = '0';
+            }
+        }
+
+        function updateDashboardUI() {
+            const t = getCurrentTank();
+            if (!t) return;
+
+            document.getElementById('dash-player-name').textContent = t.name;
+            document.getElementById('dash-player-name').className =
+                `text-xs font-black truncate ${t.team === 1 ? 'text-sky-400' : 'text-rose-400'}`;
+            document.getElementById('dash-tank-name').textContent = t.spec.name;
+
+            const slopeDeg = Math.round((t.slopeAngle * 180) / Math.PI);
+            document.getElementById('dash-slope-text').textContent = `경사 ${slopeDeg > 0 ? '+' + slopeDeg : slopeDeg}°`;
+
+            // Weapon Buttons
+            const b1 = document.getElementById('btn-w1');
+            const b2 = document.getElementById('btn-w2');
+            b1.textContent = `1. ${t.spec.w1.name}`;
+            b2.textContent = `2. ${t.spec.w2.name}`;
+
+            if (t.selectedWeapon === 1) {
+                b1.className = 'px-1.5 py-1 rounded text-[11px] font-bold border border-yellow-400 bg-amber-500/30 text-yellow-200 truncate';
+                b2.className = 'px-1.5 py-1 rounded text-[11px] font-bold border border-slate-700 bg-slate-800/80 text-slate-400 truncate';
+            } else {
+                b1.className = 'px-1.5 py-1 rounded text-[11px] font-bold border border-slate-700 bg-slate-800/80 text-slate-400 truncate';
+                b2.className = 'px-1.5 py-1 rounded text-[11px] font-bold border border-yellow-400 bg-amber-500/30 text-yellow-200 truncate';
+            }
+
+            // HP Bar
+            const hpPct = Math.max(0, (t.hp / t.maxHp) * 100);
+            document.getElementById('hp-bar-fill').style.width = `${hpPct}%`;
+            document.getElementById('hp-bar-text').textContent = `${t.hp} / ${t.maxHp}`;
+
+            // Move Bar
+            const movePct = Math.max(0, Math.round((t.moveRemaining / t.maxMove) * 100));
+            document.getElementById('move-bar-fill').style.width = `${movePct}%`;
+            document.getElementById('move-bar-text').textContent = `${movePct}%`;
+
+            // Power Bar & Last Power Memory Marker
+            document.getElementById('power-bar-fill').style.width = `${currentPower}%`;
+            document.getElementById('power-num-text').textContent = `${Math.round(currentPower)} / 100`;
+
+            const marker = document.getElementById('last-power-marker');
+            if (t.lastPower > 0) {
+                marker.classList.remove('hidden');
+                marker.style.left = `${t.lastPower}%`;
+            } else {
+                marker.classList.add('hidden');
+            }
+
+            // Active Item Label
+            const itemLabel = document.getElementById('active-item-label');
+            if (t.activeItem === 'power') itemLabel.textContent = '파워업탄 장착중';
+            else if (t.activeItem === 'teleport') itemLabel.textContent = '이동탄 장착중';
+            else if (t.extraShotPending) itemLabel.textContent = '더블파이어 활성';
+            else itemLabel.textContent = '대기 중';
+
+            // Angle Protractor Canvas
+            drawAngleProtractor(t);
+        }
+
+        function drawAngleProtractor(tank) {
+            const w = angleCanvas.width;
+            const h = angleCanvas.height;
+            const cx = w / 2;
+            const cy = h / 2 + 6;
+            const r = 42;
+
+            angleCtx.clearRect(0, 0, w, h);
+
+            // Outer Radar Ring
+            angleCtx.strokeStyle = '#334155';
+            angleCtx.lineWidth = 1.5;
+            angleCtx.beginPath();
+            angleCtx.arc(cx, cy, r, 0, Math.PI * 2);
+            angleCtx.stroke();
+
+            // Crosshairs
+            angleCtx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+            angleCtx.beginPath();
+            angleCtx.moveTo(cx - r, cy);
+            angleCtx.lineTo(cx + r, cy);
+            angleCtx.moveTo(cx, cy - r);
+            angleCtx.lineTo(cx, cy + r);
+            angleCtx.stroke();
+
+            // Tank Slope Horizon Line (Tilted by terrain slope)
+            angleCtx.save();
+            angleCtx.translate(cx, cy);
+            angleCtx.rotate(tank.slopeAngle);
+
+            // Valid Aiming Sector Fan (5° to 85°)
+            angleCtx.fillStyle = 'rgba(34, 197, 94, 0.18)';
+            angleCtx.beginPath();
+            angleCtx.moveTo(0, 0);
+            if (tank.facingRight) {
+                angleCtx.arc(0, 0, r - 2, -(85 * Math.PI) / 180, -(5 * Math.PI) / 180);
+            } else {
+                angleCtx.arc(0, 0, r - 2, Math.PI + (5 * Math.PI) / 180, Math.PI + (85 * Math.PI) / 180);
+            }
+            angleCtx.closePath();
+            angleCtx.fill();
+
+            // Tank Horizon Base Line
+            angleCtx.strokeStyle = '#60a5fa';
+            angleCtx.lineWidth = 2;
+            angleCtx.beginPath();
+            angleCtx.moveTo(-r + 6, 0);
+            angleCtx.lineTo(r - 6, 0);
+            angleCtx.stroke();
+            angleCtx.restore();
+
+            // Actual World Firing Vector Line
+            const worldRad = tank.getWorldBarrelAngleRad();
+            angleCtx.strokeStyle = '#facc15';
+            angleCtx.lineWidth = 2.5;
+            angleCtx.beginPath();
+            angleCtx.moveTo(cx, cy);
+            angleCtx.lineTo(cx + Math.cos(worldRad) * r, cy + Math.sin(worldRad) * r);
+            angleCtx.stroke();
+
+            // Center Pivot Dot
+            angleCtx.fillStyle = '#f8fafc';
+            angleCtx.beginPath();
+            angleCtx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+            angleCtx.fill();
+
+            document.getElementById('angle-text-display').textContent = `${tank.aimAngle}° (${tank.getDisplayAngleDeg()}°)`;
+        }
+
+        function showCenterToast(mainText, subText = 'FORTRESS 2') {
+            const toast = document.getElementById('center-toast');
+            const box = document.getElementById('center-toast-box');
+            document.getElementById('center-toast-main').textContent = mainText;
+            document.getElementById('center-toast-sub').textContent = subText;
+
+            toast.classList.remove('opacity-0');
+            box.classList.remove('scale-95');
+            box.classList.add('scale-100');
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                box.classList.remove('scale-100');
+                box.classList.add('scale-95');
+            }, 1350);
+        }
+
+        function checkGameOver() {
+            const aliveTanks = tanks.filter(t => t.alive);
+            if (aliveTanks.length <= 1 && gameState !== 'SETUP') {
+                gameState = 'GAMEOVER';
+                clearInterval(turnTimerInterval);
+                sound.stopCharging();
+
+                const modal = document.getElementById('gameover-modal');
+                const title = document.getElementById('winner-title');
+                const reason = document.getElementById('winner-reason');
+
+                if (aliveTanks.length === 1) {
+                    const winner = aliveTanks[0];
+                    title.textContent = `${winner.name} 승리!`;
+                    reason.textContent = `${winner.spec.name}의 정밀한 포격으로 승리를 쟁취했습니다!`;
+                    document.getElementById('stat-hp').textContent = `${winner.hp} HP`;
+                } else {
+                    title.textContent = '무승부 (DRAW)!';
+                    reason.textContent = '양측 탱크가 동시에 파괴되었습니다!';
+                    document.getElementById('stat-hp').textContent = '0 HP';
+                }
+
+                document.getElementById('stat-turns').textContent = `${turnNumber} 턴`;
+                setTimeout(() => modal.classList.remove('hidden'), 900);
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * ============================================================================
+         * 8. KEYBOARD & TOUCH INPUT HANDLERS
+         * ============================================================================
+         */
+        window.addEventListener('keydown', (e) => {
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+                e.preventDefault();
+            }
+
+            const t = getCurrentTank();
+            if (!t || t.isAI) return;
+
+            if (e.code in keys) keys[e.code] = true;
+
+            if (gameState === 'AIMING') {
+                if (e.code === 'Tab') {
+                    e.preventDefault();
+                    selectWeapon(t.selectedWeapon === 1 ? 2 : 1);
+                } else if (e.key === '1') useItemSlot('double');
+                else if (e.key === '2') useItemSlot('power');
+                else if (e.key === '3') useItemSlot('teleport');
+                else if (e.key === '4') useItemSlot('repair');
+                else if (e.code === 'F8') skipCurrentTurn();
+                else if (e.code === 'Space' && !isCharging) {
+                    gameState = 'CHARGING';
+                    isCharging = true;
+                    currentPower = 0;
+                    chargeDirection = 1;
+                    sound.startCharging();
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code in keys) keys[e.code] = false;
+            if (e.code === 'Space' && isCharging) {
+                releaseAndFire();
+            }
+        });
+
+        function releaseAndFire() {
+            if (!isCharging) return;
+            isCharging = false;
+            sound.stopCharging();
+            const t = getCurrentTank();
+            if (t && t.alive) {
+                const firePower = Math.max(8, Math.round(currentPower));
+                fireTankWeapon(t, firePower);
+            }
+        }
+
+        // Bind Mobile Touch Controls
+        function bindTouchControls() {
+            const bindHold = (id, keyName) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; });
+                el.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+                el.addEventListener('mousedown', () => keys[keyName] = true);
+                el.addEventListener('mouseup', () => keys[keyName] = false);
+            };
+            bindHold('touch-left', 'ArrowLeft');
+            bindHold('touch-right', 'ArrowRight');
+            bindHold('touch-up', 'ArrowUp');
+            bindHold('touch-down', 'ArrowDown');
+
+            const fireBtn = document.getElementById('touch-fire');
+            if (fireBtn) {
+                const startFire = (e) => {
+                    e.preventDefault();
+                    const t = getCurrentTank();
+                    if (gameState === 'AIMING' && t && !t.isAI && !isCharging) {
+                        gameState = 'CHARGING';
+                        isCharging = true;
+                        currentPower = 0;
+                        chargeDirection = 1;
+                        sound.startCharging();
+                    }
+                };
+                const endFire = (e) => {
+                    e.preventDefault();
+                    if (isCharging) releaseAndFire();
+                };
+                fireBtn.addEventListener('touchstart', startFire);
+                fireBtn.addEventListener('touchend', endFire);
+                fireBtn.addEventListener('mousedown', startFire);
+                fireBtn.addEventListener('mouseup', endFire);
+            }
+        }
+        bindTouchControls();
+
+        /**
+         * ============================================================================
+         * 9. MAIN 60FPS GAME LOOP & RENDERING PIPELINE
+         * ============================================================================
+         */
+        let lastAngleTickTime = 0;
+
+        function updateGame() {
+            const activeTank = getCurrentTank();
+
+            // 1. Handle Player Input During AIMING / CHARGING
+            if (activeTank && !activeTank.isAI && activeTank.alive) {
+                if (gameState === 'AIMING') {
+                    if (keys.ArrowLeft) activeTank.moveHorizontal(-1);
+                    if (keys.ArrowRight) activeTank.moveHorizontal(1);
+
+                    let angleChanged = false;
+                    if (keys.ArrowUp && activeTank.aimAngle < 85) {
+                        activeTank.aimAngle = Math.min(85, activeTank.aimAngle + 0.65);
+                        angleChanged = true;
+                    }
+                    if (keys.ArrowDown && activeTank.aimAngle > 5) {
+                        activeTank.aimAngle = Math.max(5, activeTank.aimAngle - 0.65);
+                        angleChanged = true;
+                    }
+                    if (angleChanged) {
+                        const now = Date.now();
+                        if (now - lastAngleTickTime > 55) {
+                            sound.playAngleTick();
+                            lastAngleTickTime = now;
+                        }
+                        updateDashboardUI();
+                    }
+                } else if (gameState === 'CHARGING' && isCharging) {
+                    currentPower += 1.35 * chargeDirection;
+                    if (currentPower >= 100) {
+                        currentPower = 100;
+                        chargeDirection = -1;
+                    } else if (currentPower <= 5) {
+                        currentPower = 5;
+                        chargeDirection = 1;
+                    }
+                    sound.updateChargingPitch(currentPower / 100);
+                    updateDashboardUI();
+                }
+            }
+
+            // 2. Update Tank Gravity / Falling Physics
+            let anyTankFalling = false;
+            for (const t of tanks) {
+                if (t.updatePhysics()) anyTankFalling = true;
+            }
+
+            // 3. Update Active Projectiles
+            if (projectiles.length > 0) {
+                for (const p of projectiles) p.update();
+                projectiles = projectiles.filter(p => p.active);
+
+                if (projectiles.length === 0 && gameState === 'FIRING') {
+                    gameState = 'SETTLING';
+                }
+            }
+
+            // 4. Transition from SETTLING to next turn once tanks stop falling
+            if (gameState === 'SETTLING' && !anyTankFalling && projectiles.length === 0) {
+                if (!checkGameOver()) {
+                    gameState = 'TRANSITION';
+                    setTimeout(() => advanceTurn(), 550);
+                }
+            }
+
+            // 5. Update Clouds
+            for (const c of clouds) {
+                c.x += wind * 0.08 + c.speed * (wind >= 0 ? 1 : -1);
+                if (c.x > WORLD_W + 100) c.x = -100;
+                if (c.x < -100) c.x = WORLD_W + 100;
+            }
+
+            // 6. Update Explosion Particles
+            for (const pt of particles) {
+                if (pt.type === 'flash') {
+                    pt.r += (pt.maxR - pt.r) * 0.3;
+                    pt.alpha -= 0.08;
+                } else {
+                    pt.x += pt.vx;
+                    pt.y += pt.vy;
+                    pt.vy += 0.18;
+                    pt.alpha -= 0.022;
+                }
+            }
+            particles = particles.filter(pt => pt.alpha > 0);
+
+            // 7. Update Floating Damage Texts
+            for (const ft of floatingTexts) {
+                ft.y += ft.vy;
+                ft.life--;
+                if (ft.life < 20) ft.alpha = ft.life / 20;
+            }
+            floatingTexts = floatingTexts.filter(ft => ft.life > 0);
+
+            if (screenShake > 0) screenShake *= 0.85;
+            if (screenShake < 0.4) screenShake = 0;
+            waterWaveOffset += 0.05;
+        }
+
+        function drawGame() {
+            ctx.save();
+            if (screenShake > 0) {
+                const dx = (Math.random() - 0.5) * screenShake * 2;
+                const dy = (Math.random() - 0.5) * screenShake * 2;
+                ctx.translate(dx, dy);
+            }
+
+            // 1. Vibrant Sky Gradient
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, WORLD_H);
+            if (selectedMapStyle === 'canyon') {
+                skyGrad.addColorStop(0, '#1e1b4b');
+                skyGrad.addColorStop(0.55, '#7c2d12');
+                skyGrad.addColorStop(1, '#f97316');
+            } else if (selectedMapStyle === 'island') {
+                skyGrad.addColorStop(0, '#0284c7');
+                skyGrad.addColorStop(0.6, '#38bdf8');
+                skyGrad.addColorStop(1, '#bae6fd');
+            } else {
+                skyGrad.addColorStop(0, '#090d16');
+                skyGrad.addColorStop(0.45, '#1e3a8a');
+                skyGrad.addColorStop(1, '#3b82f6');
+            }
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+
+            // 2. Background Stars
+            if (selectedMapStyle !== 'island') {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+                for (const s of stars) {
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // 3. Distant Mountain Silhouette
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+            ctx.beginPath();
+            ctx.moveTo(0, WORLD_H);
+            for (let x = 0; x <= WORLD_W; x += 120) {
+                const peak = 290 + Math.sin(x * 0.01) * 55;
+                ctx.lineTo(x, peak);
+            }
+            ctx.lineTo(WORLD_W, WORLD_H);
+            ctx.closePath();
+            ctx.fill();
+
+            // 4. Drifting Clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+            for (const c of clouds) {
+                ctx.beginPath();
+                ctx.roundRect(c.x, c.y, c.w, 22, 11);
+                ctx.fill();
+            }
+
+            // 5. Destructible Terrain Layer
+            ctx.drawImage(terrainCanvas, 0, 0);
+
+            // 6. Tanks
+            const activeTank = getCurrentTank();
+            for (const t of tanks) {
+                t.draw(ctx, activeTank && t.id === activeTank.id);
+            }
+
+            // 7. Projectiles
+            for (const p of projectiles) {
+                p.draw(ctx);
+            }
+
+            // 8. Explosion Particles
+            for (const pt of particles) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, pt.alpha);
+                ctx.fillStyle = pt.color;
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // 9. Bottom Bungee Water Abyss Waves
+            const waterGrad = ctx.createLinearGradient(0, WORLD_H - 26, 0, WORLD_H);
+            waterGrad.addColorStop(0, 'rgba(14, 165, 233, 0.78)');
+            waterGrad.addColorStop(1, 'rgba(3, 105, 161, 0.96)');
+            ctx.fillStyle = waterGrad;
+            ctx.beginPath();
+            ctx.moveTo(0, WORLD_H);
+            for (let x = 0; x <= WORLD_W; x += 20) {
+                const wy = WORLD_H - 18 + Math.sin(x * 0.03 + waterWaveOffset) * 4;
+                ctx.lineTo(x, wy);
+            }
+            ctx.lineTo(WORLD_W, WORLD_H);
+            ctx.closePath();
+            ctx.fill();
+
+            // 10. Floating Damage & Event Numbers
+            for (const ft of floatingTexts) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, ft.alpha);
+                ctx.font = `900 ${ft.size}px "Noto Sans KR"`;
+                ctx.textAlign = 'center';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 4;
+                ctx.strokeText(ft.text, ft.x, ft.y);
+                ctx.fillStyle = ft.color;
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.restore();
+            }
+
+            ctx.restore();
+        }
+
+        function gameLoop() {
+            updateGame();
+            drawGame();
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.onload = function () {
+            renderSetupCards();
+            generateTerrain('valley');
+            requestAnimationFrame(gameLoop);
+        };
+    </script>
+
+<!-- arcade gallery back link -->
+<style>
+#arcade-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;background:rgba(8,8,12,.72);border:1px solid rgba(255,255,255,.24);color:#fff !important;font:600 12px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif !important;text-decoration:none !important;letter-spacing:.02em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.45);opacity:.8;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+#arcade-back:hover,#arcade-back:focus-visible{opacity:1;transform:translateY(-1px)}
+@media print{#arcade-back{display:none}}
+</style>
+<a id="arcade-back" href="../index.html" aria-label="미니게임 갤러리로 돌아가기">← 갤러리</a>
+
+</body>
+</html>

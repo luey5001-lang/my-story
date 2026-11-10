@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>도형의 MUD: 속성 대결과 무한 성장</title>
+    <style>
+        body {
+            background-color: #0c0d0e;
+            color: #d1d5db;
+            font-family: 'Consolas', 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .game-container {
+            width: 740px;
+            background-color: #1a1c1e;
+            border: 2px solid #3f444a;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border-radius: 8px;
+            position: relative;
+        }
+        h2 { text-align: center; color: #fbbf24; border-bottom: 2px solid #3f444a; padding-bottom: 10px; margin-top: 0; }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+            background-color: #111214;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .dashboard-col {
+            border: 1px solid #2d3135;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .dashboard-col h3 { margin-top: 0; margin-bottom: 8px; font-size: 15px; border-bottom: 1px solid #2d3135; padding-bottom: 5px; color: #e5e7eb; }
+        
+        .log-window {
+            height: 300px;
+            border: 1px solid #3f444a;
+            padding: 15px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background-color: #090a0b;
+            white-space: pre-line;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .controls, .loot-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .loot-controls {
+            display: none; /* 아이템 드롭 시에만 켜짐 */
+            border-top: 1px dashed #3f444a;
+            padding-top: 15px;
+        }
+        button {
+            background-color: #24272b;
+            color: #e5e7eb;
+            border: 1px solid #4b525a;
+            padding: 14px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        button:hover { background-color: #3b3f46; border-color: #6b7280; }
+        button:disabled { color: #4b525a; border-color: #2d3135; cursor: not-allowed; background-color: #17191c; }
+        
+        #btn-attack { background-color: #851c1d; border-color: #a8292b; color: #fff; grid-column: span 2; }
+        #btn-attack:hover { background-color: #a8292b; }
+        #btn-take { background-color: #065f46; border-color: #059669; color: #fff; }
+        #btn-take:hover { background-color: #059669; }
+        #btn-discard { background-color: #374151; border-color: #4b5563; color: #fff; }
+        #btn-discard:hover { background-color: #4b5563; }
+
+        .game-over-screen {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            color: #ef4444;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        .game-over-screen h1 { font-size: 50px; margin-bottom: 10px; letter-spacing: 5px; }
+
+        .attr-fire { color: #f87171; font-weight: bold; } /* 화: 빨강 */
+        .attr-water { color: #60a5fa; font-weight: bold; } /* 수: 파랑 */
+        .attr-wood { color: #34d399; font-weight: bold; } /* 목: 초록 */
+        
+        .sys-item { color: #e9d5ff; font-weight: bold; }
+        .sys-monster { color: #fca5a5; font-weight: bold; }
+        .sys-heal { color: #f472b6; font-weight: bold; }
+        .profit { color: #10b981; font-weight: bold; }
+        .loss { color: #ef4444; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="game-over-screen" id="game-over">
+        <h1>💀 YOU DIED 💀</h1>
+        <p>전투 도중 쓰러졌습니다. 총 처치 수: <span id="txt-final-kill" style="font-weight:bold; color:#fbbf24;">0</span> 마리</p>
+        <button onclick="location.reload()" style="background-color: #b91c1c; color: #fff; border: none; margin-top: 20px; padding: 10px 20px; cursor: pointer; font-weight:bold;">🔄 다시 시작하기</button>
+    </div>
+
+    <h2>[ ⚔️ MUD: 끝없는 굴레와 상성 ]</h2>
+    
+    <div class="dashboard">
+        <div class="dashboard-col">
+            <h3>👤 플레이어 정보</h3>
+            <div>HP: <span id="p-hp" style="color:#ef4444; font-weight:bold;">100/100</span></div>
+            <div>처치 수: <span id="p-kills" style="font-weight:bold; color:#fbbf24;">0 마리</span></div>
+            <div>장비: <span id="p-weapon-name" class="sys-item">녹슨 단검</span></div>
+            <div>공격력: <span id="p-weapon-atk" style="font-weight:bold;">10</span> | 속성: <span id="p-weapon-attr" class="attr-fire">🔥화</span></div>
+        </div>
+        <div class="dashboard-col">
+            <h3>👹 대치 중인 몬스터</h3>
+            <div>이름: <span id="m-name" class="sys-monster">대기 중...</span></div>
+            <div>HP: <span id="m-hp" style="color:#ef4444; font-weight:bold;">-</span></div>
+            <div>공격력: <span id="m-atk" style="font-weight:bold;">-</span> | 속성: <span id="m-attr">-</span></div>
+        </div>
+    </div>
+
+    <div class="log-window" id="log-screen">
+던전에 진입했습니다. 속성 상성 규칙을 숙지하십시오.
+- <b>[🔥화 ➡️ 🍃목 ➡️ 💧수 ➡️ 🔥화]</b> 순으로 강한 상성을 지닙니다.
+- 유리한 상성은 <span class="profit">데미지 20% 증가</span>, 불리한 상성은 <span class="loss">데미지 20% 감소</span>가 적용됩니다.
+- 몬스터는 당신의 무기 강도에 맞춰 점점 강력해집니다.
+    </div>
+
+    <div class="controls" id="battle-controls">
+        <button id="btn-attack">⚔️ 교전 (공격 및 반격)</button>
+    </div>
+
+    <div class="loot-controls" id="loot-controls">
+        <button id="btn-take">👍 새 무기 장착</button>
+        <button id="btn-discard">👎 기존 무기 유지</button>
+    </div>
+</div>
+
+<script>
+    const logScreen = document.getElementById('log-screen');
+    const p_hp = document.getElementById('p-hp');
+    const p_kills = document.getElementById('p-kills');
+    const p_weapon_name = document.getElementById('p-weapon-name');
+    const p_weapon_atk = document.getElementById('p-weapon-atk');
+    const p_weapon_attr = document.getElementById('p-weapon-attr');
+    
+    const m_name = document.getElementById('m-name');
+    const m_hp = document.getElementById('m-hp');
+    const m_atk = document.getElementById('m-atk');
+    const m_attr = document.getElementById('m-attr');
+
+    const btnAttack = document.getElementById('btn-attack');
+    const btnTake = document.getElementById('btn-take');
+    const btnDiscard = document.getElementById('btn-discard');
+    
+    const divBattle = document.getElementById('battle-controls');
+    const divLoot = document.getElementById('loot-controls');
+    const gameOverScreen = document.getElementById('game-over');
+    const txtFinalKill = document.getElementById('txt-final-kill');
+
+    let player = {
+        hp: 100, maxHp: 100, kills: 0,
+        weapon: { name: "녹슨 단검", atk: 12, attr: "fire" }
+    };
+
+    let monster = null;
+    let droppedLoot = null; 
+
+    const attrMap = {
+        fire: { kr: "🔥화", cls: "attr-fire" },
+        water: { kr: "💧수", cls: "attr-water" },
+        wood: { kr: "🍃목", cls: "attr-wood" }
+    };
+
+    const monsterNames = ["산성 고블린", "맹화의 정령", "심연의 나가", "가시덤불 트롤", "돌연변이 오크"];
+    const weaponPrefixes = ["초보자의", "용사의", "잊혀진", "피바람의", "고대의"];
+    const weaponTypes = ["장검", "전투도끼", "미스릴 창", "파괴의 해머"];
+
+    function printLog(text) {
+        logScreen.innerHTML += "\n" + text;
+        logScreen.scrollTop = logScreen.scrollHeight;
+    }
+
+    function updateUI() {
+        p_hp.innerText = `${Math.max(0, player.hp)}/${player.maxHp}`;
+        p_kills.innerText = `${player.kills} 마리`;
+        p_weapon_name.innerText = player.weapon.name;
+        p_weapon_atk.innerText = player.weapon.atk;
+        p_weapon_attr.innerHTML = `<span class="${attrMap[player.weapon.attr].cls}">${attrMap[player.weapon.attr].kr}</span>`;
+
+        if (monster) {
+            m_name.innerText = monster.name;
+            m_hp.innerText = `${Math.max(0, monster.hp)}/${monster.maxHp}`;
+            m_atk.innerText = monster.atk;
+            m_attr.innerHTML = `<span class="${attrMap[monster.attr].cls}">${attrMap[monster.attr].kr}</span>`;
+        }
+    }
+
+    function getMultiplier(atkAttr, defAttr) {
+        if (atkAttr === defAttr) return 1.0;
+        if (
+            (atkAttr === "fire" && defAttr === "wood") ||
+            (atkAttr === "wood" && defAttr === "water") ||
+            (atkAttr === "water" && defAttr === "fire")
+        ) return 1.2;
+        return 0.8;
+    }
+
+    function spawnMonster() {
+        const scaleFactor = Math.max(1, player.weapon.atk / 12);
+        const maxHp = Math.floor((Math.random() * 20 + 30) * scaleFactor);
+        const atk = Math.floor((Math.random() * 5 + 6) * scaleFactor);
+        const attrKeys = ["fire", "water", "wood"];
+
+        monster = {
+            name: monsterNames[Math.floor(Math.random() * monsterNames.length)],
+            hp: maxHp, maxHp: maxHp, atk: atk,
+            attr: attrKeys[Math.floor(Math.random() * attrKeys.length)]
+        };
+
+        printLog(`\n------------------------------------------------------------`);
+        printLog(`👹 새로운 적 등장! <span class="sys-monster">${monster.name}</span> (속성: <span class="${attrMap[monster.attr].cls}">${attrMap[monster.attr].kr}</span>)`);
+        updateUI();
+    }
+
+    btnAttack.addEventListener('click', () => {
+        if (player.hp <= 0 || !monster) return;
+
+        btnAttack.disabled = true;
+
+        const pMult = getMultiplier(player.weapon.attr, monster.attr);
+        let pDamage = Math.floor(player.weapon.atk * pMult);
+        monster.hp -= pDamage;
+        
+        let battleDetail = pMult > 1.0 ? `<span class="profit">(+20% 상성 우위)</span>` : (pMult < 1.0 ? `<span class="loss">(-20% 상성 열위)</span>` : "");
+        printLog(`⚔️ 당신의 공격! ${monster.name}에게 ${pDamage} 데미지. ${battleDetail}`);
+
+        if (monster.hp <= 0) {
+            player.kills++;
+            printLog(`🎉 <span class="sys-monster">${monster.name}</span> 처치 성공!`);
+            monster = null;
+            rollDropTable();
+            return;
+        }
+
+        const mMult = getMultiplier(monster.attr, player.weapon.attr);
+        let mDamage = Math.floor(monster.atk * mMult);
+        player.hp -= mDamage;
+
+        let mDetail = mMult > 1.0 ? `<span class="loss">(+20% 상성 피해)</span>` : (mMult < 1.0 ? `<span class="profit">(-20% 상성 방어)</span>` : "");
+        printLog(`💥 적의 반격! 당신은 ${mDamage}의 피해를 입었습니다. ${mDetail}`);
+
+        if (player.hp <= 0) {
+            txtFinalKill.innerText = player.kills;
+            gameOverScreen.style.display = "flex";
+            updateUI();
+            return;
+        }
+
+        updateUI();
+        btnAttack.disabled = false;
+    });
+
+    function rollDropTable() {
+        const roll = Math.random();
+
+        // 25% 확률로 완전 회복 물약
+        if (roll < 0.25) {
+            player.hp = player.maxHp;
+            printLog(`\n🧪 <span class="sys-heal">[전리품] 기적의 엘릭서를 발견하여 즉시 마셨습니다! HP 100% 완전 회복.</span>`);
+            updateUI();
+            setTimeout(spawnMonster, 1000);
+            btnAttack.disabled = false;
+            return;
+        }
+
+        // 75% 확률로 스케일링 무기 드롭
+        const pfx = weaponPrefixes[Math.floor(Math.random() * weaponPrefixes.length)];
+        const typ = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
+        const attrKeys = ["fire", "water", "wood"];
+        
+        const gearLevelFactor = 1 + (player.kills * 0.1); // 몬스터가 강해진 만큼 드롭템도 강해짐
+        const baseAtk = Math.floor((Math.random() * 10 + 10) * gearLevelFactor);
+
+        droppedLoot = {
+            name: `${pfx} ${typ}`,
+            atk: baseAtk,
+            attr: attrKeys[Math.floor(Math.random() * attrKeys.length)]
+        };
+
+        printLog(`\n🎁 <span class="sys-item">[장비 발견]</span> 몬스터가 무기를 떨어뜨렸습니다.`);
+        printLog(`   ▶ <span class="sys-item">${droppedLoot.name}</span> | 공격력: ${droppedLoot.atk} | 속성: <span class="${attrMap[droppedLoot.attr].cls}">${attrMap[droppedLoot.attr].kr}</span>`);
+        printLog(`   (현재 장비: ${player.weapon.atk} | <span class="${attrMap[player.weapon.attr].cls}">${attrMap[player.weapon.attr].kr}</span>)`);
+        
+        divBattle.style.display = "none";
+        divLoot.style.display = "grid";
+        updateUI();
+    }
+
+    btnTake.addEventListener('click', () => {
+        player.weapon = { ...droppedLoot };
+        droppedLoot = null;
+        printLog(`👍 새 무기를 장착했습니다!`);
+        
+        divLoot.style.display = "none";
+        divBattle.style.display = "grid";
+        btnAttack.disabled = false;
+        spawnMonster();
+    });
+
+    btnDiscard.addEventListener('click', () => {
+        printLog(`👎 드롭된 무기를 버리고 기존 장비를 유지합니다.`);
+        droppedLoot = null;
+        
+        divLoot.style.display = "none";
+        divBattle.style.display = "grid";
+        btnAttack.disabled = false;
+        spawnMonster();
+    });
+
+    spawnMonster();
+</script>
+
+
+<!-- arcade gallery back link -->
+<style>
+#arcade-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;background:rgba(8,8,12,.72);border:1px solid rgba(255,255,255,.24);color:#fff !important;font:600 12px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif !important;text-decoration:none !important;letter-spacing:.02em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.45);opacity:.8;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+#arcade-back:hover,#arcade-back:focus-visible{opacity:1;transform:translateY(-1px)}
+@media print{#arcade-back{display:none}}
+</style>
+<a id="arcade-back" href="../index.html" aria-label="미니게임 갤러리로 돌아가기">← 갤러리</a>
+
+</body>
+</html>

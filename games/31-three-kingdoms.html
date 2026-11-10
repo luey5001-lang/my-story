@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>⚔️ 삼국지 전략 시뮬레이션 - 군웅할거</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #1a120b;
+      font-family: 'Noto Serif KR', 'Malgun Gothic', 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 15px;
+      background-image: radial-gradient(circle at 10% 30%, #3e2e1f, #0f0803);
+    }
+    .game-container {
+      max-width: 900px;
+      width: 100%;
+      background: #d9c49c;
+      background-image: linear-gradient(145deg, #c8af7e, #b29762);
+      border: 6px solid #5c3e1f;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,215,120,0.3);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #4b2e1a;
+      color: #f3e3b0;
+      padding: 10px 20px;
+      border-radius: 16px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      border: 2px solid #c9a034;
+      font-weight: bold;
+    }
+    .stats {
+      display: flex;
+      gap: 25px;
+      flex-wrap: wrap;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: #6b4c2b;
+      border: none;
+      color: #ffefc8;
+      font-weight: bold;
+      padding: 8px 18px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      border-bottom: 3px solid #3b2b16;
+      transition: 0.2s;
+      letter-spacing: 0.5px;
+    }
+    button:active {
+      transform: translateY(2px);
+      border-bottom-width: 1px;
+    }
+    button.golden {
+      background: #b8862c;
+      border-color: #5e3e0e;
+    }
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      background: #7e9f5e;
+      padding: 15px;
+      border-radius: 20px;
+      border: 3px solid #4d6030;
+      margin: 15px 0;
+      box-shadow: inset 0 0 15px #2d3a1a;
+    }
+    .territory-card {
+      background: #b8a87d;
+      border-radius: 18px;
+      padding: 10px 5px;
+      text-align: center;
+      border: 2px solid #5c4a2b;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 5px 0 #6b5d3b;
+      position: relative;
+    }
+    .territory-card.enemy {
+      background: #c46b5a;
+      border-color: #8b3a2a;
+      box-shadow: 0 5px 0 #632b1e;
+    }
+    .territory-card.player-owned {
+      background: #5f8b4b;
+      border-color: #f5d742;
+      box-shadow: 0 0 12px #f5b042;
+    }
+    .territory-name {
+      font-weight: bold;
+      color: #1f2e0e;
+      font-size: 0.9rem;
+    }
+    .territory-info {
+      font-size: 0.7rem;
+      color: #2d2615;
+    }
+    .action-panel {
+      background: #e7d5ad;
+      border-radius: 18px;
+      padding: 15px;
+      margin-top: 10px;
+      border: 2px solid #af8c5c;
+    }
+    .troop-display {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin: 12px 0;
+      flex-wrap: wrap;
+    }
+    .officer-box {
+      background: #4d3620;
+      color: #fae3b6;
+      padding: 8px 15px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .log-area {
+      background: #faf3e0;
+      border-radius: 12px;
+      padding: 10px;
+      max-height: 100px;
+      overflow-y: auto;
+      font-size: 0.8rem;
+      border: 1px solid #b5955c;
+      margin-top: 8px;
+      color: #2e2b1f;
+    }
+    @media (max-width: 550px) {
+      .map-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div class="stats">
+      <span>📅 턴 <span id="turnCount">1</span></span>
+      <span>🍚 식량 <span id="foodAmount">800</span></span>
+      <span>🪙 금 <span id="goldAmount">500</span></span>
+    </div>
+    <div class="btn-group">
+      <button id="nextTurnBtn" class="golden">⏩ 턴 종료</button>
+      <button id="recruitBtn">⚔️ 모병</button>
+    </div>
+  </div>
+
+  <!-- 영토 지도 -->
+  <div class="map-grid" id="mapGrid"></div>
+
+  <div class="action-panel" id="actionPanel">
+    <h3 style="color:#3b2f1c; margin-bottom:6px;">📌 영토를 선택하여 행동</h3>
+    <div class="troop-display" id="troopInfo">
+      <div class="officer-box">👤 <span id="commanderName">유비</span> ⚔️병력 <span id="troopCount">3000</span></div>
+    </div>
+    <div class="log-area" id="logArea">⚔️ 군웅할거의 시대. 영토를 확장하십시오!</div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    // ---------- 게임 상태 ----------
+    const state = {
+      turn: 1,
+      food: 800,
+      gold: 500,
+      playerTroops: 3000,
+      commanderName: '유비',
+      // 영토 데이터: id, name, owner ('player' or 'enemy'), troops, incomeFood, incomeGold
+      territories: [],
+      selectedTerritoryId: null,
+    };
+
+    // 초기 영토 설정 (4x4 = 8개 지역으로 간략화, 8영토)
+    const defaultTerritories = [
+      { id: 0, name: '성도', owner: 'player', troops: 1200, foodIncome: 80, goldIncome: 50 },
+      { id: 1, name: '한중', owner: 'player', troops: 800, foodIncome: 60, goldIncome: 40 },
+      { id: 2, name: '양양', owner: 'enemy', troops: 1100, foodIncome: 70, goldIncome: 45 },
+      { id: 3, name: '장안', owner: 'enemy', troops: 1500, foodIncome: 90, goldIncome: 70 },
+      { id: 4, name: '건업', owner: 'enemy', troops: 1300, foodIncome: 65, goldIncome: 55 },
+      { id: 5, name: '회계', owner: 'neutral', troops: 600, foodIncome: 40, goldIncome: 30 },
+      { id: 6, name: '업', owner: 'neutral', troops: 700, foodIncome: 45, goldIncome: 35 },
+      { id: 7, name: '북평', owner: 'enemy', troops: 1400, foodIncome: 75, goldIncome: 60 },
+    ];
+
+    // DOM 요소
+    const mapGrid = document.getElementById('mapGrid');
+    const turnSpan = document.getElementById('turnCount');
+    const foodSpan = document.getElementById('foodAmount');
+    const goldSpan = document.getElementById('goldAmount');
+    const troopCountSpan = document.getElementById('troopCount');
+    const commanderNameSpan = document.getElementById('commanderName');
+    const logArea = document.getElementById('logArea');
+
+    // ---------- 저장/로드 ----------
+    function saveGame() {
+      localStorage.setItem('threeKingdomsSim', JSON.stringify(state));
+    }
+    function loadGame() {
+      const saved = localStorage.getItem('threeKingdomsSim');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          state.turn = parsed.turn || 1;
+          state.food = parsed.food ?? 800;
+          state.gold = parsed.gold ?? 500;
+          state.playerTroops = parsed.playerTroops ?? 3000;
+          state.territories = parsed.territories || [...defaultTerritories];
+          state.selectedTerritoryId = null;
+        } catch (e) { resetToDefault(); }
+      } else {
+        resetToDefault();
+      }
+    }
+    function resetToDefault() {
+      state.turn = 1;
+      state.food = 800;
+      state.gold = 500;
+      state.playerTroops = 3000;
+      state.territories = JSON.parse(JSON.stringify(defaultTerritories));
+      state.selectedTerritoryId = null;
+    }
+
+    // ---------- 로그 ----------
+    function addLog(msg) {
+      logArea.innerHTML = msg + '<br>' + logArea.innerHTML;
+      if (logArea.children.length > 5) logArea.removeChild(logArea.lastChild);
+    }
+
+    // ---------- UI 업데이트 ----------
+    function updateUI() {
+      turnSpan.textContent = state.turn;
+      foodSpan.textContent = state.food;
+      goldSpan.textContent = state.gold;
+      troopCountSpan.textContent = state.playerTroops;
+      commanderNameSpan.textContent = state.commanderName;
+      renderMap();
+      saveGame();
+    }
+
+    // 지도 렌더링
+    function renderMap() {
+      if (!mapGrid) return;
+      mapGrid.innerHTML = '';
+      state.territories.forEach(territory => {
+        const card = document.createElement('div');
+        let ownerClass = '';
+        if (territory.owner === 'player') ownerClass = 'player-owned';
+        else if (territory.owner === 'enemy') ownerClass = 'enemy';
+        card.className = `territory-card ${ownerClass}`;
+        card.innerHTML = `
+          <div class="territory-name">🏴 ${territory.name}</div>
+          <div class="territory-info">⚔️${territory.troops} 🍚${territory.foodIncome}/💰${territory.goldIncome}</div>
+          <div style="font-size:0.7rem;">${territory.owner === 'player' ? '🟢 아군' : (territory.owner==='enemy'?'🔴 적군':'⚪ 중립')}</div>
+        `;
+        card.addEventListener('click', () => selectTerritory(territory.id));
+        mapGrid.appendChild(card);
+      });
+    }
+
+    function selectTerritory(id) {
+      state.selectedTerritoryId = id;
+      const territory = state.territories.find(t => t.id === id);
+      if (!territory) return;
+      addLog(`📌 ${territory.name} 선택됨. 공격 또는 행동 선택.`);
+      // 공격 가능 여부 체크 및 버튼 표시는 action panel 활용
+    }
+
+    // ---------- 게임 액션 ----------
+    function attackTerritory(targetId) {
+      if (state.selectedTerritoryId === null) {
+        addLog('⚠️ 먼저 공격할 영토를 선택하세요.');
+        return;
+      }
+      const playerTerritory = state.territories.find(t => t.id === state.selectedTerritoryId);
+      if (!playerTerritory || playerTerritory.owner !== 'player') {
+        addLog('❌ 아군 영토에서만 공격을 시작할 수 있습니다.');
+        return;
+      }
+      const target = state.territories.find(t => t.id === targetId);
+      if (!target || target.owner === 'player') {
+        addLog('❌ 적 또는 중립 영토만 공격 가능합니다.');
+        return;
+      }
+      if (state.playerTroops < 300) {
+        addLog('⚠️ 병력이 부족합니다. (최소 300 필요)');
+        return;
+      }
+      // 전투 로직
+      const attackPower = state.playerTroops * (0.8 + Math.random() * 0.5);
+      const defendPower = target.troops * (0.9 + Math.random() * 0.6);
+      const playerLoss = Math.floor(defendPower * 0.25);
+      const enemyLoss = Math.floor(attackPower * 0.35);
+
+      if (attackPower > defendPower) {
+        // 승리
+        state.playerTroops = Math.max(200, state.playerTroops - playerLoss);
+        target.troops = Math.max(0, target.troops - enemyLoss);
+        target.owner = 'player';
+        addLog(`⚔️ ${target.name} 공격 성공! 아군 손실 ${playerLoss}, 적 섬멸. 영토 획득!`);
+      } else {
+        // 패배
+        state.playerTroops = Math.max(100, state.playerTroops - Math.floor(playerLoss*1.3));
+        target.troops = Math.max(200, target.troops - Math.floor(enemyLoss*0.7));
+        addLog(`💔 ${target.name} 공격 실패... 아군 피해 ${Math.floor(playerLoss*1.3)}. 적 잔존 병력 ${target.troops}`);
+      }
+      state.selectedTerritoryId = null;
+      updateUI();
+    }
+
+    function recruitTroops() {
+      const costGold = 120;
+      const costFood = 80;
+      if (state.gold < costGold || state.food < costFood) {
+        addLog('💰 식량 또는 금이 부족합니다.');
+        return;
+      }
+      state.gold -= costGold;
+      state.food -= costFood;
+      const added = 400 + Math.floor(Math.random() * 250);
+      state.playerTroops += added;
+      addLog(`⚔️ 병사 ${added}명 모집! 현재 병력 ${state.playerTroops}`);
+      updateUI();
+    }
+
+    function nextTurn() {
+      // 수입 계산
+      let foodIncome = 0;
+      let goldIncome = 0;
+      state.territories.forEach(t => {
+        if (t.owner === 'player') {
+          foodIncome += t.foodIncome;
+          goldIncome += t.goldIncome;
+        }
+      });
+      state.food += foodIncome;
+      state.gold += goldIncome;
+      // 유지비 (병력 당 식량 소모)
+      const upkeep = Math.floor(state.playerTroops * 0.08);
+      state.food = Math.max(0, state.food - upkeep);
+      
+      // 적 영토 행동 (일부 적군 성장)
+      state.territories.forEach(t => {
+        if (t.owner === 'enemy') {
+          t.troops = Math.min(2500, t.troops + Math.floor(Math.random() * 60 + 20));
+        } else if (t.owner === 'neutral') {
+          t.troops = Math.min(1500, t.troops + Math.floor(Math.random() * 30));
+        }
+      });
+
+      state.turn++;
+      addLog(`📅 턴 ${state.turn} 시작. 수입 +🍚${foodIncome} +💰${goldIncome}, 유지비 -🍚${upkeep}`);
+      
+      // 식량 부족 경고
+      if (state.food < 50) {
+        addLog('⚠️ 식량이 부족합니다! 병력 사기가 저하됩니다.');
+        state.playerTroops = Math.floor(state.playerTroops * 0.92);
+      }
+      
+      state.selectedTerritoryId = null;
+      updateUI();
+    }
+
+    // 적 AI 공격 (턴 종료 시 간단히)
+    function enemyTurnAction() {
+      const playerTerritories = state.territories.filter(t => t.owner === 'player');
+      if (playerTerritories.length === 0) return;
+      const enemyTerritories = state.territories.filter(t => t.owner === 'enemy' && t.troops > 400);
+      if (enemyTerritories.length === 0) return;
+      
+      // 랜덤하게 적 하나가 플레이어 영토 공격
+      const attacker = enemyTerritories[Math.floor(Math.random() * enemyTerritories.length)];
+      const target = playerTerritories[Math.floor(Math.random() * playerTerritories.length)];
+      
+      const attackPower = attacker.troops * (0.7 + Math.random()*0.5);
+      const defendPower = target.troops * (0.85 + Math.random()*0.5);
+      
+      if (attackPower > defendPower) {
+        target.owner = 'enemy';
+        target.troops = Math.floor(attacker.troops * 0.3);
+        attacker.troops = Math.floor(attacker.troops * 0.55);
+        addLog(`🚨 적군이 ${target.name}을(를) 점령했습니다!`);
+      } else {
+        attacker.troops = Math.floor(attacker.troops * 0.4);
+        target.troops = Math.floor(target.troops * 0.7);
+        addLog(`🛡️ ${target.name} 방어 성공! 적군 격퇴.`);
+      }
+    }
+
+    // ---------- 이벤트 핸들러 ----------
+    document.getElementById('nextTurnBtn').addEventListener('click', () => {
+      enemyTurnAction();
+      nextTurn();
+    });
+    document.getElementById('recruitBtn').addEventListener('click', recruitTroops);
+
+    // 지도에서 우클릭 or 공격 버튼 추가 (영토 선택 후 공격)
+    mapGrid.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const card = e.target.closest('.territory-card');
+      if (!card) return;
+      const index = Array.from(mapGrid.children).indexOf(card);
+      if (index >= 0 && index < state.territories.length) {
+        attackTerritory(state.territories[index].id);
+      }
+    });
+
+    // 공격 안내 문구
+    window.addEventListener('load', () => {
+      addLog('🖱️ 영토 클릭 후, 다른 영토 우클릭으로 공격!');
+    });
+
+    // 초기화
+    loadGame();
+    updateUI();
+  })();
+</script>
+
+<!-- arcade gallery back link -->
+<style>
+#arcade-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;background:rgba(8,8,12,.72);border:1px solid rgba(255,255,255,.24);color:#fff !important;font:600 12px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif !important;text-decoration:none !important;letter-spacing:.02em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.45);opacity:.8;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+#arcade-back:hover,#arcade-back:focus-visible{opacity:1;transform:translateY(-1px)}
+@media print{#arcade-back{display:none}}
+</style>
+<a id="arcade-back" href="../index.html" aria-label="미니게임 갤러리로 돌아가기">← 갤러리</a>
+
+</body>
+</html>

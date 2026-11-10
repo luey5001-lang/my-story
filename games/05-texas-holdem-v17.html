@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>🃏 텍사스 홀덤 - Texas Hold'em</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: radial-gradient(ellipse at center, #0d6b2e 0%, #053d18 60%, #021a08 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Georgia', serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .game-container {
+      width: 95vw;
+      max-width: 800px;
+      background: radial-gradient(ellipse at center, #1a7a3a 0%, #0e5c25 50%, #063d15 100%);
+      border-radius: 180px;
+      padding: 30px;
+      position: relative;
+      min-height: 550px;
+      box-shadow: 0 0 0 15px #3d1c00, 0 0 0 22px #5c2e00, 0 0 0 28px #2a0f00, 0 15px 50px rgba(0,0,0,0.8);
+      border: 3px solid #c9a44b;
+    }
+    .pot-display {
+      text-align: center;
+      color: #ffd700;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-shadow: 0 0 15px #ffd700;
+      margin-bottom: 5px;
+    }
+    .community-area {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 10px 0;
+      flex-wrap: wrap;
+    }
+    .card {
+      width: 60px;
+      height: 85px;
+      background: #fff;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      box-shadow: 2px 3px 10px rgba(0,0,0,0.5);
+      border: 2px solid #ccc;
+      font-size: 1rem;
+    }
+    .card.red { color: #c00; }
+    .card.black { color: #222; }
+    .card .suit { font-size: 1.4rem; }
+    .card .rank { font-size: 1.2rem; }
+    .card-back {
+      background: linear-gradient(135deg, #1a3a6b, #0d2240);
+      border: 2px solid #c9a44b;
+    }
+    .card-small { width: 44px; height: 62px; font-size: 0.8rem; }
+    .card-small .suit { font-size: 1rem; }
+    .card-small .rank { font-size: 0.9rem; }
+    .opponent-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin: 10px 0;
+      flex-wrap: wrap;
+    }
+    .player-spot {
+      text-align: center;
+      color: #fff;
+      padding: 8px;
+      min-width: 100px;
+    }
+    .player-spot .name {
+      font-weight: bold;
+      font-size: 0.9rem;
+      background: rgba(0,0,0,0.5);
+      padding: 3px 10px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+    .player-spot .chips {
+      color: #ffd700;
+      font-size: 0.8rem;
+    }
+    .player-spot .bet {
+      color: #ff0;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+    .player-spot .folded {
+      color: #f44;
+      font-weight: bold;
+    }
+    .cards-row {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    .my-area {
+      text-align: center;
+      margin-top: 15px;
+    }
+    .my-cards {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin: 8px 0;
+    }
+    .actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .btn {
+      padding: 10px 18px;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      color: #fff;
+      font-family: 'Georgia', serif;
+      font-size: 0.9rem;
+      transition: 0.2s;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+      text-transform: uppercase;
+    }
+    .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+    .btn-fold { background: #8b3a3a; }
+    .btn-check { background: #3a6b8b; }
+    .btn-call { background: #3a8b5a; }
+    .btn-raise { background: #c9a44b; color: #000; }
+    .btn-allin { background: #c9302c; }
+    .btn-new { background: #6b4c8b; }
+    .raise-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 10px;
+      border-radius: 20px;
+    }
+    .raise-box input { width: 70px; accent-color: #c9a44b; }
+    .raise-box span { color: #ffd700; font-weight: bold; min-width: 40px; }
+    .result {
+      text-align: center;
+      color: #ff0;
+      font-size: 1.3rem;
+      font-weight: bold;
+      text-shadow: 0 0 20px #ff0;
+      margin: 8px 0;
+      min-height: 30px;
+    }
+    @media (max-width: 500px) {
+      .card { width: 40px; height: 58px; }
+      .card .suit { font-size: 1rem; }
+      .card .rank { font-size: 0.9rem; }
+      .card-small { width: 32px; height: 46px; }
+      .btn { padding: 8px 12px; font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="pot-display">💰 POT: <span id="pot">0</span></div>
+
+    <!-- 상대방들 -->
+    <div class="opponent-row">
+      <div class="player-spot" id="opp1Spot">
+        <div class="name">🤖 상대1</div>
+        <div class="chips">💎 <span id="opp1Chips">1000</span></div>
+        <div class="cards-row" id="opp1Cards"></div>
+        <div class="bet" id="opp1Bet"></div>
+      </div>
+      <div class="player-spot" id="opp2Spot">
+        <div class="name">🤖 상대2</div>
+        <div class="chips">💎 <span id="opp2Chips">1000</span></div>
+        <div class="cards-row" id="opp2Cards"></div>
+        <div class="bet" id="opp2Bet"></div>
+      </div>
+      <div class="player-spot" id="opp3Spot">
+        <div class="name">🤖 상대3</div>
+        <div class="chips">💎 <span id="opp3Chips">1000</span></div>
+        <div class="cards-row" id="opp3Cards"></div>
+        <div class="bet" id="opp3Bet"></div>
+      </div>
+    </div>
+
+    <!-- 커뮤니티 카드 -->
+    <div class="community-area" id="communityCards"></div>
+
+    <!-- 결과 메시지 -->
+    <div class="result" id="resultMsg"></div>
+
+    <!-- 내 카드 -->
+    <div class="my-area">
+      <div class="name" style="color:#fff;background:rgba(0,0,0,0.5);padding:3px 10px;border-radius:10px;display:inline-block;">⭐ 나</div>
+      <div class="chips" style="color:#ffd700;">💎 <span id="myChips">1000</span></div>
+      <div class="my-cards" id="myCards"></div>
+      <div class="bet" style="color:#ff0;" id="myBet"></div>
+    </div>
+
+    <!-- 액션 버튼 -->
+    <div class="actions" id="actions">
+      <button class="btn btn-fold" id="foldBtn">Fold</button>
+      <button class="btn btn-check" id="checkBtn">Check</button>
+      <button class="btn btn-call" id="callBtn">Call <span id="callAmt">0</span></button>
+      <div class="raise-box">
+        <button class="btn btn-raise" id="raiseBtn">Raise</button>
+        <input type="range" id="raiseSlider" min="10" max="100" value="20">
+        <span id="raiseAmt">20</span>
+      </div>
+      <button class="btn btn-allin" id="allinBtn">All In</button>
+    </div>
+    <div style="text-align:center;margin-top:8px;">
+      <button class="btn btn-new" id="newGameBtn">🔄 새 게임</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      // ==================== 카드 덱 ====================
+      const SUITS = ['♠', '♥', '♦', '♣'];
+      const RANKS = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+      const VALUES = {2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,J:11,Q:12,K:13,A:14};
+
+      function createDeck() {
+        const deck = [];
+        for (const s of SUITS) {
+          for (const r of RANKS) {
+            deck.push({ rank: r, suit: s, color: (s === '♥' || s === '♦') ? 'red' : 'black', value: VALUES[r] });
+          }
+        }
+        return deck.sort(() => Math.random() - 0.5);
+      }
+
+      // ==================== 상태 ====================
+      const PLAYERS = ['me', 'opp1', 'opp2', 'opp3'];
+      let deck, community, pot, currentBet, phase, gameActive;
+      let players = {};
+      let actionOrder = [], actionIdx = 0;
+      let dealerIdx = 0;
+
+      function initPlayers() {
+        players = {
+          me: { cards: [], chips: 1000, bet: 0, folded: false, allIn: false, name: '나' },
+          opp1: { cards: [], chips: 1000, bet: 0, folded: false, allIn: false, name: '상대1' },
+          opp2: { cards: [], chips: 1000, bet: 0, folded: false, allIn: false, name: '상대2' },
+          opp3: { cards: [], chips: 1000, bet: 0, folded: false, allIn: false, name: '상대3' },
+        };
+      }
+
+      function resetHand() {
+        deck = createDeck();
+        community = [];
+        pot = 0;
+        currentBet = 0;
+        phase = 'preflop';
+        gameActive = true;
+        actionOrder = [];
+        actionIdx = 0;
+
+        for (const p of PLAYERS) {
+          players[p].cards = [];
+          players[p].bet = 0;
+          players[p].folded = false;
+          players[p].allIn = false;
+          if (players[p].chips <= 0) players[p].folded = true;
+        }
+
+        // 카드 2장씩 배분
+        for (const p of PLAYERS) {
+          if (!players[p].folded) {
+            players[p].cards = [deck.pop(), deck.pop()];
+          }
+        }
+
+        // 블라인드
+        const sb = getNextActive(0);
+        const bb = getNextActive(1);
+        if (sb) postBlind(sb, 5);
+        if (bb) postBlind(bb, 10);
+        currentBet = 10;
+
+        // 액션 순서 (빅블라인드 다음)
+        buildActionOrder(2);
+
+        updateUI();
+        if (actionOrder[actionIdx] !== 'me') setTimeout(aiTurn, 700);
+      }
+
+      function getNextActive(offset) {
+        const active = PLAYERS.filter(p => !players[p].folded && players[p].chips > 0);
+        return active[Math.min(offset, active.length - 1)] || null;
+      }
+
+      function postBlind(p, amt) {
+        const actual = Math.min(amt, players[p].chips);
+        players[p].chips -= actual;
+        players[p].bet += actual;
+        pot += actual;
+        if (players[p].chips <= 0) players[p].allIn = true;
+      }
+
+      function buildActionOrder(startOffset) {
+        actionOrder = [];
+        const active = PLAYERS.filter(p => !players[p].folded && !players[p].allIn);
+        const startIdx = active.indexOf(getNextActive(startOffset));
+        for (let i = 0; i < active.length; i++) {
+          actionOrder.push(active[(startIdx + i) % active.length]);
+        }
+        actionIdx = 0;
+      }
+
+      // ==================== 족보 평가 ====================
+      function evaluateHand(cards) {
+        const vals = cards.map(c => c.value).sort((a,b) => b-a);
+        const suits = cards.map(c => c.suit);
+        const flush = suits.every(s => s === suits[0]);
+        const unique = [...new Set(vals)].sort((a,b) => b-a);
+        const straight = unique.length === 5 && unique[0] - unique[4] === 4;
+        const aceLow = unique.join(',') === '14,5,4,3,2';
+        const counts = {};
+        vals.forEach(v => counts[v] = (counts[v]||0)+1);
+        const freq = Object.values(counts).sort((a,b) => b-a);
+
+        if (flush && straight) return { rank: 8, name: '스트레이트 플러시', val: unique[0] };
+        if (flush && aceLow) return { rank: 8, name: '스트레이트 플러시', val: 5 };
+        if (freq[0] === 4) return { rank: 7, name: '포카드', val: +Object.keys(counts).find(k=>counts[k]===4) };
+        if (freq[0]===3 && freq[1]===2) return { rank: 6, name: '풀하우스', val: +Object.keys(counts).find(k=>counts[k]===3) };
+        if (flush) return { rank: 5, name: '플러시', val: vals[0] };
+        if (straight) return { rank: 4, name: '스트레이트', val: unique[0] };
+        if (aceLow) return { rank: 4, name: '스트레이트', val: 5 };
+        if (freq[0]===3) return { rank: 3, name: '트리플', val: +Object.keys(counts).find(k=>counts[k]===3) };
+        if (freq[0]===2 && freq[1]===2) {
+          const pairs = Object.keys(counts).filter(k=>counts[k]===2).map(Number).sort((a,b)=>b-a);
+          return { rank: 2, name: '투페어', val: pairs[0], val2: pairs[1] };
+        }
+        if (freq[0]===2) return { rank: 1, name: '원페어', val: +Object.keys(counts).find(k=>counts[k]===2) };
+        return { rank: 0, name: '하이카드', val: vals[0] };
+      }
+
+      function getBestHand(pcards, ccards) {
+        const all = [...pcards, ...ccards];
+        if (all.length < 5) return null;
+        let best = null;
+        function combos(arr, k, start, cur) {
+          if (cur.length === k) {
+            const ev = evaluateHand(cur);
+            if (!best || ev.rank > best.rank || (ev.rank === best.rank && ev.val > best.val)) best = ev;
+            return;
+          }
+          for (let i = start; i < arr.length; i++) {
+            cur.push(arr[i]);
+            combos(arr, k, i+1, cur);
+            cur.pop();
+          }
+        }
+        combos(all, 5, 0, []);
+        return best;
+      }
+
+      function showdown() {
+        const active = PLAYERS.filter(p => !players[p].folded);
+        if (active.length === 1) {
+          endHand(active[0]);
+          return;
+        }
+        let bestRank = -1, bestVal = -1, bestVal2 = -1, winners = [];
+        for (const p of active) {
+          const h = getBestHand(players[p].cards, community);
+          if (!h) continue;
+          const rank = h.rank, val = h.val, val2 = h.val2 || 0;
+          if (rank > bestRank || (rank === bestRank && val > bestVal) || (rank === bestRank && val === bestVal && val2 > bestVal2)) {
+            bestRank = rank; bestVal = val; bestVal2 = val2; winners = [p];
+          } else if (rank === bestRank && val === bestVal && val2 === bestVal2) {
+            winners.push(p);
+          }
+        }
+        endHand(winners);
+      }
+
+      function endHand(winners) {
+        gameActive = false;
+        const winArr = Array.isArray(winners) ? winners : [winners];
+        const share = Math.floor(pot / winArr.length);
+        for (const w of winArr) {
+          players[w].chips += share;
+          pot -= share;
+        }
+        // 남은 칩은 첫 승자에게
+        if (pot > 0 && winArr.length > 0) players[winArr[0]].chips += pot;
+        pot = 0;
+
+        const winNames = winArr.map(w => players[w].name).join(', ');
+        const hand = winArr.length === 1 ? getBestHand(players[winArr[0]].cards, community) : null;
+        document.getElementById('resultMsg').textContent = hand ?
+          `🏆 ${winNames} 승리! (${hand.name})` : `🏆 ${winNames} 승리!`;
+        updateUI();
+      }
+
+      // ==================== 플레이어 액션 ====================
+      function fold() {
+        if (!gameActive || actionOrder[actionIdx] !== 'me') return;
+        players.me.folded = true;
+        document.getElementById('resultMsg').textContent = '😔 폴드했습니다';
+        nextAction();
+      }
+
+      function check() {
+        if (!gameActive || actionOrder[actionIdx] !== 'me') return;
+        nextAction();
+      }
+
+      function call() {
+        if (!gameActive || actionOrder[actionIdx] !== 'me') return;
+        const amt = Math.min(currentBet - players.me.bet, players.me.chips);
+        players.me.chips -= amt;
+        players.me.bet += amt;
+        pot += amt;
+        if (players.me.chips <= 0) players.me.allIn = true;
+        nextAction();
+      }
+
+      function raise(amt) {
+        if (!gameActive || actionOrder[actionIdx] !== 'me') return;
+        const total = currentBet + amt;
+        const needed = Math.min(total - players.me.bet, players.me.chips);
+        players.me.chips -= needed;
+        players.me.bet += needed;
+        pot += needed;
+        currentBet = players.me.bet;
+        if (players.me.chips <= 0) players.me.allIn = true;
+        buildActionOrder(PLAYERS.indexOf('me') + 1);
+        document.getElementById('resultMsg').textContent = `💰 ${amt} 레이즈!`;
+        updateUI();
+        if (actionOrder[actionIdx] !== 'me') setTimeout(aiTurn, 700);
+        return;
+      }
+
+      function allIn() {
+        if (!gameActive || actionOrder[actionIdx] !== 'me') return;
+        const amt = players.me.chips;
+        players.me.bet += amt;
+        pot += amt;
+        players.me.chips = 0;
+        players.me.allIn = true;
+        if (players.me.bet > currentBet) {
+          currentBet = players.me.bet;
+          buildActionOrder(PLAYERS.indexOf('me') + 1);
+        }
+        document.getElementById('resultMsg').textContent = '🔥 올인!';
+        nextAction();
+      }
+
+      function nextAction() {
+        actionIdx++;
+        if (actionIdx >= actionOrder.length) {
+          advancePhase();
+        } else {
+          updateUI();
+          if (actionOrder[actionIdx] !== 'me') setTimeout(aiTurn, 700);
+        }
+      }
+
+      function advancePhase() {
+        switch (phase) {
+          case 'preflop':
+            phase = 'flop';
+            community.push(deck.pop(), deck.pop(), deck.pop());
+            break;
+          case 'flop':
+            phase = 'turn';
+            community.push(deck.pop());
+            break;
+          case 'turn':
+            phase = 'river';
+            community.push(deck.pop());
+            break;
+          case 'river':
+            phase = 'showdown';
+            showdown();
+            updateUI();
+            return;
+        }
+        for (const p of PLAYERS) players[p].bet = 0;
+        currentBet = 0;
+        buildActionOrder(0);
+        updateUI();
+        if (actionOrder[actionIdx] !== 'me') setTimeout(aiTurn, 700);
+      }
+
+      // ==================== AI ====================
+      function aiTurn() {
+        if (!gameActive) return;
+        const p = actionOrder[actionIdx];
+        if (p === 'me') { updateUI(); return; }
+
+        const callAmt = currentBet - players[p].bet;
+        const handStrength = getBestHand(players[p].cards, community);
+        const strength = handStrength ? handStrength.rank : 0;
+
+        // 간단한 AI 전략
+        if (callAmt <= 0) {
+          // 체크 가능
+          if (strength >= 4 || Math.random() < 0.3) {
+            const r = Math.floor(Math.random() * 30) + 10;
+            const total = currentBet + r;
+            const needed = Math.min(total - players[p].bet, players[p].chips);
+            players[p].chips -= needed;
+            players[p].bet += needed;
+            pot += needed;
+            currentBet = players[p].bet;
+            if (players[p].chips <= 0) players[p].allIn = true;
+            buildActionOrder(PLAYERS.indexOf(p) + 1);
+          }
+        } else {
+          // 콜/폴드/레이즈 결정
+          if (strength <= 0 && callAmt > 20) {
+            players[p].folded = true;
+          } else if (strength >= 5 && Math.random() < 0.4) {
+            const r = Math.floor(Math.random() * 40) + 20;
+            const total = currentBet + r;
+            const needed = Math.min(total - players[p].bet, players[p].chips);
+            players[p].chips -= needed;
+            players[p].bet += needed;
+            pot += needed;
+            currentBet = players[p].bet;
+            if (players[p].chips <= 0) players[p].allIn = true;
+            buildActionOrder(PLAYERS.indexOf(p) + 1);
+          } else if (Math.random() < 0.7) {
+            const amt = Math.min(callAmt, players[p].chips);
+            players[p].chips -= amt;
+            players[p].bet += amt;
+            pot += amt;
+            if (players[p].chips <= 0) players[p].allIn = true;
+          } else {
+            players[p].folded = true;
+          }
+        }
+
+        // 올인된 플레이어 처리
+        const active = PLAYERS.filter(pl => !players[pl].folded);
+        if (active.length <= 1) {
+          endHand(active);
+          updateUI();
+          return;
+        }
+
+        nextAction();
+      }
+
+      // ==================== UI ====================
+      function updateUI() {
+        document.getElementById('pot').textContent = pot;
+        document.getElementById('myChips').textContent = players.me.chips;
+        document.getElementById('opp1Chips').textContent = players.opp1.chips;
+        document.getElementById('opp2Chips').textContent = players.opp2.chips;
+        document.getElementById('opp3Chips').textContent = players.opp3.chips;
+
+        // 내 카드
+        const myDiv = document.getElementById('myCards');
+        myDiv.innerHTML = players.me.cards.map(c => cardHTML(c, true, false)).join('');
+
+        // 커뮤니티 카드
+        const commDiv = document.getElementById('communityCards');
+        commDiv.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+          commDiv.innerHTML += i < community.length ? cardHTML(community[i], true, false) : '<div class="card card-back"></div>';
+        }
+
+        // 상대 카드
+        for (const opp of ['opp1', 'opp2', 'opp3']) {
+          const div = document.getElementById(opp + 'Cards');
+          if (players[opp].folded) {
+            div.innerHTML = '<span class="folded">FOLD</span>';
+          } else if (phase === 'showdown') {
+            div.innerHTML = players[opp].cards.map(c => cardHTML(c, true, true)).join('');
+          } else {
+            div.innerHTML = players[opp].cards.map(() => '<div class="card card-back card-small"></div>').join('');
+          }
+        }
+
+        // 베팅 표시
+        document.getElementById('myBet').textContent = players.me.bet > 0 ? `베팅: ${players.me.bet}` : '';
+        document.getElementById('opp1Bet').textContent = players.opp1.bet > 0 ? `베팅: ${players.opp1.bet}` : '';
+        document.getElementById('opp2Bet').textContent = players.opp2.bet > 0 ? `베팅: ${players.opp2.bet}` : '';
+        document.getElementById('opp3Bet').textContent = players.opp3.bet > 0 ? `베팅: ${players.opp3.bet}` : '';
+
+        // 액션 버튼
+        const myTurn = gameActive && actionOrder[actionIdx] === 'me' && !players.me.folded && !players.me.allIn;
+        const callAmt = Math.max(0, currentBet - players.me.bet);
+        document.getElementById('callAmt').textContent = callAmt;
+        document.getElementById('raiseSlider').max = players.me.chips;
+        document.getElementById('raiseAmt').textContent = document.getElementById('raiseSlider').value;
+
+        ['foldBtn', 'checkBtn', 'callBtn', 'raiseBtn', 'allinBtn'].forEach(id => {
+          document.getElementById(id).disabled = !myTurn;
+        });
+        document.getElementById('checkBtn').style.display = callAmt <= 0 ? 'inline-block' : 'none';
+        document.getElementById('callBtn').style.display = callAmt > 0 ? 'inline-block' : 'none';
+      }
+
+      function cardHTML(card, faceUp, small) {
+        if (!faceUp) return `<div class="card card-back ${small ? 'card-small' : ''}"></div>`;
+        return `<div class="card ${card.color} ${small ? 'card-small' : ''}">
+          <span class="rank">${card.rank}</span><span class="suit">${card.suit}</span>
+        </div>`;
+      }
+
+      // ==================== 이벤트 ====================
+      document.getElementById('foldBtn').addEventListener('click', fold);
+      document.getElementById('checkBtn').addEventListener('click', check);
+      document.getElementById('callBtn').addEventListener('click', call);
+      document.getElementById('raiseBtn').addEventListener('click', () => {
+        raise(parseInt(document.getElementById('raiseSlider').value));
+      });
+      document.getElementById('allinBtn').addEventListener('click', allIn);
+      document.getElementById('raiseSlider').addEventListener('input', function() {
+        document.getElementById('raiseAmt').textContent = this.value;
+      });
+      document.getElementById('newGameBtn').addEventListener('click', () => {
+        initPlayers();
+        resetHand();
+        document.getElementById('resultMsg').textContent = '';
+      });
+
+      // ==================== 시작 ====================
+      initPlayers();
+      resetHand();
+      document.getElementById('resultMsg').textContent = '🃏 게임 시작! 당신의 턴입니다.';
+    })();
+  </script>
+
+<!-- arcade gallery back link -->
+<style>
+#arcade-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;background:rgba(8,8,12,.72);border:1px solid rgba(255,255,255,.24);color:#fff !important;font:600 12px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif !important;text-decoration:none !important;letter-spacing:.02em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.45);opacity:.8;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+#arcade-back:hover,#arcade-back:focus-visible{opacity:1;transform:translateY(-1px)}
+@media print{#arcade-back{display:none}}
+</style>
+<a id="arcade-back" href="../index.html" aria-label="미니게임 갤러리로 돌아가기">← 갤러리</a>
+
+</body>
+</html>

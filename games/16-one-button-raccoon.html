@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>도형의 원버튼 너구리 게임</title>
+    <style>
+        body {
+            background-color: #111;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .game-wrapper {
+            text-align: center;
+        }
+        /* 게임 화면 캔버스 */
+        canvas {
+            background-color: #000;
+            border: 4px solid #333;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            display: block;
+            margin-bottom: 15px;
+        }
+        .score-board {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #f59e0b;
+        }
+        /* 압도적인 크기의 원버튼 점프 컨트롤러 */
+        #btn-jump {
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            background-color: #ef4444;
+            color: #fff;
+            border: 3px solid #b91c1c;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px #991b1b;
+            font-family: inherit;
+        }
+        #btn-jump:active {
+            box-shadow: 0 2px #991b1b;
+            transform: translateY(4px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-wrapper">
+    <h2>[ 🦝 ONE-BUTTON NEOGURI ]</h2>
+    <div class="score-board">SCORE: <span id="txt-score">0</span> | LIVES: <span id="txt-lives">3</span></div>
+    
+    <canvas id="gameCanvas" width="480" height="320"></canvas>
+    
+    <button id="btn-jump">🚀 JUMP / DROP (1-CLICK)</button>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const txtScore = document.getElementById('score');
+    const btnJump = document.getElementById('btn-jump');
+
+    // 1. 게임 환경 데이터 장부
+    let score = 0;
+    let lives = 3;
+    let gameOver = false;
+
+    // 2. 너구리 캐릭터 객체
+    let raccoon = {
+        x: 20,
+        y: 60,
+        width: 20,
+        height: 20,
+        speedX: 2,       // 자동으로 전진하는 가로 속도
+        velocityY: 0,    // 세로 중력 속도
+        gravity: 0.6,    // 중력 가속도
+        jumpPower: -8.5, // 점프 세기
+        isGrounded: false
+    };
+
+    // 3. 고정된 발판(루트) 데이터 세트
+    // 층별로 너구리가 타고 이동할 레일 발판
+    const platforms = [
+        { x: 0, y: 90, width: 420, height: 10, floor: 1 },    // 1층 발판 (오른쪽 끝이 뚫림)
+        { x: 60, y: 180, width: 420, height: 10, floor: 2 },   // 2층 발판 (왼쪽 끝이 뚫림)
+        { x: 0, y: 270, width: 420, height: 10, floor: 3 }     // 3층 발판 (오른쪽 끝이 뚫림)
+    ];
+
+    // 4. 피해야 할 장애물(가시) 배열
+    const obstacles = [
+        { x: 180, y: 75, width: 15, height: 15 },  // 1층 중간 가시
+        { x: 300, y: 165, width: 15, height: 15 }, // 2층 중간 가시
+        { x: 200, y: 255, width: 15, height: 15 }  // 3층 중간 가시
+    ];
+
+    // 점프 버튼 1클릭 이벤트 액션
+    btnJump.addEventListener('mousedown', executeAction);
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') { e.preventDefault(); executeAction(); }
+    });
+
+    function executeAction() {
+        if (gameOver) {
+            location.reload(); // 게임오버 시 아무데나 누르면 재시작
+            return;
+        }
+        // 발판 위에 서 있을 때만 위로 점프 허용
+        if (raccoon.isGrounded) {
+            raccoon.velocityY = raccoon.jumpPower;
+            raccoon.isGrounded = false;
+            score += 10; // 점프할 때마다 보너스 점수
+        }
+    }
+
+    // 5. 실시간 물리 연산 및 엔진 루프
+    function update() {
+        if (gameOver) return;
+
+        // 중력 작용 (공중에 떠 있으면 밑으로 가속)
+        raccoon.velocityY += raccoon.gravity;
+        raccoon.y += raccoon.velocityY;
+        
+        // 자동 가로 전진
+        raccoon.x += raccoon.speedX;
+
+        // 화면 양쪽 벽 충돌 처리 및 자동 반전 (ㄹ자 맵 이동 메커니즘)
+        if (raccoon.x + raccoon.width > canvas.width) {
+            raccoon.x = canvas.width - raccoon.width;
+            raccoon.speedX = -Math.abs(raccoon.speedX); // 왼쪽으로 반전
+        } else if (raccoon.x < 0) {
+            raccoon.x = 0;
+            raccoon.speedX = Math.abs(raccoon.speedX);  // 오른쪽으로 반전
+        }
+
+        // 발판 착지 판단 계산 (물리 충돌 체크 장부)
+        raccoon.isGrounded = false;
+        for (let plat of platforms) {
+            if (raccoon.x + raccoon.width > plat.x && 
+                raccoon.x < plat.x + plat.width && 
+                raccoon.y + raccoon.height >= plat.y && 
+                raccoon.y + raccoon.height <= plat.y + 10 && 
+                raccoon.velocityY >= 0) {
+                
+                raccoon.y = plat.y - raccoon.height;
+                raccoon.velocityY = 0;
+                raccoon.isGrounded = true;
+            }
+        }
+
+        // 아래로 떨어졌는데 다음 발판을 못 잡고 낙사했을 때의 안전장치
+        if (raccoon.y > canvas.height) {
+            resetRaccoon();
+        }
+
+        // 장애물 충돌 검사 (가시에 닿으면 라이프 차감)
+        for (let obs of obstacles) {
+            if (raccoon.x < obs.x + obs.width &&
+                raccoon.x + raccoon.width > obs.x &&
+                raccoon.y < obs.y + obs.height &&
+                raccoon.y + raccoon.height > obs.y) {
+                
+                lives--;
+                if (lives <= 0) {
+                    gameOver = true;
+                } else {
+                    resetRaccoon();
+                }
+            }
+        }
+
+        // 스코어 실시간 업데이트
+        document.getElementById('txt-score').innerText = score;
+        document.getElementById('txt-lives').innerText = lives;
+    }
+
+    function resetRaccoon() {
+        raccoon.x = 20;
+        raccoon.y = 60;
+        raccoon.velocityY = 0;
+        raccoon.speedX = Math.abs(raccoon.speedX); // 처음 방향인 오른쪽으로 리셋
+    }
+
+    // 6. 도화지 화면 그리기 (렌더링 연산)
+    function draw() {
+        // 화면 초기화
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // A. 발판 그리기 (갈색 발판 구조)
+        ctx.fillStyle = "#854d0e";
+        for (let plat of platforms) {
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+        }
+
+        // B. 장애물 그리기 (위험한 빨간 가시 삼각뿔)
+        ctx.fillStyle = "#ef4444";
+        for (let obs of obstacles) {
+            ctx.beginPath();
+            ctx.moveTo(obs.x + obs.width/2, obs.y);
+            ctx.lineTo(obs.x, obs.y + obs.height);
+            ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
+            ctx.fill();
+        }
+
+        // C. 주인공 너구리 캐릭터 그리기 (귀여운 노란색 사각형 주체)
+        ctx.fillStyle = "#fbbf24";
+        ctx.fillRect(raccoon.x, raccoon.y, raccoon.width, raccoon.height);
+        
+        // 눈 그리기 (전진 방향 식별용)
+        ctx.fillStyle = "#000";
+        if (raccoon.speedX > 0) {
+            ctx.fillRect(raccoon.x + 12, raccoon.y + 4, 4, 4); // 오른쪽 눈
+        } else {
+            ctx.fillRect(raccoon.x + 4, raccoon.y + 4, 4, 4);  // 왼쪽 눈
+        }
+
+        // D. 게임오버 문구 스크린 인쇄
+        if (gameOver) {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ef4444";
+            ctx.font = "bold 30px Courier New";
+            ctx.fillText("GAME OVER", 160, 140);
+            ctx.fillStyle = "#fff";
+            ctx.font = "16px Courier New";
+            ctx.fillText("Click JUMP Button to Restart", 110, 180);
+        }
+    }
+
+    // 7. 실시간 무한 반복 시계 구동 (FPS)
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    // 실행 선언
+    gameLoop();
+</script>
+
+
+<!-- arcade gallery back link -->
+<style>
+#arcade-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;background:rgba(8,8,12,.72);border:1px solid rgba(255,255,255,.24);color:#fff !important;font:600 12px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif !important;text-decoration:none !important;letter-spacing:.02em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.45);opacity:.8;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+#arcade-back:hover,#arcade-back:focus-visible{opacity:1;transform:translateY(-1px)}
+@media print{#arcade-back{display:none}}
+</style>
+<a id="arcade-back" href="../index.html" aria-label="미니게임 갤러리로 돌아가기">← 갤러리</a>
+
+</body>
+</html>

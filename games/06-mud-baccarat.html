@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>도형의 MUD 바카라: 가변 배팅 시스템</title>
+    <style>
+        body {
+            background-color: #0b2516;
+            color: #d1d5db;
+            font-family: 'Consolas', 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .game-container {
+            width: 720px;
+            background-color: #141a17;
+            border: 2px solid #273b30;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border-radius: 8px;
+            position: relative;
+        }
+        h2 { text-align: center; color: #f59e0b; border-bottom: 2px solid #273b30; padding-bottom: 10px; margin-top: 0; }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+            background-color: #0d110f;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .dashboard-col div { margin-bottom: 5px; }
+        
+        /* 배팅 조절 패널 스타일 */
+        .bet-setup-panel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            background-color: #0d110f;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px dashed #384d41;
+        }
+        .bet-setup-panel span { font-weight: bold; font-size: 16px; }
+        .btn-adjust { padding: 5px 15px; background-color: #273b30; border-color: #384d41; font-size: 14px; }
+        .btn-adjust:hover { background-color: #384d41; }
+
+        .log-window {
+            height: 300px;
+            border: 1px solid #273b30;
+            padding: 15px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background-color: #070908;
+            white-space: pre-line;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .financial-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        button {
+            background-color: #1e2923;
+            color: #e5e7eb;
+            border: 1px solid #384d41;
+            padding: 14px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover { background-color: #2c3e35; border-color: #4d6657; }
+        button:disabled { color: #334139; border-color: #1f2923; cursor: not-allowed; background-color: #111814; }
+        
+        #btn-bet-player { background-color: #1d4ed8; border-color: #3b82f6; color: #fff; }
+        #btn-bet-player:hover { background-color: #2563eb; }
+        #btn-bet-banker { background-color: #b91c1c; border-color: #ef4444; color: #fff; }
+        #btn-bet-banker:hover { background-color: #dc2626; }
+        
+        #btn-loan { background-color: #0f172a; border-color: #334155; color: #fff; }
+        #btn-loan:hover { background-color: #1e293b; }
+        #btn-repay { background-color: #065f46; border-color: #059669; color: #fff; }
+        #btn-repay:hover { background-color: #059669; }
+
+        .game-over-screen {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.97);
+            color: #ef4444;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        .game-over-screen h1 { font-size: 50px; margin-bottom: 10px; letter-spacing: 5px; }
+
+        .sys-gold { color: #f59e0b; font-weight: bold; }
+        .txt-player { color: #60a5fa; font-weight: bold; }
+        .txt-banker { color: #f87171; font-weight: bold; }
+        .profit { color: #34d399; font-weight: bold; }
+        .loss { color: #f87171; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="game-over-screen" id="game-over">
+        <h1>💸 GAME OVER 💸</h1>
+        <p>최소 배팅 자금이 부족하고 대출 한도가 모두 소진되어 파산했습니다.</p>
+        <button onclick="location.reload()" style="background-color: #b91c1c; color: #fff; border: none; margin-top: 20px; padding: 10px 20px; cursor: pointer; font-weight:bold;">🔄 테이블 재입장</button>
+    </div>
+
+    <h2>[ 🃏 MUD BACCARAT: VARIABLE BETTING ]</h2>
+    
+    <div class="dashboard">
+        <div class="dashboard-col">
+            <div><strong>[칩 자산]</strong> <span id="txt-gold" class="sys-gold">1,000 G</span></div>
+            <div><strong>[설정 배팅]</strong> <span id="txt-current-bet" class="sys-gold">300 G</span></div>
+        </div>
+        <div class="dashboard-col">
+            <div><strong>[현재 금리]</strong> <span id="txt-interest-rate" class="loss">3.0%</span> 복리 (3턴 주기)</div>
+            <div><strong>[사채 총액]</strong> <span id="txt-loan-debt" class="loss">0 G</span> [<span id="txt-loan-count">0</span>/3회]</div>
+        </div>
+    </div>
+
+    <!-- 배팅 액수 조절 인터페이스 조각 신설 -->
+    <div class="bet-setup-panel">
+        <button class="btn-adjust" id="btn-bet-minus">➖ 100G 감소</button>
+        <span>현재 배팅 조절: <span id="txt-panel-bet" class="sys-gold">300G</span></span>
+        <button class="btn-adjust" id="btn-bet-plus">➕ 100G 증가</button>
+    </div>
+
+    <div class="log-window" id="log-screen">
+배팅 조절 시스템이 추가되었습니다.
+- <b>[100G 감소/증가]</b> 버튼을 사용하여 한 판당 배팅할 액수를 자유롭게 조절하십시오.
+- 최소 배팅액은 <b>100G</b>이며, 소지 자금을 초과하여 배팅할 수 없습니다.
+- 승리 혹은 무승부(TIE) 시 내가 설정한 <b>배팅액의 2배</b>를 환급받습니다.
+    </div>
+
+    <!-- 배팅 존 -->
+    <div class="controls">
+        <button id="btn-bet-player">🔵 PLAYER 배팅 (-300G)</button>
+        <button id="btn-bet-banker">🔴 BANKER 배팅 (-300G)</button>
+    </div>
+
+    <!-- 금융 존 -->
+    <div class="financial-controls">
+        <button id="btn-loan">🏦 금융연합 대출 실행 (+2,000G)</button>
+        <button id="btn-repay">💰 부채 전액 상환하기</button>
+    </div>
+</div>
+
+<script>
+    const logScreen = document.getElementById('log-screen');
+    const txtGold = document.getElementById('txt-gold');
+    const txtLoanDebt = document.getElementById('txt-loan-debt');
+    const txtLoanCount = document.getElementById('txt-loan-count');
+    const txtInterestRate = document.getElementById('txt-interest-rate');
+    const txtCurrentBet = document.getElementById('txt-current-bet');
+    const txtPanelBet = document.getElementById('txt-panel-bet');
+    
+    const btnPlayer = document.getElementById('btn-bet-player');
+    const btnBanker = document.getElementById('btn-bet-banker');
+    const btnLoan = document.getElementById('btn-loan');
+    const btnRepay = document.getElementById('btn-repay');
+    const btnBetMinus = document.getElementById('btn-bet-minus');
+    const btnBetPlus = document.getElementById('btn-bet-plus');
+    const gameOverScreen = document.getElementById('game-over');
+
+    // 금융 데이터 변수
+    let gold = 1000;
+    let loanDebt = 0;
+    let loanCount = 0;
+    let gameCount = 0; 
+    let currentInterestRate = 0.03;
+    let currentBet = 300; // 이제 상수가 아닌 '변수'입니다.
+
+    function printHtmlLog(htmlText) {
+        logScreen.innerHTML += "\n" + htmlText;
+        logScreen.scrollTop = logScreen.scrollHeight;
+    }
+
+    function updateUI() {
+        txtGold.innerText = `${Math.floor(gold).toLocaleString()} G`;
+        txtLoanDebt.innerText = `${Math.floor(loanDebt).toLocaleString()} G`;
+        txtLoanCount.innerText = loanCount;
+        txtInterestRate.innerText = `${(currentInterestRate * 100).toFixed(1)}%`;
+        
+        // 배팅액 관련 텍스트 실시간 동기화
+        txtCurrentBet.innerText = `${currentBet.toLocaleString()} G`;
+        txtPanelBet.innerText = `${currentBet.toLocaleString()} G`;
+        btnPlayer.innerText = `🔵 PLAYER 배팅 (-${currentBet}G)`;
+        btnBanker.innerText = `🔴 BANKER 배팅 (-${currentBet}G)`;
+        
+        btnLoan.disabled = (loanCount >= 3);
+    }
+
+    function checkGameOver() {
+        // 내 돈이 100G(최소배팅)도 없고 대출도 안 될 때 최종 파산
+        if (gold < 100 && loanCount >= 3) {
+            gameOverScreen.style.display = "flex";
+        }
+    }
+
+    // 배팅액 감소 (-) 연산
+    btnBetMinus.addEventListener('click', () => {
+        if (currentBet <= 100) {
+            printHtmlLog("⚠️ 카지노 규정: 최소 배팅 금액은 100 G 입니다.");
+            return;
+        }
+        currentBet -= 100;
+        updateUI();
+    });
+
+    // 배팅액 증가 (+) 연산
+    btnBetPlus.addEventListener('click', () => {
+        currentBet += 100;
+        updateUI();
+    });
+
+    // 대출 실행
+    btnLoan.addEventListener('click', () => {
+        if (loanCount >= 3) return;
+        loanCount++;
+        loanDebt += 2000;
+        gold += 2000;
+        printHtmlLog(`\n🏦 [급전 대출] 자금 수령 완료. <span class="sys-gold">2,000 G</span> 가 추가되었습니다.`);
+        updateUI();
+    });
+
+    // 부채 전액 상환
+    btnRepay.addEventListener('click', () => {
+        if (loanDebt <= 0) return;
+        if (gold < loanDebt) {
+            printHtmlLog(`❌ 상환 거절: 총 부채(${Math.floor(loanDebt).toLocaleString()} G)보다 자산이 부족합니다.`);
+            return;
+        }
+        gold -= loanDebt;
+        loanDebt = 0;
+        loanCount = 0; 
+        currentInterestRate = 0.015; // 1.5% 우대금리 영구 적용
+        
+        printHtmlLog(`\n🎉 [신용 회복] 부채 청산 완료. 한도 리셋 및 우대금리(1.5%) 프로모션이 적용됩니다.`);
+        updateUI();
+    });
+
+    // 바카라 구동 시스템
+    function playBaccarat(userChoice) {
+        if (gold < currentBet) {
+            printHtmlLog(`❌ 배팅 실패: 소지 칩이 설정된 배팅액(${currentBet} G)보다 부족합니다. 배팅액을 낮추거나 대출을 받으십시오.`);
+            checkGameOver();
+            return;
+        }
+
+        gold -= currentBet;
+        gameCount++;
+        
+        btnPlayer.disabled = true;
+        btnBanker.disabled = true;
+        btnBetMinus.disabled = true;
+        btnBetPlus.disabled = true;
+        updateUI();
+
+        const choiceText = userChoice === 'player' ? '<span class="txt-player">PLAYER</span>' : '<span class="txt-banker">BANKER</span>';
+        printHtmlLog(`\n------------------------------------------------------------`);
+        printHtmlLog(`🎲 [제 ${gameCount}구] 게임 개시 (설정 배팅: ${currentBet} G ➡️ ${choiceText})`);
+
+        if (gameCount % 3 === 0 && loanDebt > 0) {
+            const interest = loanDebt * currentInterestRate;
+            loanDebt += interest;
+            printHtmlLog(`⚠️ [복리 이자 발동] 3턴 경과로 부채에 <span class="loss">${(currentInterestRate * 100).toFixed(1)}% 이자(+${Math.floor(interest)} G)</span>가 합산되었습니다.`);
+        }
+
+        setTimeout(() => {
+            const pScore = Math.floor(Math.random() * 10);
+            const bScore = Math.floor(Math.random() * 10);
+
+            printHtmlLog(`   [카드 오픈] PLAYER: [ ${pScore} ]  vs  BANKER: [ ${bScore} ]`);
+
+            let gameResult = "";
+            if (pScore > bScore) {
+                gameResult = 'player';
+                printHtmlLog(`   🏆 판정: <span class="txt-player">PLAYER WIN!</span>`);
+            } else if (bScore > pScore) {
+                gameResult = 'banker';
+                printHtmlLog(`   🏆 판정: <span class="txt-banker">BANKER WIN!</span>`);
+            } else {
+                gameResult = 'tie';
+                printHtmlLog(`   🏆 판정: <span class="sys-gold">TIE (무승부)!</span>`);
+            }
+
+            let isWin = (userChoice === gameResult);
+            let isTie = (gameResult === 'tie');
+
+            if (isWin || isTie) {
+                const payout = currentBet * 2; // 가변 배팅 기준 2배 정산
+                gold += payout;
+                printHtmlLog(`<span class="profit">📈 [배팅 성공] 예측 적중! 배팅액의 2배인 ${payout} G를 획득했습니다.</span>`);
+            } else {
+                printHtmlLog(`<span class="loss">📉 [배팅 실패] 예측 실패... 배팅 칩 ${currentBet} G가 카지노에 귀속되었습니다.</span>`);
+            }
+
+            btnPlayer.disabled = false;
+            btnBanker.disabled = false;
+            btnBetMinus.disabled = false;
+            btnBetPlus.disabled = false;
+            
+            // 배팅액이 갑자기 내 잔액보다 커진 경우 안전을 위해 배팅액을 내 잔액으로 강제 조정
+            if (gold < currentBet && gold >= 100) {
+                currentBet = Math.floor(gold / 100) * 100;
+            }
+
+            updateUI();
+            checkGameOver();
+        }, 700);
+    }
+
+    btnPlayer.addEventListener('click', () => playBaccarat('player'));
+    btnBanker.addEventListener('click', () => playBaccarat('banker'));
+</script>
+
+
+<!-- arcade gallery back link -->
+<style>
+#arcade-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;background:rgba(8,8,12,.72);border:1px solid rgba(255,255,255,.24);color:#fff !important;font:600 12px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif !important;text-decoration:none !important;letter-spacing:.02em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.45);opacity:.8;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+#arcade-back:hover,#arcade-back:focus-visible{opacity:1;transform:translateY(-1px)}
+@media print{#arcade-back{display:none}}
+</style>
+<a id="arcade-back" href="../index.html" aria-label="미니게임 갤러리로 돌아가기">← 갤러리</a>
+
+</body>
+</html>

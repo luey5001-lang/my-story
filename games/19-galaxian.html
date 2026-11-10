@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>👾 갤럭시안 - Galaxian</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      font-family: 'Courier New', monospace;
+    }
+    .cabinet {
+      background: #1a1a2e;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 0 80px rgba(0, 100, 255, 0.3), 0 0 200px rgba(0, 0, 0, 0.9);
+      border: 3px solid #334;
+    }
+    canvas {
+      display: block;
+      border-radius: 8px;
+      background: #000;
+      box-shadow: inset 0 0 60px rgba(0, 20, 80, 0.6);
+    }
+    .info-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1rem;
+      gap: 15px;
+    }
+    .score-box {
+      background: #111;
+      border: 2px solid #f00;
+      color: #f00;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 1.4rem;
+      text-shadow: 0 0 10px #f00;
+      letter-spacing: 2px;
+    }
+    .lives-box {
+      color: #0f0;
+      font-size: 1.3rem;
+    }
+    .hi-box {
+      background: #111;
+      border: 1px solid #ff0;
+      color: #ff0;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    button {
+      background: #222;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 8px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.85rem;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: #444;
+      border-color: #0ff;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    }
+    #gameOverOverlay {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #f00;
+      font-size: 3rem;
+      font-weight: bold;
+      text-shadow: 0 0 40px #f00, 0 0 80px #800;
+      pointer-events: none;
+      z-index: 10;
+      display: none;
+      text-align: center;
+    }
+    .controls-hint {
+      color: #555;
+      font-size: 0.7rem;
+      text-align: center;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="cabinet">
+    <div class="info-panel">
+      <div class="hi-box">HI: <span id="highScore">0</span></div>
+      <div class="score-box"><span id="score">0</span></div>
+      <div class="lives-box" id="lives">🛸🛸🛸</div>
+    </div>
+    <canvas id="game" width="600" height="650"></canvas>
+    <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
+      <button id="startBtn">🎮 1P START</button>
+      <button id="resetBtn">🔄 RESET</button>
+    </div>
+    <div class="controls-hint">🕹️ ← → 이동 | 스페이스바 발사 | 📱 터치 드래그</div>
+  </div>
+  <div id="gameOverOverlay">GAME OVER</div>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById('game');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+
+      // ==================== 사운드 (Web Audio API) ====================
+      let audioCtx = null;
+      function initAudio() {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      }
+      function playBeep(freq, duration, type = 'square', vol = 0.08) {
+        if (!audioCtx) return;
+        try {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        } catch (e) {}
+      }
+      function sfxShoot() { playBeep(600, 0.08, 'square', 0.06); }
+      function sfxHit() { playBeep(120, 0.2, 'sawtooth', 0.08); }
+      function sfxEnemyDive() { playBeep(200, 0.3, 'sawtooth', 0.04); }
+      function sfxPlayerHit() { playBeep(60, 0.5, 'sawtooth', 0.12); }
+
+      // ==================== 게임 상태 ====================
+      let score = 0;
+      let highScore = 0;
+      let lives = 3;
+      let gameRunning = false;
+      let gameOver = false;
+      let stageClear = false;
+      let stageNum = 1;
+      let frameCount = 0;
+
+      // ==================== 플레이어 ====================
+      const player = {
+        x: W / 2,
+        y: H - 60,
+        w: 36,
+        h: 36,
+        speed: 4.5,
+      };
+
+      // ==================== 총알 ====================
+      let bullets = [];
+      const BULLET_SPEED = 7;
+      const MAX_BULLETS = 2;
+      let shootCooldown = 0;
+
+      // ==================== 적 ====================
+      let enemies = [];
+      let divingEnemies = [];
+      const ENEMY_COLS = 10;
+      const ENEMY_ROWS = 5;
+      const ENEMY_W = 30;
+      const ENEMY_H = 28;
+      const ENEMY_GAP = 8;
+
+      // 적 타입별 점수 (원작 기준)
+      const SCORE_TABLE = {
+        boss: { purple: 200, blue: 150 },
+        middle: { red: 100, purple: 80 },
+        bottom: { yellow: 60, green: 50 },
+      };
+
+      function createEnemyGrid() {
+        enemies = [];
+        divingEnemies = [];
+        const totalW = ENEMY_COLS * (ENEMY_W + ENEMY_GAP);
+        const startX = (W - totalW) / 2 + ENEMY_W / 2;
+        const startY = 50;
+
+        for (let row = 0; row < ENEMY_ROWS; row++) {
+          for (let col = 0; col < ENEMY_COLS; col++) {
+            let type, color, points;
+            if (row === 0) {
+              type = 'boss';
+              color = col < 3 || col >= ENEMY_COLS - 3 ? 'purple' : 'blue';
+              points = color === 'purple' ? 200 : 150;
+            } else if (row <= 2) {
+              type = 'middle';
+              color = col < 3 || col >= ENEMY_COLS - 3 ? 'purple' : 'red';
+              points = color === 'red' ? 100 : 80;
+            } else {
+              type = 'bottom';
+              color = col < 3 || col >= ENEMY_COLS - 3 ? 'green' : 'yellow';
+              points = color === 'yellow' ? 60 : 50;
+            }
+
+            enemies.push({
+              x: startX + col * (ENEMY_W + ENEMY_GAP),
+              y: startY + row * (ENEMY_H + ENEMY_GAP),
+              w: ENEMY_W,
+              h: ENEMY_H,
+              type: type,
+              color: color,
+              points: points,
+              alive: true,
+              gridCol: col,
+              gridRow: row,
+              diveState: null,
+              formationX: startX + col * (ENEMY_W + ENEMY_GAP),
+              formationY: startY + row * (ENEMY_H + ENEMY_GAP),
+            });
+          }
+        }
+      }
+
+      // ==================== 적 편대 이동 ====================
+      let formationDir = 1;
+      let formationSpeed = 0.6;
+      let formationMoveCounter = 0;
+      const FORMATION_MOVE_INTERVAL = 30;
+      let formationDropAmount = 0;
+
+      // ==================== 적 급강하 시스템 ====================
+      let diveTimer = 0;
+      const DIVE_INTERVAL_MIN = 50;
+      const DIVE_INTERVAL_MAX = 120;
+
+      function startDive(enemy) {
+        if (enemy.diveState || !enemy.alive) return;
+        enemy.diveState = {
+          phase: 'peel',
+          targetX: enemy.x + (Math.random() - 0.5) * 200,
+          targetY: H + 50,
+          angle: 0,
+          speed: 3 + Math.random() * 2.5,
+          curveTimer: 0,
+          curveAmp: (Math.random() - 0.5) * 80,
+          returnFormation: false,
+          peelX: enemy.x,
+          peelY: enemy.y,
+          swoopPhase: 0,
+        };
+        divingEnemies.push(enemy);
+        sfxEnemyDive();
+      }
+
+      // ==================== 폭발 파티클 ====================
+      let particles = [];
+
+      function spawnExplosion(x, y, color = '#ff0') {
+        for (let i = 0; i < 16; i++) {
+          const angle = (Math.PI * 2 / 16) * i;
+          const speed = 1.5 + Math.random() * 3;
+          particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 18 + Math.random() * 12,
+            maxLife: 30,
+            color: color,
+            size: 1.5 + Math.random() * 2.5,
+          });
+        }
+      }
+
+      // ==================== 별 배경 ====================
+      let stars = [];
+      function createStars() {
+        stars = [];
+        for (let i = 0; i < 60; i++) {
+          stars.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            size: 0.5 + Math.random() * 2,
+            brightness: 0.3 + Math.random() * 0.7,
+            twinkle: Math.random() * Math.PI * 2,
+          });
+        }
+      }
+      createStars();
+
+      // ==================== 입력 ====================
+      const keys = {};
+      let touchX = null;
+
+      window.addEventListener('keydown', e => {
+        keys[e.code] = true;
+        if (e.code === 'Space') {
+          e.preventDefault();
+          initAudio();
+          if (!gameRunning && !gameOver) startGame();
+        }
+        if (e.code === 'KeyR') resetGame();
+      });
+      window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+      canvas.addEventListener('mousemove', e => {
+        if (!gameRunning || gameOver) return;
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = W / rect.width;
+        player.x = (e.clientX - rect.left) * scaleX;
+        player.x = Math.max(player.w / 2, Math.min(W - player.w / 2, player.x));
+      });
+
+      canvas.addEventListener('touchstart', e => {
+        e.preventDefault();
+        initAudio();
+        if (!gameRunning && !gameOver) startGame();
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = W / rect.width;
+        touchX = (e.touches[0].clientX - rect.left) * scaleX;
+      });
+      canvas.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if (!gameRunning || gameOver) return;
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = W / rect.width;
+        touchX = (e.touches[0].clientX - rect.left) * scaleX;
+      });
+      canvas.addEventListener('touchend', e => {
+        e.preventDefault();
+        touchX = null;
+      });
+
+      // ==================== 게임 로직 ====================
+      function startGame() {
+        if (gameRunning) return;
+        gameRunning = true;
+        gameOver = false;
+        stageClear = false;
+        score = 0;
+        lives = 3;
+        stageNum = 1;
+        bullets = [];
+        divingEnemies = [];
+        particles = [];
+        formationDir = 1;
+        formationSpeed = 0.6;
+        formationDropAmount = 0;
+        diveTimer = 0;
+        player.x = W / 2;
+        document.getElementById('score').textContent = '0';
+        document.getElementById('lives').textContent = '🛸🛸🛸';
+        document.getElementById('gameOverOverlay').style.display = 'none';
+        createEnemyGrid();
+      }
+
+      function resetGame() {
+        gameRunning = false;
+        gameOver = false;
+        stageClear = false;
+        score = 0;
+        lives = 3;
+        stageNum = 1;
+        bullets = [];
+        enemies = [];
+        divingEnemies = [];
+        particles = [];
+        formationDir = 1;
+        formationSpeed = 0.6;
+        formationDropAmount = 0;
+        diveTimer = 0;
+        player.x = W / 2;
+        document.getElementById('score').textContent = '0';
+        document.getElementById('lives').textContent = '🛸🛸🛸';
+        document.getElementById('gameOverOverlay').style.display = 'none';
+        createEnemyGrid();
+      }
+
+      function playerHit() {
+        lives--;
+        sfxPlayerHit();
+        spawnExplosion(player.x, player.y, '#0ff');
+        document.getElementById('lives').textContent = '🛸'.repeat(Math.max(0, lives));
+
+        if (lives <= 0) {
+          gameRunning = false;
+          gameOver = true;
+          if (score > highScore) {
+            highScore = score;
+            document.getElementById('highScore').textContent = highScore;
+            try { localStorage.setItem('galaxianHighScore', highScore); } catch (e) {}
+          }
+          document.getElementById('gameOverOverlay').style.display = 'block';
+        } else {
+          // 잠시 무적 후 재개
+          player.x = W / 2;
+        }
+      }
+
+      function nextStage() {
+        stageNum++;
+        formationSpeed = 0.6 + stageNum * 0.15;
+        formationDropAmount = 0;
+        diveTimer = 0;
+        bullets = [];
+        divingEnemies = [];
+        particles = [];
+        createEnemyGrid();
+        stageClear = false;
+      }
+
+      function shoot() {
+        if (!gameRunning || gameOver || stageClear) return;
+        if (shootCooldown > 0) return;
+        const activeBullets = bullets.filter(b => b.active).length;
+        if (activeBullets >= MAX_BULLETS) return;
+
+        bullets.push({
+          x: player.x,
+          y: player.y - player.h / 2,
+          active: true,
+        });
+        shootCooldown = 15;
+        sfxShoot();
+      }
+
+      // ==================== 충돌 감지 ====================
+      function rectCollision(a, b) {
+        return (
+          a.x - a.w / 2 < b.x + b.w / 2 &&
+          a.x + a.w / 2 > b.x - b.w / 2 &&
+          a.y - a.h / 2 < b.y + b.h / 2 &&
+          a.y + a.h / 2 > b.y - b.h / 2
+        );
+      }
+
+      // ==================== 업데이트 ====================
+      function update() {
+        if (!gameRunning || gameOver) return;
+        frameCount++;
+
+        // 플레이어 이동 (키보드)
+        if (keys['ArrowLeft'] || keys['KeyA']) {
+          player.x -= player.speed;
+        }
+        if (keys['ArrowRight'] || keys['KeyD']) {
+          player.x += player.speed;
+        }
+        // 터치 이동
+        if (touchX !== null) {
+          player.x += (touchX - player.x) * 0.2;
+        }
+        player.x = Math.max(player.w / 2, Math.min(W - player.w / 2, player.x));
+
+        // 발사
+        if (keys['Space'] || keys['KeyJ'] || keys['KeyF']) {
+          shoot();
+        }
+        if (shootCooldown > 0) shootCooldown--;
+
+        // 총알 이동
+        for (const b of bullets) {
+          if (!b.active) continue;
+          b.y -= BULLET_SPEED;
+          if (b.y < -20) b.active = false;
+        }
+
+        // 편대 이동
+        formationMoveCounter++;
+        if (formationMoveCounter >= FORMATION_MOVE_INTERVAL) {
+          formationMoveCounter = 0;
+          const aliveEnemies = enemies.filter(e => e.alive && !e.diveState);
+          if (aliveEnemies.length > 0) {
+            let leftmost = Infinity;
+            let rightmost = -Infinity;
+            for (const e of aliveEnemies) {
+              leftmost = Math.min(leftmost, e.x);
+              rightmost = Math.max(rightmost, e.x);
+            }
+
+            if (rightmost + formationDir * formationSpeed > W - 20 || leftmost + formationDir * formationSpeed < 20) {
+              formationDir *= -1;
+              formationDropAmount += 8;
+            }
+
+            for (const e of aliveEnemies) {
+              e.formationX += formationDir * formationSpeed;
+              e.formationY += 8;
+              e.x = e.formationX;
+              e.y = e.formationY;
+            }
+
+            formationDropAmount = 0;
+          }
+        }
+
+        // 편대 위치로 부드럽게 이동 (다이브 중 아닌 적)
+        for (const e of enemies) {
+          if (!e.alive || e.diveState) continue;
+          e.x += (e.formationX - e.x) * 0.3;
+          e.y += (e.formationY - e.y) * 0.3;
+        }
+
+        // 적 급강하 타이머
+        diveTimer++;
+        const aliveCount = enemies.filter(e => e.alive).length;
+        const diveInterval = Math.max(20, DIVE_INTERVAL_MIN + (aliveCount < 10 ? 10 : 40));
+        if (diveTimer > diveInterval) {
+          diveTimer = 0;
+          const available = enemies.filter(e => e.alive && !e.diveState);
+          if (available.length > 0) {
+            // 보스 타입 우선 선택
+            const bosses = available.filter(e => e.type === 'boss');
+            const candidates = bosses.length > 0 ? bosses : available;
+            const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+            startDive(chosen);
+          }
+        }
+
+        // 다이빙 적 업데이트
+        for (let i = divingEnemies.length - 1; i >= 0; i--) {
+          const e = divingEnemies[i];
+          if (!e.alive) {
+            divingEnemies.splice(i, 1);
+            continue;
+          }
+          const ds = e.diveState;
+          if (!ds) continue;
+
+          if (ds.phase === 'peel') {
+            // 편대에서 이탈
+            ds.peelX += (ds.targetX - ds.peelX) * 0.03;
+            ds.peelY += -2;
+            e.x = ds.peelX;
+            e.y = ds.peelY;
+            ds.swoopPhase++;
+            if (ds.swoopPhase > 25) {
+              ds.phase = 'swoop';
+              ds.swoopPhase = 0;
+              ds.speed = 3.5 + Math.random() * 2;
+            }
+          } else if (ds.phase === 'swoop') {
+            // 급강하
+            e.y += ds.speed;
+            e.x += Math.sin(ds.swoopPhase * 0.3) * 2;
+            ds.swoopPhase++;
+
+            // 플레이어에게 총알 발사 (원작처럼)
+            if (Math.random() < 0.03 && e.y > player.y - 200) {
+              // 적 총알
+            }
+
+            if (e.y > H + 40) {
+              // 화면 아래로 빠져나감 - 편대 복귀
+              ds.phase = 'return';
+              e.y = -30;
+              ds.swoopPhase = 0;
+            }
+          } else if (ds.phase === 'return') {
+            // 편대 복귀
+            e.y += 2;
+            e.x += (e.formationX - e.x) * 0.08;
+            if (e.y >= e.formationY) {
+              e.diveState = null;
+              e.y = e.formationY;
+              e.x = e.formationX;
+              const idx = divingEnemies.indexOf(e);
+              if (idx >= 0) divingEnemies.splice(idx, 1);
+            }
+          }
+
+          // 다이빙 중 플레이어와 충돌
+          if (ds.phase === 'swoop' && rectCollision(
+            { x: e.x, y: e.y, w: e.w, h: e.h },
+            { x: player.x, y: player.y, w: player.w, h: player.h }
+          )) {
+            spawnExplosion(e.x, e.y, '#f80');
+            e.alive = false;
+            const idx = divingEnemies.indexOf(e);
+            if (idx >= 0) divingEnemies.splice(idx, 1);
+            playerHit();
+          }
+        }
+
+        // 총알-적 충돌
+        for (const b of bullets) {
+          if (!b.active) continue;
+          for (const e of enemies) {
+            if (!e.alive) continue;
+            if (rectCollision(
+              { x: b.x, y: b.y, w: 4, h: 8 },
+              { x: e.x, y: e.y, w: e.w, h: e.h }
+            )) {
+              b.active = false;
+              e.alive = false;
+              if (e.diveState) {
+                const idx = divingEnemies.indexOf(e);
+                if (idx >= 0) divingEnemies.splice(idx, 1);
+              }
+              score += e.points;
+              document.getElementById('score').textContent = score;
+              spawnExplosion(e.x, e.y, e.color === 'purple' ? '#f0f' : e.color === 'blue' ? '#0af' : e.color === 'red' ? '#f44' : e.color === 'yellow' ? '#ff0' : '#0f0');
+              sfxHit();
+              break;
+            }
+          }
+        }
+
+        // 파티클 업데이트
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.05;
+          p.life--;
+          if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        // 스테이지 클리어 체크
+        if (enemies.every(e => !e.alive) && !stageClear) {
+          stageClear = true;
+          setTimeout(() => {
+            if (gameRunning && !gameOver) nextStage();
+          }, 1200);
+        }
+
+        // 적이 너무 내려오면 게임오버 (원작처럼)
+        for (const e of enemies) {
+          if (!e.alive || e.diveState) continue;
+          if (e.y > H - 80) {
+            gameRunning = false;
+            gameOver = true;
+            if (score > highScore) {
+              highScore = score;
+              document.getElementById('highScore').textContent = highScore;
+              try { localStorage.setItem('galaxianHighScore', highScore); } catch (e) {}
+            }
+            document.getElementById('gameOverOverlay').style.display = 'block';
+            break;
+          }
+        }
+      }
+
+      // ==================== 렌더링 ====================
+      function draw() {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, W, H);
+
+        // 별
+        for (const s of stars) {
+          const twinkle = 0.5 + 0.5 * Math.sin(frameCount * 0.05 + s.twinkle);
+          ctx.fillStyle = `rgba(255,255,255,${s.brightness * twinkle})`;
+          ctx.fillRect(s.x, s.y, s.size, s.size);
+        }
+
+        // 파티클
+        for (const p of particles) {
+          ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+        }
+        ctx.globalAlpha = 1;
+
+        // 적 그리기
+        for (const e of enemies) {
+          if (!e.alive) continue;
+          drawEnemy(e.x, e.y, e.color, e.type);
+        }
+
+        // 총알
+        ctx.fillStyle = '#fff';
+        for (const b of bullets) {
+          if (!b.active) continue;
+          ctx.fillRect(b.x - 2, b.y - 6, 4, 12);
+          // 총알 글로우
+          ctx.fillStyle = 'rgba(255,255,200,0.4)';
+          ctx.fillRect(b.x - 3, b.y - 8, 6, 16);
+          ctx.fillStyle = '#fff';
+        }
+
+        // 플레이어
+        drawPlayer(player.x, player.y);
+
+        // 스테이지 클리어 메시지
+        if (stageClear) {
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 28px "Courier New"';
+          ctx.textAlign = 'center';
+          ctx.fillText('STAGE CLEAR!', W / 2, H / 2);
+          ctx.textAlign = 'start';
+        }
+      }
+
+      function drawPlayer(x, y) {
+        ctx.save();
+        ctx.translate(x, y);
+
+        // 본체
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.moveTo(0, -16);
+        ctx.lineTo(-14, 14);
+        ctx.lineTo(-6, 8);
+        ctx.lineTo(0, 14);
+        ctx.lineTo(6, 8);
+        ctx.lineTo(14, 14);
+        ctx.closePath();
+        ctx.fill();
+
+        // 내부 디테일
+        ctx.fillStyle = '#0af';
+        ctx.beginPath();
+        ctx.moveTo(0, -8);
+        ctx.lineTo(-6, 8);
+        ctx.lineTo(0, 5);
+        ctx.lineTo(6, 8);
+        ctx.closePath();
+        ctx.fill();
+
+        // 조종석
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(0, -2, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 엔진 글로우
+        ctx.fillStyle = '#f80';
+        ctx.beginPath();
+        ctx.arc(0, 10, 5, 0, Math.PI);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      function drawEnemy(x, y, color, type) {
+        ctx.save();
+        ctx.translate(x, y);
+
+        const colorMap = {
+          purple: '#d0f',
+          blue: '#0cf',
+          red: '#f33',
+          yellow: '#ff0',
+          green: '#0f0',
+        };
+        const mainColor = colorMap[color] || '#fff';
+
+        if (type === 'boss') {
+          // 보스 타입 (상단 행) - 더 큰 디자인
+          ctx.fillStyle = mainColor;
+          ctx.beginPath();
+          ctx.moveTo(0, -14);
+          ctx.lineTo(-13, -5);
+          ctx.lineTo(-10, 10);
+          ctx.lineTo(0, 14);
+          ctx.lineTo(10, 10);
+          ctx.lineTo(13, -5);
+          ctx.closePath();
+          ctx.fill();
+          // 눈
+          ctx.fillStyle = '#000';
+          ctx.fillRect(-5, -3, 4, 4);
+          ctx.fillRect(1, -3, 4, 4);
+          // 더듬이
+          ctx.strokeStyle = mainColor;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(-13, -5);
+          ctx.lineTo(-18, -12);
+          ctx.moveTo(13, -5);
+          ctx.lineTo(18, -12);
+          ctx.stroke();
+        } else if (type === 'middle') {
+          // 중간 타입
+          ctx.fillStyle = mainColor;
+          ctx.beginPath();
+          ctx.moveTo(0, -12);
+          ctx.lineTo(-11, -3);
+          ctx.lineTo(-9, 10);
+          ctx.lineTo(0, 12);
+          ctx.lineTo(9, 10);
+          ctx.lineTo(11, -3);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = '#000';
+          ctx.fillRect(-4, -2, 3, 3);
+          ctx.fillRect(1, -2, 3, 3);
+        } else {
+          // 하단 타입
+          ctx.fillStyle = mainColor;
+          ctx.beginPath();
+          ctx.moveTo(0, -10);
+          ctx.lineTo(-9, -1);
+          ctx.lineTo(-8, 9);
+          ctx.lineTo(0, 11);
+          ctx.lineTo(8, 9);
+          ctx.lineTo(9, -1);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = '#000';
+          ctx.fillRect(-3, 0, 2.5, 2.5);
+          ctx.fillRect(1, 0, 2.5, 2.5);
+        }
+
+        ctx.restore();
+      }
+
+      // ==================== 게임 루프 ====================
+      function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+      }
+
+      // ==================== 이벤트 ====================
+      document.getElementById('startBtn').addEventListener('click', () => {
+        initAudio();
+        startGame();
+      });
+      document.getElementById('resetBtn').addEventListener('click', resetGame);
+
+      // ==================== 초기화 ====================
+      try {
+        const saved = localStorage.getItem('galaxianHighScore');
+        if (saved) highScore = parseInt(saved) || 0;
+      } catch (e) {}
+      document.getElementById('highScore').textContent = highScore;
+      document.getElementById('lives').textContent = '🛸🛸🛸';
+      createEnemyGrid();
+      gameLoop();
+
+      console.log('👾 갤럭시안 준비 완료!');
+      console.log('🕹️ ← → 이동 | 스페이스바 발사');
+    })();
+  </script>
+
+<!-- arcade gallery back link -->
+<style>
+#arcade-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;background:rgba(8,8,12,.72);border:1px solid rgba(255,255,255,.24);color:#fff !important;font:600 12px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif !important;text-decoration:none !important;letter-spacing:.02em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.45);opacity:.8;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+#arcade-back:hover,#arcade-back:focus-visible{opacity:1;transform:translateY(-1px)}
+@media print{#arcade-back{display:none}}
+</style>
+<a id="arcade-back" href="../index.html" aria-label="미니게임 갤러리로 돌아가기">← 갤러리</a>
+
+</body>
+</html>

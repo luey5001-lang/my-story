@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Galaga 1981 - Tractor Beam Fixed</title>
+<style>
+  :root {
+    --cabinet-border: #1a1c23;
+    --neon-blue: #00d2ff;
+    --neon-red: #ff2a5f;
+    --neon-gold: #ffcc00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+  body {
+    background: #030407;
+    color: #fff;
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  #cabinet {
+    position: relative;
+    width: 100vw;
+    max-width: 520px;
+    height: 100vh;
+    max-height: 720px;
+    background: #000;
+    border: 4px solid var(--cabinet-border);
+    box-shadow: 0 0 40px rgba(0, 210, 255, 0.15), 0 0 80px rgba(255, 42, 95, 0.15);
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 3 / 4;
+  }
+
+  #cabinet::before {
+    content: " ";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
+                linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,255,0,0.01), rgba(0,0,255,0.02));
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  #touch-controls {
+    display: none;
+    position: absolute;
+    bottom: 16px;
+    left: 0; right: 0;
+    padding: 0 20px;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 20;
+    pointer-events: none;
+  }
+  @media (pointer: coarse) {
+    #touch-controls { display: flex; }
+  }
+  .touch-group { display: flex; gap: 14px; pointer-events: auto; }
+  .t-btn {
+    width: 62px; height: 62px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 22px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation;
+  }
+  .t-btn:active { background: rgba(0, 210, 255, 0.4); border-color: var(--neon-blue); }
+  .btn-fire {
+    width: 74px; height: 74px;
+    background: rgba(255, 42, 95, 0.25);
+    border-color: var(--neon-red);
+    color: var(--neon-red);
+    font-size: 15px;
+    pointer-events: auto;
+  }
+  .btn-fire:active { background: rgba(255, 42, 95, 0.6); }
+</style>
+</head>
+<body>
+
+<div id="cabinet">
+  <canvas id="gameCanvas" width="480" height="640"></canvas>
+  <div id="touch-controls">
+    <div class="touch-group">
+      <div class="t-btn" id="t-left">◀</div>
+      <div class="t-btn" id="t-right">▶</div>
+    </div>
+    <div class="t-btn btn-fire" id="t-fire">FIRE</div>
+  </div>
+</div>
+
+<script>
+/**
+ * 1. 8-BIT AUDIO SYNTHESIZER
+ */
+const Sound = {
+  ctx: null,
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new AudioCtx();
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+  },
+  playLaser() {
+    this.init();
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(950, t);
+    osc.frequency.exponentialRampToValueAtTime(130, t + 0.11);
+    gain.gain.setValueAtTime(0.25, t);
+    gain.gain.linearRampToValueAtTime(0.01, t + 0.11);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(t); osc.stop(t + 0.11);
+  },
+  playExplode() {
+    this.init();
+    const t = this.ctx.currentTime;
+    const dur = 0.25;
+    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * dur, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buf;
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(850, t);
+    filter.frequency.linearRampToValueAtTime(80, t + dur);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.3, t);
+    gain.gain.linearRampToValueAtTime(0.01, t + dur);
+    noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+    noise.start(t);
+  },
+  playTractorHum() {
+    this.init();
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(160, t);
+    osc.frequency.linearRampToValueAtTime(320, t + 0.1);
+    osc.frequency.linearRampToValueAtTime(160, t + 0.2);
+    gain.gain.setValueAtTime(0.15, t);
+    gain.gain.linearRampToValueAtTime(0.01, t + 0.2);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(t); osc.stop(t + 0.2);
+  },
+  playDockingFanfare() {
+    this.init();
+    const notes = [440, 554.37, 659.25, 880];
+    notes.forEach((freq, idx) => {
+      const t = this.ctx.currentTime + idx * 0.08;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.18, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+      osc.connect(gain); gain.connect(this.ctx.destination);
+      osc.start(t); osc.stop(t + 0.14);
+    });
+  }
+};
+
+/**
+ * 2. SPRITE ENGINE (16x16 Pixel Buffers)
+ */
+const SpriteEngine = {
+  cache: {},
+  init() {
+    this.cache['FIGHTER'] = this.renderPixelMap(16, 16, [
+      "....00000000....", ".......11.......", "......1111......", "......1111......",
+      ".....111111.....", ".....112211.....", "....11122111....", "...3111111113...",
+      "...3111111113...", "..331111111133..", "..333111111333..", ".33333311333333.",
+      ".33.33311333.33.", "44...33..33...44", "44............44", "4..............4"
+    ], { '1': '#ffffff', '2': '#00d2ff', '3': '#ff2a5f', '4': '#ffcc00' });
+
+    this.cache['CAPTURED_FIGHTER'] = this.renderPixelMap(16, 16, [
+      "....00000000....", ".......11.......", "......1111......", "......1111......",
+      ".....111111.....", ".....112211.....", "....11122111....", "...3111111113...",
+      "...3111111113...", "..331111111133..", "..333111111333..", ".33333311333333.",
+      ".33.33311333.33.", "44...33..33...44", "44............44", "4..............4"
+    ], { '1': '#4a75a0', '2': '#2b4461', '3': '#8a2b43', '4': '#a0852b' });
+
+    this.cache['BOSS_G1'] = this.renderPixelMap(16, 16, [
+      "......1111......", ".....111111.....", "....21311312....", "...2211111122...",
+      "..222211112222..", ".22222211222222.", ".22.22211222.22.", "22..22211222..22",
+      "....22211222....", "....22444422....", "...2244444422...", "...2.444444.2...",
+      ".....444444.....", ".....44..44.....", "....44....44....", "...44......44..."
+    ], { '1': '#00ff88', '2': '#ffcc00', '3': '#ff2a5f', '4': '#00aa55' });
+
+    this.cache['BOSS_G2'] = this.renderPixelMap(16, 16, [
+      "......1111......", ".....111111.....", "....21311312....", "..222111111222..",
+      ".22222111122222.", "2222222112222222", "22..22211222..22", "....22211222....",
+      "....22211222....", "...2224444222...", "..22.444444.22..", ".....444444.....",
+      ".....444444.....", ".....44..44.....", "....44....44....", "...44......44..."
+    ], { '1': '#00ff88', '2': '#ffcc00', '3': '#ff2a5f', '4': '#00aa55' });
+
+    this.cache['BOSS_B1'] = this.renderPixelMap(16, 16, [
+      "......1111......", ".....111111.....", "....21311312....", "...2211111122...",
+      "..222211112222..", ".22222211222222.", ".22.22211222.22.", "22..22211222..22",
+      "....22211222....", "....22444422....", "...2244444422...", "...2.444444.2...",
+      ".....444444.....", ".....44..44.....", "....44....44....", "...44......44..."
+    ], { '1': '#00d2ff', '2': '#ffcc00', '3': '#ff2a5f', '4': '#0066cc' });
+
+    this.cache['GOEI_1'] = this.renderPixelMap(16, 16, [
+      ".......11.......", "......1111......", ".....211112.....", "....22211222....",
+      "...2222112222...", "..222221122222..", ".22222211222222.", ".22.22211222.22.",
+      "22..22211222..22", "....22211222....", "....22211222....", "....33333333....",
+      "...3333333333...", "...33..33..33...", "..33........33..", ".33..........33."
+    ], { '1': '#ffffff', '2': '#ff2a5f', '3': '#ffcc00' });
+
+    this.cache['GOEI_2'] = this.renderPixelMap(16, 16, [
+      ".......11.......", "......1111......", ".....211112.....", "...2222112222...",
+      "..222221122222..", ".22222211222222.", "2222222112222222", "22..22211222..22",
+      "....22211222....", "....22211222....", "...3333333333...", "..333333333333..",
+      "..33...33...33..", ".33..........33.", "33............33", "................"
+    ], { '1': '#ffffff', '2': '#ff2a5f', '3': '#ffcc00' });
+
+    this.cache['ZAKO_1'] = this.renderPixelMap(16, 16, [
+      ".......11.......", "......1111......", ".....211112.....", "....22111122....",
+      "...2222112222...", "..222221122222..", "..22.221122.22..", ".22..221122..22.",
+      ".....221122.....", ".....333333.....", "....33333333....", "....22222222....",
+      "....33333333....", ".....33..33.....", "....33....33....", "...33......33..."
+    ], { '1': '#ff2a5f', '2': '#00d2ff', '3': '#ffcc00' });
+
+    this.cache['ZAKO_2'] = this.renderPixelMap(16, 16, [
+      ".......11.......", "......1111......", ".....211112.....", "..222221122222..",
+      ".22222211222222.", "2222222112222222", "22...221122...22", ".....221122.....",
+      ".....333333.....", "....33333333....", "....22222222....", "....33333333....",
+      "....33333333....", "...33......33...", "..33........33..", "................"
+    ], { '1': '#ff2a5f', '2': '#00d2ff', '3': '#ffcc00' });
+
+    for (let f = 0; f < 5; f++) {
+      const c = document.createElement('canvas');
+      c.width = 32; c.height = 32;
+      const cx = c.getContext('2d');
+      const rad = 3 + f * 3.2;
+      const cols = ['#ffffff', '#ffcc00', '#ff5500', '#ff0044', '#551122'];
+      cx.fillStyle = cols[f];
+      for (let i = 0; i < 8; i++) {
+        const ang = (i / 8) * Math.PI * 2 + (f * 0.2);
+        const dist = rad * (0.6 + (i % 2) * 0.4);
+        cx.beginPath();
+        cx.arc(16 + Math.cos(ang) * dist, 16 + Math.sin(ang) * dist, Math.max(1, 4 - f * 0.7), 0, Math.PI * 2);
+        cx.fill();
+      }
+      this.cache[`EXP_${f}`] = c;
+    }
+  },
+  renderPixelMap(w, h, rows, palette) {
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const cx = c.getContext('2d');
+    for (let y = 0; y < h; y++) {
+      const line = rows[y];
+      for (let x = 0; x < w; x++) {
+        if (palette[line[x]]) {
+          cx.fillStyle = palette[line[x]];
+          cx.fillRect(x, y, 1, 1);
+        }
+      }
+    }
+    return c;
+  }
+};
+
+/**
+ * 3. MATH HELPERS
+ */
+function getCubicBezier(p0, p1, p2, p3, t) {
+  const mt = 1 - t;
+  const mt2 = mt * mt;
+  const t2 = t * t;
+  return {
+    x: mt2 * mt * p0.x + 3 * mt2 * t * p1.x + 3 * mt * t2 * p2.x + t2 * t * p3.x,
+    y: mt2 * mt * p0.y + 3 * mt2 * t * p1.y + 3 * mt * t2 * p2.y + t2 * t * p3.y
+  };
+}
+
+/**
+ * 4. GAME ENGINE
+ */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const W = 480;
+const H = 640;
+
+const Engine = {
+  state: 'TITLE',
+  tick: 0,
+  score: 0,
+  highScore: 30000,
+  stage: 1,
+  lives: 3,
+
+  player: {
+    x: W / 2,
+    y: H - 55,
+    speed: 4.8,
+    isDual: false,
+    invulnerableTimer: 0,
+    capturedState: 'NONE', // NONE, PULLING, RESCUING
+    pullAngle: 0,
+    rescueX: 0,
+    rescueY: 0
+  },
+
+  lasers: [],
+  enemyBullets: [],
+  enemies: [],
+  explosions: [],
+  floatingScores: [],
+
+  gridBreathX: 0,
+  gridExpand: 1.0,
+
+  // 트랙터 시퀀스 제어
+  tractorBoss: null,
+  tractorTimer: 0,
+  tractorCooldown: 600, // 시작 후 10초간은 트랙터 빔 사용 불가
+
+  init() {
+    SpriteEngine.init();
+    this.initStars();
+    this.bindInputs();
+    this.loop();
+  },
+
+  initStars() {
+    this.stars = [];
+    for (let i = 0; i < 90; i++) {
+      this.stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        spd: 0.6 + Math.random() * 2.2,
+        color: ['#ffffff', '#00d2ff', '#ffcc00', '#ff2a5f'][Math.floor(Math.random() * 4)]
+      });
+    }
+  },
+
+  bindInputs() {
+    this.keys = { left: false, right: false, fireLock: false };
+    window.addEventListener('keydown', e => {
+      Sound.init();
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.keys.left = true;
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') this.keys.right = true;
+      if (e.code === 'Space') {
+        if (!this.keys.fireLock) {
+          this.triggerAction();
+          this.keys.fireLock = true;
+        }
+      }
+    });
+    window.addEventListener('keyup', e => {
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.keys.left = false;
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') this.keys.right = false;
+      if (e.code === 'Space') this.keys.fireLock = false;
+    });
+
+    const tl = document.getElementById('t-left');
+    const tr = document.getElementById('t-right');
+    const tf = document.getElementById('t-fire');
+    tl.addEventListener('touchstart', e => { e.preventDefault(); Sound.init(); this.keys.left = true; });
+    tl.addEventListener('touchend', e => { e.preventDefault(); this.keys.left = false; });
+    tr.addEventListener('touchstart', e => { e.preventDefault(); Sound.init(); this.keys.right = true; });
+    tr.addEventListener('touchend', e => { e.preventDefault(); this.keys.right = false; });
+    tf.addEventListener('touchstart', e => { e.preventDefault(); Sound.init(); this.triggerAction(); });
+  },
+
+  triggerAction() {
+    if (this.state === 'TITLE' || this.state === 'GAMEOVER') {
+      this.score = 0;
+      this.stage = 1;
+      this.lives = 3;
+      this.player.isDual = false;
+      this.startStage(1);
+    } else if (this.state === 'PLAYING' && this.player.capturedState === 'NONE') {
+      const maxL = this.player.isDual ? 4 : 2;
+      if (this.lasers.length >= maxL) return;
+      if (this.player.isDual) {
+        this.lasers.push({ x: this.player.x - 14, y: this.player.y - 14 });
+        this.lasers.push({ x: this.player.x + 14, y: this.player.y - 14 });
+      } else {
+        this.lasers.push({ x: this.player.x, y: this.player.y - 14 });
+      }
+      Sound.playLaser();
+    }
+  },
+
+  startStage(stg) {
+    this.stage = stg;
+    this.lasers = [];
+    this.enemyBullets = [];
+    this.enemies = [];
+    this.explosions = [];
+    this.floatingScores = [];
+    this.tractorBoss = null;
+    this.tractorTimer = 0;
+    this.tractorCooldown = 700; // 스테이지 시작 후 12초간 대기
+
+    this.player.x = W / 2;
+    this.player.y = H - 55;
+    this.player.invulnerableTimer = 120;
+    this.player.capturedState = 'NONE';
+
+    this.spawnFormation();
+    this.state = 'READY';
+    this.tick = 0;
+  },
+
+  spawnFormation() {
+    const rows = [
+      { type: 'BOSS', count: 4, hp: 2, ptsGrid: 150, ptsDive: 400 },
+      { type: 'GOEI', count: 8, hp: 1, ptsGrid: 80,  ptsDive: 160 },
+      { type: 'GOEI', count: 8, hp: 1, ptsGrid: 80,  ptsDive: 160 },
+      { type: 'ZAKO', count: 10, hp: 1, ptsGrid: 50,  ptsDive: 100 },
+      { type: 'ZAKO', count: 10, hp: 1, ptsGrid: 50,  ptsDive: 100 }
+    ];
+
+    let gIdx = 0;
+    rows.forEach((r, rIdx) => {
+      const spacingX = 36;
+      const startX = (W - (r.count - 1) * spacingX) / 2;
+      const targetY = 90 + rIdx * 30;
+
+      for (let c = 0; c < r.count; c++) {
+        const targetX = startX + c * spacingX;
+        const fromLeft = (gIdx % 2 === 0);
+        const p0 = { x: fromLeft ? -40 : W + 40, y: 140 + (gIdx % 4) * 35 };
+        const p1 = { x: fromLeft ? W * 0.75 : W * 0.25, y: 340 };
+        const p2 = { x: fromLeft ? W * 0.2 : W * 0.8, y: 460 };
+        const p3 = { x: targetX, y: targetY };
+
+        this.enemies.push({
+          id: `e_${rIdx}_${c}`,
+          type: r.type,
+          hp: r.hp,
+          maxHp: r.hp,
+          ptsGrid: r.ptsGrid,
+          ptsDive: r.ptsDive,
+          gridOriginX: targetX,
+          gridOriginY: targetY,
+          x: p0.x, y: p0.y,
+          angle: 0,
+          state: 'ENTERING',
+          animFrame: 0,
+          t: 0,
+          speedT: 0.012 + (gIdx % 5) * 0.001,
+          p0, p1, p2, p3,
+          diveTime: 0,
+          capturedFighter: false,
+          hoverTargetX: 0,
+          hoverTargetY: 220
+        });
+        gIdx++;
+      }
+    });
+  },
+
+  update() {
+    this.tick++;
+
+    // 배경 스크롤
+    this.stars.forEach(s => {
+      s.y += s.spd;
+      if (s.y > H) { s.y = 0; s.x = Math.random() * W; }
+    });
+
+    if (this.state === 'READY') {
+      if (this.tick > 90) this.state = 'PLAYING';
+    }
+    if (this.state !== 'PLAYING') return;
+
+    // 쿨다운 감쇄
+    if (this.tractorCooldown > 0) this.tractorCooldown--;
+
+    if (this.player.invulnerableTimer > 0) this.player.invulnerableTimer--;
+
+    // 1. 플레이어 제어
+    if (this.player.capturedState === 'NONE') {
+      const margin = this.player.isDual ? 32 : 20;
+      if (this.keys.left && this.player.x > margin) this.player.x -= this.player.speed;
+      if (this.keys.right && this.player.x < W - margin) this.player.x += this.player.speed;
+    } else if (this.player.capturedState === 'PULLING') {
+      this.player.pullAngle += 0.24;
+      if (this.tractorBoss) {
+        this.player.x += (this.tractorBoss.x - this.player.x) * 0.09;
+        this.player.y -= 2.2;
+        if (this.player.y <= this.tractorBoss.y + 26) {
+          // 납치 완료 시점
+          this.tractorBoss.capturedFighter = true;
+          this.tractorBoss.state = 'BEAM_EXIT';
+          this.tractorBoss.diveSpeedY = 4.0;
+          this.tractorBoss = null;
+          this.player.capturedState = 'NONE';
+          this.lives--;
+          if (this.lives <= 0) {
+            this.state = 'GAMEOVER';
+          } else {
+            this.respawnPlayer();
+          }
+        }
+      }
+    } else if (this.player.capturedState === 'RESCUING') {
+      this.player.rescueY += 2.5;
+      if (this.player.rescueY >= this.player.y) {
+        this.player.rescueY = this.player.y;
+        this.player.capturedState = 'NONE';
+        this.player.isDual = true;
+        Sound.playDockingFanfare();
+        this.spawnFloatingScore('DUAL FIGHTER!', this.player.x, this.player.y - 30, '#00d2ff');
+      }
+    }
+
+    // 2. 레이저 갱신
+    for (let i = this.lasers.length - 1; i >= 0; i--) {
+      const l = this.lasers[i];
+      l.y -= 12;
+      if (l.y < -10) this.lasers.splice(i, 1);
+    }
+
+    // 3. 적 탄환 갱신
+    for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
+      const b = this.enemyBullets[i];
+      b.x += b.vx; b.y += b.vy;
+
+      if (this.player.capturedState === 'NONE' && this.player.invulnerableTimer === 0) {
+        const hitDist = this.player.isDual ? 24 : 14;
+        if (Math.hypot(b.x - this.player.x, b.y - this.player.y) < hitDist) {
+          this.enemyBullets.splice(i, 1);
+          this.killPlayer();
+          break;
+        }
+      }
+      if (b.y > H + 10 || b.y < -10 || b.x < -10 || b.x > W + 10) {
+        this.enemyBullets.splice(i, 1);
+      }
+    }
+
+    // 4. 진형 호흡 계산
+    this.gridBreathX = Math.sin(this.tick * 0.035) * 26;
+    this.gridExpand = 1.0 + Math.sin(this.tick * 0.02) * 0.09;
+
+    // 5. 다이브 & 트랙터 트리거 스케줄링
+    if (this.tick % 110 === 0) {
+      this.scheduleEnemyMoves();
+    }
+
+    // 6. 적 개체 업데이트 루프
+    let livingEnemies = 0;
+    this.enemies.forEach(e => {
+      if (e.state === 'DEAD') return;
+      livingEnemies++;
+
+      if (this.tick % 16 === 0) e.animFrame = e.animFrame === 0 ? 1 : 0;
+
+      if (e.state === 'ENTERING') {
+        e.t += e.speedT;
+        const pt = getCubicBezier(e.p0, e.p1, e.p2, e.p3, Math.min(1, e.t));
+        const nextPt = getCubicBezier(e.p0, e.p1, e.p2, e.p3, Math.min(1, e.t + 0.02));
+        e.x = pt.x; e.y = pt.y;
+        e.angle = Math.atan2(nextPt.y - pt.y, nextPt.x - pt.x) - Math.PI / 2;
+        if (e.t >= 1.0) {
+          e.state = 'IN_GRID';
+          e.angle = 0;
+        }
+      } else if (e.state === 'IN_GRID') {
+        e.x = (e.gridOriginX - W / 2) * this.gridExpand + W / 2 + this.gridBreathX;
+        e.y = e.gridOriginY;
+        e.angle = 0;
+      } 
+      // ================= 트랙터 빔 3단계 모션 =================
+      else if (e.state === 'BEAM_DESCEND') {
+        // [1단계: 하강 모션] 호버링 고도(Y: 220)로 부드럽게 선회하며 강하
+        const targetX = e.hoverTargetX;
+        const targetY = e.hoverTargetY;
+        const dx = targetX - e.x;
+        const dy = targetY - e.y;
+        const dist = Math.hypot(dx, dy);
+
+        e.x += dx * 0.05;
+        e.y += dy * 0.05;
+        e.angle = Math.atan2(dy, dx) - Math.PI / 2;
+
+        if (dist < 8) {
+          e.x = targetX;
+          e.y = targetY;
+          e.state = 'BEAM_ACTIVE';
+          e.angle = 0;
+          this.tractorTimer = 0;
+          this.tractorBoss = e;
+        }
+      } else if (e.state === 'BEAM_ACTIVE') {
+        // [2단계: 빔 전개 모션] 130프레임(약 2.1초)간 유지
+        e.angle = 0;
+        this.tractorTimer++;
+        if (this.tractorTimer % 18 === 0) Sound.playTractorHum();
+
+        // 빔 피격 범위 검증 (호버 지점 아래 부채꼴)
+        const beamTopY = e.y + 16;
+        if (this.player.capturedState === 'NONE' && !this.player.isDual && this.player.invulnerableTimer === 0) {
+          if (this.player.y >= beamTopY) {
+            const spread = ((this.player.y - beamTopY) / (this.player.y - beamTopY + 1)) * 65;
+            if (Math.abs(this.player.x - e.x) < spread) {
+              this.player.capturedState = 'PULLING';
+            }
+          }
+        }
+
+        // 제한 시간 초과 시 빔 종료 후 퇴각 강하
+        if (this.tractorTimer > 130) {
+          this.tractorBoss = null;
+          e.state = 'BEAM_EXIT';
+          e.diveSpeedY = 4.2;
+          e.diveTime = 0;
+        }
+      } else if (e.state === 'BEAM_EXIT') {
+        // [3단계: 미포획 퇴각 모션] 부드러운 곡선으로 하단 관통 후 상단 루프
+        e.diveTime += 0.04;
+        e.y += e.diveSpeedY;
+        e.x += Math.sin(e.diveTime * 3) * 3.5;
+        e.angle = Math.PI + Math.sin(e.diveTime * 3) * 0.5;
+
+        if (e.y > H + 30) {
+          e.y = -30;
+          e.state = 'RETURNING';
+        }
+      } 
+      // ================= 일반 다이브 =================
+      else if (e.state === 'DIVING') {
+        e.diveTime += 0.035;
+        e.y += e.diveSpeedY;
+        e.x += Math.sin(e.diveTime * 2.5) * 4.2;
+        e.angle = Math.sin(e.diveTime * 2.5) * 0.6 + Math.PI;
+
+        if (Math.random() < 0.015 && e.y < this.player.y - 80) {
+          const a = Math.atan2(this.player.y - e.y, this.player.x - e.x);
+          this.enemyBullets.push({
+            x: e.x, y: e.y + 10,
+            vx: Math.cos(a) * 4.0,
+            vy: Math.sin(a) * 4.0
+          });
+        }
+
+        if (e.y > H + 30) {
+          e.y = -30;
+          e.state = 'RETURNING';
+        }
+
+        if (this.player.capturedState === 'NONE' && this.player.invulnerableTimer === 0) {
+          const colDist = this.player.isDual ? 26 : 16;
+          if (Math.hypot(e.x - this.player.x, e.y - this.player.y) < colDist) {
+            this.destroyEnemy(e, true);
+            this.killPlayer();
+          }
+        }
+      } else if (e.state === 'RETURNING') {
+        e.y += 3.5;
+        const targetX = (e.gridOriginX - W / 2) * this.gridExpand + W / 2 + this.gridBreathX;
+        e.x += (targetX - e.x) * 0.06;
+        e.angle = 0;
+        if (e.y >= e.gridOriginY) {
+          e.y = e.gridOriginY;
+          e.state = 'IN_GRID';
+        }
+      }
+
+      // 레이저 피격 검증
+      for (let li = this.lasers.length - 1; li >= 0; li--) {
+        const l = this.lasers[li];
+        if (Math.hypot(l.x - e.x, l.y - e.y) < 18) {
+          this.lasers.splice(li, 1);
+          e.hp--;
+          if (e.hp <= 0) {
+            const inFlight = (e.state !== 'IN_GRID');
+            this.destroyEnemy(e, inFlight);
+          } else {
+            Sound.playLaser();
+          }
+          break;
+        }
+      }
+    });
+
+    // 7. 파티클 & 텍스트
+    for (let i = this.explosions.length - 1; i >= 0; i--) {
+      const exp = this.explosions[i];
+      exp.frame += 0.25;
+      if (exp.frame >= 5) this.explosions.splice(i, 1);
+    }
+    for (let i = this.floatingScores.length - 1; i >= 0; i--) {
+      const fs = this.floatingScores[i];
+      fs.y -= 0.8; fs.alpha -= 0.02;
+      if (fs.alpha <= 0) this.floatingScores.splice(i, 1);
+    }
+
+    // 8. 스테이지 클리어 판정
+    if (livingEnemies === 0 && this.state === 'PLAYING') {
+      setTimeout(() => this.startStage(this.stage + 1), 1600);
+      this.state = 'READY';
+    }
+  },
+
+  scheduleEnemyMoves() {
+    const gridEnemies = this.enemies.filter(e => e.state === 'IN_GRID');
+    if (gridEnemies.length === 0) return;
+
+    // [트랙터 빔 출격 조건]: 쿨다운 해제 + 싱글 파이터 + 보스 미소지 + 15% 희귀 확률
+    if (this.tractorCooldown <= 0 && !this.tractorBoss && !this.player.isDual && this.player.capturedState === 'NONE') {
+      const boss = gridEnemies.find(e => e.type === 'BOSS' && !e.capturedFighter);
+      if (boss && Math.random() < 0.2) {
+        boss.state = 'BEAM_DESCEND';
+        boss.hoverTargetX = Math.min(W - 80, Math.max(80, this.player.x)); // 플레이어 상공 조준
+        boss.hoverTargetY = 210;
+        this.tractorCooldown = 850; // 재발동까지 최소 14초 쿨다운 부여
+        return;
+      }
+    }
+
+    // 일반 편대 다이브
+    const count = Math.min(gridEnemies.length, Math.floor(Math.random() * 2) + 1);
+    for (let i = 0; i < count; i++) {
+      const pick = gridEnemies[Math.floor(Math.random() * gridEnemies.length)];
+      pick.state = 'DIVING';
+      pick.diveSpeedY = 3.6 + Math.random() * 1.2;
+      pick.diveTime = Math.random() * Math.PI;
+    }
+  },
+
+  destroyEnemy(e, inFlight) {
+    if (this.tractorBoss === e) this.tractorBoss = null;
+    e.state = 'DEAD';
+    const pts = inFlight ? e.ptsDive : e.ptsGrid;
+    this.score += pts;
+    if (this.score > this.highScore) this.highScore = this.score;
+
+    Sound.playExplode();
+    this.explosions.push({ x: e.x, y: e.y, frame: 0 });
+    this.spawnFloatingScore(`+${pts}`, e.x, e.y, '#fff');
+
+    // 포획된 기체를 가진 보스 격추 시 구조 도킹 시작
+    if (e.type === 'BOSS' && e.capturedFighter) {
+      this.player.capturedState = 'RESCUING';
+      this.player.rescueX = e.x;
+      this.player.rescueY = e.y;
+    }
+  },
+
+  killPlayer() {
+    Sound.playExplode();
+    this.explosions.push({ x: this.player.x, y: this.player.y, frame: 0 });
+
+    if (this.player.isDual) {
+      this.player.isDual = false;
+      this.player.invulnerableTimer = 120;
+      this.spawnFloatingScore('FIGHTER DOWN', this.player.x, this.player.y - 20, '#ffcc00');
+    } else {
+      this.lives--;
+      if (this.lives <= 0) {
+        this.state = 'GAMEOVER';
+      } else {
+        this.respawnPlayer();
+      }
+    }
+  },
+
+  respawnPlayer() {
+    this.player.x = W / 2;
+    this.player.y = H - 55;
+    this.player.invulnerableTimer = 150;
+  },
+
+  spawnFloatingScore(txt, x, y, color) {
+    this.floatingScores.push({ text: txt, x, y, color, alpha: 1.4 });
+  },
+
+  render() {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+
+    // 1. 별빛
+    this.stars.forEach(s => {
+      ctx.fillStyle = s.color;
+      ctx.fillRect(s.x, s.y, 2, 2);
+    });
+
+    // 2. 트랙터 빔 렌더링 (호버링 중일 때만 표시)
+    if (this.tractorBoss && this.tractorBoss.state === 'BEAM_ACTIVE') {
+      const bx = this.tractorBoss.x;
+      const by = this.tractorBoss.y + 16;
+      const grad = ctx.createLinearGradient(bx, by, bx, H);
+      grad.addColorStop(0, 'rgba(0, 210, 255, 0.85)');
+      grad.addColorStop(0.5, 'rgba(255, 42, 95, 0.45)');
+      grad.addColorStop(1, 'rgba(0, 210, 255, 0.05)');
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(bx - 12, by);
+      ctx.lineTo(bx + 12, by);
+      ctx.lineTo(bx + 70, H - 30);
+      ctx.lineTo(bx - 70, H - 30);
+      ctx.closePath();
+      ctx.fill();
+
+      // 횡단 파동 와이어
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      for (let y = by + 10; y < H - 30; y += 14) {
+        const spread = ((y - by) / (H - by)) * 65;
+        const wave = Math.sin(this.tick * 0.25 + y * 0.12) * 4;
+        ctx.beginPath();
+        ctx.moveTo(bx - spread + wave, y);
+        ctx.lineTo(bx + spread + wave, y);
+        ctx.stroke();
+      }
+    }
+
+    // 3. 적기 스프라이트
+    this.enemies.forEach(e => {
+      if (e.state === 'DEAD') return;
+      ctx.save();
+      ctx.translate(e.x, e.y);
+      ctx.rotate(e.angle);
+
+      let spr = 'ZAKO_1';
+      if (e.type === 'BOSS') {
+        if (e.hp === 2) spr = e.animFrame === 0 ? 'BOSS_G1' : 'BOSS_G2';
+        else spr = 'BOSS_B1';
+      } else if (e.type === 'GOEI') {
+        spr = e.animFrame === 0 ? 'GOEI_1' : 'GOEI_2';
+      } else if (e.type === 'ZAKO') {
+        spr = e.animFrame === 0 ? 'ZAKO_1' : 'ZAKO_2';
+      }
+
+      ctx.drawImage(SpriteEngine.cache[spr], -16, -16, 32, 32);
+
+      if (e.capturedFighter) {
+        ctx.drawImage(SpriteEngine.cache['CAPTURED_FIGHTER'], -16, -34, 32, 32);
+      }
+      ctx.restore();
+    });
+
+    // 4. 레이저 & 탄환
+    this.lasers.forEach(l => {
+      ctx.fillStyle = '#ff2a5f';
+      ctx.fillRect(l.x - 3, l.y, 6, 16);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(l.x - 1, l.y + 2, 2, 12);
+    });
+
+    ctx.fillStyle = '#ffcc00';
+    this.enemyBullets.forEach(b => {
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // 5. 플레이어
+    if (this.state === 'PLAYING' || this.state === 'READY') {
+      const showShip = (this.player.invulnerableTimer % 6 < 3);
+      if (showShip) {
+        if (this.player.capturedState === 'PULLING') {
+          ctx.save();
+          ctx.translate(this.player.x, this.player.y);
+          ctx.rotate(this.player.pullAngle);
+          ctx.drawImage(SpriteEngine.cache['CAPTURED_FIGHTER'], -16, -16, 32, 32);
+          ctx.restore();
+        } else {
+          const fImg = SpriteEngine.cache['FIGHTER'];
+          if (this.player.isDual) {
+            ctx.drawImage(fImg, this.player.x - 30, this.player.y - 16, 32, 32);
+            ctx.drawImage(fImg, this.player.x - 2,  this.player.y - 16, 32, 32);
+          } else {
+            ctx.drawImage(fImg, this.player.x - 16, this.player.y - 16, 32, 32);
+          }
+        }
+      }
+
+      if (this.player.capturedState === 'RESCUING') {
+        ctx.drawImage(SpriteEngine.cache['FIGHTER'], this.player.rescueX - 16, this.player.rescueY - 16, 32, 32);
+      }
+    }
+
+    // 6. 폭발 & 부유 텍스트
+    this.explosions.forEach(exp => {
+      const f = Math.floor(exp.frame);
+      const eImg = SpriteEngine.cache[`EXP_${f}`];
+      if (eImg) ctx.drawImage(eImg, exp.x - 24, exp.y - 24, 48, 48);
+    });
+
+    this.floatingScores.forEach(fs => {
+      ctx.fillStyle = fs.color;
+      ctx.globalAlpha = fs.alpha;
+      ctx.font = 'bold 13px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(fs.text, fs.x, fs.y);
+    });
+    ctx.globalAlpha = 1.0;
+
+    // 7. HUD
+    this.renderHUD();
+
+    // 8. 오버레이
+    if (this.state === 'TITLE') {
+      ctx.fillStyle = '#ff2a5f';
+      ctx.font = '900 38px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('GALAGA', W / 2, H / 2 - 50);
+      ctx.fillStyle = '#ffcc00';
+      ctx.font = 'bold 15px monospace';
+      ctx.fillText('ARCADE TRACTOR FIX', W / 2, H / 2 - 15);
+      ctx.fillStyle = '#ffffff';
+      if (Math.floor(this.tick / 30) % 2 === 0) {
+        ctx.fillText('PRESS SPACE OR FIRE', W / 2, H / 2 + 55);
+      }
+    } else if (this.state === 'READY') {
+      ctx.fillStyle = '#00d2ff';
+      ctx.font = '900 22px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`STAGE ${this.stage}`, W / 2, H / 2 - 10);
+      ctx.fillStyle = '#ff2a5f';
+      ctx.font = 'bold 18px monospace';
+      ctx.fillText('READY', W / 2, H / 2 + 18);
+    } else if (this.state === 'GAMEOVER') {
+      ctx.fillStyle = '#ff2a5f';
+      ctx.font = '900 32px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('GAME OVER', W / 2, H / 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 14px monospace';
+      ctx.fillText('PRESS SPACE TO RESTART', W / 2, H / 2 + 45);
+    }
+  },
+
+  renderHUD() {
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#ff2a5f';
+    ctx.fillText('1UP', 24, 24);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(String(this.score).padStart(6, '0'), 24, 42);
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ff2a5f';
+    ctx.fillText('HIGH SCORE', W - 24, 24);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(String(this.highScore).padStart(6, '0'), W - 24, 42);
+
+    for (let i = 0; i < this.lives - 1; i++) {
+      ctx.drawImage(SpriteEngine.cache['FIGHTER'], 24 + i * 26, H - 28, 20, 20);
+    }
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ffcc00';
+    ctx.fillText(`STAGE ${this.stage}`, W - 24, H - 15);
+  },
+
+  loop() {
+    Engine.update();
+    Engine.render();
+    requestAnimationFrame(() => Engine.loop());
+  }
+};
+
+window.addEventListener('load', () => Engine.init());
+</script>
+
+<!-- arcade gallery back link -->
+<style>
+#arcade-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;background:rgba(8,8,12,.72);border:1px solid rgba(255,255,255,.24);color:#fff !important;font:600 12px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif !important;text-decoration:none !important;letter-spacing:.02em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.45);opacity:.8;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+#arcade-back:hover,#arcade-back:focus-visible{opacity:1;transform:translateY(-1px)}
+@media print{#arcade-back{display:none}}
+</style>
+<a id="arcade-back" href="../index.html" aria-label="미니게임 갤러리로 돌아가기">← 갤러리</a>
+
+</body>
+</html>

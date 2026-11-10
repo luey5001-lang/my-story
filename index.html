@@ -1,784 +1,944 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>라스베이거스 룰렛</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07070b">
+<title>도형의 미니게임 아케이드</title>
+<meta name="description" content="54개의 커밋 속에서 건져 올린 미니게임 34개. 룰렛·홀덤·슬롯부터 너구리·갤러그·포트리스, MUD RPG까지 한 곳에서 골라 플레이하세요.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Limelight&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Orbitron:wght@500;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-/* 레이아웃: 왼쪽에 휠과 결과판(스티키), 오른쪽에 펠트 베팅 테이블. 좁은 화면에서는 휠, 칩, 테이블 순서로 세로 배치.
-   카지노 야간 분위기에 맞춘 단일 테마(펠트 그린, 마호가니 레일, 황동 골드). */
 :root{
-  color-scheme: dark;
-  --room:#06241a;
-  --felt:#0e5a3b;
-  --rail:#24140d;
-  --gold:#d9b45b;
-  --ivory:#f1e9d2;
-  --muted:#9db8a6;
-  --red:#b81f2d;
-  --ink:#121317;
-  --zero:#12804d;
-  --line:rgba(241,233,210,.55);
-  --panel:#0a3123;
-  --warn:#ffab8c;
-  --win:#8fe3a8;
-  --lose:#ff8d8d;
-  --tex:radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.6px);
-  --font-display:'Limelight','Noto Sans KR',serif;
-  --font-body:'Noto Sans KR',system-ui,sans-serif;
-  --font-num:'Barlow Condensed','Noto Sans KR',system-ui,sans-serif;
-  --rh:44px;
-  --hs:22px;
+  --bg:#07070b;
+  --panel:#0d0d14;
+  --line:rgba(255,255,255,.085);
+  --text:#eeeef6;
+  --muted:#9797ab;
+  --gold:#f5c451;
+  --pink:#ff5fa2;
+  --violet:#8b5cf6;
+  --cyan:#22d3ee;
+  --green:#34d399;
+  --maxw:1240px;
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{
-  background-color:var(--room);
-  background-image:radial-gradient(120% 60% at 50% -10%, #0e4431 0%, rgba(14,68,49,0) 62%);
-  color:var(--ivory);
-  font:15px/1.55 var(--font-body);
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  font-size:15px;line-height:1.6;letter-spacing:-.01em;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
 }
-button{font:inherit;color:inherit;touch-action:manipulation}
-:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+a{color:inherit}
+button{font-family:inherit}
 
-.page{
-  max-width:1100px;margin:0 auto;
-  padding-block:20px 48px;
-  padding-left:max(16px, env(safe-area-inset-left, 0px));
-  padding-right:max(16px, env(safe-area-inset-right, 0px));
+/* ---------- background ---------- */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-grid{
+  position:absolute;inset:-2px;
+  background-image:
+    linear-gradient(rgba(255,255,255,.032) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.032) 1px,transparent 1px);
+  background-size:46px 46px;
+  -webkit-mask-image:radial-gradient(ellipse 90% 65% at 50% 0%,#000 10%,transparent 78%);
+  mask-image:radial-gradient(ellipse 90% 65% at 50% 0%,#000 10%,transparent 78%);
 }
-.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;margin-bottom:20px}
-h1{margin:0;font:400 clamp(30px,6vw,46px)/1.05 var(--font-display);color:var(--gold);letter-spacing:.02em;text-shadow:0 0 22px rgba(217,180,91,.28);text-wrap:balance}
-.sub{margin:6px 0 0;color:var(--muted);font-size:14px}
-.plaque{display:grid;gap:2px;padding:8px 14px;border:1px solid var(--gold);border-radius:4px;box-shadow:inset 0 0 0 3px var(--room), inset 0 0 0 4px rgba(217,180,91,.45);font-family:var(--font-num);font-size:14px;letter-spacing:.08em;color:var(--gold);text-align:center}
-.plaque b{font-weight:700;font-size:13px;letter-spacing:.22em}
-.plaque span{color:var(--ivory)}
-
-.room{display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
-@media (min-width:940px){
-  .room{grid-template-columns:minmax(0,1fr) 470px;gap:36px;align-items:start}
-  .wheel-col{position:sticky;top:16px}
-  :root{--rh:46px}
+.bg-glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5}
+.bg-glow.a{width:60vw;height:60vw;max-width:760px;max-height:760px;top:-28vw;left:-12vw;background:radial-gradient(circle,rgba(139,92,246,.55),transparent 65%)}
+.bg-glow.b{width:52vw;height:52vw;max-width:660px;max-height:660px;top:-18vw;right:-16vw;background:radial-gradient(circle,rgba(34,211,238,.28),transparent 65%)}
+.bg-glow.c{width:70vw;height:70vw;max-width:820px;max-height:820px;top:34vh;left:38%;background:radial-gradient(circle,rgba(255,95,162,.16),transparent 62%)}
+.bg-scan{
+  position:absolute;inset:0;opacity:.35;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.028) 0 1px,transparent 1px 3px);
 }
-@media (max-width:480px){ :root{--hs:18px;--rh:42px} }
-.wheel-col,.table-col{min-width:0;display:grid;gap:14px}
 
-.wheel-wrap{width:100%;max-width:520px;aspect-ratio:1;margin-inline:auto}
-#wheel{display:block;width:100%;height:100%}
+/* ---------- layout ---------- */
+.wrap{position:relative;z-index:1}
+.inner{max-width:var(--maxw);margin:0 auto;padding:0 20px}
 
-.result{display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--panel);border:1px solid rgba(217,180,91,.35);border-radius:10px}
-.res-num{flex:none;display:grid;place-items:center;width:66px;height:66px;border-radius:50%;border:3px solid var(--gold);background:#17382b;color:var(--muted);font:700 30px/1 var(--font-num)}
-.res-num.red{background:var(--red);color:#fff}
-.res-num.black{background:var(--ink);color:#fff}
-.res-num.green{background:var(--zero);color:#fff}
-.res-txt{min-width:0}
-.res-main{font-size:20px;font-weight:700;line-height:1.25}
-.res-sub{color:var(--muted);font-size:14px}
-.res-net{font-family:var(--font-num);font-size:18px;font-weight:600;letter-spacing:.02em;font-variant-numeric:tabular-nums;min-height:1.2em}
-.res-net.pos{color:var(--win)} .res-net.neg{color:var(--lose)}
+/* ---------- hero ---------- */
+.hero{padding:clamp(34px,6vw,68px) 0 26px;position:relative}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:9px;
+  margin:0 0 18px;font-family:'Orbitron','Noto Sans KR',sans-serif;
+  font-size:10.5px;font-weight:700;letter-spacing:.32em;color:var(--gold);
+  text-transform:uppercase;
+}
+.eyebrow .coin{font-size:14px;filter:drop-shadow(0 0 8px rgba(245,196,81,.8))}
+.eyebrow .live{width:6px;height:6px;border-radius:50%;background:#4ade80;box-shadow:0 0 10px #4ade80;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.32}}
+h1{
+  margin:0 0 18px;
+  font-family:'Black Han Sans','Noto Sans KR',sans-serif;
+  font-weight:400;
+  font-size:clamp(40px,8.2vw,82px);
+  line-height:1.02;
+  letter-spacing:-.035em;
+  text-wrap:balance;
+}
+h1 .grad{
+  background:linear-gradient(96deg,var(--gold) 4%,var(--pink) 38%,var(--violet) 68%,var(--cyan) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 28px rgba(139,92,246,.35));
+}
+.lede{margin:0 0 26px;max-width:580px;color:#b9b9c9;font-size:clamp(14px,1.7vw,16px);line-height:1.75}
+.lede b{color:#fff;font-weight:700}
 
-.hist-wrap{padding:12px 14px;background:var(--panel);border:1px solid rgba(217,180,91,.2);border-radius:10px}
-.k{font-family:var(--font-num);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.hist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:30px}
-.hdot{display:grid;place-items:center;min-width:30px;height:30px;padding:0 4px;border-radius:50%;font:600 15px/1 var(--font-num);color:#fff;background:var(--ink)}
-.hdot.red{background:var(--red)} .hdot.green{background:var(--zero)}
-.hdot.first{outline:2px solid var(--gold);outline-offset:2px}
-.stats{margin:10px 0 0;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:34px}
+.btn-primary,.btn-ghost{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:46px;padding:0 20px;border-radius:999px;
+  font-size:14px;font-weight:800;text-decoration:none;cursor:pointer;
+  transition:transform .2s,box-shadow .2s,background .2s,border-color .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-primary{
+  border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(135deg,#ffd875,var(--gold) 45%,#ffa726);
+  color:#1a1203;
+  box-shadow:0 10px 30px -10px rgba(245,196,81,.55),inset 0 1px 0 rgba(255,255,255,.55);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 38px -12px rgba(245,196,81,.7),inset 0 1px 0 rgba(255,255,255,.6)}
+.btn-primary:active{transform:translateY(0)}
+.btn-ghost{
+  border:1px solid var(--line);background:rgba(255,255,255,.035);color:#d6d6e4;
+  font-weight:600;
+}
+.btn-ghost:hover{background:rgba(255,255,255,.075);border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
 
-.bank{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px}
-.stat{padding:8px 12px;background:var(--panel);border:1px solid rgba(217,180,91,.25);border-radius:8px;min-width:0}
-.stat b{display:block;font:600 24px/1.2 var(--font-num);letter-spacing:.02em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-.stat b.pos{color:var(--win)} .stat b.neg{color:var(--lose)}
-#rebuy{grid-column:1/-1}
+.stats{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:1px;margin:0;padding:0;
+  border:1px solid var(--line);border-radius:18px;
+  background:var(--line);overflow:hidden;
+  max-width:720px;
+}
+.stats div{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012));padding:14px 16px}
+.stats b{
+  display:block;font-family:'Orbitron',sans-serif;font-weight:700;
+  font-size:clamp(19px,2.6vw,26px);line-height:1.1;color:#fff;letter-spacing:.01em;
+}
+.stats b em{font-style:normal;color:var(--gold)}
+.stats span{display:block;margin-top:5px;font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
 
-.tray-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.tray{display:flex;flex-wrap:wrap;gap:12px;padding:6px 6px 8px}
-.tray .chip{--cs:54px;border:0;padding:0;cursor:pointer;transition:transform .12s}
-.tray .chip:hover{transform:translateY(-2px)}
-.tray .chip.sel{transform:translateY(-4px);outline:2px solid var(--gold);outline-offset:3px}
-.tray .chip.off{opacity:.35}
-.mini{appearance:none;border:1px solid rgba(217,180,91,.4);background:transparent;color:var(--muted);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;min-height:36px;white-space:nowrap}
-.mini[aria-pressed="true"]{color:var(--ivory);border-color:var(--gold)}
+/* ---------- ticker ---------- */
+.ticker{
+  position:relative;margin-top:30px;padding:12px 0;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.018);overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+}
+.ticker-track{display:flex;width:max-content;animation:ticker 90s linear infinite}
+.ticker-seq{
+  white-space:nowrap;font-family:'Orbitron','Noto Sans KR',sans-serif;
+  font-size:11px;font-weight:500;letter-spacing:.16em;color:#8b8b9f;
+}
+.tk-dot{color:var(--gold);opacity:.55;margin:0 2px}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-.chip{--main:#eceadf;--edge:#6d7a8c;--txt:#1a1d22;position:relative;display:grid;place-items:center;width:var(--cs,30px);height:var(--cs,30px);border-radius:50%;background:repeating-conic-gradient(var(--edge) 0 12deg, var(--main) 12deg 30deg);box-shadow:0 1px 0 rgba(0,0,0,.55),0 3px 5px rgba(0,0,0,.45);font-family:var(--font-num);font-weight:700}
-.chip::before{content:"";position:absolute;inset:15%;border-radius:50%;background:var(--main);box-shadow:inset 0 0 0 1px rgba(0,0,0,.28),0 0 0 1px var(--edge)}
-.chip i{position:relative;font-style:normal;color:var(--txt);font-size:calc(var(--cs,30px) * .36);line-height:1;letter-spacing:-.02em}
-.c1{--main:#eceadf;--edge:#6d7a8c;--txt:#1a1d22}
-.c5{--main:#c42631;--edge:#f0e6d0;--txt:#fff}
-.c25{--main:#1f8a4a;--edge:#f0e6d0;--txt:#fff}
-.c100{--main:#1b1c20;--edge:#d9b45b;--txt:#f1e9d2}
-.c500{--main:#6c2d94;--edge:#f0e6d0;--txt:#fff}
+/* ---------- filters ---------- */
+.filters{
+  position:sticky;top:0;z-index:60;
+  background:rgba(7,7,11,.86);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);
+  border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top,0px);
+}
+.filters-inner{
+  max-width:var(--maxw);margin:0 auto;padding:11px 20px;
+  display:flex;align-items:center;gap:14px;
+}
+.chips{display:flex;gap:8px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;padding:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;
+  padding:8px 13px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03);color:#c3c3d2;
+  font-size:12.5px;font-weight:600;white-space:nowrap;cursor:pointer;
+  transition:background .18s,color .18s,border-color .18s,transform .18s;
+  -webkit-tap-highlight-color:transparent;
+}
+.chip:hover{background:rgba(255,255,255,.075);color:#fff;border-color:rgba(255,255,255,.18)}
+.chip.is-active{
+  background:linear-gradient(135deg,#ffe08a,var(--gold));
+  border-color:transparent;color:#1b1303;font-weight:800;
+  box-shadow:0 6px 22px -8px rgba(245,196,81,.75);
+}
+.chip-n{
+  display:inline-grid;place-items:center;min-width:19px;height:19px;padding:0 5px;
+  border-radius:999px;background:rgba(255,255,255,.08);
+  font-family:'Orbitron',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:0;
+}
+.chip.is-active .chip-n{background:rgba(0,0,0,.16);color:#1b1303}
 
-.hint{margin:0;min-height:44px;color:var(--muted);font-size:13.5px}
-.hint.warn{color:var(--warn);font-weight:500}
+.search{position:relative;flex:0 0 236px}
+.search .icon{
+  position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  font-size:14px;color:#7c7c92;pointer-events:none;
+}
+.search input{
+  width:100%;height:40px;padding:0 34px 0 34px;
+  border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.045);color:var(--text);
+  font-family:inherit;font-size:13px;outline:none;
+  transition:border-color .18s,box-shadow .18s,background .18s;
+}
+.search input::placeholder{color:#6f6f85}
+.search input:focus{
+  border-color:rgba(34,211,238,.55);background:rgba(34,211,238,.06);
+  box-shadow:0 0 0 3px rgba(34,211,238,.12);
+}
+.search .kbd{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  padding:2px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.14);
+  font-family:'Orbitron',sans-serif;font-size:9px;color:#77778c;pointer-events:none;
+}
+.search input:focus + .kbd{opacity:0}
 
-.felt{padding:10px;background-color:var(--felt);background-image:var(--tex);background-size:4px 4px;border:10px solid var(--rail);border-radius:14px;box-shadow:inset 0 0 0 2px rgba(217,180,91,.5),0 16px 34px rgba(0,0,0,.5)}
-.board{position:relative;display:grid;grid-template-columns:44px repeat(6,minmax(0,1fr)) 44px;grid-template-rows:repeat(14,var(--rh));gap:1px;background:var(--line);border:2px solid var(--line)}
-.spot{position:relative;display:grid;place-items:center;border:0;padding:0;margin:0;color:var(--ivory);background-color:var(--felt);cursor:pointer}
-.spot:hover{filter:brightness(1.18)}
-.spot.hl{filter:brightness(1.3);box-shadow:inset 0 0 0 2px var(--gold)}
-.cell.red{background-color:var(--red)}
-.cell.black{background-color:var(--ink)}
-.cell.green{background-color:var(--zero)}
-.n{font:700 clamp(19px,3.6vw,25px)/1 var(--font-num);letter-spacing:.02em}
-.out,.fill{background-color:var(--felt);background-image:var(--tex);background-size:4px 4px}
-.out{font-family:var(--font-num);font-weight:600;font-size:17px;letter-spacing:.06em;text-transform:uppercase}
-.out.vert span{writing-mode:vertical-rl}
-.out small{font-size:14px;letter-spacing:.04em}
-.dia{width:20px;height:20px;transform:rotate(45deg);border:1px solid var(--ivory);background:var(--red)}
-.dia.k{background:var(--ink)}
-.cell.hit{box-shadow:inset 0 0 0 3px var(--gold);animation:glow 1.1s ease-in-out 3}
-@keyframes glow{50%{filter:brightness(1.55)}}
-.dolly{position:absolute;right:4px;top:4px;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff7cf,#e0b64d 55%,#8c6a1c);box-shadow:0 2px 4px rgba(0,0,0,.6);animation:drop .5s cubic-bezier(.3,1.6,.5,1)}
-@keyframes drop{from{transform:translateY(-18px) scale(1.5);opacity:0}}
+/* ---------- sections ---------- */
+main{padding:8px 0 90px}
+.cat{margin-top:44px;scroll-margin-top:80px}
+.cat[data-cat="casino"]{--accent:var(--gold);--soft:rgba(245,196,81,.16);--glow:rgba(245,196,81,.35)}
+.cat[data-cat="arcade"]{--accent:var(--cyan);--soft:rgba(34,211,238,.15);--glow:rgba(34,211,238,.32)}
+.cat[data-cat="rpg"]{--accent:#b09bff;--soft:rgba(139,92,246,.18);--glow:rgba(139,92,246,.38)}
+.cat[data-cat="etc"]{--accent:var(--green);--soft:rgba(52,211,153,.15);--glow:rgba(52,211,153,.3)}
 
-.ov{position:relative;pointer-events:none;z-index:3}
-.hot{position:absolute;display:grid;place-items:center;width:var(--hs);height:var(--hs);transform:translate(-50%,-50%);border:0;border-radius:50%;padding:0;background:transparent;cursor:pointer;pointer-events:auto}
-.hot::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--ivory);opacity:.32;transition:all .12s}
-.hot:hover::before,.hot:focus-visible::before{opacity:1;width:12px;height:12px;background:var(--gold)}
-.hot.has{z-index:5}
-.hot.has::before{display:none}
+.cat-head{margin-bottom:16px}
+.cat-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cat-emoji{font-size:22px;filter:drop-shadow(0 0 12px var(--glow))}
+.cat-title h2{
+  margin:0;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-weight:400;
+  font-size:clamp(20px,2.6vw,26px);letter-spacing:-.02em;color:#fff;
+}
+.cat-count{
+  display:inline-grid;place-items:center;min-width:26px;height:22px;padding:0 8px;
+  border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+  background:var(--soft);color:var(--accent);
+  font-family:'Orbitron',sans-serif;font-size:10.5px;font-weight:700;
+}
+.cat-desc{margin:5px 0 0;color:#7e7e94;font-size:12.5px;letter-spacing:.01em}
 
-.stack{position:absolute;left:50%;top:50%;z-index:4;transform:translate(-50%,-50%);display:grid;place-items:center;pointer-events:none}
-.stack .chip{--cs:32px}
-.hot .stack .chip{--cs:28px}
-.stack.win .chip{animation:hop .55s ease-out 2}
-.stack.lose{animation:gone .65s ease-in forwards}
-@keyframes hop{40%{transform:translateY(-9px)}}
-@keyframes gone{to{opacity:0;transform:translate(-50%,-30%) scale(.55)}}
-.pop{position:absolute;left:50%;top:-2px;z-index:8;transform:translateX(-50%);white-space:nowrap;pointer-events:none;font:700 17px/1 var(--font-num);color:var(--win);text-shadow:0 1px 3px #000,0 0 6px #000;animation:rise 1.7s ease-out forwards}
-@keyframes rise{0%{opacity:0;transform:translate(-50%,6px)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-40px)}}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
 
-.actions{position:sticky;bottom:env(safe-area-inset-bottom,0px);z-index:10;display:flex;flex-wrap:wrap;gap:8px;padding:14px 0 10px;background:linear-gradient(rgba(6,36,26,0),var(--room) 32%)}
-.btn{appearance:none;flex:1 1 56px;min-width:0;min-height:46px;padding:8px 4px;border:1px solid rgba(217,180,91,.55);border-radius:8px;background:#0b3a2a;color:var(--ivory);font-size:13px;font-weight:500;line-height:1.2;cursor:pointer}
-.btn:hover:not(:disabled){border-color:var(--gold);background:#10503a}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.btn.primary{flex:1.8 1 100px;border-color:#f0d58a;background:linear-gradient(#ecce7b,#c49b3d);color:#241707;font-size:17px;font-weight:700;letter-spacing:.08em}
-.btn.primary:hover:not(:disabled){background:linear-gradient(#f5da8e,#d2a947)}
-body.spinning .felt{opacity:.9}
+/* ---------- card ---------- */
+.card{
+  position:relative;display:grid;grid-template-columns:62px minmax(0,1fr) 16px;align-items:center;gap:13px;
+  padding:12px;border-radius:18px;overflow:hidden;
+  background:linear-gradient(158deg,rgba(255,255,255,.058),rgba(255,255,255,.014));
+  border:1px solid var(--line);
+  text-decoration:none;color:inherit;
+  -webkit-tap-highlight-color:transparent;
+  animation:cardIn .5s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay:calc(var(--i,0) * 18ms);
+  transition:transform .26s cubic-bezier(.2,.8,.2,1),border-color .26s,box-shadow .26s,background .26s;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.card::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+  background:radial-gradient(420px 180px at 15% 0%,var(--soft),transparent 70%);
+  transition:opacity .3s;
+}
+.card:hover::before,.card:focus-visible::before{opacity:1}
+.card:hover,.card:focus-visible{
+  transform:translateY(-3px);
+  border-color:color-mix(in srgb,var(--accent) 45%,rgba(255,255,255,.12));
+  box-shadow:0 20px 44px -24px var(--glow),0 0 0 1px color-mix(in srgb,var(--accent) 18%,transparent);
+  outline:none;
+}
+.card:focus-visible{box-shadow:0 0 0 2px var(--accent),0 20px 44px -24px var(--glow)}
 
-.rules{margin-top:30px;border:1px solid rgba(217,180,91,.3);border-radius:10px;background:var(--panel)}
-.rules summary{padding:14px 16px;cursor:pointer;font-weight:700;color:var(--gold);font-family:var(--font-body)}
-.rules-in{display:grid;gap:18px;padding:0 16px 18px}
-.tw{overflow-x:auto}
-.rules table{border-collapse:collapse;width:100%;min-width:480px;font-size:14px;font-variant-numeric:tabular-nums}
-.rules th,.rules td{padding:8px 10px;border-bottom:1px solid rgba(241,233,210,.15);text-align:left;vertical-align:top}
-.rules th{font-family:var(--font-num);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
-.rules td.pay{font-family:var(--font-num);font-size:17px;font-weight:700;color:var(--gold)}
-.rules ul{margin:0;padding-left:20px;display:grid;gap:6px;max-width:68ch}
-.foot{margin:22px 0 0;color:var(--muted);font-size:13px}
+.thumb{
+  position:relative;display:grid;place-items:center;
+  width:62px;height:62px;border-radius:15px;overflow:hidden;
+  background:
+    radial-gradient(120% 120% at 22% 12%,var(--soft),rgba(255,255,255,.02) 70%),
+    rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.075);
+  transition:transform .3s;
+}
+.thumb-grid{
+  position:absolute;inset:0;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:11px 11px;
+  -webkit-mask-image:radial-gradient(circle at 50% 50%,#000,transparent 78%);
+  mask-image:radial-gradient(circle at 50% 50%,#000,transparent 78%);
+}
+.emoji{position:relative;font-size:29px;line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));transition:transform .3s}
+.card:hover .emoji{transform:scale(1.09) rotate(-3deg)}
 
-@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.body{display:flex;flex-direction:column;min-width:0}
+.card-head{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.series{
+  font-family:'Orbitron','Noto Sans KR',sans-serif;font-size:8.5px;font-weight:700;
+  letter-spacing:.18em;color:var(--accent);opacity:.9;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%;
+}
+.new{
+  flex:0 0 auto;padding:1px 6px;border-radius:999px;
+  font-family:'Orbitron',sans-serif;font-size:8px;font-weight:900;letter-spacing:.1em;
+  color:#190b12;background:linear-gradient(135deg,#ff8fbe,var(--pink));
+  box-shadow:0 0 12px rgba(255,95,162,.55);
+}
+.title{
+  display:block;font-size:15px;font-weight:800;line-height:1.32;letter-spacing:-.015em;color:#fff;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.desc{
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;margin-top:3px;
+  font-size:11.8px;line-height:1.5;color:#9292a6;
+}
+.meta{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:10.5px;color:#7b7b90;font-family:'Orbitron','Noto Sans KR',sans-serif;letter-spacing:.02em}
+.meta time{white-space:nowrap}
+.meta .sep{opacity:.4}
+.meta code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:#8f8fa6;background:rgba(255,255,255,.045);padding:1px 5px;border-radius:5px}
+.meta .tag{display:none;margin-left:auto;padding:2px 7px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-family:'Noto Sans KR',sans-serif;font-size:10px;color:#a4a4b8}
+
+.chev{color:var(--accent);font-size:20px;line-height:1;opacity:.75;transition:transform .25s,opacity .25s}
+.card:hover .chev{transform:translateX(3px);opacity:1}
+.playline{display:none}
+
+/* ---------- empty ---------- */
+.empty{
+  text-align:center;padding:80px 20px;border:1px dashed var(--line);border-radius:22px;
+  margin-top:44px;background:rgba(255,255,255,.015);
+}
+.empty .big{font-size:44px;display:block;margin-bottom:12px;filter:grayscale(.2)}
+.empty h3{margin:0 0 6px;font-size:18px;font-weight:800;color:#fff}
+.empty p{margin:0;color:var(--muted);font-size:13px}
+
+/* ---------- footer ---------- */
+footer{
+  position:relative;z-index:1;border-top:1px solid var(--line);
+  padding:28px 20px calc(34px + env(safe-area-inset-bottom,0px));
+  text-align:center;color:#6f6f85;font-size:11.5px;line-height:1.9;
+}
+footer a{color:#a9a9be;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.14)}
+footer a:hover{color:#fff;border-color:var(--gold)}
+footer .brand{
+  display:block;margin-bottom:4px;font-family:'Orbitron','Noto Sans KR',sans-serif;
+  font-size:10px;font-weight:700;letter-spacing:.34em;color:#8c8ca4;text-transform:uppercase;
+}
+
+/* ---------- responsive ---------- */
+@media (min-width:620px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .card{grid-template-columns:74px minmax(0,1fr) 18px;padding:13px;gap:14px}
+  .thumb{width:74px;height:74px}
+  .emoji{font-size:34px}
+  .title{font-size:15.5px}
+}
+@media (max-width:700px){
+  .filters-inner{flex-wrap:wrap;gap:9px;padding:10px 16px}
+  .chips{order:1;flex:1 1 100%}
+  .search{order:2;flex:1 1 100%}
+  .search .kbd{display:none}
+  .inner{padding:0 16px}
+}
+@media (min-width:960px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+  .cat{margin-top:52px}
+}
+@media (min-width:1160px){
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .card{
+    grid-template-columns:1fr;grid-template-rows:auto 1fr;gap:0;padding:0;
+    background:linear-gradient(170deg,rgba(255,255,255,.062),rgba(255,255,255,.012) 55%);
+  }
+  .thumb{
+    width:100%;height:126px;border-radius:0;border:none;border-bottom:1px solid var(--line);
+    background:radial-gradient(130% 150% at 50% 0%,var(--soft),rgba(255,255,255,.015) 72%);
+  }
+  .thumb-grid{background-size:16px 16px;opacity:.45}
+  .emoji{font-size:50px;filter:drop-shadow(0 10px 22px rgba(0,0,0,.55))}
+  .body{padding:15px 16px 17px}
+  .title{font-size:16.5px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:0}
+  .desc{font-size:12.2px;min-height:37px}
+  .meta{font-size:10px}
+  .meta .tag{display:inline-block}
+  .chev{display:none}
+  .playline{display:block;margin-top:13px}
+  .playbtn{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:7px 13px;border-radius:999px;
+    background:var(--accent);color:#0b0b10;
+    font-size:11.5px;font-weight:800;letter-spacing:.01em;
+    box-shadow:0 6px 18px -8px var(--glow);
+    transition:filter .2s,transform .2s;
+  }
+  .card:hover .playbtn{filter:brightness(1.12);transform:translateX(2px)}
+  .card:hover .thumb{transform:none}
+}
+@media (min-width:1400px){
+  :root{--maxw:1320px}
+}
+@media (hover:hover){
+  .card:hover{will-change:transform}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+  .ticker-track{animation:none}
+  .card{opacity:1;transform:none}
+}
+@media print{
+  .bg,.filters,.ticker,.hero-actions{display:none}
+  body{background:#fff;color:#000}
+}
 </style>
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <div class="bg-glow a"></div>
+  <div class="bg-glow b"></div>
+  <div class="bg-glow c"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-scan"></div>
+</div>
 
-<div class="page">
-  <header class="top">
-    <div>
-      <h1>American Roulette</h1>
-      <p class="sub">라스베이거스 룰 그대로. 0과 00이 있는 38칸 휠입니다.</p>
-    </div>
-    <div class="plaque" aria-label="테이블 한도">
-      <b>TABLE LIMITS</b>
-      <span>INSIDE $1 · 합계 $5 이상</span>
-      <span>OUTSIDE $5 이상</span>
+<div class="wrap">
+  <header class="hero">
+    <div class="inner">
+      <p class="eyebrow"><span class="live" aria-hidden="true"></span><span class="coin" aria-hidden="true">🪙</span>Insert Coin · Mini Game Arcade</p>
+      <h1>도형의<br><span class="grad">미니게임 아케이드</span></h1>
+      <p class="lede">
+        2026년 여름부터 가을까지, <b>54개의 커밋</b> 속에 흩어져 있던 게임들을 건져 올렸습니다.
+        룰렛·홀덤·슬롯부터 너구리·갤러그·포트리스, MUD RPG까지 <b>34개</b>.
+        고르고, 누르고, 바로 플레이하세요.
+      </p>
+      <div class="hero-actions">
+        <button class="btn-primary" id="randomBtn" type="button">🎲 랜덤 플레이</button>
+        <a class="btn-ghost" href="https://github.com/luey5001-lang/my-story" target="_blank" rel="noopener">GitHub 저장소 ↗</a>
+      </div>
+      <div class="stats" role="list">
+        <div role="listitem"><b>34</b><span>Games</span></div>
+        <div role="listitem"><b>54</b><span>Commits</span></div>
+        <div role="listitem"><b>4</b><span>Categories</span></div>
+        <div role="listitem"><b>2026.07.08</b><span>Since</span></div>
+      </div>
     </div>
   </header>
 
-  <main class="room">
-    <section class="wheel-col" aria-label="룰렛 휠">
-      <div class="wheel-wrap" id="wheelWrap"><canvas id="wheel" role="img" aria-label="38칸 아메리칸 룰렛 휠"></canvas></div>
-      <div class="result" aria-live="polite">
-        <div class="res-num" id="resNum">—</div>
-        <div class="res-txt">
-          <div class="res-main" id="resMain">베팅을 받습니다</div>
-          <div class="res-sub" id="resSub">Place your bets</div>
-          <div class="res-net" id="resNet"></div>
-        </div>
-      </div>
-      <div class="hist-wrap">
-        <div class="k">최근 결과</div>
-        <div class="hist" id="hist"></div>
-        <p class="stats" id="stats"></p>
-      </div>
-    </section>
-
-    <section class="table-col" aria-label="베팅 테이블">
-      <div class="bank">
-        <div class="stat"><span class="k">보유 칩</span><b id="bal">$1,000</b></div>
-        <div class="stat"><span class="k">테이블 위 베팅</span><b id="onTable">$0</b></div>
-        <div class="stat"><span class="k">직전 스핀</span><b id="lastNet">—</b></div>
-        <button class="btn" id="rebuy" type="button" hidden>칩이 바닥났습니다. $1,000 다시 받기</button>
-      </div>
-      <div class="tray-row">
-        <div class="tray" id="tray" role="group" aria-label="칩 선택"></div>
-        <button class="mini" id="snd" type="button" aria-pressed="true">소리 켬</button>
-      </div>
-      <p class="hint" id="hint"></p>
-      <div class="felt"><div class="board" id="board" role="group" aria-label="룰렛 베팅 레이아웃"></div></div>
-      <div class="actions">
-        <button class="btn" id="undo" type="button">되돌리기</button>
-        <button class="btn" id="clear" type="button">비우기</button>
-        <button class="btn" id="double" type="button">2배</button>
-        <button class="btn" id="rebet" type="button">재베팅</button>
-        <button class="btn primary" id="spin" type="button">스핀</button>
-      </div>
-    </section>
-  </main>
-
-  <details class="rules">
-    <summary>룰과 배당표</summary>
-    <div class="rules-in">
-      <div class="tw">
-        <table>
-          <thead><tr><th>베팅</th><th>걸리는 칸</th><th>배당</th><th>최대 한도</th></tr></thead>
-          <tbody>
-            <tr><td>Straight Up 스트레이트</td><td>숫자 1개 (0, 00 포함)</td><td class="pay">35:1</td><td>$100</td></tr>
-            <tr><td>Split 스플릿</td><td>맞닿은 2칸</td><td class="pay">17:1</td><td>$200</td></tr>
-            <tr><td>Street 스트리트</td><td>가로줄 3칸 (예: 4-5-6)</td><td class="pay">11:1</td><td>$300</td></tr>
-            <tr><td>Trio 트리오</td><td>0-1-2, 0-00-2, 00-2-3</td><td class="pay">11:1</td><td>$300</td></tr>
-            <tr><td>Corner 코너</td><td>네 칸이 만나는 점</td><td class="pay">8:1</td><td>$400</td></tr>
-            <tr><td>Five Number 파이브넘버</td><td>0, 00, 1, 2, 3</td><td class="pay">6:1</td><td>$500</td></tr>
-            <tr><td>Six Line 식스라인</td><td>가로줄 2개, 6칸</td><td class="pay">5:1</td><td>$500</td></tr>
-            <tr><td>Column 컬럼 / Dozen 더즌</td><td>12칸</td><td class="pay">2:1</td><td>$2,000</td></tr>
-            <tr><td>Red·Black, Odd·Even, 1–18·19–36</td><td>18칸</td><td class="pay">1:1</td><td>$5,000</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <ul>
-        <li>휠에는 1에서 36까지의 숫자와 0, 00 모두 38칸이 있고, 칸마다 나올 확률은 똑같이 1/38입니다.</li>
-        <li>0이나 00이 나오면 레드·블랙, 홀짝, 1–18·19–36, 더즌, 컬럼 같은 아웃사이드 베팅은 모두 집니다. 라 파르타지와 앙 프리종은 없습니다.</li>
-        <li>이기면 베팅액에 배당을 곱한 칩을 받고, 이긴 베팅의 원금은 테이블에 그대로 남습니다. 진 베팅은 딜러가 치웁니다. 이긴 칸에는 황금색 마커가 놓입니다.</li>
-        <li>인사이드 베팅은 칸마다 최소 $1이고 인사이드 합계가 $5 이상이어야 합니다. 아웃사이드 베팅은 칸마다 최소 $5입니다.</li>
-        <li>하우스 엣지는 대부분의 베팅에서 5.26%이고 파이브넘버는 7.89%입니다.</li>
-        <li>스핀을 누르는 순간 브라우저의 암호학적 난수로 38칸 중 하나가 균등하게 정해집니다.</li>
-      </ul>
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span class="ticker-seq">🎡 라스베이거스 룰렛 <span class="tk-dot">◆</span> 🃏 그랜드 로얄 VIP 홀덤 <span class="tk-dot">◆</span> ♠️ 텍사스 홀덤 4인 <span class="tk-dot">◆</span> ♦️ 텍사스 홀덤 1:1 헤즈업 <span class="tk-dot">◆</span> 🎩 텍사스 홀덤 v17 <span class="tk-dot">◆</span> 🀄 MUD 바카라: 가변 배팅 <span class="tk-dot">◆</span> 🎰 네온 잭팟 슬롯 <span class="tk-dot">◆</span> 🥇 마카오 골드 슬롯 Pro <span class="tk-dot">◆</span> 👾 LUCKY 8-BIT SLOT <span class="tk-dot">◆</span> 🔥 Ultra Fever 777 <span class="tk-dot">◆</span> 🎟️ 즉석 복권 시뮬레이터 <span class="tk-dot">◆</span> 🍀 슈퍼 로또 6/45 <span class="tk-dot">◆</span> 🎯 슈퍼 로또 1/814 부스트 <span class="tk-dot">◆</span> 🦝 너구리 PONPOKO 1982 <span class="tk-dot">◆</span> 🐾 아르곤 너구리 2 <span class="tk-dot">◆</span> 🕹️ 원버튼 너구리 <span class="tk-dot">◆</span> 🏃 너구리 달리기 &amp; 점프 <span class="tk-dot">◆</span> 🛸 갤러그 1981 <span class="tk-dot">◆</span> 👽 갤럭시안 <span class="tk-dot">◆</span> 🧱 알카노이드 <span class="tk-dot">◆</span> 🔫 던전 슬레이어 FPS <span class="tk-dot">◆</span> 🚀 스타 커맨더 3D <span class="tk-dot">◆</span> 🏰 포트리스 2 블루 <span class="tk-dot">◆</span> 🗡️ MUD 텍스트 던전 v2.0 <span class="tk-dot">◆</span> 🛠️ MUD 대장간 마스터 v3.5 <span class="tk-dot">◆</span> 💸 MUD 대장간: 자본주의의 노예 <span class="tk-dot">◆</span> ⚔️ MUD: 끝없는 굴레와 상성 <span class="tk-dot">◆</span> ✨ 가챠: 영웅 소환 <span class="tk-dot">◆</span> 🔮 가챠 RPG: 어둠의 소환사 <span class="tk-dot">◆</span> 🌟 스타 카드 마스터 <span class="tk-dot">◆</span> 🐉 삼국지: 군웅할거 <span class="tk-dot">◆</span> 🔮 만세력 계산기 <span class="tk-dot">◆</span> 💻 HACK_MAN 해커 행맨 <span class="tk-dot">◆</span> 🔢 동적 카운터 <span class="tk-dot">◆</span>  </span>
+      <span class="ticker-seq">🎡 라스베이거스 룰렛 <span class="tk-dot">◆</span> 🃏 그랜드 로얄 VIP 홀덤 <span class="tk-dot">◆</span> ♠️ 텍사스 홀덤 4인 <span class="tk-dot">◆</span> ♦️ 텍사스 홀덤 1:1 헤즈업 <span class="tk-dot">◆</span> 🎩 텍사스 홀덤 v17 <span class="tk-dot">◆</span> 🀄 MUD 바카라: 가변 배팅 <span class="tk-dot">◆</span> 🎰 네온 잭팟 슬롯 <span class="tk-dot">◆</span> 🥇 마카오 골드 슬롯 Pro <span class="tk-dot">◆</span> 👾 LUCKY 8-BIT SLOT <span class="tk-dot">◆</span> 🔥 Ultra Fever 777 <span class="tk-dot">◆</span> 🎟️ 즉석 복권 시뮬레이터 <span class="tk-dot">◆</span> 🍀 슈퍼 로또 6/45 <span class="tk-dot">◆</span> 🎯 슈퍼 로또 1/814 부스트 <span class="tk-dot">◆</span> 🦝 너구리 PONPOKO 1982 <span class="tk-dot">◆</span> 🐾 아르곤 너구리 2 <span class="tk-dot">◆</span> 🕹️ 원버튼 너구리 <span class="tk-dot">◆</span> 🏃 너구리 달리기 &amp; 점프 <span class="tk-dot">◆</span> 🛸 갤러그 1981 <span class="tk-dot">◆</span> 👽 갤럭시안 <span class="tk-dot">◆</span> 🧱 알카노이드 <span class="tk-dot">◆</span> 🔫 던전 슬레이어 FPS <span class="tk-dot">◆</span> 🚀 스타 커맨더 3D <span class="tk-dot">◆</span> 🏰 포트리스 2 블루 <span class="tk-dot">◆</span> 🗡️ MUD 텍스트 던전 v2.0 <span class="tk-dot">◆</span> 🛠️ MUD 대장간 마스터 v3.5 <span class="tk-dot">◆</span> 💸 MUD 대장간: 자본주의의 노예 <span class="tk-dot">◆</span> ⚔️ MUD: 끝없는 굴레와 상성 <span class="tk-dot">◆</span> ✨ 가챠: 영웅 소환 <span class="tk-dot">◆</span> 🔮 가챠 RPG: 어둠의 소환사 <span class="tk-dot">◆</span> 🌟 스타 카드 마스터 <span class="tk-dot">◆</span> 🐉 삼국지: 군웅할거 <span class="tk-dot">◆</span> 🔮 만세력 계산기 <span class="tk-dot">◆</span> 💻 HACK_MAN 해커 행맨 <span class="tk-dot">◆</span> 🔢 동적 카운터 <span class="tk-dot">◆</span>  </span>
     </div>
-  </details>
-  <p class="foot">가상 칩으로 즐기는 오락용 게임입니다. 실제 돈은 오가지 않습니다.</p>
+  </div>
+
+  <nav class="filters" aria-label="게임 필터">
+    <div class="filters-inner">
+      <div class="chips" role="group" aria-label="카테고리">
+          <button class="chip is-active" data-cat="all" type="button" aria-pressed="true">전체<span class="chip-n">34</span></button>
+          <button class="chip" data-cat="casino" type="button" aria-pressed="false">🎰 카지노 &amp; 보드<span class="chip-n">13</span></button>
+          <button class="chip" data-cat="arcade" type="button" aria-pressed="false">🕹️ 레트로 아케이드<span class="chip-n">10</span></button>
+          <button class="chip" data-cat="rpg" type="button" aria-pressed="false">⚔️ MUD &amp; 텍스트 RPG<span class="chip-n">8</span></button>
+          <button class="chip" data-cat="etc" type="button" aria-pressed="false">🔮 유틸 &amp; 기타<span class="chip-n">3</span></button>
+      </div>
+      <div class="search">
+        <span class="icon" aria-hidden="true">⌕</span>
+        <input id="q" type="search" placeholder="게임 검색" aria-label="게임 검색" autocomplete="off" spellcheck="false">
+        <span class="kbd" aria-hidden="true">/</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="inner" id="list">
+      <section class="cat" data-cat="casino" aria-labelledby="h-casino">
+        <div class="cat-head">
+          <div class="cat-title"><span class="cat-emoji" aria-hidden="true">🎰</span><h2 id="h-casino">카지노 &amp; 보드</h2><span class="cat-count">13</span></div>
+          <p class="cat-desc">룰렛 · 홀덤 · 바카라 · 슬롯 · 로또</p>
+        </div>
+        <div class="grid">
+        <a class="card" href="games/01-las-vegas-roulette.html" data-cat="casino" data-key="라스베이거스 룰렛 아메리칸 룰렛 휠과 베팅 보드. 칩을 걸고 스핀, 잔고가 바닥나면 $1,000 재충전. 룰렛 베팅 카지노 roulette" aria-label="라스베이거스 룰렛 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🎡</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">ROULETTE</span><span class="new">NEW</span></span>
+            <span class="title">라스베이거스 룰렛</span>
+            <span class="desc">아메리칸 룰렛 휠과 베팅 보드. 칩을 걸고 스핀, 잔고가 바닥나면 $1,000 재충전.</span>
+            <span class="meta"><time datetime="2026-10-14">2026.10.14</time><span class="sep">·</span><code>#696643b</code><span class="tag">룰렛</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/02-grand-royale-holdem.html" data-cat="casino" data-key="그랜드 로얄 vip 홀덤 4-max vip 카지노 텍사스 홀덤. 리바이와 칩 충전으로 끝까지 살아남기. 홀덤 포커 카지노 hold&#x27;em" aria-label="그랜드 로얄 VIP 홀덤 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🃏</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">HOLD&#x27;EM</span><span class="new">NEW</span></span>
+            <span class="title">그랜드 로얄 VIP 홀덤</span>
+            <span class="desc">4-Max VIP 카지노 텍사스 홀덤. 리바이와 칩 충전으로 끝까지 살아남기.</span>
+            <span class="meta"><time datetime="2026-10-14">2026.10.14</time><span class="sep">·</span><code>#69fb5b8</code><span class="tag">홀덤</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/03-texas-holdem-4p.html" data-cat="casino" data-key="텍사스 홀덤 4인 4인 테이블 풀 핸드 홀덤. 팟·올인·사이드팟까지 갖춘 본격 포커. 홀덤 포커 4인 hold&#x27;em" aria-label="텍사스 홀덤 4인 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">♠️</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">HOLD&#x27;EM</span></span>
+            <span class="title">텍사스 홀덤 4인</span>
+            <span class="desc">4인 테이블 풀 핸드 홀덤. 팟·올인·사이드팟까지 갖춘 본격 포커.</span>
+            <span class="meta"><time datetime="2026-10-06">2026.10.06</time><span class="sep">·</span><code>#f521825</code><span class="tag">홀덤</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/04-texas-holdem-headsup.html" data-cat="casino" data-key="텍사스 홀덤 1:1 헤즈업 1대1 헤즈업 승부. 미니멈 베팅부터 올인까지, 단둘이 벌이는 심리전. 홀덤 포커 1대1 hold&#x27;em" aria-label="텍사스 홀덤 1:1 헤즈업 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">♦️</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">HOLD&#x27;EM</span></span>
+            <span class="title">텍사스 홀덤 1:1 헤즈업</span>
+            <span class="desc">1대1 헤즈업 승부. 미니멈 베팅부터 올인까지, 단둘이 벌이는 심리전.</span>
+            <span class="meta"><time datetime="2026-09-22">2026.09.22</time><span class="sep">·</span><code>#21fc09b</code><span class="tag">홀덤</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/05-texas-holdem-v17.html" data-cat="casino" data-key="텍사스 홀덤 v17 폴드·체크·레이즈·올인. 초기 홀덤 엔진을 다듬은 v17 완성형. 홀덤 포커 클래식 hold&#x27;em" aria-label="텍사스 홀덤 v17 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🎩</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">HOLD&#x27;EM</span></span>
+            <span class="title">텍사스 홀덤 v17</span>
+            <span class="desc">폴드·체크·레이즈·올인. 초기 홀덤 엔진을 다듬은 v17 완성형.</span>
+            <span class="meta"><time datetime="2026-07-30">2026.07.30</time><span class="sep">·</span><code>#af50ff3</code><span class="tag">홀덤</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/06-mud-baccarat.html" data-cat="casino" data-key="mud 바카라: 가변 배팅 플레이어/뱅커에 베팅하고, 금융연합 대출과 부채 상환까지 얽힌 바카라. 바카라 배팅 금융 baccarat" aria-label="MUD 바카라: 가변 배팅 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🀄</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">BACCARAT</span></span>
+            <span class="title">MUD 바카라: 가변 배팅</span>
+            <span class="desc">플레이어/뱅커에 베팅하고, 금융연합 대출과 부채 상환까지 얽힌 바카라.</span>
+            <span class="meta"><time datetime="2026-07-10">2026.07.10</time><span class="sep">·</span><code>#68fb9c8</code><span class="tag">바카라</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/07-neon-jackpot-slot.html" data-cat="casino" data-key="네온 잭팟 슬롯 네온 사인 아래 돌아가는 3릴 슬롯. 100g씩 베팅하고 잭팟 한 방을 노려라. 슬롯 잭팟 네온 slot" aria-label="네온 잭팟 슬롯 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🎰</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">SLOT</span></span>
+            <span class="title">네온 잭팟 슬롯</span>
+            <span class="desc">네온 사인 아래 돌아가는 3릴 슬롯. 100G씩 베팅하고 잭팟 한 방을 노려라.</span>
+            <span class="meta"><time datetime="2026-07-21">2026.07.21</time><span class="sep">·</span><code>#46aa056</code><span class="tag">슬롯</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/08-macau-gold-slot-pro.html" data-cat="casino" data-key="마카오 골드 슬롯 pro 마카오 카지노풍 골드 슬롯. 페이테이블 확인과 맥스 베팅까지. 슬롯 마카오 골드 slot" aria-label="마카오 골드 슬롯 Pro 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🥇</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">SLOT</span></span>
+            <span class="title">마카오 골드 슬롯 Pro</span>
+            <span class="desc">마카오 카지노풍 골드 슬롯. 페이테이블 확인과 맥스 베팅까지.</span>
+            <span class="meta"><time datetime="2026-07-31">2026.07.31</time><span class="sep">·</span><code>#e828c08</code><span class="tag">슬롯</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/09-lucky-8bit-slot.html" data-cat="casino" data-key="lucky 8-bit slot 8비트 감성의 슬롯머신. 심플한 릴과 경쾌한 당첨 연출. 슬롯 8비트 레트로 slot" aria-label="LUCKY 8-BIT SLOT 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">👾</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">SLOT</span></span>
+            <span class="title">LUCKY 8-BIT SLOT</span>
+            <span class="desc">8비트 감성의 슬롯머신. 심플한 릴과 경쾌한 당첨 연출.</span>
+            <span class="meta"><time datetime="2026-07-31">2026.07.31</time><span class="sep">·</span><code>#5a90a00</code><span class="tag">슬롯</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/10-ultra-fever-777.html" data-cat="casino" data-key="ultra fever 777 하이롤러 슬롯. 10·25·50·∞ 오토스핀과 피버 미터로 몰아치는 연출. 슬롯 오토스핀 피버 slot" aria-label="Ultra Fever 777 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🔥</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">SLOT</span></span>
+            <span class="title">Ultra Fever 777</span>
+            <span class="desc">하이롤러 슬롯. 10·25·50·∞ 오토스핀과 피버 미터로 몰아치는 연출.</span>
+            <span class="meta"><time datetime="2026-09-22">2026.09.22</time><span class="sep">·</span><code>#c84a421</code><span class="tag">슬롯</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/11-instant-lottery.html" data-cat="casino" data-key="즉석 복권 시뮬레이터 canvas로 긁는 즉석 복권. 500g로 한 장 사서 바로 당첨 확인. 복권 즉석 스크래치 scratch" aria-label="즉석 복권 시뮬레이터 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🎟️</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">SCRATCH</span></span>
+            <span class="title">즉석 복권 시뮬레이터</span>
+            <span class="desc">Canvas로 긁는 즉석 복권. 500G로 한 장 사서 바로 당첨 확인.</span>
+            <span class="meta"><time datetime="2026-07-21">2026.07.21</time><span class="sep">·</span><code>#268ba54</code><span class="tag">복권</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/12-super-lotto-645.html" data-cat="casino" data-key="슈퍼 로또 6/45 6/45 로또 번호 선택과 당첨 시뮬레이션. 자동 선택과 초고속 모드. 로또 645 번호 lotto" aria-label="슈퍼 로또 6/45 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🍀</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">LOTTO</span></span>
+            <span class="title">슈퍼 로또 6/45</span>
+            <span class="desc">6/45 로또 번호 선택과 당첨 시뮬레이션. 자동 선택과 초고속 모드.</span>
+            <span class="meta"><time datetime="2026-09-22">2026.09.22</time><span class="sep">·</span><code>#383fe71</code><span class="tag">로또</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/13-super-lotto-boost.html" data-cat="casino" data-key="슈퍼 로또 1/814 부스트 1등 확률 1/814 초정밀 부스트 버전. 숫자별 당첨 연출이 화려하다. 로또 645 부스트 lotto" aria-label="슈퍼 로또 1/814 부스트 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🎯</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">LOTTO</span></span>
+            <span class="title">슈퍼 로또 1/814 부스트</span>
+            <span class="desc">1등 확률 1/814 초정밀 부스트 버전. 숫자별 당첨 연출이 화려하다.</span>
+            <span class="meta"><time datetime="2026-09-22">2026.09.22</time><span class="sep">·</span><code>#3dfdac9</code><span class="tag">로또</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        </div>
+      </section>
+      <section class="cat" data-cat="arcade" aria-labelledby="h-arcade">
+        <div class="cat-head">
+          <div class="cat-title"><span class="cat-emoji" aria-hidden="true">🕹️</span><h2 id="h-arcade">레트로 아케이드</h2><span class="cat-count">10</span></div>
+          <p class="cat-desc">너구리 · 갤러그 · 알카노이드 · 포트리스</p>
+        </div>
+        <div class="grid">
+        <a class="card" href="games/14-ponpoko-1982.html" data-cat="arcade" data-key="너구리 ponpoko 1982 추억의 고전 명작. 4방향 조작으로 블록을 밀어 적을 깔아뭉개는 오락실 게임. 너구리 ponpoko 오락실 ponpoko" aria-label="너구리 PONPOKO 1982 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🦝</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">PONPOKO</span></span>
+            <span class="title">너구리 PONPOKO 1982</span>
+            <span class="desc">추억의 고전 명작. 4방향 조작으로 블록을 밀어 적을 깔아뭉개는 오락실 게임.</span>
+            <span class="meta"><time datetime="2026-09-22">2026.09.22</time><span class="sep">·</span><code>#c90057c</code><span class="tag">너구리</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/15-argon-ponpoko-2.html" data-cat="arcade" data-key="아르곤 너구리 2 사운드·일시정지까지 갖춘 최신 너구리. 스테이지를 모두 클리어해 보자. 너구리 ponpoko 리메이크 ponpoko" aria-label="아르곤 너구리 2 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🐾</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">PONPOKO</span><span class="new">NEW</span></span>
+            <span class="title">아르곤 너구리 2</span>
+            <span class="desc">사운드·일시정지까지 갖춘 최신 너구리. 스테이지를 모두 클리어해 보자.</span>
+            <span class="meta"><time datetime="2026-10-14">2026.10.14</time><span class="sep">·</span><code>#ce1c48c</code><span class="tag">너구리</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/16-one-button-raccoon.html" data-cat="arcade" data-key="원버튼 너구리 클릭 한 번으로 점프와 낙하. 자동으로 달리는 미니멀 너구리 액션. 너구리 원버튼 점프 ponpoko" aria-label="원버튼 너구리 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🕹️</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">PONPOKO</span></span>
+            <span class="title">원버튼 너구리</span>
+            <span class="desc">클릭 한 번으로 점프와 낙하. 자동으로 달리는 미니멀 너구리 액션.</span>
+            <span class="meta"><time datetime="2026-07-10">2026.07.10</time><span class="sep">·</span><code>#8704a3a</code><span class="tag">너구리</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/17-raccoon-runner.html" data-cat="arcade" data-key="너구리 달리기 &amp; 점프 끝없이 달리며 장애물을 넘는 러너 버전 너구리. 최고 기록에 도전. 너구리 러너 달리기 ponpoko" aria-label="너구리 달리기 &amp; 점프 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🏃</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">PONPOKO</span></span>
+            <span class="title">너구리 달리기 &amp; 점프</span>
+            <span class="desc">끝없이 달리며 장애물을 넘는 러너 버전 너구리. 최고 기록에 도전.</span>
+            <span class="meta"><time datetime="2026-07-29">2026.07.29</time><span class="sep">·</span><code>#75f6475</code><span class="tag">너구리</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/18-galaga-1981.html" data-cat="arcade" data-key="갤러그 1981 1981년 오락실의 갤러그. 트랙터 빔까지 재현한 정통 슈팅. 갤러그 슈팅 슈터 galaga" aria-label="갤러그 1981 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🛸</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">GALAGA</span></span>
+            <span class="title">갤러그 1981</span>
+            <span class="desc">1981년 오락실의 갤러그. 트랙터 빔까지 재현한 정통 슈팅.</span>
+            <span class="meta"><time datetime="2026-09-23">2026.09.23</time><span class="sep">·</span><code>#562011a</code><span class="tag">갤러그</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/19-galaxian.html" data-cat="arcade" data-key="갤럭시안 편대를 이루어 내려오는 외계인을 격추하는 클래식 슈팅. 1p 스타트! 갤럭시안 슈팅 슈터 galaxian" aria-label="갤럭시안 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">👽</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">GALAXIAN</span></span>
+            <span class="title">갤럭시안</span>
+            <span class="desc">편대를 이루어 내려오는 외계인을 격추하는 클래식 슈팅. 1P 스타트!</span>
+            <span class="meta"><time datetime="2026-07-29">2026.07.29</time><span class="sep">·</span><code>#d555ff8</code><span class="tag">갤럭시안</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/20-arkanoid.html" data-cat="arcade" data-key="알카노이드 벽돌을 깨는 클래식 아케이드. 마우스와 키보드로 패들을 조종한다. 알카노이드 벽돌 브레이크아웃 arkanoid" aria-label="알카노이드 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🧱</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">ARKANOID</span></span>
+            <span class="title">알카노이드</span>
+            <span class="desc">벽돌을 깨는 클래식 아케이드. 마우스와 키보드로 패들을 조종한다.</span>
+            <span class="meta"><time datetime="2026-07-29">2026.07.29</time><span class="sep">·</span><code>#238d09d</code><span class="tag">알카노이드</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/21-dungeon-slayer-fps.html" data-cat="arcade" data-key="던전 슬레이어 fps 레이캐스팅 3d 던전 fps. wasd 이동, 마우스 시점, r 재장전. 둠 fps 3d 레이캐스팅 raycast" aria-label="던전 슬레이어 FPS 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🔫</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">RAYCAST</span></span>
+            <span class="title">던전 슬레이어 FPS</span>
+            <span class="desc">레이캐스팅 3D 던전 FPS. WASD 이동, 마우스 시점, R 재장전.</span>
+            <span class="meta"><time datetime="2026-07-29">2026.07.29</time><span class="sep">·</span><code>#7b092ab</code><span class="tag">둠</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/22-star-commander-3d.html" data-cat="arcade" data-key="스타 커맨더 3d 우주를 누비는 3d 슈팅. 수정판으로 조작과 연출이 매끄러워졌다. 3d 슈팅 우주 슈터 3d shooter" aria-label="스타 커맨더 3D 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🚀</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">3D SHOOTER</span></span>
+            <span class="title">스타 커맨더 3D</span>
+            <span class="desc">우주를 누비는 3D 슈팅. 수정판으로 조작과 연출이 매끄러워졌다.</span>
+            <span class="meta"><time datetime="2026-07-29">2026.07.29</time><span class="sep">·</span><code>#1b14ec3</code><span class="tag">3d</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/23-fortress-2.html" data-cat="arcade" data-key="포트리스 2 블루 턴제 포격 아케이드. 지형을 깎고 각도를 맞춰 상대 탱크를 침몰시켜라. 포트리스 포격 탱크 fortress" aria-label="포트리스 2 블루 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🏰</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">FORTRESS</span><span class="new">NEW</span></span>
+            <span class="title">포트리스 2 블루</span>
+            <span class="desc">턴제 포격 아케이드. 지형을 깎고 각도를 맞춰 상대 탱크를 침몰시켜라.</span>
+            <span class="meta"><time datetime="2026-10-14">2026.10.14</time><span class="sep">·</span><code>#584f65e</code><span class="tag">포트리스</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        </div>
+      </section>
+      <section class="cat" data-cat="rpg" aria-labelledby="h-rpg">
+        <div class="cat-head">
+          <div class="cat-title"><span class="cat-emoji" aria-hidden="true">⚔️</span><h2 id="h-rpg">MUD &amp; 텍스트 RPG</h2><span class="cat-count">8</span></div>
+          <p class="cat-desc">던전 탐험 · 대장간 · 가챠 · 삼국지</p>
+        </div>
+        <div class="grid">
+        <a class="card" href="games/24-mud-text-dungeon-v2.html" data-cat="rpg" data-key="mud 텍스트 던전 v2.0 텍스트로 떠나는 던전 탐험. 이동·전투·물약으로 구역을 돌파한다. mud 텍스트 던전 rpg mud" aria-label="MUD 텍스트 던전 v2.0 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🗡️</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">MUD</span></span>
+            <span class="title">MUD 텍스트 던전 v2.0</span>
+            <span class="desc">텍스트로 떠나는 던전 탐험. 이동·전투·물약으로 구역을 돌파한다.</span>
+            <span class="meta"><time datetime="2026-07-09">2026.07.09</time><span class="sep">·</span><code>#6ef39bc</code><span class="tag">mud</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/25-mud-forge-master.html" data-cat="rpg" data-key="mud 대장간 마스터 v3.5 접사 조합으로 무기를 제련하는 대장간 시뮬레이터. 초고밀도 조합 시스템. mud 대장간 제련 무기 mud" aria-label="MUD 대장간 마스터 v3.5 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🛠️</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">MUD</span></span>
+            <span class="title">MUD 대장간 마스터 v3.5</span>
+            <span class="desc">접사 조합으로 무기를 제련하는 대장간 시뮬레이터. 초고밀도 조합 시스템.</span>
+            <span class="meta"><time datetime="2026-07-10">2026.07.10</time><span class="sep">·</span><code>#82ec32a</code><span class="tag">mud</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/26-mud-capitalism.html" data-cat="rpg" data-key="mud 대장간: 자본주의의 노예 3회 제한 대출, 3턴 주기 복리 이자, 파산까지. 대장간 경영의 끝판왕. mud 대장간 대출 이자 파산 mud" aria-label="MUD 대장간: 자본주의의 노예 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">💸</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">MUD</span></span>
+            <span class="title">MUD 대장간: 자본주의의 노예</span>
+            <span class="desc">3회 제한 대출, 3턴 주기 복리 이자, 파산까지. 대장간 경영의 끝판왕.</span>
+            <span class="meta"><time datetime="2026-07-10">2026.07.10</time><span class="sep">·</span><code>#f58141d</code><span class="tag">mud</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/27-elemental-mud-rpg.html" data-cat="rpg" data-key="mud: 끝없는 굴레와 상성 3속성 상성 대결과 무한 성장. 새 무기를 고르며 끝없이 파밍한다. mud rpg 가위바위보 성장 mud" aria-label="MUD: 끝없는 굴레와 상성 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">⚔️</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">MUD</span></span>
+            <span class="title">MUD: 끝없는 굴레와 상성</span>
+            <span class="desc">3속성 상성 대결과 무한 성장. 새 무기를 고르며 끝없이 파밍한다.</span>
+            <span class="meta"><time datetime="2026-07-15">2026.07.15</time><span class="sep">·</span><code>#44c546a</code><span class="tag">mud</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/28-gacha-hero-summon.html" data-cat="rpg" data-key="가챠: 영웅 소환 1회·10연차 소환으로 영웅을 모으는 가챠 시뮬레이터. 확률의 세계. 가챠 소환 뽑기 영웅 gacha" aria-label="가챠: 영웅 소환 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">✨</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">GACHA</span></span>
+            <span class="title">가챠: 영웅 소환</span>
+            <span class="desc">1회·10연차 소환으로 영웅을 모으는 가챠 시뮬레이터. 확률의 세계.</span>
+            <span class="meta"><time datetime="2026-07-22">2026.07.22</time><span class="sep">·</span><code>#87a4675</code><span class="tag">가챠</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/29-gacha-rpg-dark-summoner.html" data-cat="rpg" data-key="가챠 rpg: 어둠의 소환사 소환한 영웅을 강화해 어둠의 소환사에 맞서는 수집형 가챠 rpg. 가챠 rpg 소환 강화 gacha" aria-label="가챠 RPG: 어둠의 소환사 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🔮</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">GACHA</span></span>
+            <span class="title">가챠 RPG: 어둠의 소환사</span>
+            <span class="desc">소환한 영웅을 강화해 어둠의 소환사에 맞서는 수집형 가챠 RPG.</span>
+            <span class="meta"><time datetime="2026-07-29">2026.07.29</time><span class="sep">·</span><code>#2207b73</code><span class="tag">가챠</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/30-star-card-master.html" data-cat="rpg" data-key="스타 카드 마스터 홀로그램 카드 가챠. 전설·에픽 카드를 모아 나만의 덱을 구성한다. 카드 가챠 홀로그램 덱 card gacha" aria-label="스타 카드 마스터 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🌟</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">CARD GACHA</span></span>
+            <span class="title">스타 카드 마스터</span>
+            <span class="desc">홀로그램 카드 가챠. 전설·에픽 카드를 모아 나만의 덱을 구성한다.</span>
+            <span class="meta"><time datetime="2026-07-31">2026.07.31</time><span class="sep">·</span><code>#40c52b2</code><span class="tag">카드</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/31-three-kingdoms.html" data-cat="rpg" data-key="삼국지: 군웅할거 턴제 삼국지 전략 시뮬레이션. 영토를 골라 모병하고 공격하며 천하통일. 삼국지 전략 시뮬레이션 strategy" aria-label="삼국지: 군웅할거 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🐉</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">STRATEGY</span></span>
+            <span class="title">삼국지: 군웅할거</span>
+            <span class="desc">턴제 삼국지 전략 시뮬레이션. 영토를 골라 모병하고 공격하며 천하통일.</span>
+            <span class="meta"><time datetime="2026-07-29">2026.07.29</time><span class="sep">·</span><code>#a8d4116</code><span class="tag">삼국지</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        </div>
+      </section>
+      <section class="cat" data-cat="etc" aria-labelledby="h-etc">
+        <div class="cat-head">
+          <div class="cat-title"><span class="cat-emoji" aria-hidden="true">🔮</span><h2 id="h-etc">유틸 &amp; 기타</h2><span class="cat-count">3</span></div>
+          <p class="cat-desc">만세력 · 해커 행맨 · 웹 토이</p>
+        </div>
+        <div class="grid">
+        <a class="card" href="games/32-manseyeok-calculator.html" data-cat="etc" data-key="만세력 계산기 생년월일시로 사주팔자와 만세력을 계산하는 유틸리티. 만세력 사주 계산 utility" aria-label="만세력 계산기 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🔮</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">UTILITY</span></span>
+            <span class="title">만세력 계산기</span>
+            <span class="desc">생년월일시로 사주팔자와 만세력을 계산하는 유틸리티.</span>
+            <span class="meta"><time datetime="2026-07-31">2026.07.31</time><span class="sep">·</span><code>#f48d0c0</code><span class="tag">만세력</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/33-hack-man.html" data-cat="etc" data-key="hack_man 해커 행맨 터미널 방탈출 행맨. 영단어 100개와 한글 의미 해석까지 탑재. 행맨 해커 단어 터미널 word game" aria-label="HACK_MAN 해커 행맨 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">💻</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">WORD GAME</span></span>
+            <span class="title">HACK_MAN 해커 행맨</span>
+            <span class="desc">터미널 방탈출 행맨. 영단어 100개와 한글 의미 해석까지 탑재.</span>
+            <span class="meta"><time datetime="2026-07-20">2026.07.20</time><span class="sep">·</span><code>#e550a44</code><span class="tag">행맨</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="card" href="games/34-js-counter.html" data-cat="etc" data-key="동적 카운터 도형님의 첫 웹페이지. 클릭으로 숫자를 올리고 배경색을 바꾸는 카운터. 카운터 자바스크립트 첫페이지 web toy" aria-label="동적 카운터 플레이하기">
+          <span class="thumb" aria-hidden="true"><span class="emoji">🔢</span><span class="thumb-grid"></span></span>
+          <span class="body">
+            <span class="card-head"><span class="series">WEB TOY</span></span>
+            <span class="title">동적 카운터</span>
+            <span class="desc">도형님의 첫 웹페이지. 클릭으로 숫자를 올리고 배경색을 바꾸는 카운터.</span>
+            <span class="meta"><time datetime="2026-07-08">2026.07.08</time><span class="sep">·</span><code>#fd14d34</code><span class="tag">카운터</span></span>
+            <span class="playline"><span class="playbtn">▶ 플레이</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        </div>
+      </section>
+      <div class="empty" id="empty" hidden>
+        <span class="big" aria-hidden="true">🕹️</span>
+        <h3>해당하는 게임이 없습니다</h3>
+        <p>다른 검색어를 입력하거나 전체 카테고리를 선택해 보세요.</p>
+      </div>
+  </main>
 </div>
 
+<footer>
+  <span class="brand">Dohyung's Mini Game Arcade</span>
+  도형님이 2026년에 만든 미니게임 34개 · 원본 저장소 <a href="https://github.com/luey5001-lang/my-story" target="_blank" rel="noopener">luey5001-lang/my-story</a><br>
+  Built with HTML · CSS · JavaScript · Deployed on Vercel
+</footer>
+
 <script>
-(function(){
-'use strict';
+(function () {
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.cat'));
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+  var q = document.getElementById('q');
+  var empty = document.getElementById('empty');
+  var randomBtn = document.getElementById('randomBtn');
+  var current = 'all';
 
-/* ================= 규칙 (순수 로직) ================= */
-//LOGIC_START
-const WHEEL=[0,28,9,26,30,11,7,20,32,17,5,22,34,15,3,24,36,13,1,37,27,10,25,29,12,8,19,31,18,6,21,33,16,4,23,35,14,2]; // 37 = 00
-const REDS=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
-const lab=n=>n===37?'00':String(n);
-const colorOf=n=>(n===0||n===37)?'green':(REDS.has(n)?'red':'black');
-const PAY={straight:35,split:17,street:11,trio:11,corner:8,six:5,five:6,column:2,dozen:2,even:1};
-const MAXBET={straight:100,split:200,street:300,trio:300,corner:400,six:500,five:500,column:2000,dozen:2000,even:5000};
-const MINBET={inside:1,outside:5};
-const INSIDE_TOTAL_MIN=5;
-const INSIDE=new Set(['straight','split','street','trio','corner','six','five']);
-const NAMES={straight:'스트레이트',split:'스플릿',street:'스트리트',trio:'트리오',corner:'코너',six:'식스라인',five:'파이브넘버',column:'컬럼',dozen:'더즌',even:'이븐머니'};
+  // stagger index inside each grid for the entrance animation
+  sections.forEach(function (s) {
+    s.querySelectorAll('.card').forEach(function (c, i) { c.style.setProperty('--i', i); });
+  });
 
-function def(key){
-  const parts=key.split(':'); const type=parts[0]; const rest=parts[1];
-  let nums=[];
-  if(type==='column'){ const c=+rest; for(let n=1;n<=36;n++) if((n-1)%3===c-1) nums.push(n); }
-  else if(type==='dozen'){ const d=+rest; for(let n=12*(d-1)+1;n<=12*d;n++) nums.push(n); }
-  else if(type==='even'){
-    for(let n=1;n<=36;n++){
-      const ok= rest==='red'?REDS.has(n) : rest==='black'?!REDS.has(n) : rest==='odd'?n%2===1 : rest==='even'?n%2===0 : rest==='low'?n<=18 : n>=19;
-      if(ok) nums.push(n);
-    }
+  function apply() {
+    var term = (q.value || '').trim().toLowerCase();
+    var shown = 0;
+    cards.forEach(function (c) {
+      var okCat = current === 'all' || c.dataset.cat === current;
+      var okText = !term || c.dataset.key.indexOf(term) !== -1;
+      var show = okCat && okText;
+      c.hidden = !show;
+      if (show) shown++;
+    });
+    sections.forEach(function (s) {
+      s.hidden = !s.querySelector('.card:not([hidden])');
+    });
+    empty.hidden = shown !== 0;
   }
-  else nums=rest.split(',').map(Number);
-  return {type:type,nums:nums,pay:PAY[type],inside:INSIDE.has(type)};
-}
-function validate(bets){
-  let insideTotal=0;
-  for(const [key,amt] of bets){
-    const d=def(key);
-    if(amt>MAXBET[d.type]) return {ok:false,msg:NAMES[d.type]+' 최대 한도는 $'+MAXBET[d.type]+'입니다'};
-    if(d.inside){ insideTotal+=amt; if(amt<MINBET.inside) return {ok:false,msg:'인사이드 베팅은 칸마다 최소 $1입니다'}; }
-    else if(amt<MINBET.outside) return {ok:false,msg:NAMES[d.type]+' 베팅은 칸마다 최소 $5입니다'};
-  }
-  if(bets.size===0) return {ok:false,msg:'먼저 칩을 올려 베팅하세요'};
-  if(insideTotal>0&&insideTotal<INSIDE_TOTAL_MIN) return {ok:false,msg:'인사이드 베팅 합계는 최소 $5입니다'};
-  return {ok:true,msg:''};
-}
-function settle(bets,result){
-  let won=0,lost=0; const detail=[];
-  for(const [key,amt] of bets){
-    const d=def(key);
-    if(d.nums.includes(result)){ const w=amt*d.pay; won+=w; detail.push({key:key,amt:amt,win:w}); }
-    else { lost+=amt; detail.push({key:key,amt:amt,win:0}); }
-  }
-  return {won:won,lost:lost,detail:detail};
-}
-//LOGIC_END
 
-/* ================= 상태 ================= */
-const $=id=>document.getElementById(id);
-function mk(tag,cls,parent){ const e=document.createElement(tag); if(cls) e.className=cls; if(parent) parent.appendChild(e); return e; }
-const money=n=>'$'+Math.round(n).toLocaleString('en-US');
-const DENOMS=[1,5,25,100,500];
-const START=1000;
-const KEY='vegas-roulette-v1';
-const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-let bankroll=START, results=[], spins=0;
-let bets=new Map(), undo=[], lastLayout=null;
-let chipVal=5, spinning=false, hintBase='', hlList=[], flashTimer=null;
-
-(function load(){
-  try{
-    const j=JSON.parse(localStorage.getItem(KEY)||'null');
-    if(j&&typeof j.wealth==='number'&&j.wealth>=0&&isFinite(j.wealth)){
-      bankroll=Math.floor(j.wealth);
-      if(Array.isArray(j.hist)) results=j.hist.filter(n=>Number.isInteger(n)&&n>=0&&n<=37).slice(0,60);
-      if(Number.isInteger(j.spins)) spins=j.spins;
-    }
-  }catch(e){}
-})();
-const tableTotal=()=>{ let t=0; for(const a of bets.values()) t+=a; return t; };
-function save(){
-  try{ localStorage.setItem(KEY,JSON.stringify({wealth:bankroll+tableTotal(),hist:results.slice(0,60),spins:spins})); }catch(e){}
-}
-
-/* ================= 소리 ================= */
-let soundOn=true, actx=null;
-function audio(){
-  if(!soundOn) return null;
-  try{
-    if(!actx){ const C=window.AudioContext||window.webkitAudioContext; if(C) actx=new C(); }
-    if(actx&&actx.state==='suspended') actx.resume();
-  }catch(e){}
-  return actx;
-}
-function beep(freq,dur,type,vol,delay){
-  const a=audio(); if(!a) return;
-  try{
-    const t=a.currentTime+(delay||0);
-    const o=a.createOscillator(), g=a.createGain();
-    o.type=type||'sine'; o.frequency.setValueAtTime(freq,t);
-    g.gain.setValueAtTime(vol||.05,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
-    o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+dur+.03);
-  }catch(e){}
-}
-const sfx={
-  chip(){ beep(1100,.05,'triangle',.06); beep(720,.04,'square',.02,.012); },
-  tick(){ beep(1700+Math.random()*400,.022,'square',.022); },
-  land(){ beep(300,.14,'triangle',.08); },
-  win(){ [523,659,784,1047].forEach((f,i)=>beep(f,.22,'triangle',.06,i*.09)); },
-  lose(){ beep(190,.28,'sawtooth',.03); }
-};
-
-/* ================= 보드 구성 ================= */
-const board=$('board'), tray=$('tray'), hint=$('hint');
-const spotEls=new Map(), numEls=new Map();
-
-function describe(key){
-  const d=def(key); const v=key.split(':')[1]; let nm;
-  if(d.type==='column') nm='컬럼 '+v+' (2 to 1)';
-  else if(d.type==='dozen') nm=['','1st 12','2nd 12','3rd 12'][+v]+' 더즌';
-  else if(d.type==='even') nm={red:'레드',black:'블랙',odd:'홀수 Odd',even:'짝수 Even',low:'1–18',high:'19–36'}[v];
-  else nm=NAMES[d.type]+' '+d.nums.map(lab).join('·');
-  return nm+' · '+d.pay+':1';
-}
-function addSpot(el,key){
-  el.dataset.key=key; spotEls.set(key,el);
-  el.addEventListener('click',()=>place(key));
-  el.addEventListener('contextmenu',ev=>{ ev.preventDefault(); take(key); });
-  el.addEventListener('pointerenter',()=>hover(key));
-  el.addEventListener('pointerleave',unhover);
-  el.addEventListener('focus',()=>hover(key));
-  el.addEventListener('blur',unhover);
-}
-function numCell(n,gc,gr){
-  const b=mk('button','spot cell '+colorOf(n),board); b.type='button';
-  b.style.gridColumn=gc; b.style.gridRow=gr;
-  b.innerHTML='<span class="n">'+lab(n)+'</span>';
-  b.setAttribute('aria-label',lab(n)+' 스트레이트 35:1');
-  addSpot(b,'straight:'+n); numEls.set(n,b);
-}
-function outCell(key,gc,gr,html,cls){
-  const b=mk('button','spot out '+(cls||''),board); b.type='button';
-  b.style.gridColumn=gc; b.style.gridRow=gr; b.innerHTML=html;
-  b.setAttribute('aria-label',describe(key));
-  addSpot(b,key);
-}
-function fill(gc,gr){ const f=mk('div','fill',board); f.style.gridColumn=gc; f.style.gridRow=gr; }
-
-function buildBoard(){
-  numCell(0,'2 / span 3',1);
-  numCell(37,'5 / span 3',1);
-  for(let n=1;n<=36;n++){
-    const r=Math.ceil(n/3), c=((n-1)%3)+1;
-    numCell(n,(2+(c-1)*2)+' / span 2',r+1);
-  }
-  [1,2,3].forEach((d,i)=>outCell('dozen:'+d,1,(2+i*4)+' / span 4','<span>'+['1st 12','2nd 12','3rd 12'][i]+'</span>','vert'));
-  outCell('even:low',8,'2 / span 2','<span>1–18</span>','vert');
-  outCell('even:even',8,'4 / span 2','<span>Even</span>','vert');
-  outCell('even:red',8,'6 / span 2','<span class="dia"></span>');
-  outCell('even:black',8,'8 / span 2','<span class="dia k"></span>');
-  outCell('even:odd',8,'10 / span 2','<span>Odd</span>','vert');
-  outCell('even:high',8,'12 / span 2','<span>19–36</span>','vert');
-  [1,2,3].forEach((c,i)=>outCell('column:'+c,(2+i*2)+' / span 2',14,'<small>2 to 1</small>'));
-  fill(1,14); fill(8,14);
-
-  const ov=mk('div','ov',board); ov.style.gridColumn='2 / 8'; ov.style.gridRow='1 / 14';
-  const hot=(key,x,y)=>{
-    const b=mk('button','hot',ov); b.type='button'; b.tabIndex=-1;
-    b.style.left=(x/3*100)+'%'; b.style.top=(y/13*100)+'%';
-    b.setAttribute('aria-label',describe(key)); addSpot(b,key);
-  };
-  for(let r=1;r<=12;r++){
-    for(let c=1;c<=2;c++){ const a=3*(r-1)+c; hot('split:'+a+','+(a+1),c,r+.5); }
-    hot('street:'+(3*r-2)+','+(3*r-1)+','+(3*r),0,r+.5);
-  }
-  for(let r=1;r<=11;r++){
-    for(let c=1;c<=3;c++){ const a=3*(r-1)+c; hot('split:'+a+','+(a+3),c-.5,r+1); }
-    for(let c=1;c<=2;c++){ const a=3*(r-1)+c; hot('corner:'+a+','+(a+1)+','+(a+3)+','+(a+4),c,r+1); }
-    const a=3*(r-1)+1; hot('six:'+[a,a+1,a+2,a+3,a+4,a+5].join(','),0,r+1);
-  }
-  hot('split:0,37',1.5,.5);
-  hot('split:0,1',.5,1); hot('split:0,2',1.25,1); hot('split:37,2',1.75,1); hot('split:37,3',2.5,1);
-  hot('trio:0,1,2',1,1); hot('trio:0,37,2',1.5,1); hot('trio:37,2,3',2,1);
-  hot('five:0,37,1,2,3',0,1);
-}
-
-function buildTray(){
-  DENOMS.forEach(v=>{
-    const b=mk('button','chip c'+v,tray); b.type='button'; b.dataset.v=v;
-    b.setAttribute('aria-label','$'+v+' 칩'); b.setAttribute('aria-pressed',String(v===chipVal));
-    b.innerHTML='<i>'+v+'</i>';
-    if(v===chipVal) b.classList.add('sel');
-    b.addEventListener('click',()=>{
-      chipVal=v;
-      tray.querySelectorAll('.chip').forEach(x=>{ const on=+x.dataset.v===v; x.classList.toggle('sel',on); x.setAttribute('aria-pressed',String(on)); });
-      sfx.chip();
+  chips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      current = chip.dataset.cat;
+      chips.forEach(function (c) {
+        var on = c === chip;
+        c.classList.toggle('is-active', on);
+        c.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      apply();
     });
   });
-}
 
-/* ================= 칩 표시 ================= */
-function denomFor(a){ for(let i=DENOMS.length-1;i>=0;i--) if(a>=DENOMS[i]) return DENOMS[i]; return 1; }
-function compact(a){ if(a<1000) return String(a); const k=a/1000; return (Number.isInteger(k)?k:k.toFixed(1))+'k'; }
-function chipEl(a){ const c=mk('span','chip c'+denomFor(a)); c.innerHTML='<i>'+compact(a)+'</i>'; return c; }
+  q.addEventListener('input', apply);
+  q.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { q.value = ''; apply(); q.blur(); }
+  });
 
-const balEl=$('bal'), tableEl=$('onTable'), lastNetEl=$('lastNet'), rebuyBtn=$('rebuy');
-const btns={undo:$('undo'),clear:$('clear'),dbl:$('double'),rebet:$('rebet'),spin:$('spin')};
-
-function render(){
-  let total=0;
-  for(const [key,el] of spotEls){
-    const amt=bets.get(key)||0; let st=el._stack;
-    if(amt>0){
-      total+=amt;
-      if(!st){ st=mk('span','stack',el); el._stack=st; el.classList.add('has'); }
-      st.replaceChildren(chipEl(amt));
-    } else if(st){ st.remove(); el._stack=null; el.classList.remove('has'); }
-  }
-  balEl.textContent=money(bankroll); tableEl.textContent=money(total);
-  tray.querySelectorAll('.chip').forEach(x=>x.classList.toggle('off',+x.dataset.v>bankroll));
-  rebuyBtn.hidden=!(bankroll<1&&total===0&&!spinning);
-  btns.undo.disabled=spinning||!undo.length;
-  btns.clear.disabled=spinning||!bets.size;
-  btns.dbl.disabled=spinning||!bets.size;
-  btns.rebet.disabled=spinning||!lastLayout||!lastLayout.size;
-  btns.spin.disabled=spinning;
-}
-
-/* ================= 힌트 ================= */
-const HINT_DEFAULT='칩을 고른 뒤 번호 또는 번호 사이의 점을 눌러 베팅하세요. 칩 빼기는 오른쪽 클릭이나 되돌리기를 쓰세요.';
-function setHint(t){ hint.textContent=t||hintBase||HINT_DEFAULT; }
-function flash(msg){
-  hint.textContent=msg; hint.classList.add('warn');
-  clearTimeout(flashTimer);
-  flashTimer=setTimeout(()=>{ hint.classList.remove('warn'); setHint(); },2800);
-}
-function hover(key){
-  unhover();
-  const d=def(key);
-  d.nums.forEach(n=>{ const el=numEls.get(n); if(el){ el.classList.add('hl'); hlList.push(el); } });
-  if(!hint.classList.contains('warn')) setHint(describe(key));
-}
-function unhover(){
-  hlList.forEach(e=>e.classList.remove('hl')); hlList=[];
-  if(!hint.classList.contains('warn')) setHint();
-}
-
-/* ================= 베팅 동작 ================= */
-function setBet(k,v){ if(v>0) bets.set(k,v); else bets.delete(k); }
-function hideDolly(){
-  board.querySelectorAll('.dolly').forEach(e=>e.remove());
-  board.querySelectorAll('.cell.hit').forEach(e=>e.classList.remove('hit'));
-}
-function place(key){
-  if(spinning) return;
-  hideDolly();
-  const d=def(key), cur=bets.get(key)||0, add=chipVal;
-  if(add>bankroll){ flash('칩이 부족합니다. 더 작은 칩을 고르세요.'); return; }
-  if(cur+add>MAXBET[d.type]){ flash(NAMES[d.type]+' 베팅의 최대 한도는 $'+MAXBET[d.type]+'입니다.'); return; }
-  bankroll-=add; bets.set(key,cur+add); undo.push({key:key,delta:add});
-  sfx.chip(); render();
-}
-function take(key){
-  if(spinning) return;
-  const cur=bets.get(key)||0; if(!cur) return;
-  const rem=Math.min(chipVal,cur);
-  bankroll+=rem; setBet(key,cur-rem); undo.push({key:key,delta:-rem});
-  sfx.chip(); render();
-}
-function doUndo(){
-  if(spinning) return;
-  const op=undo.pop(); if(!op) return;
-  const cur=bets.get(op.key)||0;
-  if(op.delta>0){ const r=Math.min(op.delta,cur); bankroll+=r; setBet(op.key,cur-r); }
-  else { const a=-op.delta; if(a<=bankroll){ bankroll-=a; setBet(op.key,cur+a); } }
-  render();
-}
-function clearTable(){ bankroll+=tableTotal(); bets.clear(); undo.length=0; }
-function doClear(){ if(spinning) return; clearTable(); sfx.chip(); render(); }
-function doDouble(){
-  if(spinning||!bets.size) return;
-  let skipped=false;
-  for(const [k,a] of Array.from(bets)){
-    const d=def(k);
-    if(a<=bankroll&&a*2<=MAXBET[d.type]){ bankroll-=a; bets.set(k,a*2); undo.push({key:k,delta:a}); }
-    else skipped=true;
-  }
-  if(skipped) flash('칩이 모자라거나 한도를 넘는 베팅은 그대로 두었습니다.');
-  sfx.chip(); render();
-}
-function doRebet(){
-  if(spinning||!lastLayout||!lastLayout.size) return;
-  hideDolly(); clearTable();
-  for(const [k,a] of lastLayout){
-    const amt=Math.min(a,bankroll);
-    if(amt>0){ bankroll-=amt; bets.set(k,amt); undo.push({key:k,delta:amt}); }
-  }
-  if(tableTotal()<lastTotal(lastLayout)) flash('칩이 모자라 일부 베팅만 올렸습니다.');
-  sfx.chip(); render();
-}
-function lastTotal(m){ let t=0; for(const a of m.values()) t+=a; return t; }
-
-/* ================= 휠 ================= */
-const cv=$('wheel'), ctx=cv.getContext('2d'), wheelWrap=$('wheelWrap');
-const TAU=Math.PI*2, STEP=TAU/38;
-const css=getComputedStyle(document.documentElement);
-const tok=n=>css.getPropertyValue(n).trim();
-const C_RED=tok('--red')||'#b81f2d', C_INK=tok('--ink')||'#121317', C_GOLD=tok('--gold')||'#d9b45b', C_ZERO=tok('--zero')||'#12804d';
-const RT=.845, RP=.515;
-let S=400, dpr=1, wheelAngle=0, ballAngle=null, ballR=RP;
-const phi=i=>-Math.PI/2+i*STEP;
-
-function disc(x,y,r,f){ ctx.beginPath(); ctx.arc(x,y,r,0,TAU); ctx.fillStyle=f; ctx.fill(); }
-function annulus(x,y,r1,r2,f){ ctx.beginPath(); ctx.arc(x,y,r1,0,TAU); ctx.arc(x,y,r2,0,TAU,true); ctx.fillStyle=f; ctx.fill(); }
-function radial(c,r1,r2,stops){ const g=ctx.createRadialGradient(c,c,r1,c,c,r2); stops.forEach(s=>g.addColorStop(s[0],s[1])); return g; }
-
-function draw(){
-  const s=S, c=s/2, R=s/2;
-  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,s,s);
-  // 나무 볼과 황금 테두리
-  annulus(c,c,R*.995,R*.93,radial(c,R*.93,R,[[0,'#4b2b19'],[.6,'#2c170d'],[1,'#150a05']]));
-  ctx.beginPath(); ctx.arc(c,c,R*.93,0,TAU); ctx.lineWidth=Math.max(1.5,R*.012); ctx.strokeStyle=C_GOLD; ctx.stroke();
-  // 볼 트랙
-  annulus(c,c,R*.925,R*.76,radial(c,R*.76,R*.925,[[0,'#2b1b10'],[.35,'#4a3321'],[.65,'#2e1e12'],[1,'#1a0f08']]));
-  // 경사면
-  annulus(c,c,R*.76,R*.70,radial(c,R*.70,R*.76,[[0,'#6e5d36'],[1,'#a08c55']]));
-  // 디플렉터
-  for(let k=0;k<8;k++){
-    ctx.save(); ctx.translate(c,c); ctx.rotate(k*Math.PI/4+Math.PI/8);
-    ctx.beginPath(); ctx.moveTo(R*.705,0); ctx.lineTo(R*.735,-R*.018); ctx.lineTo(R*.775,0); ctx.lineTo(R*.735,R*.018); ctx.closePath();
-    ctx.fillStyle=C_GOLD; ctx.fill(); ctx.lineWidth=1; ctx.strokeStyle='rgba(0,0,0,.45)'; ctx.stroke();
-    ctx.restore();
-  }
-  // 회전하는 휠
-  ctx.save(); ctx.translate(c,c); ctx.rotate(wheelAngle);
-  for(let i=0;i<38;i++){
-    const a0=phi(i)-STEP/2, a1=a0+STEP, col=colorOf(WHEEL[i]);
-    ctx.beginPath(); ctx.arc(0,0,R*.70,a0,a1); ctx.arc(0,0,R*.47,a1,a0,true); ctx.closePath();
-    ctx.fillStyle=col==='red'?C_RED:col==='black'?C_INK:C_ZERO; ctx.fill();
-  }
-  annulus(0,0,R*.56,R*.47,'rgba(0,0,0,.28)');
-  ctx.lineWidth=Math.max(1,R*.006); ctx.strokeStyle='#d8c58a';
-  for(let i=0;i<38;i++){
-    const a=phi(i)-STEP/2;
-    ctx.beginPath(); ctx.moveTo(Math.cos(a)*R*.47,Math.sin(a)*R*.47); ctx.lineTo(Math.cos(a)*R*.70,Math.sin(a)*R*.70); ctx.stroke();
-  }
-  ctx.fillStyle='#f5eedc'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  for(let i=0;i<38;i++){
-    const n=WHEEL[i], t=lab(n);
-    ctx.save(); ctx.rotate(phi(i)); ctx.translate(R*.635,0); ctx.rotate(Math.PI/2);
-    ctx.font='700 '+(R*(t.length>1&&n===37?.062:.072))+'px "Barlow Condensed", sans-serif';
-    ctx.fillText(t,0,0); ctx.restore();
-  }
-  ctx.beginPath(); ctx.arc(0,0,R*.47,0,TAU); ctx.lineWidth=Math.max(2,R*.014); ctx.strokeStyle=C_GOLD; ctx.stroke();
-  // 콘
-  disc(0,0,R*.465,radial(0,R*.1,R*.465,[[0,'#7a4e2b'],[.7,'#4a2c18'],[1,'#2a170d']]));
-  for(let k=0;k<4;k++){
-    ctx.save(); ctx.rotate(k*Math.PI/2);
-    ctx.beginPath(); ctx.moveTo(R*.12,0); ctx.lineTo(R*.40,0); ctx.lineWidth=R*.028; ctx.lineCap='round'; ctx.strokeStyle=C_GOLD; ctx.stroke();
-    disc(R*.40,0,R*.04,radial(0,0,0.01,[[0,'#fff3c4'],[1,'#c9a13f']]));
-    ctx.beginPath(); ctx.arc(R*.40,0,R*.04,0,TAU); ctx.fillStyle='#d9b45b'; ctx.fill();
-    ctx.restore();
-  }
-  ctx.beginPath(); ctx.arc(0,0,R*.14,0,TAU);
-  const tg=ctx.createRadialGradient(-R*.04,-R*.04,R*.01,0,0,R*.14); tg.addColorStop(0,'#fff0b8'); tg.addColorStop(.6,'#d9b45b'); tg.addColorStop(1,'#8c6a1c');
-  ctx.fillStyle=tg; ctx.fill();
-  disc(0,0,R*.05,'#fff7d6');
-  ctx.restore();
-  // 공
-  if(ballAngle!==null){
-    const bx=c+ballR*R*Math.cos(ballAngle), by=c+ballR*R*Math.sin(ballAngle), rb=Math.max(3.5,R*.03);
-    disc(bx+rb*.45,by+rb*.6,rb,'rgba(0,0,0,.4)');
-    const bg=ctx.createRadialGradient(bx-rb*.35,by-rb*.35,rb*.1,bx,by,rb);
-    bg.addColorStop(0,'#ffffff'); bg.addColorStop(.55,'#ddd8c8'); bg.addColorStop(1,'#8d8878');
-    disc(bx,by,rb,bg);
-  }
-}
-function fit(){
-  const r=cv.getBoundingClientRect(); const w=Math.max(200,Math.round(r.width));
-  dpr=Math.min(window.devicePixelRatio||1,2.5); S=w;
-  cv.width=Math.round(w*dpr); cv.height=Math.round(w*dpr); draw();
-}
-function radiusAt(u){
-  if(u<.52) return RT;
-  const v=(u-.52)/.48, s=v*v*(3-2*v);
-  let r=RT-(RT-RP)*s;
-  if(v>.62){ const w=(v-.62)/.38; r+=.045*(1-w)*Math.abs(Math.sin(w*Math.PI*3.2)); }
-  return r;
-}
-function animateSpin(idx){
-  return new Promise(resolve=>{
-    const T=reduced?2600:7200;
-    const w0=wheelAngle, Aw=(reduced?1.5:3)*TAU;
-    const b0=Math.random()*TAU, target=phi(idx);
-    let d=(b0-w0-Aw-target)%TAU; if(d<0) d+=TAU;
-    const Ab=d+(reduced?3:7)*TAU;
-    const t0=performance.now(); let lastK=null;
-    function frame(now){
-      const t=Math.min(now-t0,T), u=t/T;
-      wheelAngle=w0+Aw*(1-Math.pow(1-u,3));
-      ballAngle=b0-Ab*(1-Math.pow(1-u,2.2));
-      ballR=radiusAt(u);
-      draw();
-      const k=Math.floor((ballAngle-wheelAngle)/STEP);
-      if(u>.55&&lastK!==null&&k!==lastK) sfx.tick();
-      lastK=k;
-      if(t<T) requestAnimationFrame(frame);
-      else{
-        wheelAngle=wheelAngle%TAU; ballAngle=wheelAngle+target; ballR=RP; draw(); resolve();
-      }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== q) {
+      e.preventDefault();
+      q.focus();
     }
-    requestAnimationFrame(frame);
   });
-}
 
-/* ================= 스핀 ================= */
-function randInt(n){
-  try{
-    const lim=Math.floor(4294967296/n)*n, a=new Uint32Array(1); let x;
-    do{ crypto.getRandomValues(a); x=a[0]; }while(x>=lim);
-    return x%n;
-  }catch(e){ return Math.floor(Math.random()*n); }
-}
-const resNum=$('resNum'), resMain=$('resMain'), resSub=$('resSub'), resNet=$('resNet');
-const narrow=()=>window.matchMedia('(max-width: 939px)').matches;
-const KR={red:'레드',black:'블랙',green:'그린'};
+  randomBtn.addEventListener('click', function () {
+    var pool = cards.filter(function (c) { return !c.hidden; });
+    if (!pool.length) pool = cards;
+    var pick = pool[Math.floor(Math.random() * pool.length)];
+    window.location.href = pick.getAttribute('href');
+  });
 
-function setResult(cls,num,main,sub,net,netCls){
-  resNum.className='res-num '+(cls||''); resNum.textContent=num;
-  resMain.textContent=main; resSub.textContent=sub;
-  resNet.textContent=net||''; resNet.className='res-net '+(netCls||'');
-}
-function pop(el,text){ const p=mk('span','pop',el); p.textContent=text; setTimeout(()=>p.remove(),1800); }
-
-async function spin(){
-  if(spinning) return;
-  const v=validate(bets);
-  if(!v.ok){ flash(v.msg); return; }
-  spinning=true; document.body.classList.add('spinning');
-  lastLayout=new Map(bets); undo.length=0; hideDolly(); unhover();
-  hintBase='';
-  setResult('','…','베팅 마감','No more bets');
-  render();
-  if(narrow()) wheelWrap.scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'});
-  audio();
-  const idx=randInt(38);
-  await animateSpin(idx);
-  land(WHEEL[idx]);
-}
-
-function land(n){
-  sfx.land();
-  spins++; results.unshift(n); if(results.length>60) results.length=60;
-  const s=settle(bets,n);
-  bankroll+=s.won;
-  const col=colorOf(n);
-  const winCell=numEls.get(n);
-  if(winCell){ winCell.classList.add('hit'); mk('span','dolly',winCell); }
-  for(const row of s.detail){
-    const el=spotEls.get(row.key), st=el&&el._stack; if(!st) continue;
-    if(row.win>0){ st.classList.add('win'); pop(el,'+'+money(row.win)); }
-    else st.classList.add('lose');
+  // deep link: #casino / #arcade / #rpg / #etc
+  var hash = (location.hash || '').replace('#', '');
+  if (['casino', 'arcade', 'rpg', 'etc'].indexOf(hash) !== -1) {
+    var target = chips.filter(function (c) { return c.dataset.cat === hash; })[0];
+    if (target) target.click();
   }
-  const net=s.won-s.lost;
-  const attrs=(n===0||n===37)
-    ? '아웃사이드 베팅은 모두 집니다'
-    : [n%2?'홀수':'짝수', n<=18?'1–18':'19–36', ['1st 12','2nd 12','3rd 12'][Math.floor((n-1)/12)], '컬럼 '+(((n-1)%3)+1)].join(' · ');
-  const netTxt=net>0?'+'+money(net):net<0?'−'+money(-net):(s.won===0&&s.lost===0?'':'$0');
-  const detailTxt=(s.won||s.lost)?'당첨 +'+money(s.won)+' · 낙첨 −'+money(s.lost):'';
-  setResult(col,lab(n),lab(n)+' '+KR[col],attrs,detailTxt?detailTxt+'  (순손익 '+netTxt+')':'',net>0?'pos':net<0?'neg':'');
-  lastNetEl.textContent=netTxt||'—'; lastNetEl.className=net>0?'pos':net<0?'neg':'';
-  hintBase='직전 결과 '+lab(n)+' '+KR[col]+(netTxt?' · '+netTxt:'');
-  if(s.won>0) sfx.win(); else if(s.lost>0) sfx.lose();
-  renderHistory(); save(); render();
-  setTimeout(()=>{
-    for(const row of s.detail) if(row.win===0) bets.delete(row.key);
-    render();
-  },760);
-  setTimeout(()=>{
-    spinning=false; document.body.classList.remove('spinning'); setHint(); render();
-    if(narrow()) setTimeout(()=>{ if(!spinning) board.scrollIntoView({behavior:reduced?'auto':'smooth',block:'start'}); },900);
-  },980);
-}
-
-/* ================= 기록 ================= */
-const histEl=$('hist'), statsEl=$('stats');
-function renderHistory(){
-  histEl.replaceChildren();
-  results.slice(0,16).forEach((n,i)=>{ const d=mk('span','hdot '+colorOf(n)+(i===0?' first':''),histEl); d.textContent=lab(n); });
-  if(!results.length){ statsEl.textContent='아직 스핀 기록이 없습니다.'; return; }
-  let r=0,b=0,z=0,o=0,e=0; const cnt=new Map();
-  results.forEach(n=>{
-    const c=colorOf(n); if(c==='red') r++; else if(c==='black') b++; else z++;
-    if(n>0&&n<37){ if(n%2) o++; else e++; }
-    cnt.set(n,(cnt.get(n)||0)+1);
-  });
-  const top=Array.from(cnt).sort((a,b)=>b[1]-a[1])[0];
-  statsEl.textContent='최근 '+results.length+'회 · 레드 '+r+' · 블랙 '+b+' · 0/00 '+z+' · 홀 '+o+' · 짝 '+e+(top[1]>1?' · 최다 '+lab(top[0])+' ('+top[1]+'회)':'');
-}
-
-/* ================= 초기화 ================= */
-buildBoard(); buildTray();
-btns.undo.addEventListener('click',doUndo);
-btns.clear.addEventListener('click',doClear);
-btns.dbl.addEventListener('click',doDouble);
-btns.rebet.addEventListener('click',doRebet);
-btns.spin.addEventListener('click',spin);
-rebuyBtn.addEventListener('click',()=>{ bankroll=START; save(); render(); sfx.chip(); });
-$('snd').addEventListener('click',e=>{
-  soundOn=!soundOn; e.currentTarget.setAttribute('aria-pressed',String(soundOn));
-  e.currentTarget.textContent=soundOn?'소리 켬':'소리 끔';
-  if(soundOn) sfx.chip();
-});
-
-if(results.length){
-  const i=WHEEL.indexOf(results[0]);
-  ballAngle=wheelAngle+phi(i); ballR=RP;
-  const n=results[0], col=colorOf(n);
-  setResult(col,lab(n),'직전 결과 '+lab(n)+' '+KR[col],'Place your bets');
-}
-setHint(); render(); renderHistory();
-if('ResizeObserver' in window) new ResizeObserver(fit).observe(wheelWrap); else window.addEventListener('resize',fit);
-fit();
-if(document.fonts&&document.fonts.ready) document.fonts.ready.then(draw);
 })();
 </script>
-
-</body></html>
+</body>
+</html>

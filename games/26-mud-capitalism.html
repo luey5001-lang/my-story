@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>도형의 MUD 대장간: 자본주의의 노예</title>
+    <style>
+        body {
+            background-color: #0c0d0e;
+            color: #d1d5db;
+            font-family: 'Consolas', 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .game-container {
+            width: 720px;
+            background-color: #1a1c1e;
+            border: 2px solid #3f444a;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border-radius: 8px;
+            position: relative;
+        }
+        h2 { text-align: center; color: #e5e7eb; border-bottom: 2px solid #3f444a; padding-bottom: 10px; margin-top: 0; }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+            background-color: #111214;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .dashboard-col div { margin-bottom: 5px; }
+        
+        .log-window {
+            height: 350px;
+            border: 1px solid #3f444a;
+            padding: 15px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background-color: #090a0b;
+            white-space: pre-line;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+        button {
+            background-color: #24272b;
+            color: #e5e7eb;
+            border: 1px solid #4b525a;
+            padding: 14px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover { background-color: #3b3f46; border-color: #6b7280; }
+        button:disabled { color: #4b525a; border-color: #2d3135; cursor: not-allowed; background-color: #17191c; }
+        
+        #btn-craft { background-color: #851c1d; border-color: #a8292b; color: #fff; }
+        #btn-craft:hover { background-color: #a8292b; }
+        #btn-loan { background-color: #1e3a8a; border-color: #2563eb; color: #fff; }
+        #btn-loan:hover { background-color: #2563eb; }
+        #btn-repay { background-color: #065f46; border-color: #059669; color: #fff; }
+        #btn-repay:hover { background-color: #059669; }
+
+        /* 게임오버 스크린 */
+        .game-over-screen {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            color: #ef4444;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        .game-over-screen h1 { font-size: 50px; margin-bottom: 10px; letter-spacing: 5px; }
+
+        .rank-normal { color: #9ca3af; }
+        .rank-rare { color: #3b82f6; font-weight: bold; }
+        .rank-ancient { color: #a855f7; font-weight: bold; }
+        .rank-mythic { color: #ef4444; font-weight: bold; text-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+        
+        .sys-gold { color: #f59e0b; font-weight: bold; }
+        .profit { color: #10b981; font-weight: bold; }
+        .loss { color: #ef4444; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <!-- 암전 게임오버 레이어 -->
+    <div class="game-over-screen" id="game-over">
+        <h1>💸 GAME OVER 💸</h1>
+        <p>사채업자들에게 대장간을 차압당했습니다. 원금 상환 실패로 파산했습니다.</p>
+        <button onclick="location.reload()" style="background-color: #ef4444; color: #fff; border: none; margin-top: 20px;">🔄 다시 도전하기</button>
+    </div>
+
+    <h2>[ 🏛️ MUD 대장간: 자본과 부채 v4.0 ]</h2>
+    
+    <div class="dashboard">
+        <div class="dashboard-col">
+            <div><strong>[보유 자산]</strong> <span id="txt-gold" class="sys-gold">1,000 G</span></div>
+            <div><strong>[제련 단가]</strong> <span class="sys-gold">300 G</span> 소모</div>
+        </div>
+        <div class="dashboard-col">
+            <div><strong>[대출 현황]</strong> <span id="txt-loan-debt" class="loss">0 G</span> (이자 3% 복리)</div>
+            <div><strong>[대출 횟수]</strong> <span id="txt-loan-count">0</span> / 3 회 제한</div>
+        </div>
+    </div>
+
+    <div class="log-window" id="log-screen">
+대장간 사채 금융 시스템이 도입되었습니다.
+- 무기를 <b>3번 제련(시간 경과)</b>할 때마다 대출 총액에 <span class="loss">3%의 복리 이자</span>가 가산됩니다.
+- 자금이 부족할 때 <span class="sys-gold">[대출 받기]</span>를 누르면 즉시 2,000G가 수령되지만, 최대 3번까지만 허용됩니다.
+- 원금과 이자를 갚지 못하고 자산이 바닥나면 <b>대장간은 파산(GAME OVER)</b> 처리됩니다.
+    </div>
+
+    <div class="controls">
+        <button id="btn-craft">⚒️ 무기 제련 (-300G)</button>
+        <button id="btn-loan">🏦 대출 받기 (+2000G)</button>
+        <button id="btn-repay">💰 전액 상환하기</button>
+    </div>
+</div>
+
+<script>
+    const logScreen = document.getElementById('log-screen');
+    const txtGold = document.getElementById('txt-gold');
+    const txtLoanDebt = document.getElementById('txt-loan-debt');
+    const txtLoanCount = document.getElementById('txt-loan-count');
+    const btnCraft = document.getElementById('btn-craft');
+    const btnLoan = document.getElementById('btn-loan');
+    const btnRepay = document.getElementById('btn-repay');
+    const gameOverScreen = document.getElementById('game-over');
+
+    // 시스템 변수 장부
+    let gold = 1000;
+    let loanDebt = 0;       // 갚아야 할 총 대출액 (원금+이자)
+    let loanCount = 0;      // 대출 실행 횟수
+    let craftCount = 0;     // 제련 횟수 (시간 흐름 기준)
+    const CRAFT_COST = 300;
+
+    const baseWeapons = [
+        { name: "무디어진 단검", atkMin: 5, atkMax: 12, valBase: 30 },
+        { name: "연습용 훈련검", atkMin: 15, atkMax: 25, valBase: 100 },
+        { name: "철제 도끼", atkMin: 25, atkMax: 45, valBase: 210 },
+        { name: "성기사의 강철창", atkMin: 35, atkMax: 55, valBase: 270 }
+    ];
+
+    const prefixes = [
+        { text: "부서진", atkMod: 0.5, valMod: 0.3, rank: "normal" },
+        { text: "이 빠진", atkMod: 0.7, valMod: 0.5, rank: "normal" },
+        { text: "일반적인", atkMod: 1.0, valMod: 1.0, rank: "normal" },
+        { text: "날카로운", atkMod: 1.4, valMod: 1.7, rank: "rare" },
+        { text: "용암이 깃든", atkMod: 2.2, valMod: 3.8, rank: "ancient" },
+        { text: "⚡ 신화 속 천벌의", atkMod: 4.5, valMod: 12.0, rank: "mythic" }
+    ];
+
+    function printHtmlLog(htmlText) {
+        logScreen.innerHTML += "\n" + htmlText;
+        logScreen.scrollTop = logScreen.scrollHeight;
+    }
+
+    function updateUI() {
+        txtGold.innerText = `${Math.floor(gold).toLocaleString()} G`;
+        txtLoanDebt.innerText = `${Math.floor(loanDebt).toLocaleString()} G`;
+        txtLoanCount.innerText = loanCount;
+        
+        // 대출 버튼 제어 (3번 넘으면 차단)
+        if (loanCount >= 3) {
+            btnLoan.disabled = true;
+        }
+    }
+
+    function checkGameOver() {
+        // 제련 비용도 없고, 대출 기회도 없고, 빚을 전액 상환할 돈도 부족할 때 파산
+        if (gold < CRAFT_COST && loanCount >= 3) {
+            gameOverScreen.style.display = "flex";
+        }
+    }
+
+    // 1. 대출 실행 기능 (최대 3회, 회당 2000G)
+    btnLoan.addEventListener('click', () => {
+        if (loanCount >= 3) {
+            printHtmlLog("❌ 사채업자: '더 이상의 대출은 불가하오. 신용 등급이 바닥이오.'");
+            return;
+        }
+
+        loanCount++;
+        loanDebt += 2000;
+        gold += 2000;
+        
+        printHtmlLog(`\n🏦 [금융 대출] 지하 사채 연합으로부터 <span class="sys-gold">2,000 G</span>를 빌렸습니다. (현재 총 부채: ${Math.floor(loanDebt)} G)`);
+        updateUI();
+    });
+
+    // 2. 이자 전액 상환 기능
+    btnRepay.addEventListener('click', () => {
+        if (loanDebt <= 0) {
+            printHtmlLog("⚖️ 상환할 부채가 존재하지 않습니다.");
+            return;
+        }
+        if (gold < loanDebt) {
+            printHtmlLog(`❌ 상환 실패: 소지 금액이 총 부채(${Math.floor(loanDebt)} G)보다 부족합니다.`);
+            return;
+        }
+
+        gold -= loanDebt;
+        printHtmlLog(`\n💰 [부채 상환] 이자를 포함한 총 부채 <span class="sys-gold">${Math.floor(loanDebt).toLocaleString()} G</span>를 전액 청산했습니다!`);
+        loanDebt = 0;
+        updateUI();
+    });
+
+    // 3. 무기 제련 및 시간 경과(이자 가산) 처리
+    btnCraft.addEventListener('click', () => {
+        if (gold < CRAFT_COST) {
+            printHtmlLog("❌ 제련 불가: 자금이 부족합니다. 대출을 받거나 상환하십시오.");
+            checkGameOver();
+            return;
+        }
+
+        // 제련 비용 선지출
+        gold -= CRAFT_COST;
+        craftCount++; // 제작 횟수(시간) 증가
+        
+        btnCraft.disabled = true;
+        updateUI();
+
+        printHtmlLog(`\n------------------------------------------------------------`);
+        printHtmlLog(`🔨 [제련 진행] 무기를 제련합니다. (누적 제련 시간: ${craftCount}턴)`);
+
+        // 이자 정산 타이밍 제어 (매 3회 제련 시 3% 복리 적용)
+        if (craftCount % 3 === 0 && loanDebt > 0) {
+            const interest = loanDebt * 0.03;
+            loanDebt += interest;
+            printHtmlLog(`⚠️ [시간 경과] 3턴이 지나 대출 잔액에 <span class="loss">3% 복리 이자(+${Math.floor(interest)} G)</span>가 부과되었습니다!`);
+        }
+
+        setTimeout(() => {
+            const base = baseWeapons[Math.floor(Math.random() * baseWeapons.length)];
+            const roll = Math.random();
+            let selectedPrefix;
+            
+            if (roll < 0.03) selectedPrefix = prefixes.find(p => p.rank === "mythic");
+            else if (roll < 0.12) selectedPrefix = prefixes.find(p => p.rank === "ancient");
+            else if (roll < 0.45) selectedPrefix = prefixes.find(p => p.rank === "rare");
+            else selectedPrefix = prefixes[Math.floor(Math.random() * 3)];
+
+            const rawAtk = Math.floor(Math.random() * (base.atkMax - base.atkMin + 1)) + base.atkMin;
+            const finalAtk = Math.floor(rawAtk * selectedPrefix.atkMod);
+            const itemValue = Math.floor(base.valBase * selectedPrefix.valMod);
+            const netProfit = itemValue - CRAFT_COST;
+
+            let rankClass = `rank-${selectedPrefix.rank}`;
+            let resultMessage = netProfit > 0 
+                ? `<span class="profit">📈 [+${netProfit.toLocaleString()} G 이득]</span>` 
+                : `<span class="loss">📉 [${netProfit.toLocaleString()} G 손해]</span>`;
+
+            const fullName = `${selectedPrefix.text} ${base.name}`;
+            printHtmlLog(`⚔️ 결과: <span class="${rankClass}">[${fullName}]</span> | 감정가: <span class="sys-gold">${itemValue} G</span> | 손익: ${resultMessage}`);
+
+            // 자동 즉시 판매
+            gold += itemValue;
+            updateUI();
+            btnCraft.disabled = false;
+            
+            // 제작 종료 후 파산 상태 검사
+            checkGameOver();
+        }, 600);
+    });
+</script>
+
+
+<!-- arcade gallery back link -->
+<style>
+#arcade-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;background:rgba(8,8,12,.72);border:1px solid rgba(255,255,255,.24);color:#fff !important;font:600 12px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif !important;text-decoration:none !important;letter-spacing:.02em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.45);opacity:.8;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+#arcade-back:hover,#arcade-back:focus-visible{opacity:1;transform:translateY(-1px)}
+@media print{#arcade-back{display:none}}
+</style>
+<a id="arcade-back" href="../index.html" aria-label="미니게임 갤러리로 돌아가기">← 갤러리</a>
+
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도형의 프로젝트: 즉석 복권 시뮬레이터</title>
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #fff;
+            font-family: 'Consolas', 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            user-select: none;
+        }
+        .game-container {
+            width: 90%;
+            max-width: 500px;
+            background-color: #16213e;
+            border: 3px solid #e94560;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.4);
+            text-align: center;
+        }
+        h2 {
+            color: #e94560;
+            margin-top: 0;
+            border-bottom: 2px dashed #e94560;
+            padding-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            background-color: #0f3460;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .gold-text { color: #facc15; }
+
+        /* 복권 영역 래퍼 (결과 레이어와 은박 캔버스를 겹침) */
+        .scratch-wrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            margin: 0 auto 20px auto;
+            border: 4px solid #fff;
+            border-radius: 8px;
+            background-color: #fff;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        /* 하단 결과 레이어 (심볼 6개 그리드) */
+        .result-grid {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            background-color: #f8fafc;
+        }
+        .result-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 45px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        /* 상단 은박 캔버스 레이어 */
+        #scratch-pad {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10;
+            cursor: pointer;
+            touch-action: none; /* 모바일에서 긁을 때 화면 스크롤 방지 */
+        }
+
+        /* 컨트롤 버튼 */
+        .btn-buy {
+            width: 100%;
+            background-color: #e94560;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-buy:hover { background-color: #be2943; }
+        .btn-buy:disabled { background-color: #555; cursor: not-allowed; color: #888; }
+
+        /* 로그 창 */
+        .log-window {
+            height: 100px;
+            background-color: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            margin-top: 15px;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 13px;
+            color: #aaa;
+            white-space: pre-line;
+            text-align: left;
+        }
+        .win-text { color: #4ade80; font-weight: bold; }
+        .lose-text { color: #f87171; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h2>🍀 LUCKY SCRATCH 🍀</h2>
+    
+    <div class="dashboard">
+        <div>소지 자산: <span class="gold-text" id="txt-gold">5,000 G</span></div>
+        <div>복권 가격: <span style="color:#e94560;">500 G</span></div>
+    </div>
+
+    <!-- 복권 긁기 영역 -->
+    <div class="scratch-wrapper">
+        <div class="result-grid" id="result-grid">
+            <!-- 자바스크립트가 여기에 6개의 심볼을 주입합니다 -->
+        </div>
+        <!-- 긁혀지는 은박 덮개 -->
+        <canvas id="scratch-pad" width="300" height="200"></canvas>
+    </div>
+
+    <button class="btn-buy" id="btn-buy">🎟️ 복권 구매 (500 G) 및 새 게임</button>
+
+    <div class="log-window" id="log-screen">
+[SYSTEM] 복권 발행소에 오신 것을 환영합니다.
+- 복권을 구매한 후, 마우스나 손가락으로 회색 화면을 문질러 긁어내세요!
+- 같은 심볼이 3개 나오면 당첨금을 지급합니다.
+(💰: 10000G, 💎: 5000G, 🍒: 1500G, 🔔: 500G)
+    </div>
+</div>
+
+<script>
+    let gold = 5000;
+    const TICKET_PRICE = 500;
+    
+    // 심볼 및 배당금 풀 (가중치 적용)
+    const prizeData = [
+        { symbol: '💰', payout: 10000, chance: 0.05 },  // 5% 극악
+        { symbol: '💎', payout: 5000, chance: 0.15 },   // 15%
+        { symbol: '🍒', payout: 1500, chance: 0.30 },   // 30%
+        { symbol: '🔔', payout: 500, chance: 0.50 }     // 50% 본전
+    ];
+    // 당첨되지 않을 때 채워넣을 꽝 전용 심볼들
+    const dummySymbols = ['💩', '❌', '💔', '💀'];
+
+    let isRevealed = true; // 현재 스크래치가 다 까졌는지 여부
+    let currentTicketResult = null; // 현재 당첨 정보
+
+    // DOM 요소
+    const txtGold = document.getElementById('txt-gold');
+    const logScreen = document.getElementById('log-screen');
+    const btnBuy = document.getElementById('btn-buy');
+    const resultGrid = document.getElementById('result-grid');
+    const canvas = document.getElementById('scratch-pad');
+    const ctx = canvas.getContext('2d');
+
+    function updateUI() {
+        txtGold.innerText = `${gold.toLocaleString()} G`;
+    }
+
+    function printLog(text) {
+        logScreen.innerHTML += "\n" + text;
+        logScreen.scrollTop = logScreen.scrollHeight;
+    }
+
+    // 1. 복권 당첨 조작(생성) 엔진
+    function generateTicket() {
+        let gridSymbols = [];
+        const isWin = Math.random() < 0.35; // 전체 복권 당첨 확률 35%
+
+        if (isWin) {
+            // 당첨일 경우: 3개의 동일한 당첨 심볼 배치
+            let roll = Math.random();
+            let cumulative = 0;
+            let winObj = prizeData[3]; // 기본값
+            
+            for (let item of prizeData) {
+                cumulative += item.chance;
+                if (roll < cumulative) {
+                    winObj = item;
+                    break;
+                }
+            }
+            currentTicketResult = winObj;
+            
+            // 당첨 심볼 3개 푸시
+            gridSymbols.push(winObj.symbol, winObj.symbol, winObj.symbol);
+            
+            // 나머지 3개는 겹치지 않게 더미 심볼로 채움
+            while(gridSymbols.length < 6) {
+                let randomDummy = dummySymbols[Math.floor(Math.random() * dummySymbols.length)];
+                if (gridSymbols.filter(s => s === randomDummy).length < 2) {
+                    gridSymbols.push(randomDummy);
+                }
+            }
+        } else {
+            // 꽝일 경우: 어떤 심볼도 3개가 되지 않도록 교란하여 채움
+            currentTicketResult = null;
+            const allSymbols = [...prizeData.map(p => p.symbol), ...dummySymbols];
+            while(gridSymbols.length < 6) {
+                let sym = allSymbols[Math.floor(Math.random() * allSymbols.length)];
+                // 특정 심볼이 2개까지만 허용됨 (3개가 되면 당첨이므로 방지)
+                if (gridSymbols.filter(s => s === sym).length < 2) {
+                    gridSymbols.push(sym);
+                }
+            }
+        }
+
+        // 완성된 6개의 심볼을 무작위로 섞음 (Shuffle)
+        gridSymbols.sort(() => Math.random() - 0.5);
+
+        // HTML 그리드에 렌더링
+        resultGrid.innerHTML = '';
+        gridSymbols.forEach(sym => {
+            const div = document.createElement('div');
+            div.className = 'result-cell';
+            div.innerText = sym;
+            resultGrid.appendChild(div);
+        });
+    }
+
+    // 2. 캔버스 은박 덮기 엔진
+    function initCanvas() {
+        // 복권 긁기 모드 활성화 (기존 그래픽 위에 덮어쓰기)
+        ctx.globalCompositeOperation = 'source-over';
+        
+        // 은박 텍스처(회색) 칠하기
+        ctx.fillStyle = '#94a3b8'; // 금속 느낌의 회색
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 안내 문구 인쇄
+        ctx.font = '20px "Courier New"';
+        ctx.fillStyle = '#334155';
+        ctx.textAlign = 'center';
+        ctx.fillText('마우스로 긁어주세요', canvas.width / 2, canvas.height / 2);
+
+        // 긁기 모드(지우개 모드)로 전환
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = 30; // 동전 굵기
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        
+        isRevealed = false;
+    }
+
+    // 3. 복권 구매 버튼 액션
+    btnBuy.addEventListener('click', () => {
+        if (gold < TICKET_PRICE) {
+            printLog("<span class='lose-text'>❌ 자금이 부족합니다. 게임 오버.</span>");
+            return;
+        }
+        gold -= TICKET_PRICE;
+        updateUI();
+        
+        generateTicket();
+        initCanvas();
+        printLog(`\n🎟️ 500 G 지불... 새 복권을 발급받았습니다. 긁어보세요!`);
+    });
+
+    // 4. 스크래치 물리 엔진 (마우스 & 터치 이벤트)
+    let isDrawing = false;
+    let lastX = 0, lastY = 0;
+
+    function getCoords(e) {
+        const rect = canvas.getBoundingClientRect();
+        // 터치 이벤트와 마우스 이벤트를 분기하여 좌표 추출
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        };
+    }
+
+    function startDraw(e) {
+        if (isRevealed) return;
+        isDrawing = true;
+        const pos = getCoords(e);
+        lastX = pos.x; lastY = pos.y;
+    }
+
+    function drawing(e) {
+        if (!isDrawing || isRevealed) return;
+        e.preventDefault(); // 모바일 스크롤 방지
+        const pos = getCoords(e);
+        
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        
+        lastX = pos.x; lastY = pos.y;
+    }
+
+    function stopDraw() {
+        if (!isDrawing || isRevealed) return;
+        isDrawing = false;
+        checkRevealPercent(); // 손을 뗄 때마다 긁은 면적 계산
+    }
+
+    // 마우스 이벤트 연결
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', drawing);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+    // 모바일 터치 이벤트 연결
+    canvas.addEventListener('touchstart', startDraw, {passive: false});
+    canvas.addEventListener('touchmove', drawing, {passive: false});
+    canvas.addEventListener('touchend', stopDraw);
+
+    // 5. 정산 엔진 (면적의 50% 이상을 긁었는지 픽셀 데이터로 검사)
+    function checkRevealPercent() {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let transparentPixels = 0;
+        
+        // rgba 배열에서 alpha(투명도) 채널만 순회하며 검사 (인덱스 3, 7, 11...)
+        for (let i = 3; i < imageData.data.length; i += 4) {
+            if (imageData.data[i] === 0) {
+                transparentPixels++;
+            }
+        }
+
+        const totalPixels = canvas.width * canvas.height;
+        const percent = transparentPixels / totalPixels;
+
+        // 50% 이상 지워졌다면 남은 은박을 자동으로 전부 날리고 결과 판정
+        if (percent > 0.5) {
+            isRevealed = true;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            processResult();
+        }
+    }
+
+    function processResult() {
+        if (currentTicketResult) {
+            const prize = currentTicketResult.payout;
+            gold += prize;
+            printLog(`<span class='win-text'>🎉 당첨! 동일한 [${currentTicketResult.symbol}] 3개 일치! 당첨금 ${prize.toLocaleString()} G 획득!</span>`);
+        } else {
+            printLog(`<span class='lose-text'>📉 꽝입니다... 일치하는 심볼이 3개가 되지 않습니다.</span>`);
+        }
+        updateUI();
+    }
+
+    // 초기 상태 덮어두기
+    initCanvas();
+</script>
+
+
+<!-- arcade gallery back link -->
+<style>
+#arcade-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:2147483647;display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:999px;background:rgba(8,8,12,.72);border:1px solid rgba(255,255,255,.24);color:#fff !important;font:600 12px/1 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif !important;text-decoration:none !important;letter-spacing:.02em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,.45);opacity:.8;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+#arcade-back:hover,#arcade-back:focus-visible{opacity:1;transform:translateY(-1px)}
+@media print{#arcade-back{display:none}}
+</style>
+<a id="arcade-back" href="../index.html" aria-label="미니게임 갤러리로 돌아가기">← 갤러리</a>
+
+</body>
+</html>
